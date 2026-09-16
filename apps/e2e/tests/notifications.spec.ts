@@ -90,57 +90,79 @@ test("marking it read clears the badge", async ({ page }) => {
  *
  * Everything about delivery is otherwise proven with fakes — a fake sender, a
  * fake clock, an in-memory repository. This is the only place the whole chain
- * runs against a real Worker and a real Postgres: sign-up commits,
- * `runAfterCommit` dispatches `user.registered`, the handler raises, and the
- * deferring adapter hands the actual send to `waitUntil`.
+ * runs against a real Worker and a real Postgres, and since 2026-09-16 it
+ * proves two things at once.
  *
- * **Polled, not asserted once.** Under `wrangler dev` there IS an execution
- * context, so `infraStore.waitUntil` really does hand the work to the
- * platform and it finishes AFTER the response to sign-up has been written.
- * (Outside a Worker there is none, and `settleDeferredWork()` drains it inside
- * the request instead — same row, different moment. Polling is what covers
- * both without encoding either.) A single SELECT here would be a race the
- * harness would lose often enough to look like flake and rarely enough to
- * look like a bug.
+ * **The welcome is not emailed to an e-mail sign-up.** better-auth's
+ * verification mail says "welcome" and "confirm your address" in one; a second
+ * welcome seconds later, saying the account was ready, was the one a QA
+ * tester opened while sign-in still refused them. The inbox row stays (the
+ * test above), the email does not: `user.registered` carries
+ * `emailVerified: false` and the handler raises with `email: false`.
  *
- * **Why exactly one row, `sent`, with no provider message id.** One row
- * because `audience: "user"` resolves to a single recipient — the workspace
- * fan-out that produces one delivery per member is a different audience.
- * `sent` because this harness sets no `RESEND_API_KEY` and `STAGE` stays at
- * wrangler.jsonc's `"local"`, so `resolveEmailService()` picks the console
- * adapter, which prints the message and reports success. Its `messageId` is
- * `null` — a real fact about a sender that hands back no reference, which
- * `DeliverNotificationInternalCommand` stores unmodified rather than papering
- * over with `""`. Asserting the whole row in one poll rather than counting
- * first and reading second keeps it a single observation: a second query
- * could see a different row than the one the count matched.
+ * **Deliveries still land.** An absence proves nothing on its own — a broken
+ * pipeline records nothing either. So the same new user opens a support
+ * request, which emails every administrator, and this waits for that row to
+ * arrive under `waitUntil` before looking for a welcome. The welcome's own
+ * delivery would have been deferred earlier, at sign-up; once a later one has
+ * landed, an earlier one that existed would have too.
  *
- * The address is the one `createVerifiedUser` generated, not one this test
- * chose. The fixture returns it, and `notification_delivery.to_email` is
- * whatever `ntizo_user.user.email` holds — passing an address in would add a
- * parameter to the fixture that tells this assertion nothing extra.
+ * `sent` with no provider message id, because this harness sets no
+ * `RESEND_API_KEY` and `STAGE` stays at wrangler.jsonc's `"local"`, so the
+ * console adapter prints the message and reports success with a null id.
+ * Scoped by thread id: other specs open support requests against the same
+ * administrators in the same database.
  *
  * No `resetDb()` here, deliberately: `globalSetup` resets once, and a second
  * reset would drop the schemas out from under every spec running in parallel.
- * Every row this reads is scoped to its own freshly-generated address anyway.
  */
-test("registering also records the email it queued, per attempt", async ({ page }) => {
+test("an e-mail sign-up is not emailed a second welcome, while other notifications still send", async ({ page }) => {
+  const admin = await createVerifiedUser("admin", { firstName: "Ada", lastName: "Admin" });
   const user = await createVerifiedUser(undefined, { firstName: "Ana", lastName: "Registrant" });
 
   await page.goto("/sign-in");
   await fillSignInForm(page, user);
   await page.waitForURL("http://localhost:3000/");
 
+  const opened = await page.request.post("http://localhost:8788/graphql", {
+    headers: {
+      "Content-Type": "application/json",
+      "x-graphql-csrf": "1",
+      Origin: "http://localhost:3000",
+    },
+    data: {
+      query: `mutation CommunicationOpenSupportRequest($input: CommunicationOpenSupportRequestInput!) {
+        communicationOpenSupportRequest(input: $input) { threadId }
+      }`,
+      variables: {
+        input: { audience: "customer", subject: "Pagamento", body: "Paguei duas vezes." },
+      },
+    },
+  });
+  const body = (await opened.json()) as {
+    data?: { communicationOpenSupportRequest: { threadId: string } };
+    errors?: unknown;
+  };
+  expect(body.errors, JSON.stringify(body.errors)).toBeUndefined();
+  const threadId = body.data!.communicationOpenSupportRequest.threadId;
+
   await expect
     .poll(
       async () => {
         const rows = await sql()<{ status: string; provider_message_id: string | null }[]>`
-          SELECT status, provider_message_id
-          FROM ntizo_notification.notification_delivery
-          WHERE to_email = ${user.email}`;
+          SELECT d.status, d.provider_message_id
+          FROM ntizo_notification.notification_delivery d
+          JOIN ntizo_notification.notification n ON n.id = d.notification_id
+          WHERE d.to_email = ${admin.email} AND n.payload->>'threadId' = ${threadId}`;
         return rows.map((r) => `${r.status}/${r.provider_message_id ?? "no-message-id"}`);
       },
-      { timeout: 15_000, message: "expected exactly one delivery row for the new user" },
+      { timeout: 15_000, message: "expected the administrator's support-request email to be recorded" },
     )
     .toEqual(["sent/no-message-id"]);
+
+  const welcomes = await sql()`
+    SELECT d.id
+    FROM ntizo_notification.notification_delivery d
+    WHERE d.to_email = ${user.email} AND d.type = 'WELCOME'`;
+  expect(welcomes).toHaveLength(0);
 });
