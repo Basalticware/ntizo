@@ -51,6 +51,7 @@ import { booking } from "../booking/schemas/booking.schema";
 import { outboxEvent } from "../outbox/schemas/outbox-event.schema";
 import { Booking } from "../../../../bounded-contexts/booking/domain/aggregates/booking.aggregate";
 import { DrizzleBookingRepository } from "../../../../bounded-contexts/booking/infrastructure/repositories/drizzle/booking.repository";
+import { DrizzleBookingScheduleReader } from "../../../../bounded-contexts/booking/infrastructure/repositories/drizzle/booking-schedule.reader";
 import { DrizzleCustomerPhoneReader } from "../../../../bounded-contexts/booking/infrastructure/repositories/drizzle/customer-phone.reader";
 import { FakeRaiser } from "../../../../bounded-contexts/booking/__tests__/support/fakes";
 import { MarkBookingPaidCommand } from "../../../../bounded-contexts/booking/app/use-cases/mark-booking-paid.command";
@@ -1083,6 +1084,55 @@ describe("findAwaitingCharge, through the sweep", () => {
       // dropped on the way. The third is not lost — the next wave takes it.
       expect(result).toEqual({ attempted: 2, failed: 0 });
       expect(charge.requests).toHaveLength(2);
+    });
+  });
+
+  test("the schedule reader dates a retry at the end of its cooldown and ignores a booking out of attempts", async () => {
+    await withBookings(async (track) => {
+      const retrying = track(
+        await repo.insert(
+          pendingBooking(
+            bookingInput({
+              startsAt: new Date("2027-07-01T14:00:00.000Z"),
+              expiresAt: new Date("2027-07-01T12:15:00.000Z"),
+            }),
+          ),
+          1,
+        ),
+      );
+      const exhausted = track(
+        await repo.insert(
+          pendingBooking(
+            bookingInput({
+              startsAt: new Date("2027-07-02T14:00:00.000Z"),
+              expiresAt: new Date("2027-07-02T12:15:00.000Z"),
+            }),
+          ),
+          1,
+        ),
+      );
+      await setChargeState(retrying.id as string, {
+        chargeAttempts: 1,
+        lastChargeAttemptAt: new Date("2001-02-03T04:00:00.000Z"),
+      });
+      await setChargeState(exhausted.id as string, {
+        chargeAttempts: BOOKING_CHARGE_ATTEMPT_LIMIT,
+        lastChargeAttemptAt: new Date("2000-01-01T00:00:00.000Z"),
+      });
+
+      // A "now" later than any never-attempted booking's answer could beat,
+      // and a deadline floor both fixtures clear.
+      const earliest = await new DrizzleBookingScheduleReader().earliestChargeDue({
+        now: new Date("2030-01-01T00:00:00.000Z"),
+        deadlineAfter: new Date("2027-01-01T00:00:00.000Z"),
+        maxAttempts: BOOKING_CHARGE_ATTEMPT_LIMIT,
+        retryAfterMinutes: BOOKING_CHARGE_RETRY_MINUTES,
+      });
+
+      const cooldownEnds = new Date("2001-02-03T04:05:00.000Z");
+      expect(earliest).toBeInstanceOf(Date);
+      expect(earliest!.getTime()).toBeLessThanOrEqual(cooldownEnds.getTime());
+      expect(earliest!.getTime()).toBeGreaterThan(new Date("2000-01-01T00:05:00.000Z").getTime());
     });
   });
 });

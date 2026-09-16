@@ -264,6 +264,31 @@ function toAggregate(row: BookingRow): Booking {
   });
 }
 
+/**
+ * A booking whose status carries a clock that is running, whenever that clock
+ * ends. `findDueForSweep` adds "and it has ended";
+ * `DrizzleBookingScheduleReader` asks when the earliest one ends. Shared so the
+ * two cannot drift apart.
+ */
+export function deadlineBearing() {
+  return and(inArray(booking.status, [...DEADLINE_BEARING_STATUSES]), isNotNull(booking.expiresAt));
+}
+
+/**
+ * A booking the charge sweep may still ask for money, whenever its next try is
+ * allowed. `findAwaitingCharge` adds "and its cooldown has passed";
+ * `DrizzleBookingScheduleReader` works out when that happens. Shared for the
+ * same reason as `deadlineBearing`.
+ */
+export function chargeable(criteria: { deadlineAfter: Date; maxAttempts: number }) {
+  return and(
+    eq(booking.status, BookingStatus.PendingPayment),
+    lt(booking.chargeAttempts, criteria.maxAttempts),
+    isNotNull(booking.expiresAt),
+    gt(booking.expiresAt, criteria.deadlineAfter),
+  );
+}
+
 export class DrizzleBookingRepository implements BookingRepositoryPort {
   /**
    * `entity`, not `booking` — the parameter name the port declares — because
@@ -481,13 +506,7 @@ export class DrizzleBookingRepository implements BookingRepositoryPort {
     const rows = await getDb()
       .select()
       .from(booking)
-      .where(
-        and(
-          inArray(booking.status, [...DEADLINE_BEARING_STATUSES]),
-          isNotNull(booking.expiresAt),
-          lte(booking.expiresAt, now),
-        ),
-      )
+      .where(and(deadlineBearing(), lte(booking.expiresAt, now)))
       .orderBy(asc(booking.expiresAt))
       .limit(limit);
     return rows.map(toAggregate);
@@ -521,14 +540,11 @@ export class DrizzleBookingRepository implements BookingRepositoryPort {
       .from(booking)
       .where(
         and(
-          eq(booking.status, BookingStatus.PendingPayment),
-          lt(booking.chargeAttempts, criteria.maxAttempts),
+          chargeable(criteria),
           or(
             isNull(booking.lastChargeAttemptAt),
             lte(booking.lastChargeAttemptAt, criteria.notAttemptedSince),
           ),
-          isNotNull(booking.expiresAt),
-          gt(booking.expiresAt, criteria.deadlineAfter),
         ),
       )
       .orderBy(asc(booking.expiresAt))

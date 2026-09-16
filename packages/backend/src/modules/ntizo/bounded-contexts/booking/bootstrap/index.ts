@@ -6,6 +6,7 @@ import { DrizzleProviderMemberReader } from "../infrastructure/repositories/driz
 import { DrizzleAdminUserReader } from "../infrastructure/repositories/drizzle/admin-user.reader";
 import { DrizzleSlotValidityReader } from "../infrastructure/repositories/drizzle/slot-validity.reader";
 import { DrizzleCustomerPhoneReader } from "../infrastructure/repositories/drizzle/customer-phone.reader";
+import { DrizzleBookingScheduleReader } from "../infrastructure/repositories/drizzle/booking-schedule.reader";
 import { BookingRowSlotHold } from "../infrastructure/adapters/booking-row-slot-hold.adapter";
 import { BookingRowDelayedJobs } from "../infrastructure/adapters/booking-row-delayed-jobs.adapter";
 import { MpesaPaymentCharge } from "../infrastructure/adapters/mpesa-payment-charge.adapter";
@@ -19,6 +20,7 @@ import { SweepBookingCommand } from "../app/use-cases/sweep-booking.command";
 import { SweepDueBookingsInternalCommand } from "../app/use-cases/sweep-due-bookings.internal.command";
 import { ChargeBookingCommand } from "../app/use-cases/charge-booking.command";
 import { ChargeAcceptedBookingsInternalCommand } from "../app/use-cases/charge-accepted-bookings.internal.command";
+import { NextBookingDueAtInternalQuery } from "../app/use-cases/next-booking-due-at.internal.query";
 import { MarkBookingPaidCommand } from "../app/use-cases/mark-booking-paid.command";
 import { MarkBookingDoneCommand } from "../app/use-cases/mark-booking-done.command";
 import { KeepBookingOpenCommand } from "../app/use-cases/keep-booking-open.command";
@@ -340,6 +342,9 @@ export function bootstrapBooking(deps: BookingBootstrapDeps) {
         // are the shape of the processor's own behaviour (see that command's
         // own constants).
         chargeAccepted: new ChargeAcceptedBookingsInternalCommand(bookingRepository, chargeBooking),
+        // When either sweep above next has work — what the API's sweep
+        // scheduler sets its alarm from. See apps/backend/api/src/sweep-scheduler.
+        nextDueAt: new NextBookingDueAtInternalQuery(new DrizzleBookingScheduleReader()),
       },
     },
   };
