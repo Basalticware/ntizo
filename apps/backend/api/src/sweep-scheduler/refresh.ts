@@ -3,6 +3,17 @@ import { computeNextDueAt } from "./next-due";
 import { SWEEP_SCHEDULER_NAME, WAKE_URL } from "./schedule";
 
 /**
+ * The scheduler binding, but only on a stage that enables it — see
+ * `SWEEP_SCHEDULER_ENABLED` in `AppBindings` (src/types.ts) for why a bound
+ * scheduler is not enough.
+ */
+export function sweepSchedulerOf(
+  env: { SWEEP_SCHEDULER?: DurableObjectNamespace; SWEEP_SCHEDULER_ENABLED?: string },
+): DurableObjectNamespace | undefined {
+  return env.SWEEP_SCHEDULER_ENABLED === "true" ? env.SWEEP_SCHEDULER : undefined;
+}
+
+/**
  * Tells the scheduler when the sweeps next have work.
  *
  * Called after every POST that touched the database (see configMiddleware)

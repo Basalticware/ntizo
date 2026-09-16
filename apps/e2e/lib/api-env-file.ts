@@ -24,6 +24,9 @@ export function writeApiEnvFile(): string {
     `DATABASE_URL=${E2E_DB_URL}`,
     `BETTER_AUTH_SECRET=ntizo-e2e-harness-secret-not-for-production-use`,
     `BETTER_AUTH_URL=http://localhost:8788`,
+    // Its own throwaway database, so the harness runs the sweep scheduler
+    // that a local `wrangler dev` otherwise leaves off (see AppBindings).
+    `SWEEP_SCHEDULER_ENABLED=true`,
     "",
   ].join("\n");
   fs.writeFileSync(API_ENV_FILE_PATH, contents, { mode: 0o600 });

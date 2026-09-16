@@ -87,11 +87,13 @@ function stripJsonComments(text: string): string {
 }
 
 interface WranglerConfig {
+  vars?: Record<string, string>;
   durable_objects?: { bindings?: { name: string; class_name: string }[] };
   migrations?: { tag: string; new_sqlite_classes?: string[] }[];
   env?: Record<
     string,
     {
+      vars?: Record<string, string>;
       triggers?: { crons?: string[] };
       durable_objects?: { bindings?: { name: string; class_name: string }[] };
     }
@@ -113,7 +115,7 @@ describe("wrangler.jsonc: the unread-message sweep's cron trigger", () => {
     });
   }
 
-  it("sweeps at least hourly in every environment — the safety net under the sweep scheduler", () => {
+  it("refreshes the sweep scheduler at least hourly in every environment — its safety net", () => {
     // The 2-minute notice window no longer depends on the cron: the sweep
     // scheduler's alarm wakes the sweeps when something is due. A per-minute
     // cron kept Neon's compute awake around the clock and exhausted its free
@@ -145,5 +147,18 @@ describe("wrangler.jsonc: the sweep scheduler", () => {
   it("creates the class on the SQLite backend — the only one on the Workers Free plan", () => {
     const created = (config.migrations ?? []).flatMap((m) => m.new_sqlite_classes ?? []);
     expect(created).toContain("SweepScheduler");
+  });
+
+  // `vars`, like the bindings, are not inherited: a stage without the flag
+  // has a bound scheduler nothing ever tells, and a cron that runs the sweeps
+  // only hourly.
+  for (const envName of ["dev", "qa", "prod"] as const) {
+    it(`enables the scheduler in env.${envName}`, () => {
+      expect(config.env?.[envName]?.vars?.SWEEP_SCHEDULER_ENABLED).toBe("true");
+    });
+  }
+
+  it("leaves it disabled for local `wrangler dev`, whose .dev.vars point at the shared dev database", () => {
+    expect(config.vars?.SWEEP_SCHEDULER_ENABLED).not.toBe("true");
   });
 });

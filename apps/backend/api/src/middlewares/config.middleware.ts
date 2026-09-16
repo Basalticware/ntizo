@@ -3,7 +3,7 @@ import { infraStore } from "@ntizo/backend/shared/infra";
 import { closeDbBehindDeferredWork } from "@ntizo/backend/shared/infra/database";
 import type { Stage } from "@ntizo/backend/shared/infra/config";
 import type { AppBindings } from "../types";
-import { refreshSweepSchedule } from "../sweep-scheduler/refresh";
+import { refreshSweepSchedule, sweepSchedulerOf } from "../sweep-scheduler/refresh";
 import { shouldRefreshAfterRequest } from "../sweep-scheduler/schedule";
 
 /**
@@ -75,7 +75,7 @@ export const configMiddleware: MiddlewareHandler<{ Bindings: AppBindings }> = as
         // response is not held; registered before the close below, so the
         // close waits for it and the refresh's queries still have a pool.
         if (shouldRefreshAfterRequest(c.req.method, infraStore.getDbConnection() !== undefined)) {
-          infraStore.waitUntil(refreshSweepSchedule(c.env.SWEEP_SCHEDULER));
+          infraStore.waitUntil(refreshSweepSchedule(sweepSchedulerOf(c.env)));
         }
         // Workers run nothing after the response unless scheduled — and the
         // deferred work scheduled above still needs this request's `{ max: 1 }`

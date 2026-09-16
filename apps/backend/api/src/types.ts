@@ -36,4 +36,18 @@ export type AppBindings = InfraEnvBindings & {
    * the hourly cron still sweeps.
    */
   SWEEP_SCHEDULER?: DurableObjectNamespace;
+  /**
+   * Whether this stage uses the sweep scheduler. Only the exact string
+   * `"true"` enables it; set in the `vars` of dev, qa and prod.
+   *
+   * Absent locally, on purpose: a developer's `wrangler dev` has the binding
+   * too, and its `.dev.vars` point at the shared dev database, so with the
+   * scheduler enabled it would run a second scheduler — and every sweep, real
+   * emails included — against dev's data beside dev's own.
+   *
+   * Also the kill switch. Setting it to anything else on a stage, together
+   * with that stage's cron back at `* * * * *`, leaves the refresh with no
+   * scheduler, and the cron runs the sweeps every minute as it did before.
+   */
+  SWEEP_SCHEDULER_ENABLED?: string;
 };

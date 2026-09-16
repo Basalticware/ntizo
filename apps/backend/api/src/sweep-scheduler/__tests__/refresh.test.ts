@@ -1,6 +1,6 @@
 import { describe, expect, it, spyOn } from "bun:test";
 import type { DurableObjectNamespace } from "@cloudflare/workers-types";
-import { refreshSweepSchedule } from "../refresh";
+import { refreshSweepSchedule, sweepSchedulerOf } from "../refresh";
 import { SWEEP_SCHEDULER_NAME, WAKE_URL } from "../schedule";
 
 function fakeNamespace(status = 204) {
@@ -66,5 +66,19 @@ describe("refreshSweepSchedule", () => {
     } finally {
       logged.mockRestore();
     }
+  });
+});
+
+describe("sweepSchedulerOf", () => {
+  const { namespace } = fakeNamespace();
+
+  it("hands over the scheduler when the stage enables it", () => {
+    expect(sweepSchedulerOf({ SWEEP_SCHEDULER: namespace, SWEEP_SCHEDULER_ENABLED: "true" })).toBe(namespace);
+  });
+
+  it("hands over nothing unless the flag is exactly \"true\" — a local `wrangler dev` leaves it absent", () => {
+    expect(sweepSchedulerOf({ SWEEP_SCHEDULER: namespace })).toBeUndefined();
+    expect(sweepSchedulerOf({ SWEEP_SCHEDULER: namespace, SWEEP_SCHEDULER_ENABLED: "false" })).toBeUndefined();
+    expect(sweepSchedulerOf({ SWEEP_SCHEDULER: namespace, SWEEP_SCHEDULER_ENABLED: "TRUE" })).toBeUndefined();
   });
 });
