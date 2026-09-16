@@ -33,6 +33,12 @@ const CODE_I18N_KEYS: Partial<Record<string, string>> = {
   // `error.message`.
   VALIDATION_ERROR: "errors.checkTheFields",
 
+  // The right password on an account whose address was never confirmed.
+  // It fell through to the generic line, and a QA tester read that as the
+  // credentials being wrong. The sign-in form also offers a new link on it —
+  // see EMAIL_NOT_VERIFIED_CODE below.
+  EMAIL_NOT_VERIFIED: "errors.emailNotVerified",
+
   INVALID_TOKEN: "errors.linkNoLongerValid",
   TOKEN_EXPIRED: "errors.linkNoLongerValid",
 
@@ -61,6 +67,12 @@ const CODE_I18N_KEYS: Partial<Record<string, string>> = {
   OAUTH_ACCESS_DENIED: "errors.googleCancelled",
   ACCESS_DENIED: "errors.googleCancelled",
 };
+
+/**
+ * The one code the sign-in form acts on as well as names: it means the
+ * password was right and a new verification link is the way forward.
+ */
+export const EMAIL_NOT_VERIFIED_CODE = "EMAIL_NOT_VERIFIED";
 
 /** Shown when a code has no dedicated copy, or when nothing usable was thrown. */
 export const GENERIC_AUTH_ERROR_KEY = "errors.generic";

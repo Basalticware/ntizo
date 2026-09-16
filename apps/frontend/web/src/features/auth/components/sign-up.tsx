@@ -23,6 +23,7 @@ import { authClient } from "@/shared/lib/api/auth-client";
 import { AuthSplitLayout } from "@/features/auth/components/auth-split-layout";
 import { GoogleIcon } from "@/shared/components/icons";
 import { authErrorMessage } from "@/features/auth/viewmodel/auth-error";
+import { ResendVerification } from "@/features/auth/components/resend-verification";
 
 export function SignUp() {
   const { t, i18n } = useTranslation("auth");
@@ -125,6 +126,14 @@ export function SignUp() {
             <p className="text-sm text-[var(--color-muted-foreground)]">
               {t("verificationSent", { email: submitted })}
             </p>
+            {/* For the mail that went to spam, or the link that expired
+                before anyone got to it — an hour is not long. */}
+            <ResendVerification
+              email={submitted}
+              callbackURL={`${window.location.origin}${
+                isSafeInternalPath(next ?? null) ? next : "/"
+              }`}
+            />
             <Link
               to="/sign-in"
               className="text-sm text-[var(--color-accent)] hover:underline"

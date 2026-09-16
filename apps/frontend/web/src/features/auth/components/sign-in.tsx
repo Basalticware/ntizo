@@ -21,6 +21,9 @@ import { resolveDestinationForSession } from "@/features/provider/viewmodel/post
 import { AuthSplitLayout } from "@/features/auth/components/auth-split-layout";
 import { GoogleIcon } from "@/shared/components/icons";
 import { authErrorMessage } from "@/features/auth/viewmodel/auth-error";
+import { EMAIL_NOT_VERIFIED_CODE } from "@/features/auth/domain/errors";
+import { ResendVerification } from "@/features/auth/components/resend-verification";
+import { isSafeInternalPath } from "@/shared/lib/zones";
 
 export function SignIn() {
   const { t } = useTranslation("auth");
@@ -32,17 +35,25 @@ export function SignIn() {
     error?: string;
   };
   const clearSessionQueryCache = useClearSessionQueryCache();
+  // The address that just proved its password but was never confirmed. Held
+  // apart from the form's error so the offer of a new link belongs to that
+  // answer only, and goes away with the next attempt.
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: { email: "", password: "" },
     validators: {
       onSubmitAsync: async ({ value }) => {
+        setUnverifiedEmail(null);
         try {
           const { error } = await authClient.signIn.email({
             email: value.email,
             password: value.password,
           });
-          if (error) return { form: authErrorMessage(t, error) };
+          if (error) {
+            if (error.code === EMAIL_NOT_VERIFIED_CODE) setUnverifiedEmail(value.email);
+            return { form: authErrorMessage(t, error) };
+          }
           // Clear before navigating, for the same reason sign-out does.
           //
           // The sign-in page is itself signed out, so any session-scoped
@@ -110,6 +121,18 @@ export function SignIn() {
                 ) : null
               }
             </form.Subscribe>
+
+            {unverifiedEmail ? (
+              <ResendVerification
+                key={unverifiedEmail}
+                email={unverifiedEmail}
+                // Where the new link lands once clicked — the same place the
+                // sign-in would have gone, when that is a path of this app.
+                callbackURL={`${window.location.origin}${
+                  isSafeInternalPath(next ?? null) ? next : "/"
+                }`}
+              />
+            ) : null}
 
             <form.Field name="email">
               {(field) => (
