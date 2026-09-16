@@ -3,6 +3,8 @@ import { infraStore } from "@ntizo/backend/shared/infra";
 import { closeDbBehindDeferredWork } from "@ntizo/backend/shared/infra/database";
 import type { Stage } from "@ntizo/backend/shared/infra/config";
 import type { AppBindings } from "../types";
+import { refreshSweepSchedule } from "../sweep-scheduler/refresh";
+import { shouldRefreshAfterRequest } from "../sweep-scheduler/schedule";
 
 /**
  * Establishes the request-scoped infra context and guarantees the per-request
@@ -68,12 +70,13 @@ export const configMiddleware: MiddlewareHandler<{ Bindings: AppBindings }> = as
       try {
         return await next();
       } finally {
-        // Workers run nothing after the response unless scheduled — and the
-        // deferred work scheduled above still needs this request's `{ max: 1 }`
-        // postgres pool for recipients, suppressions and delivery rows. So the
-        // close is chained BEHIND it, not scheduled beside it — see
-        // `closeDbBehindDeferredWork`'s own doc comment for the full argument,
-        // and for why this is a shared call rather than a hand-copied block.
+        // After a write, tell the sweep scheduler when the sweeps next have
+        // work. Handed to `infraStore.waitUntil` rather than awaited, so the
+        // response is not held; registered before the close below, so the
+        // close waits for it and the refresh's queries still have a pool.
+        if (shouldRefreshAfterRequest(c.req.method, infraStore.getDbConnection() !== undefined)) {
+          infraStore.waitUntil(refreshSweepSchedule(c.env.SWEEP_SCHEDULER));
+        }
         closeDbBehindDeferredWork((promise) => c.executionCtx.waitUntil(promise));
       }
     },

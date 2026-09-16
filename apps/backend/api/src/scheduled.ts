@@ -2,6 +2,7 @@ import { infraStore } from "@ntizo/backend/shared/infra";
 import { closeDbBehindDeferredWork } from "@ntizo/backend/shared/infra/database";
 import { toInfraEnv } from "./infra-env";
 import { runSweeps } from "./sweep-scheduler/sweeps";
+import { refreshSweepSchedule } from "./sweep-scheduler/refresh";
 import type { AppBindings } from "./types";
 
 // Re-exported: scheduled.test.ts and anyone reading the cron still find them here.
@@ -83,6 +84,9 @@ export async function scheduled(
 
     try {
       await runSweeps();
+      // The hourly cron is the scheduler's safety net: it re-tells the alarm
+      // about anything a failed refresh or a first deploy left it not knowing.
+      await refreshSweepSchedule(env.SWEEP_SCHEDULER);
     } finally {
       // Workers run nothing after this function returns unless scheduled —
       // and the deferred work scheduled above still needs this run's
