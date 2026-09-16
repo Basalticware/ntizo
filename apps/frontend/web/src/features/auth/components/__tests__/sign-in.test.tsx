@@ -20,12 +20,14 @@ import {
  */
 const fakes = vi.hoisted(() => ({
   signInEmail: vi.fn(),
+  sendVerificationEmail: vi.fn(),
   clearSessionQueryCache: vi.fn(),
 }));
 
 vi.mock("@/shared/lib/api/auth-client", () => ({
   authClient: {
     signIn: { email: fakes.signInEmail, social: vi.fn() },
+    sendVerificationEmail: fakes.sendVerificationEmail,
   },
   API_BASE_URL: "",
   AUTH_API_URL_FALLBACK: "http://localhost:8788",
@@ -115,5 +117,49 @@ describe("SignIn", () => {
       memberId: "mem-1",
       startsAt: "2026-09-04T09:00:00.000Z",
     });
+  });
+
+  it("tells an unverified account to confirm its email, and sends a new link when asked", async () => {
+    // A QA tester registered, never opened the link, and read "Something went
+    // wrong" on every sign-in with the right password. The account was fine;
+    // nothing said the one thing left to do, or offered a way to do it once
+    // the first link had expired.
+    fakes.signInEmail.mockResolvedValue({
+      error: { code: "EMAIL_NOT_VERIFIED", status: 403, message: "Email not verified" },
+    });
+    fakes.sendVerificationEmail.mockResolvedValue({ data: { status: true }, error: null });
+    const { router } = renderSignIn("/");
+
+    await userEvent.type(await screen.findByLabelText("Email"), "ana@example.com");
+    await userEvent.type(screen.getByLabelText("Password"), "hunter2hunter2");
+    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+
+    expect(await screen.findByText(/hasn't been confirmed yet/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Resend confirmation email" }));
+
+    expect(await screen.findByText("We sent a new link to ana@example.com.")).toBeInTheDocument();
+    // Absolute and pointing at this app: better-auth resolves a relative one
+    // against the API origin, and the link would land on its JSON root.
+    expect(fakes.sendVerificationEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "ana@example.com",
+        callbackURL: `${window.location.origin}/`,
+      }),
+    );
+    expect(router.state.location.pathname).toBe("/sign-in");
+  });
+
+  it("offers no new link for a wrong password", async () => {
+    fakes.signInEmail.mockResolvedValue({
+      error: { code: "INVALID_EMAIL_OR_PASSWORD", status: 401, message: "Invalid email or password" },
+    });
+    renderSignIn("/");
+
+    await userEvent.type(await screen.findByLabelText("Email"), "ana@example.com");
+    await userEvent.type(screen.getByLabelText("Password"), "wrong-password");
+    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+
+    expect(await screen.findByText("That email or password is not right.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Resend confirmation email" })).toBeNull();
   });
 });

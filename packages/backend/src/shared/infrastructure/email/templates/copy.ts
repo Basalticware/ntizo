@@ -22,3 +22,19 @@ export function pickCopy<T>(byLocale: Record<string, T>, locale: string): T {
 
   return byLocale["en-US"]!;
 }
+
+/**
+ * Escapes what goes into an HTML email body.
+ *
+ * A provider names their own business and a person types their own first
+ * name; both reach a template through the notification's payload. An
+ * apostrophe would merely look wrong, but a `<` would not, and an email body
+ * is markup like any other.
+ */
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}

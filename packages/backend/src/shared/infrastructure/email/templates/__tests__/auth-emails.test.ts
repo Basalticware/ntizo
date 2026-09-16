@@ -44,3 +44,38 @@ describe.each([
     expect(render(URL).subject).toBe(render(URL, "en-US").subject);
   });
 });
+
+describe("verifyEmailTemplate is also the welcome", () => {
+  // It used to be two mails seconds apart: "Confirme o seu e-mail", then
+  // "Bem-vindo à Ntizo — a sua conta está pronta". People opened the second,
+  // which said the opposite of the truth — the account cannot sign in until
+  // the first one is clicked. One mail now says both, in that order.
+
+  it("greets the person by first name in every locale, in both parts", () => {
+    for (const locale of LOCALES) {
+      const out = verifyEmailTemplate(URL, locale, "Ana");
+      expect(out.html, locale).toContain("Ana");
+      expect(out.text, locale).toContain("Ana");
+    }
+  });
+
+  it("welcomes and asks for the confirmation in the same Portuguese mail", () => {
+    const out = verifyEmailTemplate(URL, "pt-MZ", "Ana");
+    expect(out.subject).toBe("Bem-vindo à Ntizo — confirme o seu e-mail");
+    expect(out.html).toContain("Bem-vindo, Ana");
+    expect(out.html).toContain("Confirmar e-mail");
+    expect(out.text).toContain("Bem-vindo, Ana");
+  });
+
+  it("still reads as a welcome when no name is known", () => {
+    const out = verifyEmailTemplate(URL, "pt-MZ", null);
+    expect(out.html).toContain("Bem-vindo à Ntizo");
+    expect(out.html).not.toContain("Bem-vindo, ");
+  });
+
+  it("escapes the first name, which the person typed themselves", () => {
+    const out = verifyEmailTemplate(URL, "en-US", "<img src=x onerror=alert(1)>");
+    expect(out.html).not.toContain("<img src=x");
+    expect(out.html).toContain("&lt;img src=x onerror=alert(1)&gt;");
+  });
+});

@@ -44,6 +44,7 @@ export class CreateUserOnSignUpInternalCommand
         // the value came from — keeps "no name known" out of the event
         // payload as `""`, which a template would render as "Welcome, !".
         firstName: input.firstName.trim() || null,
+        emailVerified: input.emailVerified,
       });
       await this.userRepo.save(user);
 

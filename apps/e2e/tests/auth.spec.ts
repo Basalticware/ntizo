@@ -27,6 +27,8 @@ test("sign up, verify, sign in, and land on the right zone", async ({ page }) =>
   // just the fixture's own copy of this call) reaches the real API.
   await expect(page.getByText("Check your email")).toBeVisible();
   await expect(page.getByText(email)).toBeVisible();
+  // The way back for a mail that never arrived or a link that expired.
+  await expect(page.getByRole("button", { name: "Resend confirmation email" })).toBeVisible();
 
   // No mailbox this browser can drive — flip verified the same way
   // createVerifiedUser does (see its doc comment) and continue as a plain
@@ -43,7 +45,37 @@ test("sign up, verify, sign in, and land on the right zone", async ({ page }) =>
   // resolvePostLoginDestination sends them to "/" — the landing page, the
   // only zone a plain customer can reach.
   await page.waitForURL("http://localhost:3000/");
-  await expect(page.getByText("Find it.")).toBeVisible();
+  // The hero's own heading. "Find it." was the slogan until the home refresh
+  // removed it, which left this spec failing past every step it exists for.
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Hire someone who knows the work, at the price you see.",
+    }),
+  ).toBeVisible();
+});
+
+test("an unconfirmed account is told so at sign-in, and can ask for a new link", async ({ page }) => {
+  // A QA tester signed up, never opened the link, and was shown "Something
+  // went wrong" on every sign-in with the right password. This goes through
+  // the real API: the code has to be the one the form recognises, and the
+  // resend endpoint has to answer the web origin.
+  const email = `e2e-unverified-${crypto.randomUUID()}@example.test`;
+  const password = "Password123!";
+  const res = await fetch("http://localhost:8788/api/auth/sign-up/email", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Origin: "http://localhost:3000" },
+    body: JSON.stringify({ email, password, name: "Una Verified", firstName: "Una", lastName: "Verified" }),
+  });
+  expect(res.ok).toBe(true);
+
+  await page.goto("/sign-in");
+  await fillSignInForm(page, { email, password });
+
+  await expect(page.getByText(/hasn't been confirmed yet/)).toBeVisible();
+  await page.getByRole("button", { name: "Resend confirmation email" }).click();
+  await expect(page.getByText(`We sent a new link to ${email}.`)).toBeVisible();
+  await expect(page).toHaveURL(/\/sign-in/);
 });
 
 test("signing in as a different user shows that user's session, not the previous one's", async ({

@@ -5,6 +5,12 @@ export interface CreateUserOnSignUpInternalInput {
   email: string;
   firstName: string;
   lastName: string;
+  /**
+   * Whether better-auth created the user with the address already verified —
+   * true for Google, false for an e-mail sign-up. Not stored on the Profile;
+   * carried on `user.registered` so the welcome is not sent twice.
+   */
+  emailVerified: boolean;
   /** E.164, or null. Written onto the Profile so it matches the auth user. */
   phoneNumber?: string | null;
   /**

@@ -40,6 +40,8 @@ export class User {
     email: string;
     role?: UserRole;
     firstName?: string | null;
+    /** Required, not defaulted: a guess here decides whether somebody is welcomed. */
+    emailVerified: boolean;
   }): User {
     const now = new Date();
     const user = new User({
@@ -56,6 +58,7 @@ export class User {
         userId: params.id,
         email: params.email,
         firstName: params.firstName ?? null,
+        emailVerified: params.emailVerified,
       }),
     );
     return user;

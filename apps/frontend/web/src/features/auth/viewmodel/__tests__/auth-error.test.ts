@@ -31,6 +31,14 @@ function copyExists(dotted: string): boolean {
 }
 
 describe("authErrorMessage", () => {
+  it("says an unverified account needs confirming, rather than that something broke", () => {
+    // Observed against a local API on 2026-09-16: the right password on an
+    // unverified account answers 403 EMAIL_NOT_VERIFIED. Unmapped, it showed
+    // the generic line, and a tester concluded the credentials were wrong.
+    expect(authErrorKey("EMAIL_NOT_VERIFIED")).toBe("errors.emailNotVerified");
+    expect(copyExists("errors.emailNotVerified")).toBe(true);
+  });
+
   it("gives every code the API actually returns its own copy", () => {
     // Guessed codes compile, never match, and leave the generic line showing
     // forever with nothing failing. These were probed against dev, and this
