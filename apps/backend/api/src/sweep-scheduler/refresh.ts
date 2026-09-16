@@ -38,7 +38,8 @@ export async function refreshSweepSchedule(
   try {
     const next = await nextDueAt();
     if (!next) return true;
-    const stub = namespace.get(namespace.idFromName(SWEEP_SCHEDULER_NAME));
+    // Neon is in eu-central-1; the hint only takes effect when the object is first created.
+    const stub = namespace.get(namespace.idFromName(SWEEP_SCHEDULER_NAME), { locationHint: "weur" });
     const response = await stub.fetch(WAKE_URL, {
       method: "POST",
       headers: { "content-type": "application/json" },
