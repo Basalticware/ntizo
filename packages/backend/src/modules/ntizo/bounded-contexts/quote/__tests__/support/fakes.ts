@@ -17,7 +17,16 @@ import type { StartThreadPort } from "../../app/ports/outbound/start-thread.port
 import type { BookingOpenerPort, OpenBookingFromQuoteInput } from "../../app/ports/outbound/booking-opener.port";
 import type { RaiseNotificationInput, RaiseNotificationInternalPort } from "../../app/ports/outbound/raise-notification.port";
 
-export const NOW = new Date("2026-09-07T10:00:00Z");
+/**
+ * The fixtures' "now", taken from the wall clock and truncated to the minute.
+ *
+ * It was a fixed date (2026-09-07), but the commands under test read the real
+ * clock (`new Date()`), so every "future" fixture built from it became the past
+ * a week later and ten tests started failing on a date rather than on a bug.
+ * Truncated, not raw, so `NOW` never runs ahead of the clock a command reads
+ * a moment later.
+ */
+export const NOW = new Date(Math.floor(Date.now() / 60_000) * 60_000);
 export const IN_48H = new Date(NOW.getTime() + 48 * 3_600_000);
 export const NEXT_WEEK = new Date(NOW.getTime() + 7 * 24 * 3_600_000);
 

@@ -68,7 +68,11 @@ const run = <T>(work: () => Promise<T>) => __runWithTransactionContextForTests(d
 
 const repo = new DrizzleQuoteReadRepository();
 const suffix = crypto.randomUUID();
-const NOW = new Date("2026-09-07T12:00:00.000Z");
+// From the wall clock, truncated to the minute. It was a fixed 2026-09-07,
+// which put every "open" fixture's deadline in the past on the shared dev
+// database, where any quote sweep (now the deployed dev scheduler's) could
+// expire it mid-run and drop it from the list under test.
+const NOW = new Date(Math.floor(Date.now() / 60_000) * 60_000);
 const hoursOut = (n: number) => new Date(NOW.getTime() + n * 3_600_000);
 
 /** The five closed statuses, plus the two live ones, is the whole of `QUOTE_STATUSES`. */
