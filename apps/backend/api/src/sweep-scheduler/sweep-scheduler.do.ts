@@ -4,7 +4,7 @@ import { Db } from "@ntizo/backend/shared/infra/database";
 import { toInfraEnv } from "../infra-env";
 import type { AppBindings } from "../types";
 import { computeNextDueAt } from "./next-due";
-import { handleAlarm, WAKE_URL, wakeAt } from "./schedule";
+import { handleAlarm, OVERDUE_KEY, type OverdueRecord, WAKE_URL, wakeAt } from "./schedule";
 import { runSweeps } from "./sweeps";
 
 const WAKE_PATH = new URL(WAKE_URL).pathname;
@@ -56,6 +56,13 @@ export class SweepScheduler {
       try {
         await handleAlarm({
           storage: this.state.storage,
+          memory: {
+            read: async () => (await this.state.storage.get<OverdueRecord>(OVERDUE_KEY)) ?? null,
+            write: async (record) => {
+              if (record) await this.state.storage.put(OVERDUE_KEY, record);
+              else await this.state.storage.delete(OVERDUE_KEY);
+            },
+          },
           runSweeps,
           nextDueAt: computeNextDueAt,
           now: () => Date.now(),

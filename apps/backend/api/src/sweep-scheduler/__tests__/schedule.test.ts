@@ -6,6 +6,8 @@ import {
   shouldRefreshAfterRequest,
   wakeAt,
   type AlarmStorage,
+  type OverdueMemory,
+  type OverdueRecord,
 } from "../schedule";
 
 class FakeStorage implements AlarmStorage {
@@ -17,6 +19,16 @@ class FakeStorage implements AlarmStorage {
   async setAlarm(at: number) {
     this.alarm = at;
     this.sets.push(at);
+  }
+}
+
+class FakeMemory implements OverdueMemory {
+  constructor(public record: OverdueRecord | null = null) {}
+  async read() {
+    return this.record;
+  }
+  async write(record: OverdueRecord | null) {
+    this.record = record;
   }
 }
 
@@ -61,6 +73,7 @@ describe("handleAlarm", () => {
     const order: string[] = [];
     await handleAlarm({
       storage,
+      memory: new FakeMemory(),
       runSweeps: async () => void order.push("sweeps"),
       nextDueAt: async () => {
         order.push("next");
@@ -74,7 +87,13 @@ describe("handleAlarm", () => {
 
   it("sets no alarm when nothing is due", async () => {
     const storage = new FakeStorage();
-    await handleAlarm({ storage, runSweeps: async () => {}, nextDueAt: async () => null, now: () => NOW });
+    await handleAlarm({
+      storage,
+      memory: new FakeMemory(),
+      runSweeps: async () => {},
+      nextDueAt: async () => null,
+      now: () => NOW,
+    });
     expect(storage.sets).toEqual([]);
   });
 
@@ -82,6 +101,7 @@ describe("handleAlarm", () => {
     const storage = new FakeStorage();
     await handleAlarm({
       storage,
+      memory: new FakeMemory(),
       runSweeps: async () => {},
       nextDueAt: async () => new Date(NOW - 1),
       now: () => NOW,
@@ -93,6 +113,7 @@ describe("handleAlarm", () => {
     const storage = new FakeStorage();
     await handleAlarm({
       storage,
+      memory: new FakeMemory(),
       runSweeps: async () => {
         await wakeAt(storage, NOW + 60_000, NOW);
       },
@@ -106,6 +127,7 @@ describe("handleAlarm", () => {
     const storage = new FakeStorage(NOW - 5);
     await handleAlarm({
       storage,
+      memory: new FakeMemory(),
       runSweeps: async () => {},
       nextDueAt: async () => new Date(NOW + 600_000),
       now: () => NOW,
@@ -119,6 +141,7 @@ describe("handleAlarm", () => {
       const storage = new FakeStorage();
       await handleAlarm({
         storage,
+        memory: new FakeMemory(),
         runSweeps: async () => {
           throw new Error("boom");
         },
@@ -137,6 +160,7 @@ describe("handleAlarm", () => {
       const storage = new FakeStorage();
       await handleAlarm({
         storage,
+        memory: new FakeMemory(),
         runSweeps: async () => {},
         nextDueAt: async () => {
           throw new Error("compute limit reached");
@@ -154,6 +178,7 @@ describe("handleAlarm", () => {
     const storage = new FakeStorage();
     await handleAlarm({
       storage,
+      memory: new FakeMemory(),
       runSweeps: async () => {
         await wakeAt(storage, NOW - 1_000, NOW);
       },
@@ -167,6 +192,7 @@ describe("handleAlarm", () => {
     const storage = new FakeStorage(NOW - 5);
     await handleAlarm({
       storage,
+      memory: new FakeMemory(),
       runSweeps: async () => {
         await wakeAt(storage, NOW + 120_000, NOW);
       },
@@ -182,6 +208,7 @@ describe("handleAlarm", () => {
       const storage = new FakeStorage();
       await handleAlarm({
         storage,
+        memory: new FakeMemory(),
         runSweeps: async () => {
           await wakeAt(storage, NOW + 60_000, NOW);
         },
@@ -194,6 +221,87 @@ describe("handleAlarm", () => {
     } finally {
       logged.mockRestore();
     }
+  });
+
+  it("backs off when the same due time is still due after a run", async () => {
+    const logged = spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const storage = new FakeStorage();
+      const memory = new FakeMemory({ dueAt: NOW - 1, gapMs: 30_000 });
+      await handleAlarm({
+        storage,
+        memory,
+        runSweeps: async () => {},
+        nextDueAt: async () => new Date(NOW - 1),
+        now: () => NOW,
+      });
+      expect(storage.alarm).toBe(NOW + 60_000);
+      expect(memory.record).toEqual({ dueAt: NOW - 1, gapMs: 60_000 });
+      expect(logged).toHaveBeenCalled();
+    } finally {
+      logged.mockRestore();
+    }
+  });
+
+  it("caps the backoff at fifteen minutes", async () => {
+    const logged = spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const storage = new FakeStorage();
+      const memory = new FakeMemory({ dueAt: NOW - 1, gapMs: 600_000 });
+      await handleAlarm({
+        storage,
+        memory,
+        runSweeps: async () => {},
+        nextDueAt: async () => new Date(NOW - 1),
+        now: () => NOW,
+      });
+      expect(storage.alarm).toBe(NOW + 900_000);
+      expect(memory.record).toEqual({ dueAt: NOW - 1, gapMs: 900_000 });
+    } finally {
+      logged.mockRestore();
+    }
+  });
+
+  it("starts over when the earliest due time changes", async () => {
+    const storage = new FakeStorage();
+    const memory = new FakeMemory({ dueAt: NOW - 5_000, gapMs: 480_000 });
+    await handleAlarm({
+      storage,
+      memory,
+      runSweeps: async () => {},
+      nextDueAt: async () => new Date(NOW - 1),
+      now: () => NOW,
+    });
+    expect(storage.alarm).toBe(NOW + 30_000);
+    expect(memory.record).toEqual({ dueAt: NOW - 1, gapMs: 30_000 });
+  });
+
+  it("forgets the backoff once nothing is overdue", async () => {
+    const storage = new FakeStorage();
+    const memory = new FakeMemory({ dueAt: NOW - 1, gapMs: 120_000 });
+    await handleAlarm({
+      storage,
+      memory,
+      runSweeps: async () => {},
+      nextDueAt: async () => new Date(NOW + 600_000),
+      now: () => NOW,
+    });
+    expect(storage.alarm).toBe(NOW + 600_000);
+    expect(memory.record).toBeNull();
+  });
+
+  it("forgets the backoff when nothing is due at all", async () => {
+    const storage = new FakeStorage();
+    const memory = new FakeMemory({ dueAt: NOW - 1, gapMs: 120_000 });
+    await handleAlarm({
+      storage,
+      memory,
+      runSweeps: async () => {},
+      nextDueAt: async () => null,
+      now: () => NOW,
+    });
+    expect(storage.sets).toEqual([]);
+    expect(memory.record).toBeNull();
   });
 });
 
