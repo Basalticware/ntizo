@@ -357,4 +357,33 @@ describe("the scheduled worker", () => {
     notifySpy.mockRestore();
     sweepDueSpy.mockRestore();
   });
+
+  it("leaves the sweeps to the scheduler when it can tell it when to fire", async () => {
+    // The alarm is the only place the sweeps may run: a Durable Object runs
+    // one alarm handler at a time, so runs can never overlap there, and two
+    // of the sweeps (the booking "ask" arm, notify-unread) are not safe under
+    // an overlap. Once the cron can tell the scheduler when to fire, it must
+    // not also run the sweeps itself.
+    const notifySpy = spyOn(NotifyUnreadInternalCommand.prototype, "execute");
+    const sweepDueSpy = spyOn(SweepDueBookingsInternalCommand.prototype, "execute");
+
+    const env = {
+      ...ENV,
+      SWEEP_SCHEDULER: {
+        idFromName: (name: string) => ({ name }),
+        get: () => ({ fetch: async () => new Response(null, { status: 204 }) }),
+      },
+    } as unknown as AppBindings;
+
+    const { ctx, scheduledPromises } = fakeExecutionContext();
+
+    await scheduled(fakeController(), env, ctx);
+
+    expect(notifySpy).not.toHaveBeenCalled();
+    expect(sweepDueSpy).not.toHaveBeenCalled();
+
+    await Promise.all(scheduledPromises);
+    notifySpy.mockRestore();
+    sweepDueSpy.mockRestore();
+  });
 });

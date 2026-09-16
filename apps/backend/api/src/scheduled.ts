@@ -83,10 +83,15 @@ export async function scheduled(
     infraStore.setWaitUntil(ctx.waitUntil.bind(ctx));
 
     try {
-      await runSweeps();
-      // The hourly cron is the scheduler's safety net: it re-tells the alarm
-      // about anything a failed refresh or a first deploy left it not knowing.
-      await refreshSweepSchedule(env.SWEEP_SCHEDULER);
+      // The sweeps run in exactly one place: the sweep scheduler's alarm. A
+      // Durable Object runs one alarm at a time, so two runs can never
+      // overlap — and two of the sweeps are not safe if they do (a booking
+      // asked to close twice, or closed a week early; a notice sent twice).
+      // This hourly cron is the safety net: it re-tells the scheduler about
+      // anything a failed refresh or a first deploy left it not knowing, and
+      // runs the sweeps itself only when the scheduler cannot be told at all.
+      const scheduled = await refreshSweepSchedule(env.SWEEP_SCHEDULER);
+      if (!scheduled) await runSweeps();
     } finally {
       // Workers run nothing after this function returns unless scheduled —
       // and the deferred work scheduled above still needs this run's

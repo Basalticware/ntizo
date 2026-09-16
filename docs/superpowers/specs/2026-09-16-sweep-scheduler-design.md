@@ -54,10 +54,11 @@ Read from `origin/dev` at `abde0123`.
 
 - **Each predicate already has a partial index:** `idx_message_notify_due`, `booking_sweep_idx`,
   `booking_charge_idx`, `quote_sweep_idx`.
-- **Overlapping runs already happen and are tolerated.** A charge run can block for 60–110 s per
-  M-Pesa call, so a per-minute cron overlaps itself today. The notify and charge sweeps claim rows with
-  a conditional UPDATE. The plan must confirm the booking and quote sweeps are equally safe before
-  relying on it.
+- **Overlapping runs are not safe for every sweep.** Verified while implementing:
+  - The quote sweep and four of the five booking arms change the row's status through a compare-and-swap, so a second run finds nothing to do.
+  - The booking sweep's first `CONFIRMED` firing ("ask the provider") keeps the status, so an overlapping run can ask twice, or close the booking at once instead of a week later.
+  - `notifyUnread` reads with a plain SELECT and marks rows without a guard, so an overlap can send a notice twice.
+  - Hence decision 4: the sweeps run only in the scheduler's alarm.
 - **Wiring and bindings:**
   - `configMiddleware` opens the per-request infra scope and closes the DB behind deferred work.
   - `infraStore.getDbConnection()` is non-null only when the request actually opened a connection.
@@ -84,13 +85,11 @@ Read from `origin/dev` at `abde0123`.
    is set or `t` is earlier. An alarm that fires early does no harm: the handler recomputes and sets
    the next one. A missing early alarm is the only real failure, so the rule never pushes an alarm
    later.
-4. **The cron stays, hourly.** `0 * * * *` in every env runs the sweeps and a refresh. It covers:
-   - a scheduler that was never told, e.g. right after the first deploy or after a failed refresh;
-   - a Durable Object outage;
-   - any deadline written outside a POST request.
+4. **The sweeps run only in the scheduler's alarm; the cron stays, hourly, as a safety net.** A Durable Object runs one alarm handler at a time, so sweep runs never overlap, which two of the sweeps need (see "What exists"). `0 * * * *` in every env recomputes the next due time and tells the scheduler. It covers:
+   - a scheduler never told, e.g. right after the first deploy or after a failed refresh;
+   - a deadline written outside a POST request.
 
-   It wakes the database 24 times a day, about 5 minutes each: 0.25 CU × 2 h ≈ 15 CU-hours a month,
-   against 180 today.
+   The cron runs the sweeps itself only when it cannot tell the scheduler: no binding, the recompute failed, or the wake was refused. There a missed deadline is worse than a rare overlap. It wakes the database 24 times a day, about 5 minutes each: 0.25 CU × 2 h ≈ 15 CU-hours a month, against 180 today.
 5. **The recompute mirrors each sweep's own predicate**, as a `nextDueAt()` beside each sweep, in the
    same repository, so the two cannot drift apart unnoticed. For the charge sweep, a booking never
    attempted is due now, and one attempted is due at `last_charge_attempt_at + 5 min`.
@@ -121,8 +120,7 @@ Read from `origin/dev` at `abde0123`.
 ### `runSweeps()` — extracted from `scheduled.ts`
 
 The four sweep calls and their per-sweep try/catch move unchanged into one function, shared by
-`scheduled()` and `SweepScheduler.alarm()`. `scheduled()` becomes: open scope → `runSweeps()` →
-refresh → close DB.
+`scheduled()` and `SweepScheduler.alarm()`. `scheduled()` becomes: open scope → refresh → `runSweeps()` only if the refresh could not tell the scheduler → close DB.
 
 ### `nextDueAt()` per context, composed in the API
 
@@ -141,6 +139,7 @@ refresh → close DB.
 
 ### Refresh — `refreshSweepSchedule(env)`
 
+- **What it returns:** `true` when the scheduler now knows the next due time, or nothing is due; `false` when there is no binding, the recompute threw, or the wake threw or was refused.
 - **What it does:**
   1. `next = await computeNextDueAt()`
   2. if non-null, `await env.SWEEP_SCHEDULER.get(id).wakeAt(next)`
@@ -181,8 +180,7 @@ refresh → close DB.
 
 ## Error handling
 
-- **Refresh fails** (Durable Object error, DB error): logged; the response is unaffected; the next
-  refresh or the hourly cron repairs it. At worst a deadline is up to 1 hour late.
+- **Refresh fails** (Durable Object error, DB error): logged; the response is unaffected; the next refresh or the hourly cron repairs it. If the hourly cron's own refresh fails, it runs the sweeps itself, so a deadline is at most 1 hour late.
 - **A sweep throws inside the alarm:** it is caught per sweep, exactly as today, and the others still
   run. The recompute in `finally` still sets the next alarm; the floor stops a hot loop.
 - **The alarm handler itself throws** (should not, given the above): Cloudflare retries up to 6 times

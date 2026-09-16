@@ -21,22 +21,24 @@ describe("refreshSweepSchedule", () => {
   it("tells the one scheduler when the sweeps next have work", async () => {
     const { namespace, calls } = fakeNamespace();
     const at = new Date("2026-09-16T12:02:00.000Z");
-    await refreshSweepSchedule(namespace, async () => at);
+    await expect(refreshSweepSchedule(namespace, async () => at)).resolves.toBe(true);
     expect(calls).toEqual([{ name: SWEEP_SCHEDULER_NAME, url: WAKE_URL, body: { at: at.getTime() } }]);
   });
 
   it("says nothing when nothing is due", async () => {
     const { namespace, calls } = fakeNamespace();
-    await refreshSweepSchedule(namespace, async () => null);
+    await expect(refreshSweepSchedule(namespace, async () => null)).resolves.toBe(true);
     expect(calls).toEqual([]);
   });
 
   it("does not even ask the database when there is no scheduler binding", async () => {
     let asked = false;
-    await refreshSweepSchedule(undefined, async () => {
-      asked = true;
-      return new Date();
-    });
+    await expect(
+      refreshSweepSchedule(undefined, async () => {
+        asked = true;
+        return new Date();
+      }),
+    ).resolves.toBe(false);
     expect(asked).toBe(false);
   });
 
@@ -48,7 +50,7 @@ describe("refreshSweepSchedule", () => {
         refreshSweepSchedule(namespace, async () => {
           throw new Error("db down");
         }),
-      ).resolves.toBeUndefined();
+      ).resolves.toBe(false);
       expect(logged.mock.calls[0]![0]).toBe("[sweep-scheduler] refresh failed");
     } finally {
       logged.mockRestore();
@@ -59,7 +61,7 @@ describe("refreshSweepSchedule", () => {
     const logged = spyOn(console, "error").mockImplementation(() => {});
     try {
       const { namespace } = fakeNamespace(400);
-      await refreshSweepSchedule(namespace, async () => new Date());
+      await expect(refreshSweepSchedule(namespace, async () => new Date())).resolves.toBe(false);
       expect(logged.mock.calls[0]![0]).toBe("[sweep-scheduler] wake refused");
     } finally {
       logged.mockRestore();

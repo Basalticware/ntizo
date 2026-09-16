@@ -13,23 +13,33 @@ import { SWEEP_SCHEDULER_NAME, WAKE_URL } from "./schedule";
  *
  * Never rejects. It runs in `waitUntil` after a response has gone, and a
  * failed refresh only means the hourly cron catches that deadline instead.
+ *
+ * **Return value:** `true` when the scheduler now knows the next due time,
+ * or nothing is due; `false` when there is no binding, the recompute threw,
+ * or the wake threw or was refused. The hourly cron uses the result to
+ * decide whether it must run the sweeps itself.
  */
 export async function refreshSweepSchedule(
   namespace: DurableObjectNamespace | undefined,
   nextDueAt: () => Promise<Date | null> = computeNextDueAt,
-): Promise<void> {
-  if (!namespace) return;
+): Promise<boolean> {
+  if (!namespace) return false;
   try {
     const next = await nextDueAt();
-    if (!next) return;
+    if (!next) return true;
     const stub = namespace.get(namespace.idFromName(SWEEP_SCHEDULER_NAME));
     const response = await stub.fetch(WAKE_URL, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ at: next.getTime() }),
     });
-    if (!response.ok) console.error("[sweep-scheduler] wake refused", response.status);
+    if (!response.ok) {
+      console.error("[sweep-scheduler] wake refused", response.status);
+      return false;
+    }
+    return true;
   } catch (error) {
     console.error("[sweep-scheduler] refresh failed", error);
+    return false;
   }
 }
