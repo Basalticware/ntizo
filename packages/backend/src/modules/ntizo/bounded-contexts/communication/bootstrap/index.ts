@@ -13,6 +13,8 @@ import { ReplyToSupportRequestCommand } from "../app/use-cases/reply-to-support-
 import { ResolveSupportRequestCommand } from "../app/use-cases/resolve-support-request.command";
 import { MarkSupportRequestReadCommand } from "../app/use-cases/mark-support-request-read.command";
 import { NotifyUnreadInternalCommand } from "../app/use-cases/notify-unread.internal.command";
+import { NextNoticeDueAtInternalQuery } from "../app/use-cases/next-notice-due-at.internal.query";
+import { DrizzleNoticeScheduleReader } from "../infrastructure/repositories/drizzle/notice-schedule.reader";
 import type { RaiseNotificationInternalPort } from "../app/ports/outbound/raise-notification.port";
 import type { AttachmentStoragePort } from "../app/ports/outbound/attachment-storage.port";
 import { DrizzleUnitOfWork } from "../../../../../shared/infrastructure/unit-of-work";
@@ -117,6 +119,9 @@ export function bootstrapCommunication(deps: CommunicationBootstrapDeps) {
         // The delayed notice a cron sweeps — nobody asks for this, something
         // schedules it. See scheduled.ts.
         notifyUnread: new NotifyUnreadInternalCommand(messageRepository, deps.raiseNotification, adminUserReader),
+        // When that sweep next has work — what the API's sweep scheduler sets
+        // its alarm from. See apps/backend/api/src/sweep-scheduler.
+        nextNoticeDueAt: new NextNoticeDueAtInternalQuery(new DrizzleNoticeScheduleReader()),
       },
     },
   };
