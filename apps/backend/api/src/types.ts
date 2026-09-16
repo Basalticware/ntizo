@@ -1,4 +1,4 @@
-import type { R2Bucket } from "@cloudflare/workers-types";
+import type { DurableObjectNamespace, R2Bucket } from "@cloudflare/workers-types";
 import type { InfraEnvBindings } from "@ntizo/backend/shared/infra";
 
 /**
@@ -30,4 +30,24 @@ export type AppBindings = InfraEnvBindings & {
    * caller of `infraStore.runAsync` supply a value it has no use for.
    */
   RESEND_WEBHOOK_SECRET?: string;
+  /**
+   * The sweep scheduler (src/sweep-scheduler). Optional so tests and tooling
+   * without the binding keep working; the refresh does nothing without it and
+   * the hourly cron still sweeps.
+   */
+  SWEEP_SCHEDULER?: DurableObjectNamespace;
+  /**
+   * Whether this stage uses the sweep scheduler. Only the exact string
+   * `"true"` enables it; set in the `vars` of dev, qa and prod.
+   *
+   * Absent locally, on purpose: a developer's `wrangler dev` has the binding
+   * too, and its `.dev.vars` point at the shared dev database, so with the
+   * scheduler enabled it would run a second scheduler — and every sweep, real
+   * emails included — against dev's data beside dev's own.
+   *
+   * Also the kill switch. Setting it to anything else on a stage, together
+   * with that stage's cron back at `* * * * *`, leaves the refresh with no
+   * scheduler, and the cron runs the sweeps every minute as it did before.
+   */
+  SWEEP_SCHEDULER_ENABLED?: string;
 };

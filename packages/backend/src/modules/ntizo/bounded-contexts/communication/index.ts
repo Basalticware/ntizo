@@ -39,6 +39,7 @@ export {
   type MarkThreadReadInput,
 } from "./app/use-cases/mark-thread-read.command";
 export { NotifyUnreadInternalCommand } from "./app/use-cases/notify-unread.internal.command";
+export { NextNoticeDueAtInternalQuery } from "./app/use-cases/next-notice-due-at.internal.query";
 
 export type {
   ThreadOpenResult,

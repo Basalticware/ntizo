@@ -1206,7 +1206,7 @@ export class Booking {
    * be worse
    * than useless: this hop runs inside the sweep with nobody to hear a
    * refusal, so a throw here would be caught per booking, counted failed, and
-   * re-tried every minute for as long as the condition held — which is
+   * re-tried on every sweep run for as long as the condition held — which is
    * precisely the loop `keepOpen`'s own guard exists to prevent, moved one hop
    * downstream. A guard belongs where a person is waiting on the answer.
    */
@@ -1277,7 +1277,7 @@ export class Booking {
    * sweep would then ask early, burn `remindedAt` on a booking that has not
    * happened, and a week later hand over to `MarkBookingDoneCommand`, which
    * refuses. Nothing is written, the row stays due, and the sweep re-tries it
-   * every minute — at the head of its own `asc(expires_at)` batch — until the
+   * on every run — at the head of its own `asc(expires_at)` batch — until the
    * appointment finally passes. Checked after the dates are, and after the
    * status is, for the reason `markDone` gives.
    */

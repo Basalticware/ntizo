@@ -46,7 +46,7 @@ export type RequestBookingChargeOutcome = "scheduled" | "already_sent";
 
 /**
  * The customer presses "Pagar" and asks to be charged now, instead of
- * waiting for the per-minute sweep to reach this booking on its own.
+ * waiting for the sweep to reach this booking on its own.
  *
  * **Everything here is a cheap read, and nothing here blocks.** Ownership,
  * the status, the charge ledger (the attempt count and when the last one was

@@ -21,6 +21,7 @@ export { MarkProposalStaleInternalCommand } from "./app/use-cases/mark-proposal-
 export { SweepQuoteCommand } from "./app/use-cases/sweep-quote.command";
 export { SweepDueQuotesInternalCommand } from "./app/use-cases/sweep-due-quotes.internal.command";
 export type { SweepDueQuotesInternalInput } from "./app/use-cases/sweep-due-quotes.internal.command";
+export { NextQuoteDueAtInternalQuery } from "./app/use-cases/next-quote-due-at.internal.query";
 export type {
   AttachmentStoragePort,
   StoredAttachmentMetadata,

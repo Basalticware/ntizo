@@ -256,19 +256,21 @@ export interface BookingRepositoryPort {
    * zero rows, gets `null`, and charges nobody.
    *
    * **Without that, the bound and the cooldown are advisory**, because two
-   * waves overlap here *by construction*. A wave charges up to
-   * `BOOKING_CHARGE_LIMIT` bookings one at a time and an unanswered C2B
-   * blocks for about sixty seconds — against a cron that fires every sixty.
-   * With two due bookings: wave 1 selects `[B1, B2]` and blocks on B1; at
-   * T+60 wave 2 correctly skips B1 (its attempt is recorded) but selects B2,
-   * whose `last_charge_attempt_at` is still null, and prompts it; at T+62
-   * wave 1 finishes B1, reaches B2, and prompts it **a second time, one
-   * second later**. That is precisely the stacked prompt
-   * `last_charge_attempt_at` exists to prevent, and a customer who accepts
-   * both is debited twice. With three or more due bookings the bound itself
-   * is exceeded — four charges against a limit of three. A predicate that
-   * only ever runs in the `SELECT` cannot see any of this; one in the
-   * `UPDATE` settles it.
+   * waves can overlap here. They did *by construction* under the per-minute
+   * cron this was written against, and still can when a customer's "Pagar" or
+   * the hourly cron's fallback run charges beside a running sweep. A wave
+   * charges up to `BOOKING_CHARGE_LIMIT` bookings one at a time and an
+   * unanswered C2B blocks for about sixty seconds — against the cron that then
+   * fired every sixty. With two due bookings: wave 1 selects `[B1, B2]` and
+   * blocks on B1; at T+60 wave 2 correctly skips B1 (its attempt is recorded)
+   * but selects B2, whose `last_charge_attempt_at` is still null, and prompts
+   * it; at T+62 wave 1 finishes B1, reaches B2, and prompts it **a second time,
+   * one second later**. That is precisely the stacked prompt
+   * `last_charge_attempt_at` exists to prevent, and a customer who accepts both
+   * is debited twice. With three or more due bookings the bound itself is
+   * exceeded — four charges against a limit of three. A predicate that only
+   * ever runs in the `SELECT` cannot see any of this; one in the `UPDATE`
+   * settles it.
    *
    * **Called before the charge, not after it.** A C2B blocks for up to a
    * minute; if the attempt were recorded on the way back, a Worker evicted

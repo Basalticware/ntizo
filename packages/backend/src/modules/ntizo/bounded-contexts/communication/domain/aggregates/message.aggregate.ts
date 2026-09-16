@@ -17,8 +17,8 @@ export { MAX_ATTACHMENTS };
  * How long a message waits, unread, before anybody is told about it. One
  * named constant rather than a literal repeated in the command that sets
  * `notifyDueAt` and again in the sweep that later queries for it — the
- * window is what the product means; the cron interval that later checks for
- * it is a separate, unrelated number.
+ * window is what the product means; when the sweep later checks for it is
+ * the sweep scheduler's business, not a number to keep in step with this one.
  */
 export const NOTIFY_AFTER_MS = 120_000;
 

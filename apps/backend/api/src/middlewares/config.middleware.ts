@@ -3,6 +3,8 @@ import { infraStore } from "@ntizo/backend/shared/infra";
 import { closeDbBehindDeferredWork } from "@ntizo/backend/shared/infra/database";
 import type { Stage } from "@ntizo/backend/shared/infra/config";
 import type { AppBindings } from "../types";
+import { refreshSweepSchedule, sweepSchedulerOf } from "../sweep-scheduler/refresh";
+import { shouldRefreshAfterRequest } from "../sweep-scheduler/schedule";
 
 /**
  * Establishes the request-scoped infra context and guarantees the per-request
@@ -27,11 +29,12 @@ export const configMiddleware: MiddlewareHandler<{ Bindings: AppBindings }> = as
       GOOGLE_CLIENT_ID: env.GOOGLE_CLIENT_ID ?? "",
       GOOGLE_CLIENT_SECRET: env.GOOGLE_CLIENT_SECRET ?? "",
       // Nothing reachable from a request charges anybody today — the charge
-      // runs from the cron (see `scheduled.ts`). Carried anyway so the two
-      // scopes hold the same env: the moment a "Pagar agora" mutation exists,
-      // a customer retrying from their own booking would otherwise reach an
-      // adapter that reports the stage as unconfigured, and the cause would
-      // be this omission rather than anything in the charge itself.
+      // runs from the sweeps (see `sweep-scheduler/sweeps.ts`). Carried anyway
+      // so the two scopes hold the same env: the moment a "Pagar agora"
+      // mutation exists, a customer retrying from their own booking would
+      // otherwise reach an adapter that reports the stage as unconfigured,
+      // and the cause would be this omission rather than anything in the
+      // charge itself.
       MPESA_API_KEY: env.MPESA_API_KEY,
       MPESA_PUBLIC_KEY: env.MPESA_PUBLIC_KEY,
       MPESA_ENVIRONMENT: env.MPESA_ENVIRONMENT,
@@ -68,6 +71,13 @@ export const configMiddleware: MiddlewareHandler<{ Bindings: AppBindings }> = as
       try {
         return await next();
       } finally {
+        // After a write, tell the sweep scheduler when the sweeps next have
+        // work. Handed to `infraStore.waitUntil` rather than awaited, so the
+        // response is not held; registered before the close below, so the
+        // close waits for it and the refresh's queries still have a pool.
+        if (shouldRefreshAfterRequest(c.req.method, infraStore.getDbConnection() !== undefined)) {
+          infraStore.waitUntil(refreshSweepSchedule(sweepSchedulerOf(c.env)));
+        }
         // Workers run nothing after the response unless scheduled — and the
         // deferred work scheduled above still needs this request's `{ max: 1 }`
         // postgres pool for recipients, suppressions and delivery rows. So the

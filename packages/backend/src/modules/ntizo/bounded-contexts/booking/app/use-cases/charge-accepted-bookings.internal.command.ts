@@ -19,7 +19,7 @@ import {
  *
  * The bound is what makes a permanent failure *visible* instead of infinite.
  * A handset that is off, a number that was mistyped, a wallet with no
- * balance: without it, each of those is a prompt every minute until the
+ * balance: without it, each of those is a prompt every five minutes until the
  * window closes, and nothing in the row would ever say the platform had
  * stopped expecting a different answer.
  */
@@ -28,13 +28,16 @@ export const BOOKING_CHARGE_ATTEMPT_LIMIT = 3;
 /**
  * How long to leave a booking alone between attempts.
  *
- * **This number exists because the cron interval is shorter than the call.**
- * A C2B blocks until the customer answers or ~60 seconds pass; the sweep
- * wakes every sixty seconds. Without a cooldown, wave two starts while wave
- * one's prompt is still live on the handset — a second prompt over a
- * pending one, and, if the customer accepts both, two debits for one booking.
- * With it, the three attempts spread across roughly ten minutes of a payment
- * window rather than three consecutive minutes of it.
+ * **This number exists because a booking can be charged again sooner than
+ * the call takes.** A C2B blocks until the customer answers or ~60 seconds
+ * pass. Sweep runs no longer overlap one another, but a customer's "Pagar"
+ * or the hourly cron's fallback run can charge beside a running sweep, and a
+ * booking still owed is due again 30 seconds after a run ends. Without a
+ * cooldown, a second attempt can start while the first one's prompt is still
+ * live on the handset — a second prompt over a pending one, and, if the
+ * customer accepts both, two debits for one booking. With it, the three
+ * attempts spread across roughly ten minutes of a payment window rather than
+ * the two or three minutes back-to-back runs would take.
  *
  * Comfortably longer than the call's own timeout (110 seconds, see
  * `MpesaClient`) so an attempt is always finished before the next is
@@ -54,18 +57,18 @@ export { BOOKING_CHARGE_MIN_WINDOW_MS };
 const MS_PER_MINUTE = 60_000;
 
 export interface ChargeAcceptedBookingsInternalInput {
-  /** How many bookings one wave may charge. The cron caller's budget, not this command's. */
+  /** How many bookings one wave may charge. The sweep caller's budget, not this command's. */
   limit: number;
 }
 
 /**
- * The second question the cron asks: **which accepted bookings still owe a
+ * The second question the sweeps ask: **which accepted bookings still owe a
  * charge?**
  *
  * The deadline sweep (`SweepDueBookingsInternalCommand`) asks what has run
  * out of time. This asks what has been promised and not yet paid for —
  * `PENDING_PAYMENT`, inside its window, under the attempt bound — and pushes
- * a payment prompt at each. The two run in the same cron invocation, in the
+ * a payment prompt at each. The two run in the same sweep run, in the
  * same `infraStore` scope, each in its own `try`, and their results are
  * disjoint by construction: `findDueForSweep` takes `expires_at <= now`,
  * `findAwaitingCharge` takes `expires_at > now`, so no booking is ever both
@@ -74,11 +77,11 @@ export interface ChargeAcceptedBookingsInternalInput {
  * **The charge runs in the sweep rather than a queue**, decided 2026-09-01.
  * Nobody is waiting on a request: the trigger is the provider's acceptance,
  * not a customer's click, so there is no spinner a minute-long call would
- * hold. The cron already wakes every minute, already holds a database scope,
- * and already sweeps one thing; adding a second question is cheap and needs
- * no new deployment surface. A Cloudflare Queue would buy backoff for free
- * and is the alternative if this proves wrong — the retry bound and cooldown
- * above are this design paying for that backoff by hand.
+ * hold. At the time the cron woke every minute, already held a database
+ * scope, and already swept one thing; adding a second question was cheap and
+ * needed no new deployment surface. A Cloudflare Queue would buy backoff for
+ * free and is the alternative if this proves wrong — the retry bound and
+ * cooldown above are this design paying for that backoff by hand.
  *
  * **One bad booking does not stop the wave.** Each is charged inside its own
  * `try`; a throw is counted and logged with its booking id, and the booking
@@ -89,20 +92,21 @@ export interface ChargeAcceptedBookingsInternalInput {
  * `SweepDueBookingsInternalCommand`, which is where this pattern is argued
  * out in full.
  *
- * **What this query returns is a candidate list, not a claim.** Waves overlap
- * by construction — five bookings at up to two minutes each against a
- * sixty-second cron — so by the time this loop reaches its last booking,
- * another wave has been and gone. The bound and the cooldown are therefore
+ * **What this query returns is a candidate list, not a claim.** A wave takes
+ * up to ten minutes — five bookings at up to two minutes each — and a
+ * customer's "Pagar" or the hourly cron's fallback run can charge meanwhile,
+ * so by the time this loop reaches its last booking, another attempt may
+ * already have claimed it. The bound and the cooldown are therefore
  * re-asserted at the write, in `recordChargeAttempt`, which is what actually
  * decides who charges whom; the criteria computed below are passed down so
  * both halves test the identical predicate against the identical instant.
  *
- * **Charged one at a time, not in parallel.** The cron's Postgres pool is
+ * **Charged one at a time, not in parallel.** The sweep's Postgres pool is
  * `{ max: 1 }`, so concurrent charges would interleave transactions on one
  * connection; and each call blocks for up to two minutes, so a wave is
- * budgeted in minutes rather than milliseconds. That is why `scheduled.ts`
- * gives this a far smaller limit than the deadline sweep's — see
- * `BOOKING_CHARGE_LIMIT` there.
+ * budgeted in minutes rather than milliseconds. That is why
+ * `apps/backend/api/src/sweep-scheduler/sweeps.ts` gives this a far smaller
+ * limit than the deadline sweep's — see `BOOKING_CHARGE_LIMIT` there.
  */
 export class ChargeAcceptedBookingsInternalCommand {
   constructor(
@@ -116,7 +120,7 @@ export class ChargeAcceptedBookingsInternalCommand {
    * charge's business, not this loop's, and most attempts that do not become
    * money are not failures of this command at all — a customer who lets a
    * prompt time out is the ordinary case. `failed` counts only what threw,
-   * which is the number `scheduled.ts` has a reason to shout about.
+   * which is the number `sweeps.ts` has a reason to shout about.
    *
    * `attempted` counts bookings this wave *handed to* `chargeBooking`, which
    * is not the same as bookings it charged: one whose claim lost to a

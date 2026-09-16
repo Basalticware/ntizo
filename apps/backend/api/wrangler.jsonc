@@ -12,12 +12,13 @@
     "CONTACT_INBOX_EMAIL": "ola@ntizo.co.mz",
 
     // M-Pesa (Vodacom Moçambique), read by the charge sweep in
-    // `src/scheduled.ts`. These three are CONFIGURATION, not secrets, and
-    // they are here in the open on purpose: which gateway a stage points at,
-    // which origin it announces and which shortcode it collects into are
-    // ordinary setup, and hiding them in the secret store would mean nobody
-    // reading this repository could tell dev from prod without asking. The
-    // two that ARE secrets are named below and set out of band.
+    // `src/sweep-scheduler/sweeps.ts`. These three are CONFIGURATION, not
+    // secrets, and they are here in the open on purpose: which gateway a
+    // stage points at, which origin it announces and which shortcode it
+    // collects into are ordinary setup, and hiding them in the secret store
+    // would mean nobody reading this repository could tell dev from prod
+    // without asking. The two that ARE secrets are named below and set out of
+    // band.
     //
     // `MPESA_ENVIRONMENT` selects the host: "development" is
     // api.sandbox.vm.co.mz, anything else is api.vm.co.mz. Every stage below
@@ -116,6 +117,14 @@
     { "binding": "ATTACHMENTS_BUCKET", "bucket_name": "ntizo-attachments-local" }
   ],
 
+  // The sweep scheduler (src/sweep-scheduler): one alarm per environment, set
+  // to when the sweeps next have work. SQLite backend because it is the only
+  // one on the Workers Free plan.
+  "durable_objects": {
+    "bindings": [{ "name": "SWEEP_SCHEDULER", "class_name": "SweepScheduler" }]
+  },
+  "migrations": [{ "tag": "v1-sweep-scheduler", "new_sqlite_classes": ["SweepScheduler"] }],
+
   "env": {
     "dev": {
       "vars": {
@@ -126,7 +135,11 @@
         "CONTACT_INBOX_EMAIL": "ola@ntizo.co.mz",
         "MPESA_ENVIRONMENT": "development",
         "MPESA_ORIGIN": "developer.mpesa.vm.co.mz",
-        "MPESA_SERVICE_PROVIDER_CODE": "171717"
+        "MPESA_SERVICE_PROVIDER_CODE": "171717",
+        // See `SWEEP_SCHEDULER_ENABLED` in src/types.ts. Absent from the
+        // top-level `vars` on purpose: a local `wrangler dev` must not run a
+        // second scheduler against the shared dev database.
+        "SWEEP_SCHEDULER_ENABLED": "true"
       },
       "r2_buckets": [
         { "binding": "DOCUMENTS_BUCKET", "bucket_name": "ntizo-documents-dev" },
@@ -134,13 +147,15 @@
         { "binding": "ATTACHMENTS_BUCKET", "bucket_name": "ntizo-attachments-dev" }
       ],
       "routes": [{ "pattern": "dev.api.ntizo.co.mz", "custom_domain": true }],
-      // Wakes `scheduled` (src/scheduled.ts) to sweep for messages still
-      // unread after the 2-minute notify window. Every minute is Cloudflare's
-      // finest granularity and is the right interval against that window: a
-      // message waits at most three minutes, usually two. NOT inherited from
-      // the top level — same as `r2_buckets` above, every named env needs its
-      // own `triggers` block or it gets none.
-      "triggers": { "crons": ["* * * * *"] }
+      // NOT inherited from the top level, same as `r2_buckets`: every named
+      // env needs its own Durable Object binding.
+      "durable_objects": {
+        "bindings": [{ "name": "SWEEP_SCHEDULER", "class_name": "SweepScheduler" }]
+      },
+      // Hourly safety net under the sweep scheduler, which wakes the sweeps
+      // when something is due. It was every minute, which kept Neon's compute
+      // awake around the clock. NOT inherited either.
+      "triggers": { "crons": ["0 * * * *"] }
     },
     "qa": {
       "vars": {
@@ -151,7 +166,11 @@
         "CONTACT_INBOX_EMAIL": "ola@ntizo.co.mz",
         "MPESA_ENVIRONMENT": "development",
         "MPESA_ORIGIN": "developer.mpesa.vm.co.mz",
-        "MPESA_SERVICE_PROVIDER_CODE": "171717"
+        "MPESA_SERVICE_PROVIDER_CODE": "171717",
+        // See `SWEEP_SCHEDULER_ENABLED` in src/types.ts. Absent from the
+        // top-level `vars` on purpose: a local `wrangler dev` must not run a
+        // second scheduler against the shared dev database.
+        "SWEEP_SCHEDULER_ENABLED": "true"
       },
       "r2_buckets": [
         { "binding": "DOCUMENTS_BUCKET", "bucket_name": "ntizo-documents-qa" },
@@ -159,7 +178,15 @@
         { "binding": "ATTACHMENTS_BUCKET", "bucket_name": "ntizo-attachments-qa" }
       ],
       "routes": [{ "pattern": "qa.api.ntizo.co.mz", "custom_domain": true }],
-      "triggers": { "crons": ["* * * * *"] }
+      // NOT inherited from the top level, same as `r2_buckets`: every named
+      // env needs its own Durable Object binding.
+      "durable_objects": {
+        "bindings": [{ "name": "SWEEP_SCHEDULER", "class_name": "SweepScheduler" }]
+      },
+      // Hourly safety net under the sweep scheduler, which wakes the sweeps
+      // when something is due. It was every minute, which kept Neon's compute
+      // awake around the clock. NOT inherited either.
+      "triggers": { "crons": ["0 * * * *"] }
     },
     "prod": {
       "vars": {
@@ -184,7 +211,11 @@
         // than quietly, and the message names both values.
         "MPESA_ENVIRONMENT": "production",
         "MPESA_ORIGIN": "developer.mpesa.vm.co.mz",
-        "MPESA_SERVICE_PROVIDER_CODE": "171717"
+        "MPESA_SERVICE_PROVIDER_CODE": "171717",
+        // See `SWEEP_SCHEDULER_ENABLED` in src/types.ts. Absent from the
+        // top-level `vars` on purpose: a local `wrangler dev` must not run a
+        // second scheduler against the shared dev database.
+        "SWEEP_SCHEDULER_ENABLED": "true"
       },
       "r2_buckets": [
         { "binding": "DOCUMENTS_BUCKET", "bucket_name": "ntizo-documents-prod" },
@@ -192,7 +223,15 @@
         { "binding": "ATTACHMENTS_BUCKET", "bucket_name": "ntizo-attachments-prod" }
       ],
       "routes": [{ "pattern": "api.ntizo.co.mz", "custom_domain": true }],
-      "triggers": { "crons": ["* * * * *"] }
+      // NOT inherited from the top level, same as `r2_buckets`: every named
+      // env needs its own Durable Object binding.
+      "durable_objects": {
+        "bindings": [{ "name": "SWEEP_SCHEDULER", "class_name": "SweepScheduler" }]
+      },
+      // Hourly safety net under the sweep scheduler, which wakes the sweeps
+      // when something is due. It was every minute, which kept Neon's compute
+      // awake around the clock. NOT inherited either.
+      "triggers": { "crons": ["0 * * * *"] }
     }
   }
 }

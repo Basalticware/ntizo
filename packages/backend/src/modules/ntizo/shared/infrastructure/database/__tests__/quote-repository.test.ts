@@ -34,6 +34,7 @@ import { quote, quoteProposal } from "../quote/schemas";
 import { Quote } from "../../../../bounded-contexts/quote/domain/aggregates/quote.aggregate";
 import { QuoteAlreadyOpenError } from "../../../../bounded-contexts/quote/domain/exceptions";
 import { DrizzleQuoteRepository } from "../../../../bounded-contexts/quote/infrastructure/repositories/drizzle/quote.repository";
+import { DrizzleQuoteScheduleReader } from "../../../../bounded-contexts/quote/infrastructure/repositories/drizzle/quote-schedule.reader";
 import { bestEffortCleanup, DEV_DB_COLD_START_TIMEOUT_MS, openDevDbConnection } from "./dev-db-test-connection";
 
 setDefaultTimeout(DEV_DB_COLD_START_TIMEOUT_MS);
@@ -206,6 +207,19 @@ describe("DrizzleQuoteRepository", () => {
     const due = await run(() => repo.findDueForSweep(new Date(), 50));
     expect(due.map((d) => d.id)).toContain(saved.id);
     expect(due.map((d) => d.id)).not.toContain(quoteIds[0]);
+  });
+
+  test("the schedule reader answers with the earliest open quote's deadline", async () => {
+    // `quoteIds[1]` is the open, already-overdue quote the test above created.
+    // Pushing its deadline long into the past keeps it the earliest in a
+    // shared database, and does not change what it is: open and due.
+    const deadline = new Date("2001-02-03T04:05:06.000Z");
+    await db.update(quote).set({ expiresAt: deadline }).where(eq(quote.id, quoteIds[1]!));
+
+    const earliest = await run(() => new DrizzleQuoteScheduleReader().earliestDeadline());
+
+    expect(earliest).toBeInstanceOf(Date);
+    expect(earliest!.getTime()).toBeLessThanOrEqual(deadline.getTime());
   });
 
   /**

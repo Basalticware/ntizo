@@ -57,10 +57,12 @@ import { provider } from "../provider/schemas/provider.schema";
 import { providerMember } from "../provider/schemas/provider-member.schema";
 import { user } from "../user/schemas/user.schema";
 import { booking } from "../booking/schemas/booking.schema";
+import { BookingStatus } from "../booking/enums";
 import { bookingChange } from "../booking/schemas/booking-change.schema";
 import { outboxEvent } from "../outbox/schemas/outbox-event.schema";
 import { Booking } from "../../../../bounded-contexts/booking/domain/aggregates/booking.aggregate";
 import { DrizzleBookingRepository } from "../../../../bounded-contexts/booking/infrastructure/repositories/drizzle/booking.repository";
+import { DrizzleBookingScheduleReader } from "../../../../bounded-contexts/booking/infrastructure/repositories/drizzle/booking-schedule.reader";
 import { DrizzleProviderMemberReader } from "../../../../bounded-contexts/booking/infrastructure/repositories/drizzle/provider-member.reader";
 import { DrizzleAdminUserReader } from "../../../../bounded-contexts/booking/infrastructure/repositories/drizzle/admin-user.reader";
 import { BookingRowSlotHold } from "../../../../bounded-contexts/booking/infrastructure/adapters/booking-row-slot-hold.adapter";
@@ -1204,6 +1206,35 @@ describe("SweepDueBookingsInternalCommand", () => {
       // `repo.save` for this one, so the row is exactly as
       // `findDueForSweep` found it — ready for the next sweep to retry.
       expect((await repo.findById(vanishedId))?.status).toBe("PENDING_PAYMENT");
+    });
+  });
+
+  test("the schedule reader answers with the earliest running clock and ignores a finished booking", async () => {
+    await withBookings(async (track) => {
+      // Long ago, so nothing real in the shared database is older: the
+      // earliest answer can only be ours, unless the reader wrongly counts
+      // the even older booking that has already expired.
+      const running = new Date("2001-02-03T04:05:06.000Z");
+      const finishedLongAgo = new Date("2000-01-01T00:00:00.000Z");
+      track(
+        await repo.insert(
+          draftBooking(bookingInput({ startsAt: new Date("2026-12-01T09:00:00.000Z"), expiresAt: running })),
+          1,
+        ),
+      );
+      const finished = track(
+        await repo.insert(
+          draftBooking(bookingInput({ startsAt: new Date("2026-12-02T09:00:00.000Z"), expiresAt: finishedLongAgo })),
+          1,
+        ),
+      );
+      await db.update(booking).set({ status: BookingStatus.Expired }).where(eq(booking.id, finished.id as string));
+
+      const earliest = await new DrizzleBookingScheduleReader().earliestDeadline();
+
+      expect(earliest).toBeInstanceOf(Date);
+      expect(earliest!.getTime()).toBeLessThanOrEqual(running.getTime());
+      expect(earliest!.getTime()).toBeGreaterThan(finishedLongAgo.getTime());
     });
   });
 });

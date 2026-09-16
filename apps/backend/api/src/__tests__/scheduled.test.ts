@@ -357,4 +357,61 @@ describe("the scheduled worker", () => {
     notifySpy.mockRestore();
     sweepDueSpy.mockRestore();
   });
+
+  it("leaves the sweeps to the scheduler when it can tell it when to fire", async () => {
+    // The alarm is the only place the sweeps may run: a Durable Object runs
+    // one alarm handler at a time, so runs can never overlap there, and two
+    // of the sweeps (the booking "ask" arm, notify-unread) are not safe under
+    // an overlap. Once the cron can tell the scheduler when to fire, it must
+    // not also run the sweeps itself.
+    const notifySpy = spyOn(NotifyUnreadInternalCommand.prototype, "execute");
+    const sweepDueSpy = spyOn(SweepDueBookingsInternalCommand.prototype, "execute");
+
+    const env = {
+      ...ENV,
+      SWEEP_SCHEDULER: {
+        idFromName: (name: string) => ({ name }),
+        get: () => ({ fetch: async () => new Response(null, { status: 204 }) }),
+      },
+      SWEEP_SCHEDULER_ENABLED: "true",
+    } as unknown as AppBindings;
+
+    const { ctx, scheduledPromises } = fakeExecutionContext();
+
+    await scheduled(fakeController(), env, ctx);
+
+    expect(notifySpy).not.toHaveBeenCalled();
+    expect(sweepDueSpy).not.toHaveBeenCalled();
+
+    await Promise.all(scheduledPromises);
+    notifySpy.mockRestore();
+    sweepDueSpy.mockRestore();
+  });
+
+  it("runs the sweeps itself when the scheduler is bound but not enabled — the kill switch", async () => {
+    // A local `wrangler dev` has the binding but not the flag, and so does a
+    // stage whose scheduler was switched off. Neither may hand the sweeps to
+    // a scheduler: the cron runs them, exactly as before the scheduler existed.
+    const notifySpy = spyOn(NotifyUnreadInternalCommand.prototype, "execute");
+    const sweepDueSpy = spyOn(SweepDueBookingsInternalCommand.prototype, "execute");
+
+    const env = {
+      ...ENV,
+      SWEEP_SCHEDULER: {
+        idFromName: (name: string) => ({ name }),
+        get: () => ({ fetch: async () => new Response(null, { status: 204 }) }),
+      },
+    } as unknown as AppBindings;
+
+    const { ctx, scheduledPromises } = fakeExecutionContext();
+
+    await scheduled(fakeController(), env, ctx);
+
+    expect(notifySpy).toHaveBeenCalledTimes(1);
+    expect(sweepDueSpy).toHaveBeenCalledTimes(1);
+
+    await Promise.all(scheduledPromises);
+    notifySpy.mockRestore();
+    sweepDueSpy.mockRestore();
+  });
 });

@@ -50,6 +50,17 @@ function fromTheOtherSide(viewerUserId: string) {
   return ne(message.senderSide, viewerSide(viewerUserId));
 }
 
+/**
+ * A message still owed a notice: it has a due time, nobody has read it, and
+ * no notice went out. `claimDueForNotice` adds "and that time has come";
+ * `DrizzleNoticeScheduleReader` asks when the earliest one comes. One
+ * predicate for both, so the scheduler can never wait for a message the sweep
+ * would not take, nor miss one it would.
+ */
+export function awaitingNotice() {
+  return and(isNotNull(message.notifyDueAt), isNull(message.readAt), isNull(message.notifiedAt));
+}
+
 export class DrizzleMessageRepository implements MessageRepositoryPort {
   /** `entity` already carries its `threadId` — see the port doc comment. */
   async insert(entity: Message): Promise<string> {
@@ -167,14 +178,7 @@ export class DrizzleMessageRepository implements MessageRepositoryPort {
       .innerJoin(thread, eq(thread.id, message.threadId))
       // Left: an inquiry has no request row, and its `subject` is null.
       .leftJoin(supportRequest, eq(supportRequest.threadId, thread.id))
-      .where(
-        and(
-          isNotNull(message.notifyDueAt),
-          lte(message.notifyDueAt, now),
-          isNull(message.readAt),
-          isNull(message.notifiedAt),
-        ),
-      )
+      .where(and(awaitingNotice(), lte(message.notifyDueAt, now)))
       .orderBy(asc(message.notifyDueAt))
       .limit(limit);
 

@@ -13,6 +13,7 @@ import { Message } from "../domain/aggregates/message.aggregate";
 import { DrizzleThreadRepository } from "../infrastructure/repositories/drizzle/thread.repository";
 import { DrizzleMessageRepository } from "../infrastructure/repositories/drizzle/message.repository";
 import { DrizzleAttachmentRepository } from "../infrastructure/repositories/drizzle/attachment.repository";
+import { DrizzleNoticeScheduleReader } from "../infrastructure/repositories/drizzle/notice-schedule.reader";
 
 const url = process.env["DEV_DB_URL"];
 if (!url) throw new Error("DEV_DB_URL is not set — see packages/backend/.env");
@@ -699,6 +700,35 @@ describe("claimDueForNotice / markNotified", () => {
     });
 
     expect(await notifiedAtOf(inserted!.id)).not.toBeNull();
+  });
+});
+
+describe("DrizzleNoticeScheduleReader", () => {
+  test("answers with the earliest message still owed a notice, ignoring read and notified ones", async () => {
+    const providerId = await makeProvider(ownerId, "notice-schedule");
+    const opened = await __runWithTransactionContextForTests(db, () =>
+      threads.openOrFind(customerId, providerId, new Date("2026-08-12T00:00:00.000Z")),
+    );
+
+    // Dated long ago so no real row in the shared database is older: the
+    // earliest answer can then only be ours — unless the reader wrongly counts
+    // the two even older rows it must ignore.
+    const owed = new Date("2001-02-03T04:05:06.000Z");
+    const readLongAgo = new Date("2000-01-01T00:00:00.000Z");
+    const notifiedLongAgo = new Date("2000-01-02T00:00:00.000Z");
+    await db.insert(message).values([
+      { threadId: opened.id, senderUserId: customerId, senderSide: "customer", body: "owed", notifyDueAt: owed },
+      { threadId: opened.id, senderUserId: customerId, senderSide: "customer", body: "read", notifyDueAt: readLongAgo, readAt: owed },
+      { threadId: opened.id, senderUserId: customerId, senderSide: "customer", body: "notified", notifyDueAt: notifiedLongAgo, notifiedAt: owed },
+    ]);
+
+    const earliest = await __runWithTransactionContextForTests(db, () =>
+      new DrizzleNoticeScheduleReader().earliestNoticeDueAt(),
+    );
+
+    expect(earliest).toBeInstanceOf(Date);
+    expect(earliest!.getTime()).toBeLessThanOrEqual(owed.getTime());
+    expect(earliest!.getTime()).toBeGreaterThan(notifiedLongAgo.getTime());
   });
 });
 
