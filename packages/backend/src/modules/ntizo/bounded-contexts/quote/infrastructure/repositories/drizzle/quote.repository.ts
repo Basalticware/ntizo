@@ -129,6 +129,15 @@ function toAggregate(row: QuoteRow, proposals: QuoteProposalRow[]): Quote {
   });
 }
 
+/**
+ * A quote still open with a clock running, whenever it ends. Shared by
+ * `findDueForSweep` ("and it has ended") and `DrizzleQuoteScheduleReader`
+ * ("when does the earliest end") so the two cannot drift apart.
+ */
+export function openWithDeadline() {
+  return and(inArray(quote.status, [...QUOTE_DEADLINE_BEARING_STATUSES]), isNotNull(quote.expiresAt));
+}
+
 export class DrizzleQuoteRepository implements QuoteRepositoryPort {
   private async proposalsFor(quoteIds: string[]): Promise<Map<string, QuoteProposalRow[]>> {
     const map = new Map<string, QuoteProposalRow[]>();
@@ -219,13 +228,7 @@ export class DrizzleQuoteRepository implements QuoteRepositoryPort {
     const rows = await getDb()
       .select()
       .from(quote)
-      .where(
-        and(
-          inArray(quote.status, [...QUOTE_DEADLINE_BEARING_STATUSES]),
-          isNotNull(quote.expiresAt),
-          lte(quote.expiresAt, now),
-        ),
-      )
+      .where(and(openWithDeadline(), lte(quote.expiresAt, now)))
       .orderBy(asc(quote.expiresAt))
       .limit(limit);
     const proposals = await this.proposalsFor(rows.map((r) => r.id));

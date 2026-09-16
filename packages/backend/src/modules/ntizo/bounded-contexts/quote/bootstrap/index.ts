@@ -14,6 +14,8 @@ import { AcceptQuoteCommand } from "../app/use-cases/accept-quote.command";
 import { MarkProposalStaleInternalCommand } from "../app/use-cases/mark-proposal-stale.internal.command";
 import { SweepQuoteCommand } from "../app/use-cases/sweep-quote.command";
 import { SweepDueQuotesInternalCommand } from "../app/use-cases/sweep-due-quotes.internal.command";
+import { NextQuoteDueAtInternalQuery } from "../app/use-cases/next-quote-due-at.internal.query";
+import { DrizzleQuoteScheduleReader } from "../infrastructure/repositories/drizzle/quote-schedule.reader";
 import type { AttachmentStoragePort } from "../app/ports/outbound/attachment-storage.port";
 import type { BookingOpenerPort } from "../app/ports/outbound/booking-opener.port";
 import type { StartThreadPort } from "../app/ports/outbound/start-thread.port";
@@ -156,6 +158,8 @@ export function bootstrapQuote(deps: QuoteBootstrapDeps) {
       internal: {
         sweepDue: new SweepDueQuotesInternalCommand(quoteRepository, sweepQuote),
         markProposalStale,
+        // When `sweepDue` next has work — see apps/backend/api/src/sweep-scheduler.
+        nextDueAt: new NextQuoteDueAtInternalQuery(new DrizzleQuoteScheduleReader()),
       },
     },
   };
