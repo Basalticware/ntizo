@@ -189,6 +189,12 @@ export class FakeQuoteRepo implements QuoteRepositoryPort {
   public saveCalls = 0;
   public savedArg: Quote | null = null;
   public currentStatusOverride: Quote["status"] | null = null;
+  /**
+   * The stored deadline the save's guard compares against, when a test needs
+   * it to differ from the snapshot a command loaded — a revision landing
+   * between that load and the save. `undefined` means "use the current quote's".
+   */
+  public currentExpiresAtOverride: Date | null | undefined = undefined;
   public insertError: Error | null = null;
   private current: Quote | null;
 
@@ -219,12 +225,17 @@ export class FakeQuoteRepo implements QuoteRepositoryPort {
    * so a test can assert a new proposal comes back with the id the
    * repository would have given it.
    */
-  async save(quote: Quote, expectedStatus: Quote["status"]): Promise<Quote | null> {
+  async save(quote: Quote, expectedStatus: Quote["status"], guard?: { dueBy?: Date }): Promise<Quote | null> {
     this.saveCalls += 1;
     this.savedArg = quote;
     this.unitOfWork?.order.push("save");
     const actual = this.currentStatusOverride ?? this.current?.status;
     if (actual !== expectedStatus) return null;
+    if (guard?.dueBy) {
+      const storedExpiresAt =
+        this.currentExpiresAtOverride !== undefined ? this.currentExpiresAtOverride : (this.current?.expiresAt ?? null);
+      if (!storedExpiresAt || storedExpiresAt.getTime() > guard.dueBy.getTime()) return null;
+    }
     const props = quote.toProps();
     const persisted = Quote.restore({
       ...props,

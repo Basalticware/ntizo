@@ -45,7 +45,12 @@ export class SweepQuoteCommand {
     const serviceName = service?.serviceName ?? "";
 
     const settled = await this.unitOfWork.atomicExecute(async () => {
-      const persisted = await this.repo.save(moved, quote.status);
+      // `dueBy: at` re-checks, at write time, the selection that brought this
+      // quote here. A provider revising the proposal between our read and
+      // this write keeps the status at PROPOSED and moves only the deadline;
+      // without the guard the swap still matched, and the fresh proposal was
+      // expired before the customer had seen it.
+      const persisted = await this.repo.save(moved, quote.status, { dueBy: at });
       if (!persisted) return null;
       await this.outboxPort.publish(
         [
