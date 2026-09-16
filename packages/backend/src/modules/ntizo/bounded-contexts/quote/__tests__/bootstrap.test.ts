@@ -19,6 +19,6 @@ describe("bootstrapQuote", () => {
       "requestQuote",
       "withdrawQuote",
     ]);
-    expect(Object.keys(boot.useCases.internal).sort()).toEqual(["markProposalStale", "sweepDue"]);
+    expect(Object.keys(boot.useCases.internal).sort()).toEqual(["markProposalStale", "nextDueAt", "sweepDue"]);
   });
 });
