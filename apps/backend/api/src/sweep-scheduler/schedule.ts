@@ -30,11 +30,20 @@ export const WAKE_URL = "https://sweep-scheduler/wake";
  * An alarm that fires early costs one run that finds nothing and reschedules.
  * An alarm pushed late is a deadline missed until the hourly cron, so this
  * never does that.
+ *
+ * An alarm already due — about to fire, or firing right now and still
+ * reported — is set to now rather than left alone. If it is the one running,
+ * the work this request just made due would otherwise wait for whatever that
+ * run schedules next; setting it costs at most one extra run.
  */
 export async function wakeAt(storage: AlarmStorage, at: number, now: number): Promise<void> {
   const target = Math.max(at, now);
   const current = await storage.getAlarm();
-  if (current === null || target < current) await storage.setAlarm(target);
+  if (current === null || target < current) {
+    await storage.setAlarm(target);
+  } else if (current <= now) {
+    await storage.setAlarm(now);
+  }
 }
 
 export interface AlarmDeps {
@@ -45,15 +54,28 @@ export interface AlarmDeps {
 }
 
 /**
+ * Sets the alarm after a run, unless a request set an earlier one meanwhile.
+ *
+ * `fired` is what the platform reported for the alarm before the run started:
+ * its own time, or null. A current value equal to it is that alarm, and is
+ * replaced. A different value was set by a request during the run, and is kept
+ * when it is earlier.
+ */
+async function scheduleAfterRun(storage: AlarmStorage, fired: number | null, target: number): Promise<void> {
+  const current = await storage.getAlarm();
+  if (current === null || current === fired || target < current) await storage.setAlarm(target);
+}
+
+/**
  * One alarm: run everything due, then decide when to wake next.
  *
- * The next time is floored to `now + MIN_ALARM_GAP_MS`: something still due
+ * The next time is floored to `now + MIN_ALARM_GAP_MS`. Something still due
  * after a run means its sweep failed or hit its limit, and trying again
- * instantly would spin. An alarm a request set *during* the run is kept when it
- * is earlier. The one that just fired is replaced whatever the platform
- * reports for it, because a reported time at or before now is that alarm.
+ * instantly would spin.
  */
 export async function handleAlarm(deps: AlarmDeps): Promise<void> {
+  const fired = await deps.storage.getAlarm();
+
   try {
     await deps.runSweeps();
   } catch (error) {
@@ -67,15 +89,13 @@ export async function handleAlarm(deps: AlarmDeps): Promise<void> {
     next = await deps.nextDueAt();
   } catch (error) {
     console.error("[sweep-scheduler] could not work out when the sweeps next have work", error);
-    await deps.storage.setAlarm(deps.now() + RECOMPUTE_FAILURE_RETRY_MS);
+    await scheduleAfterRun(deps.storage, fired, deps.now() + RECOMPUTE_FAILURE_RETRY_MS);
     return;
   }
   if (!next) return;
 
   const now = deps.now();
-  const target = Math.max(next.getTime(), now + MIN_ALARM_GAP_MS);
-  const current = await deps.storage.getAlarm();
-  if (current === null || current <= now || target < current) await deps.storage.setAlarm(target);
+  await scheduleAfterRun(deps.storage, fired, Math.max(next.getTime(), now + MIN_ALARM_GAP_MS));
 }
 
 /**

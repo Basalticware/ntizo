@@ -47,6 +47,12 @@ describe("wakeAt", () => {
     await wakeAt(storage, NOW - 60_000, NOW);
     expect(storage.alarm).toBe(NOW);
   });
+
+  it("makes a due alarm fire now, rather than leaving new work to a run that may already be ending", async () => {
+    const storage = new FakeStorage(NOW - 5);
+    await wakeAt(storage, NOW + 120_000, NOW);
+    expect(storage.alarm).toBe(NOW);
+  });
 });
 
 describe("handleAlarm", () => {
@@ -139,6 +145,52 @@ describe("handleAlarm", () => {
       });
       expect(storage.alarm).toBe(NOW + RECOMPUTE_FAILURE_RETRY_MS);
       expect(logged).toHaveBeenCalled();
+    } finally {
+      logged.mockRestore();
+    }
+  });
+
+  it("keeps an alarm a request set for right now while the sweeps were running", async () => {
+    const storage = new FakeStorage();
+    await handleAlarm({
+      storage,
+      runSweeps: async () => {
+        await wakeAt(storage, NOW - 1_000, NOW);
+      },
+      nextDueAt: async () => new Date(NOW + 600_000),
+      now: () => NOW,
+    });
+    expect(storage.alarm).toBe(NOW);
+  });
+
+  it("runs again now when a request arrives mid-run while the firing alarm is still reported", async () => {
+    const storage = new FakeStorage(NOW - 5);
+    await handleAlarm({
+      storage,
+      runSweeps: async () => {
+        await wakeAt(storage, NOW + 120_000, NOW);
+      },
+      nextDueAt: async () => new Date(NOW + 600_000),
+      now: () => NOW,
+    });
+    expect(storage.alarm).toBe(NOW);
+  });
+
+  it("does not let a failed recompute push back an earlier alarm a request set", async () => {
+    const logged = spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const storage = new FakeStorage();
+      await handleAlarm({
+        storage,
+        runSweeps: async () => {
+          await wakeAt(storage, NOW + 60_000, NOW);
+        },
+        nextDueAt: async () => {
+          throw new Error("compute limit reached");
+        },
+        now: () => NOW,
+      });
+      expect(storage.alarm).toBe(NOW + 60_000);
     } finally {
       logged.mockRestore();
     }
