@@ -87,7 +87,15 @@ function stripJsonComments(text: string): string {
 }
 
 interface WranglerConfig {
-  env?: Record<string, { triggers?: { crons?: string[] } }>;
+  durable_objects?: { bindings?: { name: string; class_name: string }[] };
+  migrations?: { tag: string; new_sqlite_classes?: string[] }[];
+  env?: Record<
+    string,
+    {
+      triggers?: { crons?: string[] };
+      durable_objects?: { bindings?: { name: string; class_name: string }[] };
+    }
+  >;
 }
 
 const raw = readFileSync(join(import.meta.dir, "..", "..", "wrangler.jsonc"), "utf8");
@@ -105,10 +113,37 @@ describe("wrangler.jsonc: the unread-message sweep's cron trigger", () => {
     });
   }
 
-  it("runs at least once a minute in every environment — the sweep's 2-minute notify window assumes it", () => {
+  it("sweeps at least hourly in every environment — the safety net under the sweep scheduler", () => {
+    // The 2-minute notice window no longer depends on the cron: the sweep
+    // scheduler's alarm wakes the sweeps when something is due. A per-minute
+    // cron kept Neon's compute awake around the clock and exhausted its free
+    // allowance in about 16 days.
     for (const envName of ["dev", "qa", "prod"] as const) {
       const crons = config.env?.[envName]?.triggers?.crons ?? [];
-      expect(crons).toContain("* * * * *");
+      expect(crons).toContain("0 * * * *");
+      expect(crons).not.toContain("* * * * *");
     }
+  });
+});
+
+describe("wrangler.jsonc: the sweep scheduler", () => {
+  const binding = { name: "SWEEP_SCHEDULER", class_name: "SweepScheduler" };
+
+  // Durable Object bindings, like `triggers`, are not inherited from the top
+  // level: an env without its own block has no scheduler, and its deadlines
+  // would wait for the hourly cron.
+  for (const envName of ["dev", "qa", "prod"] as const) {
+    it(`binds SWEEP_SCHEDULER in env.${envName}`, () => {
+      expect(config.env?.[envName]?.durable_objects?.bindings ?? []).toContainEqual(binding);
+    });
+  }
+
+  it("binds it for local `wrangler dev` too", () => {
+    expect(config.durable_objects?.bindings ?? []).toContainEqual(binding);
+  });
+
+  it("creates the class on the SQLite backend — the only one on the Workers Free plan", () => {
+    const created = (config.migrations ?? []).flatMap((m) => m.new_sqlite_classes ?? []);
+    expect(created).toContain("SweepScheduler");
   });
 });

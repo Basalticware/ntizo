@@ -116,6 +116,14 @@
     { "binding": "ATTACHMENTS_BUCKET", "bucket_name": "ntizo-attachments-local" }
   ],
 
+  // The sweep scheduler (src/sweep-scheduler): one alarm per environment, set
+  // to when the sweeps next have work. SQLite backend because it is the only
+  // one on the Workers Free plan.
+  "durable_objects": {
+    "bindings": [{ "name": "SWEEP_SCHEDULER", "class_name": "SweepScheduler" }]
+  },
+  "migrations": [{ "tag": "v1-sweep-scheduler", "new_sqlite_classes": ["SweepScheduler"] }],
+
   "env": {
     "dev": {
       "vars": {
@@ -134,13 +142,15 @@
         { "binding": "ATTACHMENTS_BUCKET", "bucket_name": "ntizo-attachments-dev" }
       ],
       "routes": [{ "pattern": "dev.api.ntizo.co.mz", "custom_domain": true }],
-      // Wakes `scheduled` (src/scheduled.ts) to sweep for messages still
-      // unread after the 2-minute notify window. Every minute is Cloudflare's
-      // finest granularity and is the right interval against that window: a
-      // message waits at most three minutes, usually two. NOT inherited from
-      // the top level — same as `r2_buckets` above, every named env needs its
-      // own `triggers` block or it gets none.
-      "triggers": { "crons": ["* * * * *"] }
+      // NOT inherited from the top level, same as `r2_buckets`: every named
+      // env needs its own Durable Object binding.
+      "durable_objects": {
+        "bindings": [{ "name": "SWEEP_SCHEDULER", "class_name": "SweepScheduler" }]
+      },
+      // Hourly safety net under the sweep scheduler, which wakes the sweeps
+      // when something is due. It was every minute, which kept Neon's compute
+      // awake around the clock. NOT inherited either.
+      "triggers": { "crons": ["0 * * * *"] }
     },
     "qa": {
       "vars": {
@@ -159,7 +169,15 @@
         { "binding": "ATTACHMENTS_BUCKET", "bucket_name": "ntizo-attachments-qa" }
       ],
       "routes": [{ "pattern": "qa.api.ntizo.co.mz", "custom_domain": true }],
-      "triggers": { "crons": ["* * * * *"] }
+      // NOT inherited from the top level, same as `r2_buckets`: every named
+      // env needs its own Durable Object binding.
+      "durable_objects": {
+        "bindings": [{ "name": "SWEEP_SCHEDULER", "class_name": "SweepScheduler" }]
+      },
+      // Hourly safety net under the sweep scheduler, which wakes the sweeps
+      // when something is due. It was every minute, which kept Neon's compute
+      // awake around the clock. NOT inherited either.
+      "triggers": { "crons": ["0 * * * *"] }
     },
     "prod": {
       "vars": {
@@ -192,7 +210,15 @@
         { "binding": "ATTACHMENTS_BUCKET", "bucket_name": "ntizo-attachments-prod" }
       ],
       "routes": [{ "pattern": "api.ntizo.co.mz", "custom_domain": true }],
-      "triggers": { "crons": ["* * * * *"] }
+      // NOT inherited from the top level, same as `r2_buckets`: every named
+      // env needs its own Durable Object binding.
+      "durable_objects": {
+        "bindings": [{ "name": "SWEEP_SCHEDULER", "class_name": "SweepScheduler" }]
+      },
+      // Hourly safety net under the sweep scheduler, which wakes the sweeps
+      // when something is due. It was every minute, which kept Neon's compute
+      // awake around the clock. NOT inherited either.
+      "triggers": { "crons": ["0 * * * *"] }
     }
   }
 }
