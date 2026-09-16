@@ -182,6 +182,11 @@ function createAuthInstance() {
     emailVerification: {
       sendOnSignUp: true,
       autoSignInAfterVerification: true,
+      // Seconds. better-auth's default is one hour, which was inherited rather
+      // than chosen: a QA tester's accounts were locked out because their
+      // links had lapsed before anyone opened them. A day covers the mail read
+      // the next morning; "Reenviar e-mail de confirmação" covers the rest.
+      expiresIn: 24 * 60 * 60,
       sendVerificationEmail: async ({ user, url }) => {
         const svc = requireEmailService();
         // Same source as the profile's own language, and for the same
