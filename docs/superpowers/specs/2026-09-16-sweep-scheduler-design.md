@@ -95,7 +95,10 @@ Read from `origin/dev` at `abde0123`.
    attempted is due now, and one attempted is due at `last_charge_attempt_at + 5 min`.
 6. **A floor under the next alarm.** When the recompute returns a time at or before now (something is
    due but its sweep failed or hit its limit), the alarm is set to now + 30 s. That prevents a hot loop
-   while still draining a backlog within seconds.
+   while still draining a backlog within seconds. When the same earliest due time is still overdue
+   after consecutive runs, the gap doubles up to 15 minutes, so a row whose sweep keeps failing cannot
+   keep the database awake. The one bounded exception is a charge "due now" on a stage whose payment
+   processor is not configured, which lasts only until that booking's payment window closes.
 7. **`DelayedJobsPort` is left alone.** It is a no-op today and this design does not need it. Removing
    it is a separate clean-up.
 
@@ -104,7 +107,8 @@ Read from `origin/dev` at `abde0123`.
 ### `SweepScheduler` Durable Object — `apps/backend/api/src/sweep-scheduler/`
 
 - Singleton addressed by `env.SWEEP_SCHEDULER.idFromName("sweeps")`, SQLite storage backend. It stores
-  nothing but its alarm.
+  its alarm and, under the key `overdue`, the overdue record `{ dueAt, gapMs }`: the earliest due time
+  still due after the last run and the gap it was given, which is what the backoff in decision 6 reads.
 - `wakeAt(at: number): Promise<void>` (RPC):
   1. `current = await storage.getAlarm()`
   2. `target = max(at, Date.now())`
@@ -156,7 +160,12 @@ The four sweep calls and their per-sweep try/catch move unchanged into one funct
   - `durable_objects.bindings: [{ name: "SWEEP_SCHEDULER", class_name: "SweepScheduler" }]`, repeated
     in dev, qa and prod because bindings are not inherited;
   - one migration `{ tag: "v1-sweep-scheduler", new_sqlite_classes: ["SweepScheduler"] }`;
-  - `triggers.crons` becomes `["0 * * * *"]` in dev, qa and prod.
+  - `triggers.crons` becomes `["0 * * * *"]` in dev, qa and prod;
+  - `SWEEP_SCHEDULER_ENABLED: "true"` in the `vars` of dev, qa and prod, and absent from the top-level
+    `vars`. The scheduler is used only when it is exactly `"true"`. A local `wrangler dev` has the
+    binding too, and its `.dev.vars` point at the shared dev database, so without the flag it would run
+    a second scheduler against dev's data. It is also the kill switch (see "Rollout, verification and
+    rollback").
 - `src/index.ts` exports `SweepScheduler` beside `fetch` and `scheduled`.
 - `AppBindings` gains `SWEEP_SCHEDULER?: DurableObjectNamespace<SweepScheduler>`, optional so tests
   and local tooling without it keep working. The refresh is a no-op when the binding is absent.
@@ -239,16 +248,20 @@ The four sweep calls and their per-sweep try/catch move unchanged into one funct
   2. observe the notify email printed about 2 minutes later with no minute cron;
   3. observe no sweep queries while idle.
 
-## Rollout and verification
+## Rollout, verification and rollback
 
-1. Merge to `dev`, deploy the API to dev. Watch the Neon `ntizo-dev` endpoint: `last_active` stops
-   advancing between requests, and the endpoint reaches `idle` within ~5 minutes of the last request
-   or hourly run.
-2. On dev, send a message between two test accounts. The notification is recorded about 2 minutes
-   later (`notification_delivery` / inbox row).
-3. Deploy to QA before Sep 24, then to prod before Sep 27, with the same idle check on each.
-4. A week later, check Neon consumption: the daily CU-hours should fall from ~6 to under 1 on an idle
-   stage.
+Deploys are **forward-only**. The first deploy on each stage applies the Durable Object migration `v1-sweep-scheduler`. Cloudflare refuses `wrangler rollback` across a Durable Object migration, and removing the class would need a delete migration. So there is no rollback by reverting.
+
+- **The first deploy per stage must be `wrangler deploy`** (`bun run deploy:<stage>` in `apps/backend/api`), not `wrangler versions upload`, which does not apply migrations.
+- **Right after each deploy,** make one POST that touches the database (any GraphQL call), so the scheduler learns the next due time at once instead of at the next hourly run.
+- **Kill switch, if the scheduler misbehaves:** set `SWEEP_SCHEDULER_ENABLED` to `"false"` in that stage's `vars`, set its cron back to `* * * * *`, and `wrangler deploy`. The refresh then finds no scheduler, and the cron runs the sweeps every minute exactly as before. The class and its migration stay in place, harmless.
+
+Verification per stage:
+
+1. Merge to `dev`, deploy the API to dev. Watch the Neon endpoint: `last_active` stops advancing between requests, and the endpoint reaches `idle` within ~5 minutes of the last request or hourly run.
+2. On dev, send a message between two test accounts. The notification is recorded about 2 minutes later.
+3. Deploy to QA before Sep 24, then to prod before Sep 27, with the same idle check.
+4. A week later, check Neon consumption: daily CU-hours on an idle stage should fall from ~6 to under 1.
 
 ## Phasing
 
