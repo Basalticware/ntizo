@@ -77,6 +77,12 @@ export const configMiddleware: MiddlewareHandler<{ Bindings: AppBindings }> = as
         if (shouldRefreshAfterRequest(c.req.method, infraStore.getDbConnection() !== undefined)) {
           infraStore.waitUntil(refreshSweepSchedule(c.env.SWEEP_SCHEDULER));
         }
+        // Workers run nothing after the response unless scheduled — and the
+        // deferred work scheduled above still needs this request's `{ max: 1 }`
+        // postgres pool for recipients, suppressions and delivery rows. So the
+        // close is chained BEHIND it, not scheduled beside it — see
+        // `closeDbBehindDeferredWork`'s own doc comment for the full argument,
+        // and for why this is a shared call rather than a hand-copied block.
         closeDbBehindDeferredWork((promise) => c.executionCtx.waitUntil(promise));
       }
     },
