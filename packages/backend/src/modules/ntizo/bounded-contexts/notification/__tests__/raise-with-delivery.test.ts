@@ -148,6 +148,20 @@ describe("raising with a deliverer wired", () => {
   });
 });
 
+describe("raising one notification without its email", () => {
+  it("writes the inbox row and never reaches delivery", async () => {
+    // For the one case where another mail has already said the same thing: an
+    // e-mail sign-up is welcomed by the verification mail, so the welcome
+    // notification keeps its inbox row and drops its email.
+    const cmd = new RaiseNotificationInternalCommand(repo, deliverer);
+    await expect(cmd.execute({ ...input, email: false })).resolves.toEqual({
+      notificationId: "n1",
+    });
+    expect(repo.saved).toHaveLength(1);
+    expect(deliverer.calls).toEqual([]);
+  });
+});
+
 describe("raising with no deliverer", () => {
   it("works exactly as it did in phase 1", async () => {
     // The argument is optional so every existing caller and test keeps

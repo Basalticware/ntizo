@@ -29,6 +29,13 @@ export interface SignUpHookInput {
   firstName: string;
   lastName: string;
   /**
+   * Whether the address was verified when the user was created: true for
+   * Google, false for an e-mail sign-up. The verification mail of the latter is
+   * also its welcome, so this is what keeps the welcome notification from
+   * emailing the same person a second time.
+   */
+  emailVerified: boolean;
+  /**
    * In E.164, or null when the user signed up without one (social login).
    *
    * Passed through so the domain Profile carries the same number better-auth
@@ -181,7 +188,15 @@ function createAuthInstance() {
         // reason: this fires during the signup request, so the header is
         // there. It is also the only signal available — the profile does not
         // exist yet when this runs.
-        const tpl = verifyEmailTemplate(url, resolveLocale(infraStore.getAcceptLanguage()));
+        //
+        // It greets by first name because it is also the welcome — see
+        // verify-email.ts. `firstName` is an additional field, so it is on
+        // the user object without being on better-auth's type.
+        const tpl = verifyEmailTemplate(
+          url,
+          resolveLocale(infraStore.getAcceptLanguage()),
+          ((user as Record<string, unknown>).firstName as string | undefined) ?? null,
+        );
         await svc.sendEmail({
           to: [user.email],
           subject: tpl.subject,
@@ -252,6 +267,7 @@ function createAuthInstance() {
                 email: authUser.email,
                 firstName: (u.firstName as string) ?? "",
                 lastName: (u.lastName as string) ?? "",
+                emailVerified: authUser.emailVerified,
                 // Already normalised to E.164 by the create.before hook above,
                 // so the profile and the auth user store the same string.
                 phoneNumber: (u.phoneNumber as string | undefined) ?? null,

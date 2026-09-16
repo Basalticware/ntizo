@@ -22,18 +22,32 @@ export interface UserNotificationDeps {
  * profile: an inbox row records what was true when it was raised, and a row
  * that re-read the name would quietly change what it said about the past every
  * time somebody edited their profile.
+ *
+ * The email is dropped for an e-mail sign-up, and only the email: the
+ * verification mail better-auth sends is itself the welcome, and a second one
+ * arriving seconds later saying "your account is ready" was the one people
+ * opened — while sign-in still refused them. A Google sign-up is never sent
+ * that mail, so theirs keeps its email.
  */
 export function registerUserNotificationHandlers(
   router: EventRouter,
   deps: UserNotificationDeps,
 ): void {
   router.on("user.registered", async (event) => {
-    const payload = event.payload as { userId: string; firstName: string | null };
+    const payload = event.payload as {
+      userId: string;
+      firstName: string | null;
+      emailVerified?: boolean;
+    };
     await deps.raiseNotification.execute({
       type: NotificationType.Welcome,
       audience: "user",
       userId: payload.userId,
       payload: { firstName: payload.firstName },
+      // `=== false`, not a falsy check: an outbox row written before this
+      // field existed has no value, and those people were never welcomed by
+      // their verification mail.
+      ...(payload.emailVerified === false ? { email: false } : {}),
     });
   });
 }

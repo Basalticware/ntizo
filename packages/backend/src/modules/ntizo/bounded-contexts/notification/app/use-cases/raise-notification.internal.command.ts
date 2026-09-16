@@ -3,14 +3,23 @@ import { Notification } from "../../domain/aggregates/notification.aggregate";
 import type { DeliverNotificationInternalPort } from "../ports/inbound/deliver-notification.internal.command.port";
 import type { NotificationRepositoryPort } from "../ports/outbound/notification.repository.port";
 
-export type RaiseNotificationInput =
+export type RaiseNotificationInput = (
   | { type: NotificationType; audience: "user"; userId: string; payload: Record<string, unknown> }
   | {
       type: NotificationType;
       audience: "provider";
       providerId: string;
       payload: Record<string, unknown>;
-    };
+    }
+) & {
+  /**
+   * `false` writes the inbox row and sends nothing. For the rare raise whose
+   * email another mail has already covered — the welcome of an e-mail sign-up,
+   * which its verification mail says for it. Absent means the usual: email if
+   * the type has a template.
+   */
+  email?: boolean;
+};
 
 /**
  * The one way a notification comes into existence.
@@ -76,7 +85,7 @@ export class RaiseNotificationInternalCommand {
     // scope is set and nothing in this repo ever sets one. tx-context.ts's
     // drainAfterCommit does the same thing for the same reason. Leave it, or
     // somebody "upgrades" it back into a bug.
-    if (this.deliverer) {
+    if (this.deliverer && input.email !== false) {
       try {
         await this.deliverer.execute({ ...input, notificationId });
       } catch (error) {

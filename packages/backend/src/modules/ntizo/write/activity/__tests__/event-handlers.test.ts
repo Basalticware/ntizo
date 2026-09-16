@@ -92,7 +92,7 @@ beforeEach(() => {
 describe("user.registered", () => {
   it("records a registration against the person who registered", async () => {
     await router.dispatch([
-      new UserRegistered({ userId: "u1", email: "a@b.test", firstName: "Ana" }),
+      new UserRegistered({ userId: "u1", email: "a@b.test", firstName: "Ana", emailVerified: false }),
     ]);
     expect(record.calls[0]).toMatchObject({
       actorUserId: "u1",

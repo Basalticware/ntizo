@@ -26,6 +26,11 @@ import { BaseDomainEvent } from "@cosmneo/onion-lasagna";
  * normalises away rather than passing on — see
  * `CreateUserOnSignUpInternalCommand`.
  *
+ * `emailVerified` says whether the address was already verified at the moment
+ * of registration — true for a Google sign-up, false for an e-mail one, whose
+ * verification mail doubles as its welcome. The notification side needs it
+ * to avoid welcoming the same person twice, and only the sign-up knows it.
+ *
  * `ProfileUpgradedToProvider` is deliberately not here. Nothing listens for
  * it, and an event with no listener is how dead surface starts.
  */
@@ -33,8 +38,14 @@ export class UserRegistered extends BaseDomainEvent<{
   userId: string;
   email: string;
   firstName: string | null;
+  emailVerified: boolean;
 }> {
-  constructor(payload: { userId: string; email: string; firstName: string | null }) {
+  constructor(payload: {
+    userId: string;
+    email: string;
+    firstName: string | null;
+    emailVerified: boolean;
+  }) {
     super("user.registered", payload.userId, payload);
   }
 }

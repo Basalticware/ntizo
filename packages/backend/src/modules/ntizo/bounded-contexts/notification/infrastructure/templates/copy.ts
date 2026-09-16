@@ -31,20 +31,11 @@ export interface TemplateModule {
 }
 
 /**
- * Escapes what goes into an HTML email body.
- *
- * A provider names their own business and a person types their own first
- * name; both reach a template through the notification's payload. An
- * apostrophe would merely look wrong, but a `<` would not, and an email body
- * is markup like any other.
+ * Re-exported from shared for the same reason `pickCopy` is: better-auth's
+ * verification mail greets a person by the first name they typed, and cannot
+ * import from a bounded context.
  */
-export function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
+export { escapeHtml } from "../../../../../../shared/infrastructure/email/templates/copy";
 
 /**
  * Where a link in an email should point.

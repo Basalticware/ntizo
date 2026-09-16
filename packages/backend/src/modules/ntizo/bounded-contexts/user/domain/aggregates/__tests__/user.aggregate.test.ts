@@ -3,7 +3,12 @@ import { User } from "../user.aggregate";
 
 describe("User.create", () => {
   it("records user.registered, so no future call site can create a user silently", async () => {
-    const user = User.create({ id: "u1", email: "ana@ntizo.test", firstName: "Ana" });
+    const user = User.create({
+      id: "u1",
+      email: "ana@ntizo.test",
+      firstName: "Ana",
+      emailVerified: false,
+    });
 
     const events = user.pullEvents();
     expect(events.map((e) => e.eventName)).toEqual(["user.registered"]);
@@ -12,16 +17,22 @@ describe("User.create", () => {
       userId: "u1",
       email: "ana@ntizo.test",
       firstName: "Ana",
+      emailVerified: false,
     });
   });
 
   it("records the event with a null first name when none was given", () => {
-    const user = User.create({ id: "u1", email: "ana@ntizo.test" });
+    const user = User.create({ id: "u1", email: "ana@ntizo.test", emailVerified: false });
     expect((user.pullEvents()[0]!.payload as { firstName: string | null }).firstName).toBeNull();
   });
 
   it("hands each event out once", () => {
-    const user = User.create({ id: "u1", email: "ana@ntizo.test", firstName: "Ana" });
+    const user = User.create({
+      id: "u1",
+      email: "ana@ntizo.test",
+      firstName: "Ana",
+      emailVerified: false,
+    });
     expect(user.pullEvents()).toHaveLength(1);
     // Two publishes of one registration is two welcomes.
     expect(user.pullEvents()).toHaveLength(0);

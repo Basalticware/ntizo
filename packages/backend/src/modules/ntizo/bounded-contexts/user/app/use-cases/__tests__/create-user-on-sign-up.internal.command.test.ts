@@ -110,6 +110,7 @@ describe("CreateUserOnSignUpInternalCommand — atomicity", () => {
         email: "new@ntizo.test",
         firstName: "New",
         lastName: "User",
+        emailVerified: false,
       }),
     ).rejects.toThrow("profileRepo.save always rejects in this test");
 
@@ -136,6 +137,7 @@ describe("CreateUserOnSignUpInternalCommand — atomicity", () => {
         email: "new@ntizo.test",
         firstName: "New",
         lastName: "User",
+        emailVerified: false,
       }),
     ).rejects.toThrow();
 
@@ -166,6 +168,7 @@ describe("CreateUserOnSignUpInternalCommand — events", () => {
       email: "ana@ntizo.test",
       firstName: "Ana",
       lastName: "S",
+      emailVerified: false,
     });
 
     expect(outbox.published.map((e) => e.eventName)).toEqual(["user.registered"]);
@@ -181,14 +184,36 @@ describe("CreateUserOnSignUpInternalCommand — events", () => {
       email: "ana@ntizo.test",
       firstName: "Ana",
       lastName: "S",
+      emailVerified: false,
     });
 
     expect(outbox.published[0]!.payload).toEqual({
       userId: "u1",
       email: "ana@ntizo.test",
       firstName: "Ana",
+      emailVerified: false,
     });
     expect(outbox.published[0]!.aggregateId).toBe("u1");
+  });
+
+  it("carries an address that arrived already verified, as a Google sign-up does", async () => {
+    // An e-mail sign-up is welcomed by the verification mail itself; a Google
+    // one never gets that mail. The event is where the difference survives
+    // long enough for the notification side to act on it.
+    const store = createStore();
+    const outbox = new SpyOutbox();
+
+    await build(store, outbox).execute({
+      userId: "u1",
+      email: "ana@ntizo.test",
+      firstName: "Ana",
+      lastName: "S",
+      emailVerified: true,
+    });
+
+    expect(
+      (outbox.published[0]!.payload as { emailVerified: boolean }).emailVerified,
+    ).toBe(true);
   });
 
   // `""` is the literal value better-auth's `defaultValue: ""` produces for a
@@ -209,6 +234,7 @@ describe("CreateUserOnSignUpInternalCommand — events", () => {
         email: "ana@ntizo.test",
         firstName,
         lastName: "",
+        emailVerified: false,
       });
 
       // "Welcome, !" is what an empty string renders as. Null says "no name
@@ -224,7 +250,7 @@ describe("CreateUserOnSignUpInternalCommand — events", () => {
     const outbox = new SpyOutbox();
     store.users.set(
       "u1",
-      User.create({ id: "u1", email: "ana@ntizo.test", role: "customer" }),
+      User.create({ id: "u1", email: "ana@ntizo.test", role: "customer", emailVerified: false }),
     );
 
     await build(store, outbox).execute({
@@ -232,6 +258,7 @@ describe("CreateUserOnSignUpInternalCommand — events", () => {
       email: "ana@ntizo.test",
       firstName: "Ana",
       lastName: "S",
+      emailVerified: false,
     });
 
     // Idempotency has to cover the event too. A second welcome for one
@@ -262,6 +289,7 @@ describe("CreateUserOnSignUpInternalCommand — what the sign-up knew", () => {
     email: "new@ntizo.test",
     firstName: "New",
     lastName: "User",
+    emailVerified: false,
   };
 
   it("puts the sign-in provider's photo on the new profile", async () => {
