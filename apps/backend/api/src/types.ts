@@ -1,4 +1,4 @@
-import type { R2Bucket } from "@cloudflare/workers-types";
+import type { DurableObjectNamespace, R2Bucket } from "@cloudflare/workers-types";
 import type { InfraEnvBindings } from "@ntizo/backend/shared/infra";
 
 /**
@@ -30,4 +30,10 @@ export type AppBindings = InfraEnvBindings & {
    * caller of `infraStore.runAsync` supply a value it has no use for.
    */
   RESEND_WEBHOOK_SECRET?: string;
+  /**
+   * The sweep scheduler (src/sweep-scheduler). Optional so tests and tooling
+   * without the binding keep working; the refresh does nothing without it and
+   * the hourly cron still sweeps.
+   */
+  SWEEP_SCHEDULER?: DurableObjectNamespace;
 };

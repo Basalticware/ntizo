@@ -8,3 +8,6 @@ export default {
   },
   scheduled,
 };
+
+// Durable Object classes must be exported from the Worker's main module.
+export { SweepScheduler } from "./sweep-scheduler/sweep-scheduler.do";
