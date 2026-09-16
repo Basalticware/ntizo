@@ -152,7 +152,7 @@ export class BookingTransitionError extends UnprocessableError {
  * except from a status `markDone` already put the booking into, so the
  * appointment is behind them by construction. `reminded` is the deliberate
  * omission — it also sits on `CONFIRMED`, but its only caller is the sweep,
- * where a throw is caught, counted failed and re-tried every minute rather
+ * where a throw is caught, counted failed and re-tried on every run rather
  * than shown to anybody. See `Booking.reminded`, which states the invariant
  * that makes an early firing unreachable in the first place.
  */
@@ -494,7 +494,7 @@ export class BookingNoCustomerPhoneError extends UnprocessableError {
 /**
  * Refused because this booking has already spent every charge attempt the
  * platform allows it — `BOOKING_CHARGE_ATTEMPT_LIMIT` of them, whichever
- * claimed the last one, the per-minute sweep or a customer's own press of
+ * claimed the last one, the sweep or a customer's own press of
  * "Pagar".
  *
  * A request past this point is not a new fact for the platform to act on:

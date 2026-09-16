@@ -17,23 +17,25 @@ import { startThreadOver } from "../start-thread.adapter";
 /**
  * How many due messages one sweep may claim.
  *
- * The cron runs every minute (see `wrangler.jsonc`) against a two-minute
- * notify window, so under any plausible load one wave clears the queue
- * before the next wave starts. This is a generous ceiling against a runaway
- * backlog, not a throttle a normal run is expected to hit.
+ * The sweeps run as soon as a notice falls due (see `handleAlarm` in
+ * schedule.ts) against a two-minute notify window, so under any plausible
+ * load one wave clears the queue before the next wave starts. This is a
+ * generous ceiling against a runaway backlog, not a throttle a normal run is
+ * expected to hit.
  */
 export const SWEEP_LIMIT = 200;
 
 /**
  * How many due bookings one sweep may claim.
  *
- * The cron runs every minute (see `wrangler.jsonc`) against three
- * administrator-configured windows, not one: the checkout hold a `DRAFT`
- * stands on, the response window an `AWAITING_PROVIDER` gives the provider,
- * and the payment window a `PENDING_PAYMENT` gives the customer — all
+ * The sweeps run as soon as a deadline falls due (see `handleAlarm` in
+ * schedule.ts) against three administrator-configured windows, not one: the
+ * checkout hold a `DRAFT` stands on, the response window an
+ * `AWAITING_PROVIDER` gives the provider, and the payment window a
+ * `PENDING_PAYMENT` gives the customer — all
  * `platform_settings` columns, all read through `PlatformSettingsReaderPort`
  * in the booking bounded context, the shortest of them measured in minutes.
- * Under any plausible load whatever went stale in the last minute across all
+ * Under any plausible load whatever went stale since the last run across all
  * three is a small fraction of this ceiling, and one wave clears it before
  * the next wave starts. Shorter windows only shrink the possible backlog
  * further, so 200 stays a generous ceiling against a runaway backlog either
@@ -59,12 +61,15 @@ export const BOOKING_SWEEP_LIMIT = 200;
  * comfortably inside a scheduled invocation's wall-clock budget with room for
  * the two sweeps that ran before it.
  *
- * A backlog is not lost, only spread: the cron wakes again in sixty seconds,
- * and `ChargeAcceptedBookingsInternalCommand`'s own cooldown means the next
- * wave picks up different bookings rather than re-prompting these. Five per
- * minute is three hundred bookings an hour, against a payment window measured
- * in minutes — far past anything this platform's volume requires, and the
- * number to revisit first if it ever isn't.
+ * A backlog is not lost, only spread: the scheduler runs again 30 seconds
+ * after a run that left bookings due (see `handleAlarm` in schedule.ts), and
+ * `ChargeAcceptedBookingsInternalCommand`'s own cooldown means the next
+ * wave picks up different bookings rather than re-prompting these. Runs do
+ * not overlap, so a wave of five unanswered prompts (five to ten minutes)
+ * holds the next back until it ends: roughly thirty to fifty bookings an
+ * hour at worst, more when customers answer, against a payment window
+ * measured in minutes — the number to revisit first if that is ever not
+ * enough.
  */
 export const BOOKING_CHARGE_LIMIT = 5;
 
@@ -82,10 +87,11 @@ export const QUOTE_SWEEP_LIMIT = 200;
  * The dispute-thread port `bootstrapBooking` requires, for a caller that will
  * never open a dispute.
  *
- * The cron reaches `internal.sweepDue` and `internal.chargeAccepted` and
- * nothing else, and neither of those can dispute anything — but a bootstrap
- * that constructs every use case constructs `DisputeBookingCommand` too, so
- * it needs the real port and not a stub. Same situation as the
+ * The sweeps reach `internal.sweepDue` and `internal.chargeAccepted`, and
+ * `computeNextDueAt` reaches `internal.nextDueAt`, and nothing else; none of
+ * those can dispute anything — but a bootstrap that constructs every use
+ * case constructs `DisputeBookingCommand` too, so it needs the real port and
+ * not a stub. Same situation as the
  * `AttachmentStorageAdapter` this file already hands `bootstrapCommunication`
  * for a sweep that never touches an attachment.
  *
@@ -101,7 +107,7 @@ export const QUOTE_SWEEP_LIMIT = 200;
  * `runWithAttachmentsBucket`, which is what binds the request's
  * `ATTACHMENTS_BUCKET` for it to find (see `graphql/private.ts`, where the
  * same adapter is wrapped per request). A dispute carrying attachments would
- * fail here. Nothing in the cron opens one, so nothing exercises that today —
+ * fail here. Nothing in the sweeps opens one, so nothing exercises that today —
  * but a future scheduled arm that genuinely needs to open a thread has to
  * establish the bucket scope first, not copy this function.
  */
@@ -121,7 +127,8 @@ export function disputeThreadForCron(): OpenDisputeThreadPort {
  * The booking-opener and thread ports the quote bootstrap requires, for a
  * caller that will never accept or request anything.
  *
- * The sweep reaches `internal.sweepDue` and nothing else, but a bootstrap that
+ * The sweep reaches `internal.sweepDue` and `computeNextDueAt` reaches
+ * `internal.nextDueAt`, and nothing else, but a bootstrap that
  * constructs every use case constructs the acceptance too. Same situation as
  * `disputeThreadForCron` above, and the same answer: build the real graph
  * lazily, inside `execute`, so a run that never accepts never builds it.
@@ -227,7 +234,7 @@ export async function runSweeps(): Promise<void> {
     console.error("[scheduled] booking sweep threw", error);
   }
 
-  // The cron's third question, and its own `try` for the same reason
+  // The sweeps' third question, and its own `try` for the same reason
   // the second one has one: it must run whether or not either sweep
   // above threw, and it must be judged on its own outcome. It is also
   // the only one of the three that spends real time — see
@@ -270,7 +277,7 @@ export async function runSweeps(): Promise<void> {
     console.error("[scheduled] booking charge sweep threw", error);
   }
 
-  // The cron's fourth question, and its own `try` for the same reason
+  // The sweeps' fourth question, and its own `try` for the same reason
   // the others have one: it must run whether or not any sweep above
   // threw, and it must be judged on its own outcome. Like the two
   // booking sweeps, it needs the same DB context and nothing from

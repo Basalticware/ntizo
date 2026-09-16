@@ -150,8 +150,8 @@ export const SLOT_HOLDING_STATUSES = [
  *
  * **A sixth member added here without an arm there is selected, counted as
  * swept and left completely untouched**, because that switch ends in a
- * `default:` returning null. Nothing fails: the row is read every minute for
- * ever and answered by nobody, which is the failure mode this paragraph
+ * `default:` returning null. Nothing fails: the row is read on every sweep
+ * run for ever and answered by nobody, which is the failure mode this paragraph
  * exists to warn the next person about. Adding a status to this list is
  * therefore two edits, not one.
  *

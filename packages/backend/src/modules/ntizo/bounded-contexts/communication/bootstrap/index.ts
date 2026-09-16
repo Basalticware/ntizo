@@ -29,7 +29,7 @@ export interface CommunicationBootstrapDeps {
    * exists; see the port's own doc comment for why it is declared here
    * rather than imported from the notification context's `app/` tree.
    *
-   * Two callers today: `apps/backend/api/src/scheduled.ts`'s cron sweep
+   * Two callers today: `apps/backend/api/src/sweep-scheduler`'s sweeps
    * (the only place `useCases.internal.notifyUnread` is used) and
    * `apps/backend/api/src/graphql/private.ts` (Task 8's write-tier
    * mutations — `startThread`/`send`/`markRead` — which never touch
@@ -116,8 +116,9 @@ export function bootstrapCommunication(deps: CommunicationBootstrapDeps) {
       ),
       markSupportRequestRead: new MarkSupportRequestReadCommand(threadRepository, messageRepository),
       internal: {
-        // The delayed notice a cron sweeps — nobody asks for this, something
-        // schedules it. See scheduled.ts.
+        // The delayed notice the sweep scheduler sweeps — nobody asks for
+        // this, something schedules it. See
+        // apps/backend/api/src/sweep-scheduler.
         notifyUnread: new NotifyUnreadInternalCommand(messageRepository, deps.raiseNotification, adminUserReader),
         // When that sweep next has work — what the API's sweep scheduler sets
         // its alarm from. See apps/backend/api/src/sweep-scheduler.

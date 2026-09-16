@@ -188,19 +188,21 @@ export const booking = bookingSchema.table(
      * It exists so a permanent failure is *visible* rather than infinite: a
      * customer whose handset is off is retried a few times and then left to
      * the cancellation that tells the provider why, instead of being prompted
-     * every sixty seconds until the window closes.
+     * every five minutes until the window closes.
      */
     chargeAttempts: integer("charge_attempts").notNull().default(0),
     /**
      * When the last of those attempts started.
      *
-     * The bound alone is not enough, and the reason is the cron interval. A
-     * C2B call **blocks until the customer answers or ~60 seconds pass**, and
-     * the sweep wakes every minute — so without a cooldown the second wave
-     * starts before the first wave's call has returned, and the customer gets
-     * a second prompt on top of a live one. Three attempts would land in
-     * three consecutive minutes and then never again. This column is what
-     * spaces them out across the payment window instead, and it is why
+     * The bound alone is not enough, and the reason is how soon a booking can
+     * be charged again. A C2B call **blocks until the customer answers or ~60
+     * seconds pass**, and a customer's "Pagar" or the hourly cron's fallback
+     * run can charge beside a running sweep — so without a cooldown a second
+     * attempt can start before the first one's call has returned, and the
+     * customer gets a second prompt on top of a live one. Three attempts would
+     * land within two or three minutes, back to back, and then never
+     * again. This column is what spaces them out across the payment window
+     * instead, and it is why
      * `findAwaitingCharge` takes a `notAttemptedSince` rather than only a
      * maximum.
      *
@@ -262,7 +264,7 @@ export const booking = bookingSchema.table(
 
     // The sweep (`findDueForSweep`) runs
     // `WHERE status IN (…) AND expires_at <= now() ORDER BY expires_at ASC
-    // LIMIT 200` every sixty seconds, forever, on a Worker's single
+    // LIMIT 200` on every sweep run, forever, on a Worker's single
     // connection to Neon. `booking_provider_status_idx`'s leading column is
     // `provider_id`, so it cannot serve this — every sweep was a sequential
     // scan plus a sort of the whole table. Partial on the same statuses that
@@ -304,7 +306,7 @@ export const booking = bookingSchema.table(
     index("booking_customer_created_idx").on(t.customerId, t.createdAt.desc()),
 
     // The charge sweep (`findAwaitingCharge`) asks a different question of
-    // the same table every sixty seconds: not "whose clock ran out" but
+    // the same table on every sweep run: not "whose clock ran out" but
     // "which accepted booking still owes a charge" — `status =
     // 'PENDING_PAYMENT' AND charge_attempts < N AND (last_charge_attempt_at
     // IS NULL OR last_charge_attempt_at <= …) AND expires_at > now()

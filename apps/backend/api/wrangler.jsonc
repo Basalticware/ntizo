@@ -12,12 +12,13 @@
     "CONTACT_INBOX_EMAIL": "ola@ntizo.co.mz",
 
     // M-Pesa (Vodacom Moçambique), read by the charge sweep in
-    // `src/scheduled.ts`. These three are CONFIGURATION, not secrets, and
-    // they are here in the open on purpose: which gateway a stage points at,
-    // which origin it announces and which shortcode it collects into are
-    // ordinary setup, and hiding them in the secret store would mean nobody
-    // reading this repository could tell dev from prod without asking. The
-    // two that ARE secrets are named below and set out of band.
+    // `src/sweep-scheduler/sweeps.ts`. These three are CONFIGURATION, not
+    // secrets, and they are here in the open on purpose: which gateway a
+    // stage points at, which origin it announces and which shortcode it
+    // collects into are ordinary setup, and hiding them in the secret store
+    // would mean nobody reading this repository could tell dev from prod
+    // without asking. The two that ARE secrets are named below and set out of
+    // band.
     //
     // `MPESA_ENVIRONMENT` selects the host: "development" is
     // api.sandbox.vm.co.mz, anything else is api.vm.co.mz. Every stage below

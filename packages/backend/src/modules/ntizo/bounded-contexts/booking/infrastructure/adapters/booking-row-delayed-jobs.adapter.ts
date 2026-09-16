@@ -7,14 +7,14 @@ import type { DelayedJobsPort } from "../../app/ports/outbound/delayed-jobs.port
  * **The booking row *is* the schedule** — the same shape as
  * `BookingRowSlotHold` next door, where the booking row is the hold, and
  * named to match it. `booking.expires_at` is already on the row the command
- * just wrote, inside the same transaction. The cron sweep reads it every
- * minute — `findDueForSweep(now, limit)` on `BookingRepositoryPort` — the
+ * just wrote, inside the same transaction. The sweep reads it once it falls
+ * due — `findDueForSweep(now, limit)` on `BookingRepositoryPort` — the
  * same way the existing notification sweep reads `notify_due_at` rather than
  * depending on anything having been enqueued for it. A `WHERE expires_at <=
  * now` a sweep already runs is a job an actual queue would only duplicate:
  * there is nothing to enqueue into, and standing one up would add a
  * deployment surface (a broker, a worker, a retry policy) for something a
- * timestamp column and a cron trigger already do.
+ * timestamp column and the sweep scheduler's alarm already do.
  *
  * Not `ExpiresAtDelayedJobs`, which is what this was called. The column is
  * still `expires_at`, so that name was not false so much as it named the

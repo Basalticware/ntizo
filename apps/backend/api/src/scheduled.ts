@@ -14,19 +14,23 @@ export {
 } from "./sweep-scheduler/sweeps";
 
 /**
- * The worker that wakes up to check for unread messages.
+ * The hourly cron: the safety net under the sweep scheduler.
  *
  * Nothing calls `NotifyUnreadInternalCommand` unless something schedules it —
- * this is that something. Without it, every message is composed, stored, and
- * nobody is ever told: `notifyDueAt` sits in the table forever and the sweep
- * that would turn it into a bell-plus-email notification never runs.
+ * the sweep scheduler's alarm does (src/sweep-scheduler), and this cron tells
+ * that scheduler when the sweeps next have work, running the sweeps itself
+ * only when it cannot tell it. With neither, every message is composed,
+ * stored, and nobody is ever told: `notifyDueAt` sits in the table forever
+ * and the sweep that would turn it into a bell-plus-email notification never
+ * runs.
  *
  * **A `scheduled` handler is not an HTTP request.** `configMiddleware`
  * establishes the request-scoped `infraStore` AsyncLocalStorage context for
  * every fetch. A cron invocation has no request for that middleware to wrap,
  * so this function builds the same context by hand (`infraStore.runAsync`
- * below) — the only other place in this codebase that does. Deep inside
- * the sweep, `DeferredNotificationDelivery.execute()` calls
+ * below) — and so does the sweep scheduler's alarm; nowhere else in this
+ * codebase does. Deep inside the sweep,
+ * `DeferredNotificationDelivery.execute()` calls
  * `infraStore.waitUntil(...)` and template rendering reads
  * `infraStore.getEnv()` for `APP_URL`; both throw ("not initialized... Ensure
  * configMiddleware wraps the request") outside that scope. Worse, the raise

@@ -24,7 +24,8 @@ export function toInfraEnv(env: AppBindings): InfraEnvBindings {
     // reads them distinguishes "absent" from "present", and an empty string
     // would be a value that fails at the gateway instead of a stage that
     // says it is not configured. This is the one scope that actually needs
-    // them — the charge runs from this cron and nowhere else today.
+    // them — the charge runs from the sweeps (the sweep scheduler's alarm, or
+    // the hourly cron when it cannot tell the scheduler) and nowhere else today.
     MPESA_API_KEY: env.MPESA_API_KEY,
     MPESA_PUBLIC_KEY: env.MPESA_PUBLIC_KEY,
     MPESA_ENVIRONMENT: env.MPESA_ENVIRONMENT,
