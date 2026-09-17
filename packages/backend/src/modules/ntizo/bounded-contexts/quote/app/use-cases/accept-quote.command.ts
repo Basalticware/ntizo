@@ -137,7 +137,17 @@ export class AcceptQuoteCommand {
         // the caller reload. Saying "taken slot" here would also run the
         // recovery below, superseding whatever proposal is live now with
         // `slot_taken` on the strength of a race the calendar had no part in.
-        const persisted = await this.repo.save(quote.accept(at, opened.bookingId), loaded.status);
+        // `unchangedExpiresAt` is what makes this accept the proposal the
+        // customer actually read. A revision is PROPOSED -> PROPOSED, so the
+        // status alone still matched it, and the customer was booked at the
+        // superseded price and time; every revision stamps a new deadline, so
+        // requiring the one we read refuses that write, and the throw below
+        // rolls the booking back with it.
+        const persisted = await this.repo.save(
+          quote.accept(at, opened.bookingId),
+          loaded.status,
+          loaded.expiresAt ? { unchangedExpiresAt: loaded.expiresAt } : undefined,
+        );
         if (!persisted) throw new QuoteConcurrentlyChangedError();
 
         await this.outboxPort.publish(

@@ -241,6 +241,39 @@ describe("DrizzleQuoteRepository", () => {
     expect(applied?.status).toBe("EXPIRED");
   });
 
+  test("a save guarded by unchangedExpiresAt refuses a quote whose deadline another write moved, and applies otherwise", async () => {
+    // `ownerUserId`'s earlier quote is closed now (the test above expired it),
+    // so a fresh open one is allowed on the same service.
+    const opened = await run(() =>
+      repo.insert(
+        Quote.request({
+          serviceId,
+          providerId,
+          customerId: ownerUserId,
+          threadId,
+          locale: "pt-MZ",
+          description: "unchanged-expires-at guard",
+          at: new Date(Date.now() - 60_000),
+          respondBy: new Date(Date.now() + 48 * 3_600_000),
+        }),
+      ),
+    );
+    quoteIds.push(opened.id as string);
+    const snapshot = await run(() => repo.findById(opened.id as string));
+    const readDeadline = snapshot!.expiresAt!;
+    const now = new Date();
+
+    // Another write moves the deadline — as a revision does — and leaves the status alone.
+    await db.update(quote).set({ expiresAt: new Date(readDeadline.getTime() + 3_600_000) }).where(eq(quote.id, opened.id as string));
+    const refused = await run(() => repo.save(snapshot!.expire(now), snapshot!.status, { unchangedExpiresAt: readDeadline }));
+    expect(refused).toBeNull();
+
+    // The deadline is back to what was read: the same guarded save applies.
+    await db.update(quote).set({ expiresAt: readDeadline }).where(eq(quote.id, opened.id as string));
+    const applied = await run(() => repo.save(snapshot!.expire(now), snapshot!.status, { unchangedExpiresAt: readDeadline }));
+    expect(applied?.status).toBe("EXPIRED");
+  });
+
   /**
    * The race the quote's own compare-and-swap cannot see. A revision is
    * `PROPOSED → PROPOSED`, so `eq(quote.status, expectedStatus)` still
