@@ -26,11 +26,15 @@ export interface SeededBooking {
  *
  * What a real `SubmitBookingCommand` would have produced is reproduced by
  * hand instead: a provider, a published service and option, and a `booking`
- * row already past `DRAFT`. The customer-facing timeline needs nothing
- * beyond that — `timelineOf` (read/booking/app/use-cases/booking-timeline.ts)
- * synthesises its first entry ("Pedido enviado", `created_by_customer`) from
- * the row's own `createdAt` unconditionally, so no `booking_change` row has
- * to be written to make it appear.
+ * row already past `DRAFT`, plus the one `booking_change` row
+ * `SubmitBookingCommand` writes: `reason = 'submitted_by_customer'`.
+ *
+ * That change row is not optional. Since `2db5fb68` both the customer's and
+ * the provider's list and detail reads require it (`submittedByCustomer()` in
+ * `read/booking/infra/repositories/drizzle/booking-read.repository.ts`),
+ * which is how an abandoned checkout stays hidden. Without it the seeded
+ * booking existed and was invisible: the list showed "Ainda não há reservas"
+ * and this suite failed in CI on a missing row, not a broken page.
  *
  * Returns the booking id and the fixed service name the spec matches rows
  * on.
@@ -102,6 +106,10 @@ export async function seedAwaitingBooking(customerId: string): Promise<SeededBoo
   if (!bookingRow) {
     throw new Error("[e2e] seedAwaitingBooking: insert into ntizo_booking.booking returned no row");
   }
+
+  await sql()`
+    INSERT INTO ntizo_booking.booking_change (booking_id, changed_by_user_id, reason)
+    VALUES (${bookingRow.id}, ${customerId}, 'submitted_by_customer')`;
 
   return { bookingId: bookingRow.id, serviceName: BOOKING_SERVICE_NAME };
 }

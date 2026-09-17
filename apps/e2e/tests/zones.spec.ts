@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createVerifiedUser } from "../fixtures/auth";
-import { fillSignInForm } from "../fixtures/ui";
+import { fillSignInForm, LANDING_HERO_TITLE } from "../fixtures/ui";
 
 /**
  * Rewritten 2026-08-23. It used to sign a customer in and assert that a
@@ -41,7 +41,7 @@ test("/admin bounces a non-admin to the landing page", async ({ page }) => {
 
   await page.goto("/admin");
   await page.waitForURL("http://localhost:3000/");
-  await expect(page.getByText("Find it.")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: LANDING_HERO_TITLE })).toBeVisible();
 });
 
 // The role read here is ntizo_user.user.role, never better_auth.user.role —

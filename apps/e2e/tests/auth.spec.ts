@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { createVerifiedUser, verifyUserByEmail } from "../fixtures/auth";
 import { createProvider } from "../fixtures/provider";
-import { fillSignInForm, signOutViaSidebar } from "../fixtures/ui";
+import { fillSignInForm, signOutViaSidebar, LANDING_HERO_TITLE } from "../fixtures/ui";
 
 test("sign up, verify, sign in, and land on the right zone", async ({ page }) => {
   const email = `e2e-ui-signup-${crypto.randomUUID()}@example.test`;
@@ -50,7 +50,7 @@ test("sign up, verify, sign in, and land on the right zone", async ({ page }) =>
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: "Hire someone who knows the work, at the price you see.",
+      name: LANDING_HERO_TITLE,
     }),
   ).toBeVisible();
 });

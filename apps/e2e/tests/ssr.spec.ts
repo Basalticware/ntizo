@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { test, expect } from "@playwright/test";
 import { createVerifiedUser } from "../fixtures/auth";
-import { fillSignInForm } from "../fixtures/ui";
+import { fillSignInForm, LANDING_HERO_TITLE } from "../fixtures/ui";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "../../..");
@@ -17,7 +17,7 @@ test("/ is server-rendered: the hero text is in the HTML with JavaScript disable
   const page = await ctx.newPage();
   const response = await page.goto("/");
   expect(response?.status()).toBe(200);
-  expect(await page.content()).toContain("Find it.");
+  expect(await page.content()).toContain(LANDING_HERO_TITLE);
   await ctx.close();
 });
 
