@@ -69,6 +69,11 @@ jobs:
       # reproduction of one from silently reusing the other's container.
       E2E_DB_URL: postgres://postgres:postgres@localhost:55433/ntizo_test_ci
       DEV_DB_URL: postgres://postgres:postgres@localhost:55433/ntizo_test_ci
+      # The same database under the name `apps/backend/api`'s tests read.
+      # Without it `scheduled.test.ts` throws at load ("DATABASE_URL is not
+      # set") and `@ntizo/api#test` failed on every run, hiding whatever else
+      # that suite would have caught.
+      DATABASE_URL: postgres://postgres:postgres@localhost:55433/ntizo_test_ci
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2

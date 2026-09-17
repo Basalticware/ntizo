@@ -1,6 +1,16 @@
 import type { Page } from "@playwright/test";
 
 /**
+ * The landing page's own heading, in English (the harness's browser locale).
+ *
+ * One constant rather than a string in each spec: the home refresh replaced
+ * the old slogan ("Find it."), and four specs that asserted it failed on copy
+ * rather than on behaviour — for weeks, past every step they exist for. Copy
+ * source: `apps/frontend/web/src/shared/locales/en-US/landing.json`, `hero.heroTitle`.
+ */
+export const LANDING_HERO_TITLE = "Hire someone who knows the work, at the price you see.";
+
+/**
  * Fills and submits the real sign-in form. Assumes the caller is already on
  * `/sign-in` (either via `page.goto("/sign-in")` for a first navigation, or
  * because the app's own sign-out flow just client-side-navigated there) and
