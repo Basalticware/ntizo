@@ -225,16 +225,23 @@ export class FakeQuoteRepo implements QuoteRepositoryPort {
    * so a test can assert a new proposal comes back with the id the
    * repository would have given it.
    */
-  async save(quote: Quote, expectedStatus: Quote["status"], guard?: { dueBy?: Date }): Promise<Quote | null> {
+  async save(
+    quote: Quote,
+    expectedStatus: Quote["status"],
+    guard?: { dueBy?: Date; unchangedExpiresAt?: Date },
+  ): Promise<Quote | null> {
     this.saveCalls += 1;
     this.savedArg = quote;
     this.unitOfWork?.order.push("save");
     const actual = this.currentStatusOverride ?? this.current?.status;
     if (actual !== expectedStatus) return null;
+    const storedExpiresAt =
+      this.currentExpiresAtOverride !== undefined ? this.currentExpiresAtOverride : (this.current?.expiresAt ?? null);
     if (guard?.dueBy) {
-      const storedExpiresAt =
-        this.currentExpiresAtOverride !== undefined ? this.currentExpiresAtOverride : (this.current?.expiresAt ?? null);
       if (!storedExpiresAt || storedExpiresAt.getTime() > guard.dueBy.getTime()) return null;
+    }
+    if (guard?.unchangedExpiresAt) {
+      if (!storedExpiresAt || storedExpiresAt.getTime() !== guard.unchangedExpiresAt.getTime()) return null;
     }
     const props = quote.toProps();
     const persisted = Quote.restore({

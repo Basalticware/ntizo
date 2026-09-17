@@ -111,6 +111,24 @@ describe("AcceptQuoteCommand", () => {
     expect(busy.raiser.raised[0]).toMatchObject({ type: NotificationType.ProviderQuoteSlotTaken, audience: "provider" });
   });
 
+  it("refuses a proposal the provider revised after the customer's read, and books nothing", async () => {
+    // A revision is PROPOSED -> PROPOSED, so the status the swap compared
+    // still matched: the customer accepted — and was booked at — the
+    // superseded price and time. A revision always moves the deadline, so the
+    // swap now also requires the deadline this command read.
+    const revised = setup(withId(proposedQuote(), "q-1"));
+    revised.repo.currentExpiresAtOverride = new Date(Date.now() + 96 * 3_600_000);
+    const recovery = spyOn(revised.stale, "execute");
+
+    await expect(revised.command.execute(INPUT)).rejects.toThrow(QuoteConcurrentlyChangedError);
+
+    expect(revised.repo.state?.status).toBe("PROPOSED");
+    expect(revised.outbox.published).toHaveLength(0);
+    expect(revised.raiser.raised).toHaveLength(0);
+    expect(recovery).not.toHaveBeenCalled();
+    recovery.mockRestore();
+  });
+
   it("a lost compare-and-swap is reported as such, and never as a taken slot", async () => {
     // The quote moved between the load and the swap — revised, declined,
     // withdrawn, expired; the repository refuses the write and hands back

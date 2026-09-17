@@ -10,6 +10,16 @@ import type { Quote } from "../../../domain/aggregates/quote.aggregate";
  */
 export interface QuoteSaveGuard {
   dueBy?: Date;
+  /**
+   * Apply only while the stored deadline is still exactly this one — the
+   * deadline the command read. Every revision stamps a new `validUntil` onto
+   * `expires_at`, so this is how acceptance tells that the proposal it read is
+   * still the live one. A column on the quote row itself, not a lookup of the
+   * proposal table, because Postgres re-checks a row's own columns against
+   * the committed version when a concurrent write held the row, and would
+   * not re-run a subquery.
+   */
+  unchangedExpiresAt?: Date;
 }
 
 export interface QuoteRepositoryPort {

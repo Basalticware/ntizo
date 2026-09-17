@@ -188,6 +188,7 @@ export class DrizzleQuoteRepository implements QuoteRepositoryPort {
           eq(quote.status, expectedStatus),
           // `and` drops an undefined term, so an unguarded save is unchanged.
           guard?.dueBy ? lte(quote.expiresAt, guard.dueBy) : undefined,
+          guard?.unchangedExpiresAt ? eq(quote.expiresAt, guard.unchangedExpiresAt) : undefined,
         ),
       )
       .returning();
