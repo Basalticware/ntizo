@@ -70,7 +70,11 @@ test("/admin and /provider/overview render no authenticated content with JavaScr
 // with no request, no cookies, and no guard able to run at all — and bakes
 // every route (12 of them, including /admin and /sign-in) into a static,
 // publicly-servable HTML file regardless of its own `ssr` flag.
-test("the production build prerenders only \"/\" to a static file", async () => {
+//
+// The list is exactly vite.config.ts's `pages`: "/" and "/help", which that
+// config adds on purpose (the FAQ reads the same for every visitor). A new
+// file here means a route was prerendered that nobody listed.
+test("the production build prerenders only the pages vite.config.ts lists", async () => {
   test.setTimeout(120_000);
 
   const distDir = path.join(WEB_ROOT, "dist");
@@ -81,7 +85,7 @@ test("the production build prerenders only \"/\" to a static file", async () => 
 
   const distClient = path.join(distDir, "client");
   const htmlFiles = listHtmlFilesRelative(distClient).sort();
-  expect(htmlFiles).toEqual(["index.html"]);
+  expect(htmlFiles).toEqual(["help/index.html", "index.html"]);
 });
 
 function listHtmlFilesRelative(dir: string, base = dir): string[] {
