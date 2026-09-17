@@ -5,24 +5,32 @@ import { isValidPhoneNumber } from "libphonenumber-js";
 import { toast } from "sonner";
 import { GENDERS, type CurrentUserDTO } from "@ntizo/shared";
 import {
+  AvatarUpload,
   Button,
   DatePicker,
   Input,
   Label,
-  LogoUpload,
   PhoneInput,
   Select,
 } from "@ntizo/frontend-ui";
 import { useUpdateMyProfile } from "@/features/account/viewmodel/use-update-profile";
 import { useAvatarUpload } from "@/features/account/viewmodel/use-avatar-upload";
 import { useAvatarCropStrings } from "@/features/account/viewmodel/use-avatar-crop-strings";
+import {
+  ProfileHeader,
+  ProfileInitials,
+  profileName,
+} from "@/features/account/ui/profile-header";
+import { textAction } from "@/shared/ui/text-action";
 
 /**
- * Editing happens in place, on the same card that displays the profile.
+ * Editing happens in place, under the same header that displays the profile.
  *
  * A separate "edit profile" page would mean navigating away from what you are
  * looking at to change it, and then back to check. The fields sit where their
- * values sat.
+ * values sat — and the photo is edited on the header's own avatar rather than
+ * in a field of its own, which is what used to draw the person twice: once
+ * above the rule and once below it.
  */
 export function ProfileForm({
   user,
@@ -118,219 +126,244 @@ export function ProfileForm({
     },
   });
 
+  const name = profileName(user);
+  const shownPhoto = freshUrl ?? (avatarKey === null ? null : user.avatarUrl);
+  const photoProblem =
+    mediaMessage ?? (avatar.errorKey ? t(avatar.errorKey) : null);
+
   return (
     <form
-      className="mt-6 grid gap-4 border-t border-[var(--color-border)] pt-5"
       onSubmit={(e) => {
         e.preventDefault();
         void form.handleSubmit();
       }}
     >
-      <form.Subscribe selector={(s) => s.errorMap.onSubmit}>
-        {(error) =>
-          error ? (
-            <p className="type-body-medium text-[var(--color-destructive)]">
-              {error.form}
-            </p>
-          ) : null
+      {/* The same header the page shows when it is only being read, with the
+          avatar swapped for the picker. Editing used to add a second, larger
+          avatar of its own below the rule — the person twice on one screen. */}
+      <ProfileHeader
+        user={user}
+        avatar={
+          <AvatarUpload
+            url={shownPhoto}
+            fallback={<ProfileInitials name={name} />}
+            cropStrings={cropStrings}
+            onSelect={(file) => {
+              setMediaMessage(null);
+              void avatar.upload(file).then((r) => {
+                if (!r) return;
+                setAvatarKey(r.key);
+                setFreshUrl(r.url);
+              });
+            }}
+            onReject={(reason) => setMediaMessage(t(`mediaReject.${reason}`))}
+            busy={avatar.busy}
+            changeLabel={t("photoChange")}
+          />
         }
-      </form.Subscribe>
-
-      <LogoUpload
-        shape="round"
-        cropStrings={cropStrings}
-        url={freshUrl ?? (avatarKey === null ? null : user.avatarUrl)}
-        onSelect={(file) => {
-          void avatar.upload(file).then((r) => {
-            if (!r) return;
-            setAvatarKey(r.key);
-            setFreshUrl(r.url);
-          });
-        }}
-        // Removing clears the key. What the person sees next is whatever
-        // their sign-in provider supplied — for a Google account that is a
-        // sensible "reset", and for everyone else it is initials. Offered
-        // only when there is a photo of ours to remove — see `hasOwnPhoto`
-        // above.
-        onClear={
-          hasOwnPhoto
-            ? () => {
-                setAvatarKey(null);
-                setFreshUrl(null);
-              }
-            : undefined
+        note={
+          <>
+            {/* Removing clears the key. What the person sees next is whatever
+                their sign-in provider supplied — for a Google account that is
+                a sensible "reset", and for everyone else it is initials.
+                Offered only when there is a photo of ours to remove — see
+                `hasOwnPhoto` above. */}
+            {hasOwnPhoto ? (
+              <button
+                type="button"
+                className={textAction()}
+                onClick={() => {
+                  setMediaMessage(null);
+                  setAvatarKey(null);
+                  setFreshUrl(null);
+                }}
+              >
+                {t("photoDelete")}
+              </button>
+            ) : null}
+            {/* The size and format rules are not printed under the avatar:
+                two lines of small print that matter to nobody until a file is
+                refused — and then this says which rule it broke. */}
+            {photoProblem ? (
+              <p className="type-caption mt-1.5 text-[var(--color-destructive)]">
+                {photoProblem}
+              </p>
+            ) : null}
+          </>
         }
-        onReject={(reason) => setMediaMessage(t(`mediaReject.${reason}`))}
-        busy={avatar.busy}
-        label={t("fieldPhoto")}
-        hint={t("fieldPhotoHint")}
-        chooseText={t("photoChoose")}
-        replaceText={t("photoReplace")}
-        removeText={t("photoRemove")}
       />
-      {avatar.errorKey || mediaMessage ? (
-        <p className="type-body-medium text-[var(--color-destructive)]">
-          {mediaMessage ?? t(avatar.errorKey!)}
-        </p>
-      ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <form.Field name="firstName">
-          {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("fieldFirstName")}</Label>
-              <Input
-                id={field.name}
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                required
-              />
-            </div>
-          )}
-        </form.Field>
-
-        <form.Field name="lastName">
-          {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("fieldLastName")}</Label>
-              <Input
-                id={field.name}
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                required
-              />
-            </div>
-          )}
-        </form.Field>
-
-        <form.Field name="displayName">
-          {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("fieldDisplayName")}</Label>
-              <Input
-                id={field.name}
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            </div>
-          )}
-        </form.Field>
-
-        <form.Field name="phone">
-          {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("fieldPhone")}</Label>
-              {/* The same component the sign-up form uses, so a number that
-                  passes here cannot be refused there. It emits E.164 and
-                  nothing else. Its copy is passed in because
-                  `@ntizo/frontend-ui` has no i18n runtime of its own —
-                  `onChange` hands over `(value, { isValid })`, and only the
-                  value is wanted here. */}
-              <PhoneInput
-                id={field.name}
-                value={field.state.value}
-                onChange={(next) => field.handleChange(next)}
-                onBlur={field.handleBlur}
-                defaultCountry="MZ"
-                locale={i18n.language}
-                searchPlaceholder={t("countrySearchPlaceholder")}
-                noResultsText={t("countryNoResults")}
-                countrySelectLabel={t("countrySelectLabel")}
-              />
-            </div>
-          )}
-        </form.Field>
-
-        <form.Field name="timezone">
-          {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("fieldTimezone")}</Label>
-              <Select
-                id={field.name}
-                value={field.state.value}
-                onChange={field.handleChange}
-                options={zones.map((z) => ({ value: z, label: z }))}
-              />
-            </div>
-          )}
-        </form.Field>
-
-        <form.Field name="dateOfBirth">
-          {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("fieldDateOfBirth")}</Label>
-              <DatePicker
-                id={field.name}
-                value={field.state.value}
-                onChange={field.handleChange}
-                locale={i18n.resolvedLanguage ?? i18n.language}
-                // Nobody being born today is filling this in, and a date of
-                // birth in the future is not a typo worth accepting.
-                max={new Date().toISOString().slice(0, 10)}
-                placeholder={t("fieldDateOfBirthPlaceholder")}
-                todayLabel={t("datePickerToday")}
-                clearLabel={t("datePickerClear")}
-                monthLabel={t("datePickerMonth")}
-                yearLabel={t("datePickerYear")}
-                yearSearchPlaceholder={t("datePickerYearSearch")}
-              />
-            </div>
-          )}
-        </form.Field>
-
-        <form.Field name="gender">
-          {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("fieldGender")}</Label>
-              <Select
-                id={field.name}
-                value={field.state.value}
-                onChange={field.handleChange}
-                placeholder={t("notSet")}
-                options={[
-                  // Empty is "not answered", distinct from the "undisclosed"
-                  // option, which is an answer. Both are offered, because
-                  // clearing a field you filled in must be possible.
-                  { value: "", label: t("notSet") },
-                  ...GENDERS.map((g) => ({
-                    value: g,
-                    label: t(`gender.${g}`),
-                  })),
-                ]}
-              />
-            </div>
-          )}
-        </form.Field>
-      </div>
-
-      <form.Field name="bio">
-        {(field) => (
-          <div className="grid gap-1.5">
-            <Label htmlFor={field.name}>{t("fieldBio")}</Label>
-            <textarea
-              id={field.name}
-              rows={3}
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              className="type-body rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-3.5 py-2.5 focus-visible:border-[var(--color-primary)] focus-visible:outline-none"
-            />
-          </div>
-        )}
-      </form.Field>
-
-      <div className="flex gap-3">
-        <form.Subscribe
-          selector={(s) => [s.canSubmit, s.isSubmitting] as const}
-        >
-          {([canSubmit, isSubmitting]) => (
-            <Button type="submit" disabled={!canSubmit}>
-              {isSubmitting ? t("saving") : t("save")}
-            </Button>
-          )}
+      {/* The same rhythm the details have when the page is being read:
+          `mt-8`, a rule, `pt-6`. */}
+      <div className="mt-8 grid gap-4 border-t border-[var(--color-border)] pt-6">
+        <form.Subscribe selector={(s) => s.errorMap.onSubmit}>
+          {(error) =>
+            error ? (
+              <p className="type-body-medium text-[var(--color-destructive)]">
+                {error.form}
+              </p>
+            ) : null
+          }
         </form.Subscribe>
-        <Button type="button" variant="outline" onClick={onDone}>
-          {t("cancel")}
-        </Button>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <form.Field name="firstName">
+            {(field) => (
+              <div className="grid gap-1.5">
+                <Label htmlFor={field.name}>{t("fieldFirstName")}</Label>
+                <Input
+                  id={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+          </form.Field>
+
+          <form.Field name="lastName">
+            {(field) => (
+              <div className="grid gap-1.5">
+                <Label htmlFor={field.name}>{t("fieldLastName")}</Label>
+                <Input
+                  id={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+          </form.Field>
+
+          <form.Field name="displayName">
+            {(field) => (
+              <div className="grid gap-1.5">
+                <Label htmlFor={field.name}>{t("fieldDisplayName")}</Label>
+                <Input
+                  id={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              </div>
+            )}
+          </form.Field>
+
+          <form.Field name="phone">
+            {(field) => (
+              <div className="grid gap-1.5">
+                <Label htmlFor={field.name}>{t("fieldPhone")}</Label>
+                {/* The same component the sign-up form uses, so a number that
+                    passes here cannot be refused there. It emits E.164 and
+                    nothing else. Its copy is passed in because
+                    `@ntizo/frontend-ui` has no i18n runtime of its own —
+                    `onChange` hands over `(value, { isValid })`, and only the
+                    value is wanted here. */}
+                <PhoneInput
+                  id={field.name}
+                  value={field.state.value}
+                  onChange={(next) => field.handleChange(next)}
+                  onBlur={field.handleBlur}
+                  defaultCountry="MZ"
+                  locale={i18n.language}
+                  searchPlaceholder={t("countrySearchPlaceholder")}
+                  noResultsText={t("countryNoResults")}
+                  countrySelectLabel={t("countrySelectLabel")}
+                />
+              </div>
+            )}
+          </form.Field>
+
+          <form.Field name="timezone">
+            {(field) => (
+              <div className="grid gap-1.5">
+                <Label htmlFor={field.name}>{t("fieldTimezone")}</Label>
+                <Select
+                  id={field.name}
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  options={zones.map((z) => ({ value: z, label: z }))}
+                />
+              </div>
+            )}
+          </form.Field>
+
+          <form.Field name="dateOfBirth">
+            {(field) => (
+              <div className="grid gap-1.5">
+                <Label htmlFor={field.name}>{t("fieldDateOfBirth")}</Label>
+                <DatePicker
+                  id={field.name}
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  locale={i18n.resolvedLanguage ?? i18n.language}
+                  // Nobody being born today is filling this in, and a date of
+                  // birth in the future is not a typo worth accepting.
+                  max={new Date().toISOString().slice(0, 10)}
+                  placeholder={t("fieldDateOfBirthPlaceholder")}
+                  todayLabel={t("datePickerToday")}
+                  clearLabel={t("datePickerClear")}
+                  monthLabel={t("datePickerMonth")}
+                  yearLabel={t("datePickerYear")}
+                  yearSearchPlaceholder={t("datePickerYearSearch")}
+                />
+              </div>
+            )}
+          </form.Field>
+
+          <form.Field name="gender">
+            {(field) => (
+              <div className="grid gap-1.5">
+                <Label htmlFor={field.name}>{t("fieldGender")}</Label>
+                <Select
+                  id={field.name}
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  placeholder={t("notSet")}
+                  options={[
+                    // Empty is "not answered", distinct from the "undisclosed"
+                    // option, which is an answer. Both are offered, because
+                    // clearing a field you filled in must be possible.
+                    { value: "", label: t("notSet") },
+                    ...GENDERS.map((g) => ({
+                      value: g,
+                      label: t(`gender.${g}`),
+                    })),
+                  ]}
+                />
+              </div>
+            )}
+          </form.Field>
+        </div>
+
+        <form.Field name="bio">
+          {(field) => (
+            <div className="grid gap-1.5">
+              <Label htmlFor={field.name}>{t("fieldBio")}</Label>
+              <textarea
+                id={field.name}
+                rows={3}
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                className="type-body rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-3.5 py-2.5 focus-visible:border-[var(--color-primary)] focus-visible:outline-none"
+              />
+            </div>
+          )}
+        </form.Field>
+
+        <div className="flex gap-3">
+          <form.Subscribe
+            selector={(s) => [s.canSubmit, s.isSubmitting] as const}
+          >
+            {([canSubmit, isSubmitting]) => (
+              <Button type="submit" disabled={!canSubmit}>
+                {isSubmitting ? t("saving") : t("save")}
+              </Button>
+            )}
+          </form.Subscribe>
+          <Button type="button" variant="outline" onClick={onDone}>
+            {t("cancel")}
+          </Button>
+        </div>
       </div>
     </form>
   );

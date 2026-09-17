@@ -59,8 +59,11 @@ test("a photo, a phone and a timezone survive a save and a reload", async ({ pag
   // Remove button is gated on `hasOwnPhoto` (profile-form.tsx), which only
   // flips true once the upload resolves and the key lands in form state —
   // and it renders only once there is an uploaded photo to remove — so
-  // waiting for it is exactly the synchronisation point missing here.
-  await expect(page.getByRole("button", { name: /^remove$/i })).toBeVisible();
+  // waiting for it is exactly the synchronisation point missing here. It is
+  // "Remove photo" and not "Remove" since the photo left the form and moved
+  // onto the header's own avatar, where the words have to say what they
+  // remove.
+  await expect(page.getByRole("button", { name: /^remove photo$/i })).toBeVisible();
 
   // `account.json`'s `fieldPhone` is "Mobile number", not "phone" — a label
   // regex of /phone/i would never match it. And the field itself (the same

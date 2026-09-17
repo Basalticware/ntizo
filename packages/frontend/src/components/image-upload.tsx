@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ImagePlus, Loader2, Trash2, Upload } from "lucide-react";
+import { Camera, ImagePlus, Loader2, Trash2, Upload } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "./button";
 import {
@@ -249,7 +249,9 @@ export function LogoUpload({
             aria-label={label}
             className={cn(
               "relative grid h-24 w-24 shrink-0 place-items-center overflow-hidden border-2 border-dashed transition-colors",
-              shape === "round" ? "rounded-full" : "rounded-[var(--radius-card-sm)]",
+              shape === "round"
+                ? "rounded-full"
+                : "rounded-[var(--radius-card-sm)]",
               dragging
                 ? "border-[var(--color-primary)] bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)]"
                 : "border-[var(--color-border)] hover:border-[var(--color-primary)]",
@@ -298,6 +300,104 @@ export function LogoUpload({
             </div>
           </div>
         </div>
+      )}
+    </Picker>
+  );
+}
+
+export interface AvatarUploadProps {
+  /** Already stored. Null renders `fallback`. */
+  url?: string | null;
+  /** What stands in for a missing photo — initials, usually. */
+  fallback?: React.ReactNode;
+  onSelect: (file: File) => void;
+  onReject?: (reason: ImageRejection, file: File) => void;
+  cropStrings: CropStrings;
+  busy?: boolean;
+  disabled?: boolean;
+  /** Names the one control, for assistive tech and the native tooltip. */
+  changeLabel: string;
+  className?: string;
+}
+
+/**
+ * A person's own photo, edited where the page already shows it.
+ *
+ * `LogoUpload` is a form field: a framed preview beside its label, its hint
+ * and its buttons. That is right for a business logo sitting among other
+ * fields and wrong here, because the profile page has already drawn this
+ * person at the top beside their name — rendering the field as well put two
+ * avatars on screen, one under the other, split by a rule. Same picker, same
+ * crop dialog, no chrome: the avatar is the button and the camera badge says
+ * so. Removing is not offered here; it belongs beside the rest of the
+ * identity, as a text action, and only when there is a photo of ours to
+ * remove.
+ */
+export function AvatarUpload({
+  url,
+  fallback,
+  onSelect,
+  onReject,
+  cropStrings,
+  busy,
+  disabled,
+  changeLabel,
+  className,
+}: AvatarUploadProps) {
+  return (
+    <Picker
+      onSelect={(files) => files[0] && onSelect(files[0])}
+      onReject={onReject}
+      disabled={disabled || busy}
+      crop={LOGO_CROP}
+      cropStrings={cropStrings}
+      className={cn("shrink-0", className)}
+    >
+      {(open, dragging) => (
+        <button
+          type="button"
+          onClick={open}
+          disabled={disabled || busy}
+          aria-label={changeLabel}
+          title={changeLabel}
+          className="group relative block h-[72px] w-[72px] rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2 disabled:cursor-default"
+        >
+          {/* The circle is a child rather than the button itself: a badge
+              hanging off the button's own edge would be clipped by the
+              `overflow-hidden` that keeps the photo round, and moving the
+              badge outside the button would either steal the click or need a
+              second control for the same act. */}
+          <span
+            className={cn(
+              "flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[var(--color-muted)] ring-2 ring-transparent transition-[box-shadow]",
+              dragging && "ring-[var(--color-primary)]",
+            )}
+          >
+            {url ? (
+              <img src={url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              fallback
+            )}
+          </span>
+
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-full bg-[color-mix(in_srgb,black_25%,transparent)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+          />
+
+          <span
+            aria-hidden
+            className="absolute -bottom-0.5 -right-0.5 grid h-7 w-7 place-items-center rounded-full border-2 border-[var(--color-background)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)] transition-transform group-hover:scale-105"
+          >
+            <Camera className="h-3.5 w-3.5" />
+          </span>
+
+          {busy && (
+            <span className="absolute inset-0 grid place-items-center rounded-full bg-[var(--color-background)]/70">
+              <Loader2 className="h-5 w-5 animate-spin text-[var(--color-primary)]" />
+            </span>
+          )}
+        </button>
       )}
     </Picker>
   );

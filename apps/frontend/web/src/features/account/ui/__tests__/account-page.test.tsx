@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { renderWithRouter } from "@/test/render-with-router";
 import { AccountPage } from "@/features/account/ui/account-page";
 
@@ -32,6 +33,14 @@ vi.mock("@ntizo/auth-client", () => ({
 }));
 vi.mock("@/features/provider/viewmodel/use-providers", () => ({
   useMyProviders: () => ({ data: [] }),
+}));
+// The form's own dependencies, stubbed: this file is about what the page
+// draws in each mode, not about saving.
+vi.mock("@/features/account/viewmodel/use-update-profile", () => ({
+  useUpdateMyProfile: () => ({ mutateAsync: vi.fn() }),
+}));
+vi.mock("@/features/account/viewmodel/use-avatar-upload", () => ({
+  useAvatarUpload: () => ({ upload: vi.fn(), busy: false, errorKey: null }),
 }));
 
 const ROUTES = ["/become-provider"];
@@ -81,5 +90,20 @@ describe("AccountPage", () => {
   it("offers to edit", async () => {
     await renderWithRouter(<AccountPage />, { routes: ROUTES });
     expect(screen.getByRole("button", { name: /edit profile/i })).toBeInTheDocument();
+  });
+
+  it("draws the person once while editing, photo included", async () => {
+    // Editing used to render the read-only header and then, under a rule, a
+    // "profile photo" field with a second, larger avatar of its own: the same
+    // person twice, in two blocks. The photo is edited on the header's avatar
+    // now, so there is one identity block and the fields start at the name.
+    await renderWithRouter(<AccountPage />, { routes: ROUTES });
+    await userEvent.click(screen.getByRole("button", { name: /edit profile/i }));
+
+    expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: /am\u00e9lia/i })).toHaveLength(1);
+    expect(screen.getByRole("button", { name: /change photo/i })).toBeInTheDocument();
+    expect(screen.queryByText(/profile photo/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/JPG, PNG or WebP/i)).not.toBeInTheDocument();
   });
 });
