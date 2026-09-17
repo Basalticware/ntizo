@@ -1,5 +1,17 @@
 import type { Quote } from "../../../domain/aggregates/quote.aggregate";
 
+/**
+ * An extra condition on `save`'s compare-and-swap.
+ *
+ * `dueBy`: apply only while the stored deadline is at or before this instant.
+ * The status alone cannot tell a sweep that its snapshot is stale — a
+ * revision is `PROPOSED → PROPOSED` and moves only the deadline — so the sweep
+ * re-checks its own selection at the moment it writes.
+ */
+export interface QuoteSaveGuard {
+  dueBy?: Date;
+}
+
 export interface QuoteRepositoryPort {
   /**
    * Writes the quote row and any proposal rows. Throws `QuoteAlreadyOpenError`
@@ -13,9 +25,10 @@ export interface QuoteRepositoryPort {
    * Compare-and-swap: updates the row only while its status is still
    * `expectedStatus`; inserts proposals whose id is null and stamps
    * supersession on the rest. Returns the persisted quote (ids assigned) or
-   * null when the row had moved on.
+   * null when the row had moved on — including, with `guard.dueBy`, when its
+   * deadline is no longer due.
    */
-  save(quote: Quote, expectedStatus: Quote["status"]): Promise<Quote | null>;
+  save(quote: Quote, expectedStatus: Quote["status"], guard?: QuoteSaveGuard): Promise<Quote | null>;
 
   /** Open quotes whose clock has run out, oldest deadline first. */
   findDueForSweep(now: Date, limit: number): Promise<Quote[]>;

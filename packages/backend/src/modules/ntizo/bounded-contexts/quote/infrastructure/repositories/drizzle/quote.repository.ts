@@ -11,7 +11,7 @@ import {
 import { QUOTE_DEADLINE_BEARING_STATUSES, type QuoteStatus } from "../../../../../shared/infrastructure/database/quote/enums";
 import { Quote, type QuoteProposalProps } from "../../../domain/aggregates/quote.aggregate";
 import { QuoteAlreadyOpenError } from "../../../domain/exceptions";
-import type { QuoteRepositoryPort } from "../../../app/ports/outbound/quote.repository.port";
+import type { QuoteRepositoryPort, QuoteSaveGuard } from "../../../app/ports/outbound/quote.repository.port";
 
 const OPEN_QUOTE_CONSTRAINT = "quote_open_per_customer_service_uq";
 
@@ -176,13 +176,20 @@ export class DrizzleQuoteRepository implements QuoteRepositoryPort {
     return toAggregate(row, proposals);
   }
 
-  async save(entity: Quote, expectedStatus: Quote["status"]): Promise<Quote | null> {
+  async save(entity: Quote, expectedStatus: Quote["status"], guard?: QuoteSaveGuard): Promise<Quote | null> {
     const db = getDb();
     const id = entity.id as string;
     const [updated] = await db
       .update(quote)
       .set({ ...toQuoteRow(entity), updatedAt: new Date() })
-      .where(and(eq(quote.id, id), eq(quote.status, expectedStatus)))
+      .where(
+        and(
+          eq(quote.id, id),
+          eq(quote.status, expectedStatus),
+          // `and` drops an undefined term, so an unguarded save is unchanged.
+          guard?.dueBy ? lte(quote.expiresAt, guard.dueBy) : undefined,
+        ),
+      )
       .returning();
     if (!updated) return null;
 

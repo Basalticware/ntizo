@@ -222,6 +222,25 @@ describe("DrizzleQuoteRepository", () => {
     expect(earliest!.getTime()).toBeLessThanOrEqual(deadline.getTime());
   });
 
+  test("a save guarded by dueBy refuses a quote whose deadline moved past it, and applies to one still due", async () => {
+    // `quoteIds[1]` is open and overdue (the tests above made it so).
+    const snapshot = await run(() => repo.findById(quoteIds[1]!));
+    expect(snapshot?.status).toBe("REQUESTED");
+    const now = new Date();
+
+    // A revision lands after the sweep's read: the deadline moves, the status does not.
+    await db.update(quote).set({ expiresAt: new Date(now.getTime() + 72 * 3_600_000) }).where(eq(quote.id, quoteIds[1]!));
+    const refused = await run(() => repo.save(snapshot!.expire(now), snapshot!.status, { dueBy: now }));
+    expect(refused).toBeNull();
+    const [untouched] = await db.select({ status: quote.status }).from(quote).where(eq(quote.id, quoteIds[1]!));
+    expect(untouched?.status).toBe("REQUESTED");
+
+    // Still due: the same guarded save applies.
+    await db.update(quote).set({ expiresAt: new Date(now.getTime() - 60_000) }).where(eq(quote.id, quoteIds[1]!));
+    const applied = await run(() => repo.save(snapshot!.expire(now), snapshot!.status, { dueBy: now }));
+    expect(applied?.status).toBe("EXPIRED");
+  });
+
   /**
    * The race the quote's own compare-and-swap cannot see. A revision is
    * `PROPOSED → PROPOSED`, so `eq(quote.status, expectedStatus)` still

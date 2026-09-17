@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { NotificationType } from "@ntizo/shared";
 import { SweepQuoteCommand } from "../app/use-cases/sweep-quote.command";
 import { SweepDueQuotesInternalCommand } from "../app/use-cases/sweep-due-quotes.internal.command";
+import { Quote } from "../domain/aggregates/quote.aggregate";
 import {
   CapturingOutbox, FakeQuoteRepo, FakeRaiser, FakeServiceReader, TrackingUnitOfWork,
   proposedQuote, requestedQuote, withId,
@@ -17,9 +18,17 @@ function setup(initial: Parameters<typeof withId>[0]) {
   return { command, repo, raiser, outbox };
 }
 
+/**
+ * The sweep only ever receives quotes `findDueForSweep` selected, so its
+ * fixtures are due: their stored deadline is a minute in the past.
+ */
+function due(quote: Quote): Quote {
+  return Quote.restore({ ...quote.toProps(), expiresAt: new Date(Date.now() - 60_000) });
+}
+
 describe("SweepQuoteCommand", () => {
   it("expires an unanswered request and tells the customer why", async () => {
-    const { command, repo, raiser, outbox } = setup(requestedQuote());
+    const { command, repo, raiser, outbox } = setup(due(requestedQuote()));
     expect(await command.execute({ quoteId: "q-1" })).toBe("expired");
     expect(repo.state?.status).toBe("EXPIRED");
     expect(repo.state?.expiredCause).toBe("provider_did_not_respond");
@@ -30,12 +39,26 @@ describe("SweepQuoteCommand", () => {
   });
 
   it("expires a proposal nobody decided and tells the provider", async () => {
-    const { command, repo, raiser, outbox } = setup(proposedQuote());
+    const { command, repo, raiser, outbox } = setup(due(proposedQuote()));
     expect(await command.execute({ quoteId: "q-1" })).toBe("expired");
     expect(repo.state?.expiredCause).toBe("proposal_lapsed");
     expect(outbox.published[0]?.insideTransaction).toBe(true);
     expect(raiser.raised[0]).toMatchObject({ type: NotificationType.ProviderQuoteExpired, audience: "provider", providerId: "prov-1" });
     expect(raiser.insideTransactionAtCall).toEqual([false]);
+  });
+
+  it("leaves a quote alone when a revision moved its deadline after the sweep read it", async () => {
+    // A revision is PROPOSED -> PROPOSED, so the status the save compares
+    // still matches. Before the save also re-checked the deadline, a sweep
+    // that read the quote just before the provider revised it expired the
+    // fresh proposal the customer had not even seen.
+    const { command, repo, raiser, outbox } = setup(due(proposedQuote()));
+    repo.currentExpiresAtOverride = new Date(Date.now() + 72 * 3_600_000);
+
+    expect(await command.execute({ quoteId: "q-1" })).toBe("noop");
+    expect(repo.state?.status).toBe("PROPOSED");
+    expect(outbox.published).toHaveLength(0);
+    expect(raiser.raised).toHaveLength(0);
   });
 
   it("does nothing to a quote that already moved on, and announces nothing", async () => {

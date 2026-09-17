@@ -113,13 +113,20 @@ Read from `origin/dev` at `abde0123`.
   1. `current = await storage.getAlarm()`
   2. `target = max(at, Date.now())`
   3. if `current === null || target < current`, then `setAlarm(target)`
-- `alarm(): Promise<void>`: opens the same infra scope `scheduled.ts` opens, then
-  1. runs `runSweeps()`;
-  2. in `finally`: `next = await computeNextDueAt()`, and if non-null, `setAlarm(max(next, now + 30s))`;
-  3. closes the DB.
+- `alarm(): Promise<void>`: opens the same infra scope `scheduled.ts` opens, then runs
+  `handleAlarm`:
+  1. reads the alarm the platform reports for this run (`fired`);
+  2. runs `runSweeps()`. A throw is logged and never stops the rescheduling;
+  3. `next = await computeNextDueAt()`, then chooses a target:
+     - **`next` is null:** forget the overdue record and set no alarm;
+     - **still overdue (`next <= now`):** if the same due time was overdue after the previous run, double the gap (30 s up to 15 min), otherwise use 30 s; remember it under `overdue`; the target is `now + gap`;
+     - **in the future:** forget the overdue record; the target is `max(next, now + 30 s)`;
+  4. sets the target only if no alarm is set, the set alarm is the one that fired, or the target is
+     earlier, so an earlier alarm a request set mid-run is kept;
+  5. awaits the deferred work the sweeps started, then closes the DB.
 
-  If the recompute itself throws (for example, the database is unreachable), the alarm is set to
-  now + 15 min and the error is logged.
+  If the recompute itself throws (for example, the database is unreachable), the target is
+  now + 15 min under the same rule, and the error is logged.
 
 ### `runSweeps()` — extracted from `scheduled.ts`
 
