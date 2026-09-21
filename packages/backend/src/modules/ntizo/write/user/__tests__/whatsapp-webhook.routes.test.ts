@@ -167,4 +167,15 @@ describe("receive", () => {
       "connection terminated",
     );
   });
+
+  it("answers a signed body that is not JSON as decided, without confirming anything", async () => {
+    const error = spyOn(console, "error").mockImplementation(() => {});
+    const { handlers, calls } = harness();
+    const body = "not json at all";
+    const res = await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
+    expect(res.status).toBe(200);
+    expect(calls).toEqual([]);
+    expect(error).toHaveBeenCalled();
+    error.mockRestore();
+  });
 });

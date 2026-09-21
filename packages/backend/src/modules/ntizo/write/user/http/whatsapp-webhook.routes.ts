@@ -70,7 +70,18 @@ export function createWhatsAppWebhookHandlers(deps: WhatsAppWebhookDeps) {
         return json(401, { error: "invalid signature" });
       }
 
-      for (const message of inboundMessages(JSON.parse(req.body))) {
+      let payload: unknown;
+      try {
+        payload = JSON.parse(req.body);
+      } catch {
+        // Signed by Meta but not JSON: no retry can improve these bytes, so it
+        // is decided here — the same call the Resend route makes for a signed
+        // body that is not an event.
+        console.error("[whatsapp-webhook] a signed body was not JSON — ignored");
+        return json(200, { ok: true });
+      }
+
+      for (const message of inboundMessages(payload)) {
         await deps.confirm.execute({ senderPhone: `+${message.from}`, text: message.text });
       }
       return json(200, { ok: true });
