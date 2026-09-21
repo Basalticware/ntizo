@@ -25,7 +25,9 @@ export const Route = createFileRoute("/verify-phone")({
   }),
   beforeLoad: async ({ search }) => {
     const { data: session } = await authClient.getSession();
-    if (!session) throw redirect({ to: "/sign-in" });
+    if (!session) {
+      throw redirect(search.next ? { to: "/sign-in", search: { next: search.next } } : { to: "/sign-in" });
+    }
 
     const user = session.user as { phoneNumber?: string | null; phoneNumberVerified?: boolean | null };
     if (search.next && (!user.phoneNumber || user.phoneNumberVerified)) {

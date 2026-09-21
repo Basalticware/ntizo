@@ -50,8 +50,9 @@ beforeEach(() => {
 
 describe("/verify-phone", () => {
   it("sends a signed-out visitor to sign in", async () => {
-    await visit("/verify-phone?next=%2Fbookings");
+    const router = await visit("/verify-phone?next=%2Fbookings");
     expect(await screen.findByText("at /sign-in")).toBeInTheDocument();
+    expect(router.state.location.search).toEqual({ next: "/bookings" });
   });
 
   it("as an invite, skips straight on for an account with no number", async () => {
