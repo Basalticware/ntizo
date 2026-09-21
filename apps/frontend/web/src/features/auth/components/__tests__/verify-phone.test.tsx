@@ -83,6 +83,19 @@ describe("VerifyPhone", () => {
     expect(code.compareDocumentPosition(notNow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
+  it("while waiting, keeps the page's 22px rhythm between rows and spaces only the two columns widely", async () => {
+    // The two-column grid's gap used to be one value for both axes, so the
+    // 96px between the columns also opened a 96px hole between the lede and
+    // the rest of the left column. jsdom has no layout, so this pins the
+    // classes that produce the mockup's spacing.
+    fakes.state = { status: "waiting", ...TICKET };
+    await renderWithRouter(<VerifyPhone next="/bookings" />, { routes: ROUTES });
+    const grid = screen.getByRole("main");
+    expect(grid.className).toContain("gap-y-[22px]");
+    expect(grid.className).toContain("md:gap-x-24");
+    expect(grid.className).not.toMatch(/(^|\s)(md:)?gap-(10|24)(\s|$)/);
+  });
+
   it("once confirmed, continues to where the person was going", async () => {
     fakes.state = { status: "confirmed" };
     const { router } = await renderWithRouter(<VerifyPhone next="/bookings" />, { routes: ROUTES });

@@ -203,7 +203,7 @@ function Page({ children, head, aside }: { children: ReactNode; head?: ReactNode
       <main
         className={
           aside
-            ? "mx-auto grid max-w-[980px] gap-10 px-6 py-12 md:grid-cols-[minmax(0,460px)_minmax(0,420px)] md:items-center md:justify-center md:gap-24 md:py-20"
+            ? "mx-auto grid max-w-[980px] gap-y-[22px] px-6 py-12 md:grid-cols-[minmax(0,460px)_minmax(0,420px)] md:items-center md:justify-center md:gap-x-24 md:py-20"
             : "mx-auto max-w-[460px] px-6 py-12 md:py-20"
         }
       >
