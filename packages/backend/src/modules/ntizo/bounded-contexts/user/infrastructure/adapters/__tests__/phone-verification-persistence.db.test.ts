@@ -70,6 +70,18 @@ describe("BetterAuthIdentityAdapter, phone confirmation", () => {
 describe("BetterAuthPhoneVerificationCodeStore", () => {
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
+  test("keeps exactly one row even when two codes are issued at once", async () => {
+    await Promise.all([
+      codes.replace(userId, { code: "333333", phoneNumber: phone, expiresAt }),
+      codes.replace(userId, { code: "444444", phoneNumber: phone, expiresAt }),
+    ]);
+    const rows = await db
+      .select()
+      .from(verification)
+      .where(eq(verification.identifier, `whatsapp-phone:${userId}`));
+    expect(rows).toHaveLength(1);
+  });
+
   test("keeps one pending code per account, the latest", async () => {
     await codes.replace(userId, { code: "111111", phoneNumber: phone, expiresAt });
     await codes.replace(userId, { code: "222222", phoneNumber: phone, expiresAt });
