@@ -39,7 +39,14 @@
     //                             ignoring their prompts)
     "MPESA_ENVIRONMENT": "development",
     "MPESA_ORIGIN": "developer.mpesa.vm.co.mz",
-    "MPESA_SERVICE_PROVIDER_CODE": "171717"
+    "MPESA_SERVICE_PROVIDER_CODE": "171717",
+
+    // WhatsApp phone confirmation (see WHATSAPP_* in packages/backend's
+    // InfraEnvBindings). Empty = not configured: the screen steps aside
+    // and the webhook refuses with a 500. Filled per stage once Meta's
+    // app and number exist; the id is Meta's, the number is E.164.
+    "WHATSAPP_PHONE_NUMBER_ID": "",
+    "WHATSAPP_BUSINESS_NUMBER": ""
   },
 
   // SECRETS — deliberately absent from every `vars` block above and below.
@@ -92,6 +99,16 @@
   // used only by B2C (paying a provider out) and reversal (refunding), both
   // out of this plan's scope; the predecessor's own values for them are
   // three-character placeholders rather than credentials.
+  //
+  // `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_APP_SECRET` and
+  // `WHATSAPP_WEBHOOK_VERIFY_TOKEN` are the phone confirmation's three. The
+  // token lets us reply from Ntizo's WhatsApp number; the app secret signs
+  // every webhook POST, so anyone holding it could confirm any number; the
+  // verify token only answers Meta's handshake. Per stage, names only:
+  //
+  //   wrangler secret put WHATSAPP_ACCESS_TOKEN --env dev          # and qa, prod
+  //   wrangler secret put WHATSAPP_APP_SECRET --env dev
+  //   wrangler secret put WHATSAPP_WEBHOOK_VERIFY_TOKEN --env dev
 
   // Provider identity documents.
   //
@@ -139,7 +156,14 @@
         // See `SWEEP_SCHEDULER_ENABLED` in src/types.ts. Absent from the
         // top-level `vars` on purpose: a local `wrangler dev` must not run a
         // second scheduler against the shared dev database.
-        "SWEEP_SCHEDULER_ENABLED": "true"
+        "SWEEP_SCHEDULER_ENABLED": "true",
+
+        // WhatsApp phone confirmation (see WHATSAPP_* in packages/backend's
+        // InfraEnvBindings). Empty = not configured: the screen steps aside
+        // and the webhook refuses with a 500. Filled per stage once Meta's
+        // app and number exist; the id is Meta's, the number is E.164.
+        "WHATSAPP_PHONE_NUMBER_ID": "",
+        "WHATSAPP_BUSINESS_NUMBER": ""
       },
       "r2_buckets": [
         { "binding": "DOCUMENTS_BUCKET", "bucket_name": "ntizo-documents-dev" },
@@ -170,7 +194,14 @@
         // See `SWEEP_SCHEDULER_ENABLED` in src/types.ts. Absent from the
         // top-level `vars` on purpose: a local `wrangler dev` must not run a
         // second scheduler against the shared dev database.
-        "SWEEP_SCHEDULER_ENABLED": "true"
+        "SWEEP_SCHEDULER_ENABLED": "true",
+
+        // WhatsApp phone confirmation (see WHATSAPP_* in packages/backend's
+        // InfraEnvBindings). Empty = not configured: the screen steps aside
+        // and the webhook refuses with a 500. Filled per stage once Meta's
+        // app and number exist; the id is Meta's, the number is E.164.
+        "WHATSAPP_PHONE_NUMBER_ID": "",
+        "WHATSAPP_BUSINESS_NUMBER": ""
       },
       "r2_buckets": [
         { "binding": "DOCUMENTS_BUCKET", "bucket_name": "ntizo-documents-qa" },
@@ -215,7 +246,14 @@
         // See `SWEEP_SCHEDULER_ENABLED` in src/types.ts. Absent from the
         // top-level `vars` on purpose: a local `wrangler dev` must not run a
         // second scheduler against the shared dev database.
-        "SWEEP_SCHEDULER_ENABLED": "true"
+        "SWEEP_SCHEDULER_ENABLED": "true",
+
+        // WhatsApp phone confirmation (see WHATSAPP_* in packages/backend's
+        // InfraEnvBindings). Empty = not configured: the screen steps aside
+        // and the webhook refuses with a 500. Filled per stage once Meta's
+        // app and number exist; the id is Meta's, the number is E.164.
+        "WHATSAPP_PHONE_NUMBER_ID": "",
+        "WHATSAPP_BUSINESS_NUMBER": ""
       },
       "r2_buckets": [
         { "binding": "DOCUMENTS_BUCKET", "bucket_name": "ntizo-documents-prod" },

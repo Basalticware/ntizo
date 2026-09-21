@@ -31,6 +31,15 @@ export type AppBindings = InfraEnvBindings & {
    */
   RESEND_WEBHOOK_SECRET?: string;
   /**
+   * The Meta app secret that signs every POST to `/api/webhooks/whatsapp`
+   * (`X-Hub-Signature-256`). A secret, set with `wrangler secret put`.
+   * Absent, the route refuses every event with a 500, like the Resend one.
+   * On `AppBindings`, not `InfraEnvBindings`: only the Hono binding reads it.
+   */
+  WHATSAPP_APP_SECRET?: string;
+  /** Answers Meta's GET handshake when the webhook is registered. A secret. */
+  WHATSAPP_WEBHOOK_VERIFY_TOKEN?: string;
+  /**
    * The sweep scheduler (src/sweep-scheduler). Optional so tests and tooling
    * without the binding keep working; the refresh does nothing without it and
    * the hourly cron still sweeps.

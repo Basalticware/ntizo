@@ -14,7 +14,7 @@
   "exports": {
     "./modules/better-auth": "./src/modules/better-auth/lib/better-auth.ts",
     "./modules/better-auth/schema": "./src/modules/better-auth/infrastructure/database/schema.ts",
-    "./modules/ntizo/bounded-contexts/user": "./src/modules/ntizo/bounded-contexts/user/bootstrap/index.ts",
+    "./modules/ntizo/bounded-contexts/user": "./src/modules/ntizo/bounded-contexts/user/index.ts",
     "./modules/ntizo/bounded-contexts/provider": "./src/modules/ntizo/bounded-contexts/provider/bootstrap/index.ts",
     "./modules/ntizo/bounded-contexts/catalog": "./src/modules/ntizo/bounded-contexts/catalog/index.ts",
     "./modules/ntizo/bounded-contexts/scheduling": "./src/modules/ntizo/bounded-contexts/scheduling/index.ts",
