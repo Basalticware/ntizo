@@ -73,6 +73,16 @@ describe("VerifyPhone", () => {
     expect(screen.getByRole("link", { name: /open whatsapp again/i })).toHaveAttribute("href", TICKET.link);
   });
 
+  it("while waiting on a phone, puts the message right after the lede, before 'not now'", async () => {
+    fakes.state = { status: "waiting", ...TICKET };
+    await renderWithRouter(<VerifyPhone next="/bookings" />, { routes: ROUTES });
+    const heading = screen.getByRole("heading", { name: /tap send in whatsapp/i });
+    const code = screen.getByText("483920");
+    const notNow = screen.getByRole("button", { name: /not now/i });
+    expect(heading.compareDocumentPosition(code) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(code.compareDocumentPosition(notNow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("once confirmed, continues to where the person was going", async () => {
     fakes.state = { status: "confirmed" };
     const { router } = await renderWithRouter(<VerifyPhone next="/bookings" />, { routes: ROUTES });

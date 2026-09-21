@@ -94,6 +94,14 @@ export function VerifyPhone({ next }: { next?: string }) {
     );
     return (
       <Page
+        head={
+          <>
+            <h1 className="type-h1 text-[var(--color-headline)]">{t("verifyPhone.waitingTitle")}</h1>
+            <p className="type-body max-w-[40ch] text-[var(--color-muted-foreground)]">
+              {t("verifyPhone.waitingLede")}
+            </p>
+          </>
+        }
         aside={
           <div className="rounded-[18px] bg-[var(--color-muted)] p-5">
             <p className="type-caption text-[var(--color-muted-foreground)]">{t("verifyPhone.messageLabel")}</p>
@@ -110,8 +118,6 @@ export function VerifyPhone({ next }: { next?: string }) {
           </div>
         }
       >
-        <h1 className="type-h1 text-[var(--color-headline)]">{t("verifyPhone.waitingTitle")}</h1>
-        <p className="type-body max-w-[40ch] text-[var(--color-muted-foreground)]">{t("verifyPhone.waitingLede")}</p>
         <p className="type-body-medium flex items-center gap-2.5 text-[var(--color-foreground)]" aria-live="polite">
           <span className="relative flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-headline)] opacity-40 motion-reduce:animate-none" />
@@ -178,8 +184,15 @@ const secondary =
 const quiet =
   "type-body-medium text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:underline underline-offset-4 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2";
 
-/** The page frame: the wordmark, then one column (two on wide screens when there is an aside). */
-function Page({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
+/**
+ * The page frame: the wordmark, then one column (two on wide screens when there is an aside).
+ *
+ * DOM order is always head → aside → rest, so a single-column phone shows the
+ * message right after the lede, before the "not now" way out. On md+, `head`
+ * and `children` are pinned to the same grid column (rows 1 and 2) so they
+ * still read as one column, and `aside` spans both rows, centred beside them.
+ */
+function Page({ children, head, aside }: { children: ReactNode; head?: ReactNode; aside?: ReactNode }) {
   return (
     <div className="min-h-svh bg-[var(--color-background)]">
       <div className="px-6 pt-6 md:px-14 md:pt-7">
@@ -194,8 +207,11 @@ function Page({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
             : "mx-auto max-w-[460px] px-6 py-12 md:py-20"
         }
       >
-        <div className="flex flex-col gap-[22px]">{children}</div>
-        {aside ?? null}
+        {head ? (
+          <div className={`flex flex-col gap-[22px]${aside ? " md:col-start-1 md:row-start-1" : ""}`}>{head}</div>
+        ) : null}
+        {aside ? <div className="md:col-start-2 md:row-start-1 md:row-span-2 md:self-center">{aside}</div> : null}
+        <div className={`flex flex-col gap-[22px]${aside ? " md:col-start-1 md:row-start-2" : ""}`}>{children}</div>
       </main>
     </div>
   );
