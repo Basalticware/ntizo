@@ -17,4 +17,19 @@ export interface AuthIdentityPort {
    * @throws {PhoneNumberAlreadyInUseError} when another account holds it.
    */
   setPhoneNumber(userId: string, phoneNumber: string | null): Promise<void>;
+
+  /** The account's number and whether it is confirmed, or null when it has none. */
+  findPhoneOf(userId: string): Promise<{ phoneNumber: string; verified: boolean } | null>;
+
+  /** Whose number this is. The column is unique, so there is at most one. */
+  findByPhoneNumber(phoneNumber: string): Promise<{ userId: string; verified: boolean } | null>;
+
+  /**
+   * Confirms the number, but only if the account still holds `issuedFor`.
+   *
+   * Conditional in the statement itself, so a number changed between asking
+   * for a code and sending it cannot end up confirmed by a message from the
+   * old one. Returns whether a row changed.
+   */
+  markPhoneNumberVerified(userId: string, issuedFor: string): Promise<boolean>;
 }

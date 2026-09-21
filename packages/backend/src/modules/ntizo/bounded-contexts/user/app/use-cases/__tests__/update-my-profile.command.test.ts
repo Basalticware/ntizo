@@ -44,6 +44,9 @@ function harness(profile: Profile) {
       setPhoneNumber: async (_userId: string, phoneNumber: string | null) => {
         identityCalls.push(phoneNumber);
       },
+      findPhoneOf: async () => null,
+      findByPhoneNumber: async () => null,
+      markPhoneNumberVerified: async () => false,
     },
   );
   return { command, saved, identityCalls };
@@ -77,6 +80,9 @@ function harnessWithFailingIdentity(
       setPhoneNumber: async () => {
         throw identityError;
       },
+      findPhoneOf: async () => null,
+      findByPhoneNumber: async () => null,
+      markPhoneNumberVerified: async () => false,
     },
   );
   return { command, saved };
