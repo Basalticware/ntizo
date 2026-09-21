@@ -76,10 +76,13 @@ export function usePhoneVerification(messageFor: (code: string) => string) {
 
   useEffect(() => {
     void start();
-    // Invalidates the in-flight request, so StrictMode's double mount keeps
-    // only the second code — the one the server actually has.
+    const attempts = attempt;
+    // Invalidates the in-flight request, so its answer is ignored once this
+    // effect is torn down. It does NOT guarantee the kept code is the one
+    // stored last: under StrictMode's double mount in local dev, two
+    // concurrent upserts may still commit in either order.
     return () => {
-      attempt.current++;
+      attempts.current++;
     };
   }, [start]);
 
