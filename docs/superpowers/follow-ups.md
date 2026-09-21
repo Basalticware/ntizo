@@ -4858,3 +4858,43 @@ registration, and #63's second-writer risk (the plugin's own `send-otp`/`update`
 and the SMS port is a separate, mechanical pass — once nobody worries a rollback needs them back.
 
 **Trigger:** the next full pass over the auth backend, or #63 being revisited.
+
+## #221 — No rate limit on "no-code" replies per sender
+
+`ConfirmPhoneFromWhatsAppInternalCommand` answers every message that carries no six-digit code with
+the same "this number is only for confirming Ntizo accounts" reply, unconditionally and per message.
+Nothing throttles that per sender. Two Ntizo-side numbers (or a misconfigured auto-responder on
+either end) exchanging messages with no code in them would ping-pong through the webhook indefinitely
+— each reply itself has no code, so it re-triggers the other side's own auto-reply. A per-sender rate
+limit on the "no-code" outcome (a short cooldown after the first reply, or a cap per rolling window)
+would turn that into a handful of messages instead of an unbounded loop.
+
+**Trigger:** a second WhatsApp Business number appearing near this one, or a monitoring alert on
+webhook volume.
+
+## #222 — /verify-phone: no heading while starting, and no focus moved on a state change
+
+The "starting" state (and the invite's brief "unavailable" flash) renders only a `<p aria-live="polite">`,
+no `<h1>` — `VerifyPhone` in `verify-phone.tsx` draws its first heading once `ready`/`waiting`/`confirmed`/etc.
+is reached. A screen reader landing on the page during "starting" has no heading to announce the page by.
+Separately, every subsequent state change (ready → waiting → confirmed, or waiting → expired) swaps in a
+new `<h1>` without ever moving focus to it — nothing calls `.focus()` on mount or on the state transition,
+so a screen reader user who has already moved past the top of the page is never told the page's subject
+changed under them; only the `aria-live` regions inside a state (the waiting pulse, the preparing message)
+announce anything.
+
+**Trigger:** the accessibility pass this branch deferred, or an audit/complaint about `/verify-phone`.
+
+## #223 — The waiting message is built by string surgery on a translation key
+
+`verify-phone.tsx`'s waiting state builds the message shown beside the code with
+`t("verifyPhone.message", { code: "" }).trim()`, then appends the code itself as a separately styled
+`<span>` — relying on `{{code}}` being the last token of the sentence in every locale, so trimming the
+empty substitution leaves a clean lead-in with nothing dangling after it. True of all eight locales
+today (see `auth.json`'s `verifyPhone.message` key), but nothing enforces it, and a translator free to
+move `{{code}}` elsewhere in the sentence (grammatically ordinary in some languages) would silently
+produce a lead-in with a stray fragment after it. A dedicated `messageLead` key with no placeholder, or
+rendering the whole sentence through `<Trans>` with the code as a styled child, would remove the
+assumption instead of relying on translators never testing it.
+
+**Trigger:** a new locale, or a translator moving `{{code}}` in an existing one.
