@@ -57,8 +57,20 @@ export function usePhoneVerification(messageFor: (code: string) => string) {
       if (mine !== attempt.current) return;
       const code = error instanceof GraphqlError ? error.code : undefined;
       if (code === "PHONE_VERIFICATION_UNAVAILABLE") setState({ status: "unavailable" });
-      else if (code === "PHONE_NUMBER_ALREADY_VERIFIED") setState({ status: "confirmed" });
-      else setState({ status: "failed" });
+      else if (code === "PHONE_NUMBER_ALREADY_VERIFIED") {
+        try {
+          await authClient.getSession({ query: { disableCookieCache: true } });
+        } catch {
+          // Confirmed either way; a failed refresh just leaves the header stale for one more read.
+        }
+        if (mine !== attempt.current) return;
+        setState({ status: "confirmed" });
+        // The header and Conta → Segurança read the shared session store.
+        // $store is on the runtime client (better-auth/client config.mjs) but not on its public type.
+        (authClient as unknown as { $store: { notify(s: string): void } }).$store.notify(
+          "$sessionSignal",
+        );
+      } else setState({ status: "failed" });
     }
   }, []);
 

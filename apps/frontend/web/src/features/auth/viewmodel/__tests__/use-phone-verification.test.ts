@@ -129,6 +129,42 @@ describe("usePhoneVerification", () => {
     expect(second.result.current.state.status).toBe("confirmed");
   });
 
+  it("refreshes the shared session when start finds the number already verified", async () => {
+    fakes.start.mockRejectedValue(
+      new GraphqlError(200, [{ message: "x", extensions: { code: "CONFLICT", originalCode: "PHONE_NUMBER_ALREADY_VERIFIED" } }] as never),
+    );
+    const { result } = renderHook(() => usePhoneVerification(message));
+    await flush();
+    expect(result.current.state.status).toBe("confirmed");
+    expect(fakes.getSession).toHaveBeenCalledWith({ query: { disableCookieCache: true } });
+    expect(fakes.notify).toHaveBeenCalledWith("$sessionSignal");
+  });
+
+  it("ignores a stale already-verified confirmation once a newer attempt has replaced it", async () => {
+    let resolveGetSession!: (value: { data: { user: { phoneNumberVerified: boolean } } }) => void;
+    fakes.start.mockRejectedValueOnce(
+      new GraphqlError(200, [{ message: "x", extensions: { code: "CONFLICT", originalCode: "PHONE_NUMBER_ALREADY_VERIFIED" } }] as never),
+    );
+    fakes.getSession.mockImplementationOnce(
+      () => new Promise((resolve) => (resolveGetSession = resolve)),
+    );
+    const { result } = renderHook(() => usePhoneVerification(message));
+    await flush();
+
+    fakes.start.mockResolvedValueOnce({ ...TICKET, code: "999999" });
+    await act(async () => {
+      result.current.restart();
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(result.current.state).toMatchObject({ status: "ready", code: "999999" });
+
+    await act(async () => {
+      resolveGetSession({ data: { user: { phoneNumberVerified: true } } });
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(result.current.state).toMatchObject({ status: "ready", code: "999999" });
+  });
+
   it("reports anything else as failed", async () => {
     fakes.start.mockRejectedValue(new TypeError("Failed to fetch"));
     const { result } = renderHook(() => usePhoneVerification(message));
