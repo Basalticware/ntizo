@@ -12,6 +12,14 @@ export interface WhatsAppWebhookDeps {
   appSecret: string | undefined;
   /** Only for the GET handshake when the webhook is registered. */
   verifyToken: string | undefined;
+  /**
+   * This stage's own WhatsApp Business number, from Meta's `phone_number_id`.
+   * Set, a delivery reporting any other id is skipped — no confirm call —
+   * because it was addressed to a different WhatsApp number entirely (a
+   * sandbox number, another stage's number sharing the same app). Unset,
+   * every delivery is handled, as before.
+   */
+  phoneNumberId: string | undefined;
   /** Shared across requests by the caller, like the Resend route's counter. */
   refusals: { count: number };
 }
@@ -81,7 +89,7 @@ export function createWhatsAppWebhookHandlers(deps: WhatsAppWebhookDeps) {
         return json(200, { ok: true });
       }
 
-      for (const message of inboundMessages(payload)) {
+      for (const message of inboundMessages(payload, deps.phoneNumberId)) {
         await deps.confirm.execute({ senderPhone: `+${message.from}`, text: message.text });
       }
       return json(200, { ok: true });
@@ -109,16 +117,31 @@ function hexToBytes(hex: string): Uint8Array {
   return bytes;
 }
 
-/** Every inbound message in a delivery; statuses and anything unknown are skipped. */
-function inboundMessages(payload: unknown): { from: string; text: string | null }[] {
+/**
+ * Every inbound message in a delivery; statuses and anything unknown are
+ * skipped. A `phoneNumberId` also skips every change addressed to a
+ * different WhatsApp number.
+ */
+function inboundMessages(
+  payload: unknown,
+  phoneNumberId: string | undefined,
+): { from: string; text: string | null }[] {
   const out: { from: string; text: string | null }[] = [];
   if (!isRecord(payload) || payload.object !== "whatsapp_business_account") return out;
   for (const entry of asArray(payload.entry)) {
     if (!isRecord(entry)) continue;
     for (const change of asArray(entry.changes)) {
       if (!isRecord(change) || change.field !== "messages" || !isRecord(change.value)) continue;
+      if (phoneNumberId) {
+        const metadata = isRecord(change.value.metadata) ? change.value.metadata : undefined;
+        if (metadata?.phone_number_id !== phoneNumberId) continue;
+      }
       for (const message of asArray(change.value.messages)) {
-        if (!isRecord(message) || typeof message.from !== "string" || !/^\d+$/.test(message.from)) continue;
+        if (!isRecord(message) || typeof message.from !== "string") continue;
+        if (!/^\d+$/.test(message.from)) {
+          console.warn("[whatsapp-webhook] skipped a message whose sender is not a phone number");
+          continue;
+        }
         const text =
           message.type === "text" && isRecord(message.text) && typeof message.text.body === "string"
             ? message.text.body

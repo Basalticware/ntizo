@@ -149,6 +149,7 @@ export function mountWebhooks(app: Hono<{ Bindings: AppBindings }>, deps: Webhoo
       confirm: deps.confirmPhoneFromWhatsApp,
       appSecret: c.env.WHATSAPP_APP_SECRET,
       verifyToken: c.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN,
+      phoneNumberId: c.env.WHATSAPP_PHONE_NUMBER_ID,
       refusals: whatsAppRefusalsSinceBoot,
     });
   }

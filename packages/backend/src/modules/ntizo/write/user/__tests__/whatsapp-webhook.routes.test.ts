@@ -10,7 +10,7 @@ function sign(body: string, secret = SECRET): string {
   return `sha256=${createHmac("sha256", secret).update(body).digest("hex")}`;
 }
 
-function inbound(messages: unknown[], statuses: unknown[] = []): string {
+function inbound(messages: unknown[], statuses: unknown[] = [], phoneNumberId = "106540352242922"): string {
   return JSON.stringify({
     object: "whatsapp_business_account",
     entry: [
@@ -21,7 +21,7 @@ function inbound(messages: unknown[], statuses: unknown[] = []): string {
             field: "messages",
             value: {
               messaging_product: "whatsapp",
-              metadata: { display_phone_number: "258843002020", phone_number_id: "106540352242922" },
+              metadata: { display_phone_number: "258843002020", phone_number_id: phoneNumberId },
               ...(messages.length ? { messages } : {}),
               ...(statuses.length ? { statuses } : {}),
             },
@@ -40,7 +40,13 @@ const TEXT = {
   text: { body: "Olá Ntizo! O meu código de confirmação é 483920" },
 };
 
-function harness(overrides: { appSecret?: string | undefined; verifyToken?: string | undefined } = {}) {
+function harness(
+  overrides: {
+    appSecret?: string | undefined;
+    verifyToken?: string | undefined;
+    phoneNumberId?: string | undefined;
+  } = {},
+) {
   const calls: ConfirmPhoneFromWhatsAppInternalInput[] = [];
   const handlers = createWhatsAppWebhookHandlers({
     confirm: {
@@ -51,6 +57,7 @@ function harness(overrides: { appSecret?: string | undefined; verifyToken?: stri
     },
     appSecret: "appSecret" in overrides ? overrides.appSecret : SECRET,
     verifyToken: "verifyToken" in overrides ? overrides.verifyToken : VERIFY,
+    phoneNumberId: overrides.phoneNumberId,
     refusals: { count: 0 },
   });
   return { handlers, calls };
@@ -110,6 +117,43 @@ describe("receive", () => {
     expect(calls).toEqual([]);
   });
 
+  it("ignores a delivery for another WhatsApp number when one is configured", async () => {
+    const { handlers, calls } = harness({ phoneNumberId: "106540352242922" });
+    const body = inbound([TEXT], [], "some-other-number-id");
+    const res = await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
+    expect(res.status).toBe(200);
+    expect(calls).toEqual([]);
+  });
+
+  it("confirms a delivery for another WhatsApp number when none is configured", async () => {
+    const { handlers, calls } = harness({ phoneNumberId: undefined });
+    const body = inbound([TEXT], [], "some-other-number-id");
+    const res = await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
+    expect(res.status).toBe(200);
+    expect(calls).toEqual([{ senderPhone: "+258879801517", text: TEXT.text.body }]);
+  });
+
+  it("confirms a delivery for the configured WhatsApp number", async () => {
+    const { handlers, calls } = harness({ phoneNumberId: "106540352242922" });
+    const body = inbound([TEXT], [], "106540352242922");
+    await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
+    expect(calls).toEqual([{ senderPhone: "+258879801517", text: TEXT.text.body }]);
+  });
+
+  it("logs and drops a message whose sender is not a phone number, without the sender in the log", async () => {
+    const warn = spyOn(console, "warn").mockImplementation(() => {});
+    const { handlers, calls } = harness();
+    const body = inbound([{ ...TEXT, from: "not-a-phone-number" }]);
+    const res = await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
+    expect(res.status).toBe(200);
+    expect(calls).toEqual([]);
+    expect(warn).toHaveBeenCalledWith("[whatsapp-webhook] skipped a message whose sender is not a phone number");
+    for (const call of warn.mock.calls) {
+      for (const arg of call) expect(String(arg)).not.toContain("not-a-phone-number");
+    }
+    warn.mockRestore();
+  });
+
   it("refuses a missing signature without reading the body", async () => {
     const error = spyOn(console, "error").mockImplementation(() => {});
     const { handlers, calls } = harness();
@@ -160,6 +204,7 @@ describe("receive", () => {
       },
       appSecret: SECRET,
       verifyToken: VERIFY,
+      phoneNumberId: undefined,
       refusals: { count: 0 },
     });
     const body = inbound([TEXT]);
