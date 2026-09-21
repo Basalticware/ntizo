@@ -143,7 +143,7 @@ describe("SignIn", () => {
     expect(fakes.sendVerificationEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         email: "ana@example.com",
-        callbackURL: `${window.location.origin}/`,
+        callbackURL: `${window.location.origin}/verify-phone?next=%2F`,
       }),
     );
     expect(router.state.location.pathname).toBe("/sign-in");

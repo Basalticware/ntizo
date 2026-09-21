@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useSearch } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { isSafeInternalPath } from "@/shared/lib/zones";
 import { useForm } from "@tanstack/react-form";
+import { emailConfirmedCallbackURL } from "@/features/auth/viewmodel/email-callback";
 import { Eye, EyeOff, UserPlus, MailCheck } from "lucide-react";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import {
@@ -74,11 +74,8 @@ export function SignUp() {
             // break: they registered, landed on `/`, and the thing they came to
             // do was never offered again.
             //
-            // Checked with `isSafeInternalPath` because this ends up in a URL a
-            // server redirects to, and an unchecked `next` is an open redirect.
-            callbackURL: `${window.location.origin}${
-              isSafeInternalPath(next ?? null) ? next : "/"
-            }`,
+            // It lands on the phone invite first (/verify-phone?next=…), which steps aside when there is nothing to confirm.
+            callbackURL: emailConfirmedCallbackURL(window.location.origin, next),
             // The language on screen, not the browser's own. Someone reading
             // the app in Portuguese with an English-configured browser gets
             // Portuguese email, which is the whole point — and this is the
@@ -130,9 +127,7 @@ export function SignUp() {
                 before anyone got to it — an hour is not long. */}
             <ResendVerification
               email={submitted}
-              callbackURL={`${window.location.origin}${
-                isSafeInternalPath(next ?? null) ? next : "/"
-              }`}
+              callbackURL={emailConfirmedCallbackURL(window.location.origin, next)}
             />
             <Link
               to="/sign-in"
