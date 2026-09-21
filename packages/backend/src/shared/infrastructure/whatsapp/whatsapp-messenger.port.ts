@@ -6,6 +6,6 @@
  * message opened is not charged.
  */
 export interface WhatsAppMessengerPort {
-  /** `to` in E.164 (`+258879801517`). Throws when the message was not accepted. */
+  /** `to` in E.164 (`+258841234567`). Throws when the message was not accepted. */
   sendText(to: string, body: string): Promise<void>;
 }

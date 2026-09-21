@@ -33,7 +33,7 @@ function inbound(messages: unknown[], statuses: unknown[] = [], phoneNumberId = 
 }
 
 const TEXT = {
-  from: "258879801517",
+  from: "258841234567",
   id: "wamid.1",
   timestamp: "1758465420",
   type: "text",
@@ -92,26 +92,26 @@ describe("receive", () => {
     const body = inbound([TEXT]);
     const res = await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
     expect(res.status).toBe(200);
-    expect(calls).toEqual([{ senderPhone: "+258879801517", text: TEXT.text.body }]);
+    expect(calls).toEqual([{ senderPhone: "+258841234567", text: TEXT.text.body }]);
   });
 
   it("passes a non-text message on as having no text", async () => {
     const { handlers, calls } = harness();
-    const body = inbound([{ from: "258879801517", id: "wamid.2", timestamp: "1", type: "audio", audio: { id: "a1" } }]);
+    const body = inbound([{ from: "258841234567", id: "wamid.2", timestamp: "1", type: "audio", audio: { id: "a1" } }]);
     await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
-    expect(calls).toEqual([{ senderPhone: "+258879801517", text: null }]);
+    expect(calls).toEqual([{ senderPhone: "+258841234567", text: null }]);
   });
 
   it("handles every message in one delivery", async () => {
     const { handlers, calls } = harness();
     const body = inbound([TEXT, { ...TEXT, id: "wamid.3", from: "258841112233" }]);
     await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
-    expect(calls.map((c) => c.senderPhone)).toEqual(["+258879801517", "+258841112233"]);
+    expect(calls.map((c) => c.senderPhone)).toEqual(["+258841234567", "+258841112233"]);
   });
 
   it("ignores delivery statuses", async () => {
     const { handlers, calls } = harness();
-    const body = inbound([], [{ id: "wamid.9", status: "delivered", recipient_id: "258879801517" }]);
+    const body = inbound([], [{ id: "wamid.9", status: "delivered", recipient_id: "258841234567" }]);
     const res = await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
     expect(res.status).toBe(200);
     expect(calls).toEqual([]);
@@ -130,14 +130,14 @@ describe("receive", () => {
     const body = inbound([TEXT], [], "some-other-number-id");
     const res = await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
     expect(res.status).toBe(200);
-    expect(calls).toEqual([{ senderPhone: "+258879801517", text: TEXT.text.body }]);
+    expect(calls).toEqual([{ senderPhone: "+258841234567", text: TEXT.text.body }]);
   });
 
   it("confirms a delivery for the configured WhatsApp number", async () => {
     const { handlers, calls } = harness({ phoneNumberId: "106540352242922" });
     const body = inbound([TEXT], [], "106540352242922");
     await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
-    expect(calls).toEqual([{ senderPhone: "+258879801517", text: TEXT.text.body }]);
+    expect(calls).toEqual([{ senderPhone: "+258841234567", text: TEXT.text.body }]);
   });
 
   it("logs and drops a message whose sender is not a phone number, without the sender in the log", async () => {

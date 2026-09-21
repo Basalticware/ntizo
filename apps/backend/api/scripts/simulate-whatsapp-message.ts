@@ -3,7 +3,7 @@
  * does and posts it to the local API, so the whole confirmation works with no
  * Meta account. Replies print in the `wrangler dev` terminal.
  *
- *   bun scripts/simulate-whatsapp-message.ts +258879801517 "Olá Ntizo! O meu código de confirmação é 483920"
+ *   bun scripts/simulate-whatsapp-message.ts +258841234567 "Olá Ntizo! O meu código de confirmação é 483920"
  *
  * Reads WHATSAPP_APP_SECRET from the environment (bun loads .env); it must
  * match the value in .dev.vars that `wrangler dev` runs with.

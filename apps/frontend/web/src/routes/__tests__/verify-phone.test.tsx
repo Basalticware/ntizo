@@ -62,19 +62,19 @@ describe("/verify-phone", () => {
   });
 
   it("as an invite, skips straight on for a number already confirmed", async () => {
-    fakes.session = { user: { phoneNumber: "+258879801517", phoneNumberVerified: true } };
+    fakes.session = { user: { phoneNumber: "+258841234567", phoneNumberVerified: true } };
     await visit("/verify-phone?next=%2Fbookings");
     expect(await screen.findByText("at /bookings")).toBeInTheDocument();
   });
 
   it("as an invite, shows the page for a number still to confirm", async () => {
-    fakes.session = { user: { phoneNumber: "+258879801517", phoneNumberVerified: false } };
+    fakes.session = { user: { phoneNumber: "+258841234567", phoneNumberVerified: false } };
     await visit("/verify-phone?next=%2Fbookings");
     expect(await screen.findByText("verify page next=/bookings")).toBeInTheDocument();
   });
 
   it("drops a `next` that leaves the site", async () => {
-    fakes.session = { user: { phoneNumber: "+258879801517", phoneNumberVerified: false } };
+    fakes.session = { user: { phoneNumber: "+258841234567", phoneNumberVerified: false } };
     await visit("/verify-phone?next=%2F%2Fevil.example");
     expect(await screen.findByText("verify page next=none")).toBeInTheDocument();
   });

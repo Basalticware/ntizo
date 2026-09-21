@@ -37,7 +37,7 @@ describe("extractVerificationCode", () => {
   });
 
   it("does not take six digits out of a longer number", () => {
-    expect(extractVerificationCode("ligue-me para 258879801517")).toBeNull();
+    expect(extractVerificationCode("ligue-me para 258841234567")).toBeNull();
   });
 
   it("returns null when there is no code", () => {

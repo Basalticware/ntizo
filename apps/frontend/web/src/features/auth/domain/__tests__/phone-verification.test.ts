@@ -15,7 +15,7 @@ describe("whatsAppLink", () => {
 
 describe("formatPhone", () => {
   it("spaces an E.164 number the way people read it", () => {
-    expect(formatPhone("+258879801517")).toBe("+258 87 980 1517");
+    expect(formatPhone("+258841234567")).toBe("+258 84 123 4567");
   });
 
   it("returns anything it cannot read untouched", () => {

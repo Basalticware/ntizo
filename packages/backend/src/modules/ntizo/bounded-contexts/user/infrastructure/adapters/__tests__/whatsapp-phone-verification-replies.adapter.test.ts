@@ -45,7 +45,7 @@ describe("WhatsAppPhoneVerificationReplies", () => {
       { sendText: async (to, body) => void sent.push({ to, body }) },
       () => "ola@ntizo.co.mz",
     );
-    await replies.send("+258879801517", "already-confirmed", "en-US");
-    expect(sent).toEqual([{ to: "+258879801517", body: "Your number is already confirmed." }]);
+    await replies.send("+258841234567", "already-confirmed", "en-US");
+    expect(sent).toEqual([{ to: "+258841234567", body: "Your number is already confirmed." }]);
   });
 });

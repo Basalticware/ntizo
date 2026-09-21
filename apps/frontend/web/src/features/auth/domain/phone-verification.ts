@@ -8,7 +8,7 @@ export function whatsAppLink(businessNumber: string, message: string): string {
   return `https://wa.me/${businessNumber.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
 }
 
-/** "+258879801517" → "+258 87 980 1517"; anything unreadable comes back as it was. */
+/** "+258841234567" → "+258 84 123 4567"; anything unreadable comes back as it was. */
 export function formatPhone(e164: string): string {
   return parsePhoneNumberFromString(e164)?.formatInternational() ?? e164;
 }

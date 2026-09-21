@@ -13,7 +13,7 @@ vi.mock("@/features/auth/viewmodel/use-phone-verification", () => ({
   usePhoneVerification: () => ({ state: fakes.state, markSent: fakes.markSent, restart: fakes.restart }),
 }));
 vi.mock("@/shared/lib/api/auth-client", () => ({
-  useSession: () => ({ data: { user: { phoneNumber: "+258879801517" } }, isPending: false }),
+  useSession: () => ({ data: { user: { phoneNumber: "+258841234567" } }, isPending: false }),
 }));
 
 const { VerifyPhone } = await import("../verify-phone");
@@ -38,7 +38,7 @@ describe("VerifyPhone", () => {
 
     expect(screen.getByRole("heading", { name: /confirm your number/i })).toBeInTheDocument();
     expect(screen.getByText("Email confirmed")).toBeInTheDocument();
-    expect(screen.getByText("+258 87 980 1517")).toBeInTheDocument();
+    expect(screen.getByText("+258 84 123 4567")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /change/i })).toHaveAttribute("href", "/account");
 
     const whatsapp = screen.getByRole("link", { name: /confirm with whatsapp/i });

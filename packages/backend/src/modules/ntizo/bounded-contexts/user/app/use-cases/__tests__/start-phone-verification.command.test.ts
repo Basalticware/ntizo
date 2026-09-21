@@ -31,7 +31,7 @@ function harness(opts: {
     setPhoneNumber: async () => {},
     findPhoneOf: async (userId) => {
       askedFor.push(userId);
-      return opts.phone === undefined ? { phoneNumber: "+258879801517", verified: false } : opts.phone;
+      return opts.phone === undefined ? { phoneNumber: "+258841234567", verified: false } : opts.phone;
     },
     findByPhoneNumber: async () => null,
     markPhoneNumberVerified: async () => false,
@@ -64,7 +64,7 @@ describe("StartPhoneVerificationCommand", () => {
     expect(PHONE_VERIFICATION_TTL_MS).toBe(15 * 60 * 1000);
     expect(askedFor).toEqual(["u1"]);
     expect(stored).toEqual([
-      { userId: "u1", pending: { code: "483920", phoneNumber: "+258879801517", expiresAt: ticket.expiresAt } },
+      { userId: "u1", pending: { code: "483920", phoneNumber: "+258841234567", expiresAt: ticket.expiresAt } },
     ]);
   });
 
@@ -82,7 +82,7 @@ describe("StartPhoneVerificationCommand", () => {
   });
 
   it("refuses a number that is already confirmed", async () => {
-    const { command, stored } = harness({ phone: { phoneNumber: "+258879801517", verified: true } });
+    const { command, stored } = harness({ phone: { phoneNumber: "+258841234567", verified: true } });
     await expect(command.execute(ctx)).rejects.toBeInstanceOf(PhoneNumberAlreadyVerifiedError);
     expect(stored).toEqual([]);
   });

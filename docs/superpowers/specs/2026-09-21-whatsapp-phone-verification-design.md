@@ -26,7 +26,7 @@ and "all non-template messages are free within an open customer service window" 
 our reply is free too. The Cloud API itself has no usage fee.
 
 It is also sound as proof of ownership. WhatsApp verified the sender's number when the person installed it, so a message
-that arrives *from* `+258879801517` was sent by whoever holds that number. The code is what ties the message to the
+that arrives *from* `+258841234567` was sent by whoever holds that number. The code is what ties the message to the
 account that asked for it.
 
 ## What exists, and what does not
@@ -60,7 +60,7 @@ Ntizo (/verify-phone)            WhatsApp (person's phone)          Ntizo API
 page loads → code 483920 issued
 [Confirmar pelo WhatsApp]  ──►   opens wa.me/258843002020?text=…483920
   (a plain link)                 person taps Send          ──►      POST /api/webhooks/whatsapp
-                                                                     signature ok → from +258879801517
+                                                                     signature ok → from +258841234567
                                                                      account with that number?
                                                                      code matches, not expired, number unchanged?
                                  "✅ Número confirmado…"   ◄──       phone_number_verified = true, reply

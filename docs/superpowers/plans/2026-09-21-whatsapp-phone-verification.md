@@ -152,7 +152,7 @@ describe("extractVerificationCode", () => {
   });
 
   it("does not take six digits out of a longer number", () => {
-    expect(extractVerificationCode("ligue-me para 258879801517")).toBeNull();
+    expect(extractVerificationCode("ligue-me para 258841234567")).toBeNull();
   });
 
   it("returns null when there is no code", () => {
@@ -379,7 +379,7 @@ describe("CloudApiWhatsAppMessengerAdapter", () => {
     await new CloudApiWhatsAppMessengerAdapter(
       { accessToken: "token-1", phoneNumberId: "1234" },
       fakeFetch,
-    ).sendText("+258879801517", "✅ Número confirmado.");
+    ).sendText("+258841234567", "✅ Número confirmado.");
 
     expect(calls).toHaveLength(1);
     expect(calls[0]!.url).toBe(`https://graph.facebook.com/${WHATSAPP_GRAPH_API_VERSION}/1234/messages`);
@@ -388,7 +388,7 @@ describe("CloudApiWhatsAppMessengerAdapter", () => {
     expect(JSON.parse(calls[0]!.init.body as string)).toEqual({
       messaging_product: "whatsapp",
       recipient_type: "individual",
-      to: "+258879801517",
+      to: "+258841234567",
       type: "text",
       text: { body: "✅ Número confirmado." },
     });
@@ -400,7 +400,7 @@ describe("CloudApiWhatsAppMessengerAdapter", () => {
 
     await expect(
       new CloudApiWhatsAppMessengerAdapter({ accessToken: "bad", phoneNumberId: "1234" }, fakeFetch).sendText(
-        "+258879801517",
+        "+258841234567",
         "x",
       ),
     ).rejects.toThrow("401");
@@ -410,10 +410,10 @@ describe("CloudApiWhatsAppMessengerAdapter", () => {
 describe("ConsoleWhatsAppMessengerAdapter", () => {
   it("prints the reply instead of sending it", async () => {
     const info = spyOn(console, "info").mockImplementation(() => {});
-    await new ConsoleWhatsAppMessengerAdapter().sendText("+258879801517", "✅ Número confirmado.");
+    await new ConsoleWhatsAppMessengerAdapter().sendText("+258841234567", "✅ Número confirmado.");
     const printed = info.mock.calls.map((c) => String(c[0])).join("\n");
     info.mockRestore();
-    expect(printed).toContain("+258879801517");
+    expect(printed).toContain("+258841234567");
     expect(printed).toContain("✅ Número confirmado.");
   });
 });
@@ -497,7 +497,7 @@ In `apps/backend/api/src/infra-env.ts`, after `CONTACT_INBOX_EMAIL: env.CONTACT_
  * message opened is not charged.
  */
 export interface WhatsAppMessengerPort {
-  /** `to` in E.164 (`+258879801517`). Throws when the message was not accepted. */
+  /** `to` in E.164 (`+258841234567`). Throws when the message was not accepted. */
   sendText(to: string, body: string): Promise<void>;
 }
 ```
@@ -1062,7 +1062,7 @@ function harness(opts: {
     setPhoneNumber: async () => {},
     findPhoneOf: async (userId) => {
       askedFor.push(userId);
-      return opts.phone === undefined ? { phoneNumber: "+258879801517", verified: false } : opts.phone;
+      return opts.phone === undefined ? { phoneNumber: "+258841234567", verified: false } : opts.phone;
     },
     findByPhoneNumber: async () => null,
     markPhoneNumberVerified: async () => false,
@@ -1095,7 +1095,7 @@ describe("StartPhoneVerificationCommand", () => {
     expect(PHONE_VERIFICATION_TTL_MS).toBe(15 * 60 * 1000);
     expect(askedFor).toEqual(["u1"]);
     expect(stored).toEqual([
-      { userId: "u1", pending: { code: "483920", phoneNumber: "+258879801517", expiresAt: ticket.expiresAt } },
+      { userId: "u1", pending: { code: "483920", phoneNumber: "+258841234567", expiresAt: ticket.expiresAt } },
     ]);
   });
 
@@ -1113,7 +1113,7 @@ describe("StartPhoneVerificationCommand", () => {
   });
 
   it("refuses a number that is already confirmed", async () => {
-    const { command, stored } = harness({ phone: { phoneNumber: "+258879801517", verified: true } });
+    const { command, stored } = harness({ phone: { phoneNumber: "+258841234567", verified: true } });
     await expect(command.execute(ctx)).rejects.toBeInstanceOf(PhoneNumberAlreadyVerifiedError);
     expect(stored).toEqual([]);
   });
@@ -1357,7 +1357,7 @@ import type { PhoneConfirmationOutcome } from "../../ports/inbound/confirm-phone
 import type { AuthIdentityPort, PendingPhoneVerification } from "../../ports/outbound";
 
 const NOW = new Date("2026-09-21T14:40:00.000Z");
-const SENDER = "+258879801517";
+const SENDER = "+258841234567";
 const MESSAGE = "Olá Ntizo! O meu código de confirmação é 483920";
 
 function harness(opts: {
@@ -1534,8 +1534,8 @@ describe("WhatsAppPhoneVerificationReplies", () => {
       { sendText: async (to, body) => void sent.push({ to, body }) },
       () => "ola@ntizo.co.mz",
     );
-    await replies.send("+258879801517", "already-confirmed", "en-US");
-    expect(sent).toEqual([{ to: "+258879801517", body: "Your number is already confirmed." }]);
+    await replies.send("+258841234567", "already-confirmed", "en-US");
+    expect(sent).toEqual([{ to: "+258841234567", body: "Your number is already confirmed." }]);
   });
 });
 ```
@@ -2048,7 +2048,7 @@ function inbound(messages: unknown[], statuses: unknown[] = []): string {
 }
 
 const TEXT = {
-  from: "258879801517",
+  from: "258841234567",
   id: "wamid.1",
   timestamp: "1758465420",
   type: "text",
@@ -2100,26 +2100,26 @@ describe("receive", () => {
     const body = inbound([TEXT]);
     const res = await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
     expect(res.status).toBe(200);
-    expect(calls).toEqual([{ senderPhone: "+258879801517", text: TEXT.text.body }]);
+    expect(calls).toEqual([{ senderPhone: "+258841234567", text: TEXT.text.body }]);
   });
 
   it("passes a non-text message on as having no text", async () => {
     const { handlers, calls } = harness();
-    const body = inbound([{ from: "258879801517", id: "wamid.2", timestamp: "1", type: "audio", audio: { id: "a1" } }]);
+    const body = inbound([{ from: "258841234567", id: "wamid.2", timestamp: "1", type: "audio", audio: { id: "a1" } }]);
     await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
-    expect(calls).toEqual([{ senderPhone: "+258879801517", text: null }]);
+    expect(calls).toEqual([{ senderPhone: "+258841234567", text: null }]);
   });
 
   it("handles every message in one delivery", async () => {
     const { handlers, calls } = harness();
     const body = inbound([TEXT, { ...TEXT, id: "wamid.3", from: "258841112233" }]);
     await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
-    expect(calls.map((c) => c.senderPhone)).toEqual(["+258879801517", "+258841112233"]);
+    expect(calls.map((c) => c.senderPhone)).toEqual(["+258841234567", "+258841112233"]);
   });
 
   it("ignores delivery statuses", async () => {
     const { handlers, calls } = harness();
-    const body = inbound([], [{ id: "wamid.9", status: "delivered", recipient_id: "258879801517" }]);
+    const body = inbound([], [{ id: "wamid.9", status: "delivered", recipient_id: "258841234567" }]);
     const res = await handlers.receive({ body, headers: { "x-hub-signature-256": sign(body) } });
     expect(res.status).toBe(200);
     expect(calls).toEqual([]);
@@ -2611,7 +2611,7 @@ WHATSAPP_WEBHOOK_VERIFY_TOKEN=
  * does and posts it to the local API, so the whole confirmation works with no
  * Meta account. Replies print in the `wrangler dev` terminal.
  *
- *   bun scripts/simulate-whatsapp-message.ts +258879801517 "Olá Ntizo! O meu código de confirmação é 483920"
+ *   bun scripts/simulate-whatsapp-message.ts +258841234567 "Olá Ntizo! O meu código de confirmação é 483920"
  *
  * Reads WHATSAPP_APP_SECRET from the environment (bun loads .env); it must
  * match the value in .dev.vars that `wrangler dev` runs with.
@@ -2728,7 +2728,7 @@ describe("whatsAppLink", () => {
 
 describe("formatPhone", () => {
   it("spaces an E.164 number the way people read it", () => {
-    expect(formatPhone("+258879801517")).toBe("+258 87 980 1517");
+    expect(formatPhone("+258841234567")).toBe("+258 84 123 4567");
   });
 
   it("returns anything it cannot read untouched", () => {
@@ -2811,7 +2811,7 @@ export function whatsAppLink(businessNumber: string, message: string): string {
   return `https://wa.me/${businessNumber.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
 }
 
-/** "+258879801517" → "+258 87 980 1517"; anything unreadable comes back as it was. */
+/** "+258841234567" → "+258 84 123 4567"; anything unreadable comes back as it was. */
 export function formatPhone(e164: string): string {
   return parsePhoneNumberFromString(e164)?.formatInternational() ?? e164;
 }
@@ -2869,7 +2869,7 @@ export async function startPhoneVerification(): Promise<PhoneVerificationTicketD
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run the command from Step 2.
-Expected: PASS (8 tests). If `formatPhone` spaces the number differently (libphonenumber's metadata decides), update the expected string to what `formatInternational()` actually returns for `+258879801517`, keep the assertion exact, and note it in the commit.
+Expected: PASS (8 tests). If `formatPhone` spaces the number differently (libphonenumber's metadata decides), update the expected string to what `formatInternational()` actually returns for `+258841234567`, keep the assertion exact, and note it in the commit.
 
 - [ ] **Step 5: Commit**
 
@@ -3455,7 +3455,7 @@ vi.mock("@/features/auth/viewmodel/use-phone-verification", () => ({
   usePhoneVerification: () => ({ state: fakes.state, markSent: fakes.markSent, restart: fakes.restart }),
 }));
 vi.mock("@/shared/lib/api/auth-client", () => ({
-  useSession: () => ({ data: { user: { phoneNumber: "+258879801517" } }, isPending: false }),
+  useSession: () => ({ data: { user: { phoneNumber: "+258841234567" } }, isPending: false }),
 }));
 
 const { VerifyPhone } = await import("../verify-phone");
@@ -3480,7 +3480,7 @@ describe("VerifyPhone", () => {
 
     expect(screen.getByRole("heading", { name: /confirm your number/i })).toBeInTheDocument();
     expect(screen.getByText("Email confirmed")).toBeInTheDocument();
-    expect(screen.getByText("+258 87 980 1517")).toBeInTheDocument();
+    expect(screen.getByText("+258 84 123 4567")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /change/i })).toHaveAttribute("href", "/account");
 
     const whatsapp = screen.getByRole("link", { name: /confirm with whatsapp/i });
@@ -3603,19 +3603,19 @@ describe("/verify-phone", () => {
   });
 
   it("as an invite, skips straight on for a number already confirmed", async () => {
-    fakes.session = { user: { phoneNumber: "+258879801517", phoneNumberVerified: true } };
+    fakes.session = { user: { phoneNumber: "+258841234567", phoneNumberVerified: true } };
     await visit("/verify-phone?next=%2Fbookings");
     expect(await screen.findByText("at /bookings")).toBeInTheDocument();
   });
 
   it("as an invite, shows the page for a number still to confirm", async () => {
-    fakes.session = { user: { phoneNumber: "+258879801517", phoneNumberVerified: false } };
+    fakes.session = { user: { phoneNumber: "+258841234567", phoneNumberVerified: false } };
     await visit("/verify-phone?next=%2Fbookings");
     expect(await screen.findByText("verify page next=/bookings")).toBeInTheDocument();
   });
 
   it("drops a `next` that leaves the site", async () => {
-    fakes.session = { user: { phoneNumber: "+258879801517", phoneNumberVerified: false } };
+    fakes.session = { user: { phoneNumber: "+258841234567", phoneNumberVerified: false } };
     await visit("/verify-phone?next=%2F%2Fevil.example");
     expect(await screen.findByText("verify page next=none")).toBeInTheDocument();
   });

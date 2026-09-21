@@ -5,7 +5,7 @@ import type { PhoneConfirmationOutcome } from "../../ports/inbound/confirm-phone
 import type { AuthIdentityPort, PendingPhoneVerification } from "../../ports/outbound";
 
 const NOW = new Date("2026-09-21T14:40:00.000Z");
-const SENDER = "+258879801517";
+const SENDER = "+258841234567";
 const MESSAGE = "Olá Ntizo! O meu código de confirmação é 483920";
 
 function harness(opts: {

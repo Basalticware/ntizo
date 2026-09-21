@@ -30,7 +30,7 @@ describe("CloudApiWhatsAppMessengerAdapter", () => {
     await new CloudApiWhatsAppMessengerAdapter(
       { accessToken: "token-1", phoneNumberId: "1234" },
       fakeFetch,
-    ).sendText("+258879801517", "✅ Número confirmado.");
+    ).sendText("+258841234567", "✅ Número confirmado.");
 
     expect(calls).toHaveLength(1);
     expect(calls[0]!.url).toBe(`https://graph.facebook.com/${WHATSAPP_GRAPH_API_VERSION}/1234/messages`);
@@ -40,7 +40,7 @@ describe("CloudApiWhatsAppMessengerAdapter", () => {
     expect(JSON.parse(calls[0]!.init.body as string)).toEqual({
       messaging_product: "whatsapp",
       recipient_type: "individual",
-      to: "+258879801517",
+      to: "+258841234567",
       type: "text",
       text: { body: "✅ Número confirmado." },
     });
@@ -52,7 +52,7 @@ describe("CloudApiWhatsAppMessengerAdapter", () => {
 
     await expect(
       new CloudApiWhatsAppMessengerAdapter({ accessToken: "bad", phoneNumberId: "1234" }, fakeFetch).sendText(
-        "+258879801517",
+        "+258841234567",
         "x",
       ),
     ).rejects.toThrow("401");
@@ -62,10 +62,10 @@ describe("CloudApiWhatsAppMessengerAdapter", () => {
 describe("ConsoleWhatsAppMessengerAdapter", () => {
   it("prints the reply instead of sending it", async () => {
     const info = spyOn(console, "info").mockImplementation(() => {});
-    await new ConsoleWhatsAppMessengerAdapter().sendText("+258879801517", "✅ Número confirmado.");
+    await new ConsoleWhatsAppMessengerAdapter().sendText("+258841234567", "✅ Número confirmado.");
     const printed = info.mock.calls.map((c) => String(c[0])).join("\n");
     info.mockRestore();
-    expect(printed).toContain("+258879801517");
+    expect(printed).toContain("+258841234567");
     expect(printed).toContain("✅ Número confirmado.");
   });
 });
