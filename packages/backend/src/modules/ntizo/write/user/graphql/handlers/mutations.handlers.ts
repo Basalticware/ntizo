@@ -6,6 +6,7 @@ import type {
   DeleteMyAddressPort,
   UpdateMyAddressPort,
 } from "../../../../bounded-contexts/user/app/ports/inbound/address.command.port";
+import type { StartPhoneVerificationPort } from "../../../../bounded-contexts/user/app/ports/inbound/start-phone-verification.command.port";
 import { userWriteSchema } from "../schema/mutations";
 import { toExecutionContext } from "./arg-mappers";
 
@@ -14,6 +15,7 @@ export interface UserWriteModule {
   readonly addMyAddress: AddMyAddressPort;
   readonly updateMyAddress: UpdateMyAddressPort;
   readonly deleteMyAddress: DeleteMyAddressPort;
+  readonly startPhoneVerification: StartPhoneVerificationPort;
 }
 
 export function createUserWriteHandlers(writeModule: UserWriteModule) {
@@ -39,6 +41,16 @@ export function createUserWriteHandlers(writeModule: UserWriteModule) {
       const nctx = asNtizoGraphqlContext(ctx);
       await writeModule.deleteMyAddress.execute(toExecutionContext(nctx), args.input);
       return { ok: true as const };
+    })
+    // No input: the subject and the number both come from the session.
+    .handle("user.startPhoneVerification", async (_args, ctx) => {
+      const nctx = asNtizoGraphqlContext(ctx);
+      const ticket = await writeModule.startPhoneVerification.execute(toExecutionContext(nctx));
+      return {
+        code: ticket.code,
+        businessNumber: ticket.businessNumber,
+        expiresAt: ticket.expiresAt.toISOString(),
+      };
     })
     .build();
 }

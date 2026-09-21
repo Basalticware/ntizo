@@ -16,6 +16,12 @@ import { BetterAuthIdentityAdapter } from "../infrastructure/adapters/better-aut
 import { DrizzleUnitOfWork } from "../../../../../shared/infrastructure/unit-of-work";
 import { OutboxAdapter } from "../../../../../shared/infrastructure/outbox/outbox.adapter";
 import { DrizzleOutboxEventRepository } from "../../../../../shared/infrastructure/outbox/drizzle/outbox-event.repository";
+import { StartPhoneVerificationCommand } from "../app/use-cases/start-phone-verification.command";
+import { ConfirmPhoneFromWhatsAppInternalCommand } from "../app/use-cases/confirm-phone-from-whatsapp.internal.command";
+import { BetterAuthPhoneVerificationCodeStore } from "../infrastructure/adapters/better-auth-phone-verification-code.store";
+import { EnvPhoneVerificationChannel } from "../infrastructure/adapters/env-phone-verification-channel.adapter";
+import { WhatsAppPhoneVerificationReplies } from "../infrastructure/adapters/whatsapp-phone-verification-replies.adapter";
+import { LazyWhatsAppMessenger } from "../../../../../shared/infrastructure/whatsapp";
 
 export function bootstrapUser() {
   const userRepository = new DrizzleUserRepository();
@@ -48,6 +54,19 @@ export function bootstrapUser() {
   const updateMyAddress = new UpdateMyAddressCommand(addressRepository, unitOfWork);
   const deleteMyAddress = new DeleteMyAddressCommand(addressRepository, unitOfWork);
 
+  const phoneVerificationCodes = new BetterAuthPhoneVerificationCodeStore();
+  const startPhoneVerification = new StartPhoneVerificationCommand(
+    authIdentity,
+    phoneVerificationCodes,
+    new EnvPhoneVerificationChannel(),
+  );
+  const confirmPhoneFromWhatsApp = new ConfirmPhoneFromWhatsAppInternalCommand(
+    authIdentity,
+    phoneVerificationCodes,
+    profileRepository,
+    new WhatsAppPhoneVerificationReplies(new LazyWhatsAppMessenger()),
+  );
+
   return {
     adapters: {
       userRepository,
@@ -62,10 +81,12 @@ export function bootstrapUser() {
       addMyAddress,
       updateMyAddress,
       deleteMyAddress,
+      startPhoneVerification,
       internal: {
         upgradeProfileToProvider,
         revertProviderUpgrade,
         createUserOnSignUp,
+        confirmPhoneFromWhatsApp,
       },
     },
   };
