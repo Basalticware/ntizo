@@ -35,6 +35,7 @@ describe("CloudApiWhatsAppMessengerAdapter", () => {
     expect(calls).toHaveLength(1);
     expect(calls[0]!.url).toBe(`https://graph.facebook.com/${WHATSAPP_GRAPH_API_VERSION}/1234/messages`);
     expect(calls[0]!.init.method).toBe("POST");
+    expect(calls[0]!.init.signal).toBeInstanceOf(AbortSignal);
     expect((calls[0]!.init.headers as Record<string, string>).Authorization).toBe("Bearer token-1");
     expect(JSON.parse(calls[0]!.init.body as string)).toEqual({
       messaging_product: "whatsapp",

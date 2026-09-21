@@ -26,6 +26,7 @@ export class CloudApiWhatsAppMessengerAdapter implements WhatsAppMessengerPort {
           type: "text",
           text: { body },
         }),
+        signal: AbortSignal.timeout(10_000),
       },
     );
     if (!res.ok) {
