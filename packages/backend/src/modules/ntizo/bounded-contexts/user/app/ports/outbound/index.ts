@@ -5,3 +5,4 @@ export type {
   PendingPhoneVerification,
   PhoneVerificationCodeStorePort,
 } from "./phone-verification-code-store.port";
+export type { PhoneVerificationChannelPort } from "./phone-verification-channel.port";
