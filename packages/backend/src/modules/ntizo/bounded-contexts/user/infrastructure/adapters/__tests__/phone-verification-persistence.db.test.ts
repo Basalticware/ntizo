@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, setDefaultTimeout, test } from "bun:test";
-import { eq, like } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import {
   user as authUser,
@@ -39,7 +39,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await bestEffortCleanup([
-    () => db.delete(verification).where(like(verification.identifier, `whatsapp-phone:${userId}`)),
+    () => db.delete(verification).where(eq(verification.identifier, `whatsapp-phone:${userId}`)),
     () => db.delete(authUser).where(eq(authUser.id, userId)),
     () => sql.end({ timeout: 5 }),
   ]);

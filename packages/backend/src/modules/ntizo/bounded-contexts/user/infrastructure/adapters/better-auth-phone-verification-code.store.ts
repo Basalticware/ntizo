@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type {
   PendingPhoneVerification,
   PhoneVerificationCodeStorePort,
@@ -24,6 +24,12 @@ type AuthDb = ReturnType<typeof getDb>;
  * same row, never two different ones — a delete-then-insert pair could not
  * offer that, since two interleaved delete/delete/insert/insert sequences
  * both succeed under READ COMMITTED and leave two rows behind.
+ *
+ * `find` and `delete` filter on `id`, the same primary key `replace` upserts
+ * on — not `identifier`, which holds an equal value today but is not what
+ * the single-row guarantee above is actually built on. Filtering on the key
+ * the invariant is stated in terms of means there is never more than one row
+ * to pick between, so `find` needs no `orderBy` to prefer the latest.
  */
 export class BetterAuthPhoneVerificationCodeStore implements PhoneVerificationCodeStorePort {
   constructor(private readonly db: () => AuthDb = getDb) {}
@@ -49,8 +55,7 @@ export class BetterAuthPhoneVerificationCodeStore implements PhoneVerificationCo
     const [row] = await this.db()
       .select({ value: verification.value, expiresAt: verification.expiresAt })
       .from(verification)
-      .where(eq(verification.identifier, identifierFor(userId)))
-      .orderBy(desc(verification.createdAt))
+      .where(eq(verification.id, identifierFor(userId)))
       .limit(1);
     if (!row) return null;
     const separator = row.value.indexOf(":");
@@ -63,7 +68,7 @@ export class BetterAuthPhoneVerificationCodeStore implements PhoneVerificationCo
   }
 
   async delete(userId: string): Promise<void> {
-    await this.db().delete(verification).where(eq(verification.identifier, identifierFor(userId)));
+    await this.db().delete(verification).where(eq(verification.id, identifierFor(userId)));
   }
 }
 
