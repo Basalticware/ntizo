@@ -4848,7 +4848,7 @@ webhook.
 better-auth's `phoneNumber` plugin is still registered (`better-auth.ts:146-167`): `sendOTP` calls
 `requireSmsService()` (always satisfied — `apps/backend/api/src/bootstrap.ts` registers a
 `LazySmsServiceAdapter` at boot) and then `.sendSms()`, which still throws via `resolveSmsService()`
-on every stage but `development`, exactly as before this branch. What changed is the caller: nothing
+on every stage but `local`, exactly as before this branch. What changed is the caller: nothing
 in the web app invokes the plugin's `send-otp` or `verify` routes any more — `/verify-phone` confirms
 entirely through `userStartPhoneVerification` and the WhatsApp webhook. `ConsoleSmsServiceAdapter`,
 `verifyPhoneTemplate` and `SmsServicePort`

@@ -74,7 +74,8 @@ export function SignUp() {
             // break: they registered, landed on `/`, and the thing they came to
             // do was never offered again.
             //
-            // It lands on the phone invite first (/verify-phone?next=…), which steps aside when there is nothing to confirm.
+            // It lands on the phone invite first (/verify-phone?next=…),
+            // which steps aside when there is nothing to confirm.
             callbackURL: emailConfirmedCallbackURL(window.location.origin, next),
             // The language on screen, not the browser's own. Someone reading
             // the app in Portuguese with an English-configured browser gets
