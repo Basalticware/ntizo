@@ -50,6 +50,12 @@ describe("VerifyPhone", () => {
     expect(screen.getByRole("button", { name: /not now/i })).toBeInTheDocument();
   });
 
+  it("draws the same focus ring on the way out as on every other action", async () => {
+    fakes.state = { status: "ready", ...TICKET };
+    await renderWithRouter(<VerifyPhone next="/bookings" />, { routes: ROUTES });
+    expect(screen.getByRole("button", { name: /not now/i }).className).toContain("focus-visible:ring-2");
+  });
+
   it("from the account, offers the way back instead of 'not now', and says nothing about the email", async () => {
     fakes.state = { status: "ready", ...TICKET };
     await renderWithRouter(<VerifyPhone />, { routes: ROUTES });

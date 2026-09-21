@@ -176,7 +176,7 @@ const primary =
 const secondary =
   "inline-flex h-[52px] w-full items-center justify-center gap-2.5 rounded-[14px] border border-[var(--color-border-strong)] px-5 text-[16px] font-semibold text-[var(--color-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2 md:w-auto md:self-start";
 const quiet =
-  "type-body-medium text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:underline underline-offset-4";
+  "type-body-medium text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:underline underline-offset-4 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2";
 
 /** The page frame: the wordmark, then one column (two on wide screens when there is an aside). */
 function Page({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
