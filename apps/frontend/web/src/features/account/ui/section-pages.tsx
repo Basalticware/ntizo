@@ -120,9 +120,9 @@ export function SecurityPage() {
           value={phone ?? t("notSet")}
           aside={
             !phone ? (
-              // Not `/verify-phone`: that screen short-circuits to a dead end
-              // ("no phone on this account", and a link home) when the session
-              // carries no number. The place to add one is the profile form.
+              // Not `/verify-phone`: reached with no number on the session,
+              // that route itself redirects straight to /account. The place
+              // to add one is the profile form.
               <Link to="/account" className={textAction()}>
                 {t("addPhone")}
               </Link>
@@ -130,8 +130,8 @@ export function SecurityPage() {
               <>
                 <Confirmed verified={phoneVerified} />
                 {/* The badge says there is something to do, so the row has to
-                    carry the doing of it. Without this link the account area
-                    had no route to the OTP screen at all. */}
+                    carry the doing of it. "Verificar" opens /verify-phone,
+                    which confirms the number by WhatsApp. */}
                 {!phoneVerified && (
                   <Link to="/verify-phone" className={textAction()}>
                     {t("verifyPhone")}

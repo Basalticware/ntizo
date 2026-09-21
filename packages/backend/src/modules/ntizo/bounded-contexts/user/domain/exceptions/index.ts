@@ -89,3 +89,5 @@ export class TimezoneInvalidError extends UnprocessableError {
     this.name = "TimezoneInvalidError";
   }
 }
+
+export * from "./phone-verification.exceptions";

@@ -43,6 +43,32 @@ export async function updateMyProfile(input: UpdateMyProfileInput): Promise<void
   await sessionGraphql<{ userUpdateMe: { ok: boolean } }>(UPDATE_ME, { input });
 }
 
+/**
+ * `user.startPhoneVerification` — issues the code the person sends from
+ * WhatsApp. No input; the number is the one on the account.
+ */
+const START_PHONE_VERIFICATION = `
+  mutation UserStartPhoneVerification {
+    userStartPhoneVerification(input: {}) {
+      code businessNumber expiresAt
+    }
+  }`;
+
+export interface PhoneVerificationTicketDTO {
+  code: string;
+  /** E.164 of Ntizo's WhatsApp number. */
+  businessNumber: string;
+  /** ISO 8601. */
+  expiresAt: string;
+}
+
+export async function startPhoneVerification(): Promise<PhoneVerificationTicketDTO> {
+  const d = await sessionGraphql<{ userStartPhoneVerification: PhoneVerificationTicketDTO }>(
+    START_PHONE_VERIFICATION,
+  );
+  return d.userStartPhoneVerification;
+}
+
 /** Query definitions. Components consume these via useQuery(userQueries.me()). */
 export const userQueries = {
   me: () =>

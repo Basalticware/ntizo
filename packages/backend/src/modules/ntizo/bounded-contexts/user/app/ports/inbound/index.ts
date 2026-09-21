@@ -11,3 +11,5 @@ export type {
   CreateUserOnSignUpInternalInput,
 } from "./create-user-on-sign-up.internal.command.port";
 export type * from "./update-my-profile.command.port";
+export type * from "./start-phone-verification.command.port";
+export type * from "./confirm-phone-from-whatsapp.internal.command.port";

@@ -1,182 +1,218 @@
-import { useEffect, useState } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { MessageSquare, ShieldCheck } from "lucide-react";
-import { Button, OtpInput } from "@ntizo/frontend-ui";
-import { authClient, useSession } from "@/shared/lib/api/auth-client";
-import { AuthLayout } from "@/features/auth/components/auth-layout";
-import { authErrorMessage } from "@/features/auth/viewmodel/auth-error";
+import { Check, CircleAlert, CircleCheck, MessageCircle } from "lucide-react";
+import { useSession } from "@/shared/lib/api/auth-client";
+import { usePhoneVerification } from "@/features/auth/viewmodel/use-phone-verification";
+import { formatPhone } from "@/features/auth/domain/phone-verification";
+import { textAction } from "@/shared/ui/text-action";
 
-/** Matches `expiresIn: 300` on the server plugin; a resend before then is wasted spend. */
-const RESEND_COOLDOWN_SECONDS = 60;
-
-export function VerifyPhone() {
-  const { t } = useTranslation("auth");
+/**
+ * Confirming a phone number by sending Ntizo a WhatsApp message.
+ *
+ * Drawn on the site's rules rather than on `AuthLayout`'s card: white page,
+ * navy heading and action, hairlines, no tinted icon circle. See the approved
+ * mockup, docs/superpowers/specs/2026-09-21-whatsapp-phone-verification.mockup.html.
+ *
+ * `next` present means the page was reached as the invite after an email
+ * confirmation: "Agora não" and "Continuar" go there, and a stage without
+ * WhatsApp is skipped silently. Absent means Conta → Segurança sent them.
+ */
+export function VerifyPhone({ next }: { next?: string }) {
+  const { t, i18n } = useTranslation("auth");
   const navigate = useNavigate();
   const { data: session } = useSession();
+  const phone = (session?.user as { phoneNumber?: string | null } | undefined)?.phoneNumber ?? "";
+  const { state, markSent, restart } = usePhoneVerification((code) =>
+    t("verifyPhone.message", { code }),
+  );
 
-  const [code, setCode] = useState("");
-  const [sent, setSent] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [cooldown, setCooldown] = useState(0);
-
-  const user = session?.user as
-    | { phoneNumber?: string | null; phoneNumberVerified?: boolean | null }
-    | undefined;
-  const phoneNumber = user?.phoneNumber ?? "";
+  const invite = next !== undefined;
+  const goOn = () => void navigate({ href: next ?? "/account", replace: true });
 
   useEffect(() => {
-    if (cooldown <= 0) return;
-    const id = setTimeout(() => setCooldown((s) => s - 1), 1000);
-    return () => clearTimeout(id);
-  }, [cooldown]);
+    if (invite && state.status === "unavailable") void navigate({ href: next, replace: true });
+  }, [invite, next, navigate, state.status]);
 
-  async function send() {
-    if (!phoneNumber || busy || cooldown > 0) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const { error: err } = await authClient.phoneNumber.sendOtp({
-        phoneNumber,
-      });
-      if (err) {
-        setError(authErrorMessage(t, err));
-        return;
-      }
-      setSent(true);
-      setCooldown(RESEND_COOLDOWN_SECONDS);
-    } catch {
-      setError(t("otpSendFailed"));
-    } finally {
-      setBusy(false);
-    }
-  }
+  const leave = invite ? (
+    <button type="button" onClick={goOn} className={quiet}>
+      {t("verifyPhone.notNow")}
+    </button>
+  ) : (
+    <Link to="/account" className={quiet}>
+      {t("verifyPhone.backToAccount")}
+    </Link>
+  );
 
-  async function verify(value: string) {
-    if (busy) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const { error: err } = await authClient.phoneNumber.verify({
-        phoneNumber,
-        code: value,
-      });
-      if (err) {
-        // Clear the boxes: leaving a rejected code in place invites the user
-        // to press submit again on the exact input that just failed.
-        setCode("");
-        setError(authErrorMessage(t, err));
-        return;
-      }
-      navigate({ to: "/" });
-    } catch {
-      setCode("");
-      setError(t("otpInvalid"));
-    } finally {
-      setBusy(false);
-    }
-  }
+  const numberFact = phone ? (
+    <div className="flex items-end justify-between gap-4 border-y border-[var(--color-border)] py-4">
+      <div>
+        <p className="type-caption text-[var(--color-muted-foreground)]">{t("verifyPhone.yourNumber")}</p>
+        <p className="text-[21px] font-semibold tabular-nums text-[var(--color-foreground)]">{formatPhone(phone)}</p>
+      </div>
+      <Link to="/account" className={textAction()}>
+        {t("verifyPhone.change")}
+      </Link>
+    </div>
+  ) : null;
 
-  // Already done — nothing to verify, and re-sending would just burn an SMS.
-  if (user?.phoneNumberVerified) {
+  if (state.status === "starting" || (invite && state.status === "unavailable")) {
     return (
-      <AuthLayout
-        title={t("phoneAlreadyVerifiedTitle")}
-        subtitle={t("phoneAlreadyVerifiedSubtitle")}
-        icon={<ShieldCheck className="h-6 w-6 text-[var(--color-primary)]" />}
-        footer={
-          <Link to="/" className="text-[var(--color-accent)] hover:underline">
-            {t("backToHome")}
-          </Link>
-        }
-      >
-        <span />
-      </AuthLayout>
+      <Page>
+        <p className="type-body text-[var(--color-muted-foreground)]" aria-live="polite">
+          {t("verifyPhone.preparing")}
+        </p>
+      </Page>
     );
   }
 
-  if (!phoneNumber) {
+  if (state.status === "ready") {
     return (
-      <AuthLayout
-        title={t("verifyPhoneTitle")}
-        subtitle={t("noPhoneOnAccount")}
-        icon={<MessageSquare className="h-6 w-6 text-[var(--color-primary)]" />}
-        footer={
-          <Link to="/" className="text-[var(--color-accent)] hover:underline">
-            {t("backToHome")}
-          </Link>
-        }
-      >
-        <span />
-      </AuthLayout>
-    );
-  }
-
-  return (
-    <AuthLayout
-      title={t("verifyPhoneTitle")}
-      subtitle={
-        sent
-          ? t("otpSentTo", { phone: phoneNumber })
-          : t("verifyPhoneSubtitle", { phone: phoneNumber })
-      }
-      icon={<MessageSquare className="h-6 w-6 text-[var(--color-primary)]" />}
-      footer={
-        <Link to="/" className="text-[var(--color-accent)] hover:underline">
-          {t("backToHome")}
-        </Link>
-      }
-    >
-      <div className="flex flex-col gap-4">
-        {error ? (
-          <p className="text-center text-sm text-[var(--color-destructive)]">
-            {error}
+      <Page>
+        {invite ? (
+          <p className="type-body-medium flex items-center gap-1.5 text-[var(--color-success)]">
+            <Check className="h-4 w-4" aria-hidden />
+            {t("verifyPhone.emailConfirmed")}
           </p>
         ) : null}
+        <h1 className="type-h1 text-[var(--color-headline)]">{t("verifyPhone.title")}</h1>
+        <p className="type-body max-w-[40ch] text-[var(--color-muted-foreground)]">{t("verifyPhone.lede")}</p>
+        {numberFact}
+        <a href={state.link} target="_blank" rel="noopener noreferrer" onClick={markSent} className={primary}>
+          <MessageCircle className="h-5 w-5" aria-hidden />
+          {t("verifyPhone.confirmWithWhatsApp")}
+        </a>
+        <p className="type-body -mt-2 text-[var(--color-muted-foreground)]">{t("verifyPhone.hint")}</p>
+        <div className="pt-2">{leave}</div>
+      </Page>
+    );
+  }
 
-        {sent ? (
+  if (state.status === "waiting") {
+    const until = new Intl.DateTimeFormat(i18n.language, { hour: "2-digit", minute: "2-digit" }).format(
+      state.expiresAt,
+    );
+    return (
+      <Page
+        head={
           <>
-            <OtpInput
-              value={code}
-              onChange={setCode}
-              onComplete={verify}
-              disabled={busy}
-              autoFocus
-              digitLabel={(position, total) =>
-                t("otpDigitLabel", { position, total })
-              }
-            />
-            <Button
-              type="button"
-              className="w-full"
-              disabled={busy || code.length < 6}
-              onClick={() => verify(code)}
-            >
-              {busy ? t("verifying") : t("verifyCode")}
-            </Button>
-            <button
-              type="button"
-              onClick={send}
-              disabled={cooldown > 0 || busy}
-              className="text-sm text-[var(--color-accent)] hover:underline disabled:cursor-not-allowed disabled:text-[var(--color-muted-foreground)] disabled:no-underline"
-            >
-              {cooldown > 0
-                ? t("resendIn", { seconds: cooldown })
-                : t("resendCode")}
-            </button>
+            <h1 className="type-h1 text-[var(--color-headline)]">{t("verifyPhone.waitingTitle")}</h1>
+            <p className="type-body max-w-[40ch] text-[var(--color-muted-foreground)]">
+              {t("verifyPhone.waitingLede")}
+            </p>
           </>
-        ) : (
-          <Button
-            type="button"
-            className="w-full"
-            disabled={busy}
-            onClick={send}
-          >
-            {busy ? t("sending") : t("sendCode")}
-          </Button>
-        )}
+        }
+        aside={
+          <div className="rounded-[18px] bg-[var(--color-muted)] p-5">
+            <p className="type-caption text-[var(--color-muted-foreground)]">{t("verifyPhone.messageLabel")}</p>
+            <p className="mt-2 text-[16px] leading-[1.45] text-[var(--color-foreground)] md:text-[19px]">
+              {t("verifyPhone.message", { code: "" }).trim()}{" "}
+              <span className="font-bold tracking-[0.06em] text-[var(--color-headline)] tabular-nums">
+                {state.code}
+              </span>
+            </p>
+            <p className="type-caption mt-3 flex justify-between gap-3 border-t border-[var(--color-border)] pt-2.5 text-[var(--color-muted-foreground)]">
+              <span>{t("verifyPhone.messageTo", { number: formatPhone(state.businessNumber) })}</span>
+              <span className="tabular-nums">{t("verifyPhone.validUntil", { time: until })}</span>
+            </p>
+          </div>
+        }
+      >
+        <p className="type-body-medium flex items-center gap-2.5 text-[var(--color-foreground)]" aria-live="polite">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-headline)] opacity-40 motion-reduce:animate-none" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[var(--color-headline)]" />
+          </span>
+          {t("verifyPhone.waiting")}
+        </p>
+        <a href={state.link} target="_blank" rel="noopener noreferrer" className={secondary}>
+          <MessageCircle className="h-5 w-5" aria-hidden />
+          {t("verifyPhone.openAgain")}
+        </a>
+        <p className="type-body text-[var(--color-muted-foreground)]">{t("verifyPhone.noWhatsApp")}</p>
+        <div>{leave}</div>
+      </Page>
+    );
+  }
+
+  if (state.status === "confirmed") {
+    return (
+      <Page>
+        <CircleCheck className="h-11 w-11 text-[var(--color-success)]" strokeWidth={1.6} aria-hidden />
+        <h1 className="type-h1 text-[var(--color-headline)]">{t("verifyPhone.confirmedTitle")}</h1>
+        {phone ? (
+          <p className="type-body text-[var(--color-muted-foreground)]">
+            {t("verifyPhone.confirmedLede", { phone: formatPhone(phone) })}
+          </p>
+        ) : null}
+        <button type="button" onClick={goOn} className={primary}>
+          {t("verifyPhone.continue")}
+        </button>
+      </Page>
+    );
+  }
+
+  const expired = state.status === "expired";
+  return (
+    <Page>
+      {expired ? (
+        <p className="type-body-medium flex items-center gap-1.5 text-[var(--color-destructive)]">
+          <CircleAlert className="h-4 w-4" aria-hidden />
+          {t("verifyPhone.expiredEyebrow")}
+        </p>
+      ) : null}
+      <h1 className="type-h1 text-[var(--color-headline)]">
+        {expired ? t("verifyPhone.expiredTitle") : t("verifyPhone.failedTitle")}
+      </h1>
+      <p className="type-body max-w-[40ch] text-[var(--color-muted-foreground)]">
+        {expired ? t("verifyPhone.expiredLede") : t("verifyPhone.failedLede")}
+      </p>
+      {expired ? numberFact : null}
+      <button type="button" onClick={restart} className={primary}>
+        {expired ? <MessageCircle className="h-5 w-5" aria-hidden /> : null}
+        {expired ? t("verifyPhone.newCode") : t("verifyPhone.retry")}
+      </button>
+      <div className="pt-2">{leave}</div>
+    </Page>
+  );
+}
+
+const primary =
+  "inline-flex h-[52px] w-full items-center justify-center gap-2.5 rounded-[14px] bg-[var(--color-navy-surface)] px-5 text-[16px] font-semibold text-[var(--color-navy-on)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2";
+const secondary =
+  "inline-flex h-[52px] w-full items-center justify-center gap-2.5 rounded-[14px] border border-[var(--color-border-strong)] px-5 text-[16px] font-semibold text-[var(--color-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2 md:w-auto md:self-start";
+const quiet =
+  "type-body-medium text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:underline underline-offset-4 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2";
+
+/**
+ * The page frame: the wordmark, then one column (two on wide screens when there is an aside).
+ *
+ * DOM order is always head → aside → rest, so a single-column phone shows the
+ * message right after the lede, before the "not now" way out. On md+, `head`
+ * and `children` are pinned to the same grid column (rows 1 and 2) so they
+ * still read as one column, and `aside` spans both rows, centred beside them.
+ */
+function Page({ children, head, aside }: { children: ReactNode; head?: ReactNode; aside?: ReactNode }) {
+  return (
+    <div className="min-h-svh bg-[var(--color-background)]">
+      <div className="px-6 pt-6 md:px-14 md:pt-7">
+        <Link to="/" className="text-[24px] font-extrabold leading-none tracking-[-0.04em] text-[var(--color-primary)]">
+          ntizo
+        </Link>
       </div>
-    </AuthLayout>
+      <main
+        className={
+          aside
+            ? "mx-auto grid max-w-[980px] gap-y-[22px] px-6 py-12 md:grid-cols-[minmax(0,460px)_minmax(0,420px)] md:items-center md:justify-center md:gap-x-24 md:py-20"
+            : "mx-auto max-w-[460px] px-6 py-12 md:py-20"
+        }
+      >
+        {head ? (
+          <div className={`flex flex-col gap-[22px]${aside ? " md:col-start-1 md:row-start-1" : ""}`}>{head}</div>
+        ) : null}
+        {aside ? <div className="md:col-start-2 md:row-start-1 md:row-span-2 md:self-center">{aside}</div> : null}
+        <div className={`flex flex-col gap-[22px]${aside ? " md:col-start-1 md:row-start-2" : ""}`}>{children}</div>
+      </main>
+    </div>
   );
 }

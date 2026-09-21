@@ -60,6 +60,26 @@ export interface InfraEnvBindings {
    * throwing. Configuration, not a secret, so it lives in `wrangler.jsonc`.
    */
   CONTACT_INBOX_EMAIL?: string;
+  /**
+   * The WhatsApp Cloud API, read by the phone confirmation in the user
+   * context: the number the web opens a chat with, the id Meta gives that
+   * number, and the token that lets us reply from it.
+   *
+   * Optional for the same reason the M-Pesa ones are: a local run, a script
+   * and every test that builds this shape have none, and each reader says
+   * what happens then. No business number means the start command refuses
+   * with `PHONE_VERIFICATION_UNAVAILABLE`; no token means replies print to
+   * the terminal locally and fail (logged, not thrown) on a deployed stage.
+   *
+   * `WHATSAPP_ACCESS_TOKEN` is a secret, set with `wrangler secret put`. The
+   * other two are configuration and live in `wrangler.jsonc`. The webhook's
+   * own two secrets are on `AppBindings`, because only the Hono binding
+   * reads them.
+   */
+  WHATSAPP_ACCESS_TOKEN?: string;
+  WHATSAPP_PHONE_NUMBER_ID?: string;
+  /** E.164, e.g. `+258843002020`. */
+  WHATSAPP_BUSINESS_NUMBER?: string;
 }
 
 /**

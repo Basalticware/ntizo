@@ -23,7 +23,7 @@ import { GoogleIcon } from "@/shared/components/icons";
 import { authErrorMessage } from "@/features/auth/viewmodel/auth-error";
 import { EMAIL_NOT_VERIFIED_CODE } from "@/features/auth/domain/errors";
 import { ResendVerification } from "@/features/auth/components/resend-verification";
-import { isSafeInternalPath } from "@/shared/lib/zones";
+import { emailConfirmedCallbackURL } from "@/features/auth/viewmodel/email-callback";
 
 export function SignIn() {
   const { t } = useTranslation("auth");
@@ -128,9 +128,7 @@ export function SignIn() {
                 email={unverifiedEmail}
                 // Where the new link lands once clicked — the same place the
                 // sign-in would have gone, when that is a path of this app.
-                callbackURL={`${window.location.origin}${
-                  isSafeInternalPath(next ?? null) ? next : "/"
-                }`}
+                callbackURL={emailConfirmedCallbackURL(window.location.origin, next)}
               />
             ) : null}
 

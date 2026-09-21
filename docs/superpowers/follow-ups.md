@@ -384,7 +384,12 @@ before anything writes a phone number outside the signup path.
 `verifyEmailTemplate`, `resetPasswordTemplate` and `verifyPhoneTemplate` all
 return fixed English strings, while the UI ships pt-MZ, pt-PT, en-US, es-ES,
 de-DE, fr-FR, it-IT and nl-NL. A user who registers in Portuguese gets a
-Portuguese form and an English SMS.
+Portuguese form and — on whatever still calls `verifyPhoneTemplate` — an
+English SMS. **The web itself no longer calls it**: since
+2026-09-21-whatsapp-phone-verification, `/verify-phone` confirms a number by
+WhatsApp, not by SMS OTP, so this paragraph's SMS half is now about dead code
+the web never reaches (see #220) rather than about something a Portuguese
+sign-up actually receives.
 
 The SMS was written English to match the emails rather than localise one half
 of the same signup. The fix is one decision covering both: a locale carried
@@ -4787,3 +4792,109 @@ each true about a different source. The first two were fixed in the final review
 was found by its re-review and deliberately not turned into a second wave.
 
 **Trigger:** the next change to this dialog, or Task 12, which reuses its list rows.
+
+## #216 — The other auth screens still carry the blue-card look this branch didn't touch
+
+`/verify-phone` is drawn on the site's own rules — white page, navy heading and primary action,
+hairlines instead of a frame — while `forgot-password.tsx`, `reset-password.tsx` and
+`accept-invite.tsx` still render inside `auth-layout.tsx`'s `AuthLayout`, the tinted card look the
+mockup's own note flagged as unmoved. `sign-in.tsx` and `sign-up.tsx` are further along again, on a
+third treatment: the two-panel `AuthSplitLayout` over `@ntizo/frontend-ui`'s `SplitBrandLayout`. So
+the site currently carries three different auth looks rather than the two the mockup described.
+
+**Trigger:** the next visual pass over the auth screens, or `AuthLayout`'s next caller.
+
+## #217 — Signing up with a number claims it, verified or not, and nothing ever releases it
+
+`phone_number` is `unique()` at the schema
+(`packages/backend/src/modules/better-auth/infrastructure/database/schema.ts:28`), and
+`BetterAuthIdentityAdapter.setPhoneNumber` maps the resulting `23505` straight to
+`PhoneNumberAlreadyInUseError` — enforced the moment anyone signs up with a number, not once they
+confirm it by WhatsApp. Confirmation is deferred and, from `/verify-phone`'s "Agora não", optional
+for as long as the person likes. So a mistyped digit, or someone entering a number that is not
+theirs, permanently occupies that slot: the real owner's own sign-up is refused with "this number is
+already in use," and there is no expiry, cooldown or admin tool that frees an unconfirmed claim.
+
+**Trigger:** the first support ticket from someone who cannot sign up with their own number.
+
+## #218 — CD has no probe for WHATSAPP_APP_SECRET, unlike its Resend sibling
+
+`.github/workflows/cd.yml` asserts `RESEND_WEBHOOK_SECRET` is configured before flipping traffic —
+an unsigned POST to `/api/webhooks/resend`, expecting 401 — because that secret is set out of band
+(`wrangler secret put`, per stage) and nothing on the send path can catch a missing one before Resend
+notices. `WHATSAPP_APP_SECRET` is set the same way for the same reason (`whatsapp-webhook.routes.ts`
+only ever consults it when Meta calls us), and carries no equivalent probe: a stage deployed without
+it answers every WhatsApp event 500 until someone notices Meta has disabled the webhook. The fix is
+the Resend step, copied — an unsigned POST to `/api/webhooks/whatsapp` expecting 401, added before
+`flip-api`.
+
+**Trigger:** wiring qa or prod's Meta app, which is the first deploy this secret matters on.
+
+## #219 — The WhatsApp webhook does not de-duplicate by message id
+
+`inboundMessages()` in `whatsapp-webhook.routes.ts` reads `message.id` (the wamid) off every message
+and then drops it — nothing keys on it. Meta retries a delivery it considers failed, so the same
+message can arrive twice; `ConfirmPhoneFromWhatsAppInternalCommand` re-runs in full on the replay.
+The one case this cannot get wrong is already named in its own header comment ("Meta retrying the
+delivery would only produce 'already confirmed'") — but that still means a replay sends a second
+WhatsApp reply for an outcome the person already saw once. Keying a short-lived store on `message.id`
+would make a replay a no-op instead of a second reply.
+
+**Trigger:** the first person to report two replies for one message, or a load test against the
+webhook.
+
+## #220 — The SMS OTP path still exists, unreachable from the web now
+
+better-auth's `phoneNumber` plugin is still registered (`better-auth.ts:146-167`): `sendOTP` calls
+`requireSmsService()` (always satisfied — `apps/backend/api/src/bootstrap.ts` registers a
+`LazySmsServiceAdapter` at boot) and then `.sendSms()`, which still throws via `resolveSmsService()`
+on every stage but `local`, exactly as before this branch. What changed is the caller: nothing
+in the web app invokes the plugin's `send-otp` or `verify` routes any more — `/verify-phone` confirms
+entirely through `userStartPhoneVerification` and the WhatsApp webhook. `ConsoleSmsServiceAdapter`,
+`verifyPhoneTemplate` and `SmsServicePort`
+(`packages/backend/src/shared/infrastructure/sms/`) are dead code kept alive only by the plugin
+registration, and #63's second-writer risk (the plugin's own `send-otp`/`update` routes bypassing
+`BetterAuthIdentityAdapter`) shrinks from dormant to unreachable. Removing the plugin, its templates
+and the SMS port is a separate, mechanical pass — once nobody worries a rollback needs them back.
+
+**Trigger:** the next full pass over the auth backend, or #63 being revisited.
+
+## #221 — No rate limit on "no-code" replies per sender
+
+`ConfirmPhoneFromWhatsAppInternalCommand` answers every message that carries no six-digit code with
+the same "this number is only for confirming Ntizo accounts" reply, unconditionally and per message.
+Nothing throttles that per sender. Two Ntizo-side numbers (or a misconfigured auto-responder on
+either end) exchanging messages with no code in them would ping-pong through the webhook indefinitely
+— each reply itself has no code, so it re-triggers the other side's own auto-reply. A per-sender rate
+limit on the "no-code" outcome (a short cooldown after the first reply, or a cap per rolling window)
+would turn that into a handful of messages instead of an unbounded loop.
+
+**Trigger:** a second WhatsApp Business number appearing near this one, or a monitoring alert on
+webhook volume.
+
+## #222 — /verify-phone: no heading while starting, and no focus moved on a state change
+
+The "starting" state (and the invite's brief "unavailable" flash) renders only a `<p aria-live="polite">`,
+no `<h1>` — `VerifyPhone` in `verify-phone.tsx` draws its first heading once `ready`/`waiting`/`confirmed`/etc.
+is reached. A screen reader landing on the page during "starting" has no heading to announce the page by.
+Separately, every subsequent state change (ready → waiting → confirmed, or waiting → expired) swaps in a
+new `<h1>` without ever moving focus to it — nothing calls `.focus()` on mount or on the state transition,
+so a screen reader user who has already moved past the top of the page is never told the page's subject
+changed under them; only the `aria-live` regions inside a state (the waiting pulse, the preparing message)
+announce anything.
+
+**Trigger:** the accessibility pass this branch deferred, or an audit/complaint about `/verify-phone`.
+
+## #223 — The waiting message is built by string surgery on a translation key
+
+`verify-phone.tsx`'s waiting state builds the message shown beside the code with
+`t("verifyPhone.message", { code: "" }).trim()`, then appends the code itself as a separately styled
+`<span>` — relying on `{{code}}` being the last token of the sentence in every locale, so trimming the
+empty substitution leaves a clean lead-in with nothing dangling after it. True of all eight locales
+today (see `auth.json`'s `verifyPhone.message` key), but nothing enforces it, and a translator free to
+move `{{code}}` elsewhere in the sentence (grammatically ordinary in some languages) would silently
+produce a lead-in with a stray fragment after it. A dedicated `messageLead` key with no placeholder, or
+rendering the whole sentence through `<Trans>` with the code as a styled child, would remove the
+assumption instead of relying on translators never testing it.
+
+**Trigger:** a new locale, or a translator moving `{{code}}` in an existing one.

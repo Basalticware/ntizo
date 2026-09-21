@@ -50,6 +50,9 @@ describe("createUserWriteHandlers", () => {
         addMyAddress: { execute: async () => ({ id: "a1" }) },
         updateMyAddress: { execute: async () => {} },
         deleteMyAddress: { execute: async () => {} },
+        startPhoneVerification: {
+          execute: async () => ({ code: "", businessNumber: "", expiresAt: new Date() }),
+        },
       });
 
     // A hostile client's args. `handler(args, ctx)` receives the GraphQL

@@ -1,9 +1,11 @@
-import type { Hono } from "hono";
+import type { Context, Hono } from "hono";
 import {
   createResendWebhookHandler,
   type RefusalCount,
 } from "@ntizo/backend/modules/ntizo/write/notification";
 import type { NotificationBootstrap } from "@ntizo/backend/modules/ntizo/bounded-contexts/notification";
+import { createWhatsAppWebhookHandlers } from "@ntizo/backend/modules/ntizo/write/user";
+import type { ConfirmPhoneFromWhatsAppInternalPort } from "@ntizo/backend/modules/ntizo/bounded-contexts/user";
 import type { AppBindings } from "./types";
 
 /**
@@ -18,6 +20,10 @@ import type { AppBindings } from "./types";
  */
 const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
 
+// Meta's payloads can be up to 3 MB (their webhook docs); Resend's 1 MiB
+// stays for its own route.
+const MAX_WHATSAPP_WEBHOOK_BODY_BYTES = 3 * 1024 * 1024;
+
 /**
  * Refusals since this isolate booted.
  *
@@ -28,9 +34,13 @@ const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
  */
 const refusalsSinceBoot: RefusalCount = { count: 0 };
 
+const whatsAppRefusalsSinceBoot = { count: 0 };
+
 export interface WebhookDeps {
   /** Task 8's command: what a bounce or a complaint means for an address. */
   readonly handleResendWebhook: NotificationBootstrap["useCases"]["internal"]["handleResendWebhook"];
+  /** Confirms the account whose number sent its code (user context). */
+  readonly confirmPhoneFromWhatsApp: ConfirmPhoneFromWhatsAppInternalPort;
 }
 
 /**
@@ -109,6 +119,40 @@ export function mountWebhooks(app: Hono<{ Bindings: AppBindings }>, deps: Webhoo
       headers: { "content-type": "application/json" },
     });
   });
+
+  // Meta's WhatsApp webhook (phone confirmation). Same placement rules as the
+  // Resend route above: before `authCors`, inside `configMiddleware`.
+  app.get("/api/webhooks/whatsapp", (c) => {
+    const res = whatsAppHandlers(c).verify(c.req.query());
+    return new Response(res.body, { status: res.status, headers: { "content-type": res.contentType } });
+  });
+
+  app.post("/api/webhooks/whatsapp", async (c) => {
+    const declared = Number(c.req.header("content-length"));
+    if (Number.isFinite(declared) && declared > MAX_WHATSAPP_WEBHOOK_BODY_BYTES) return tooLarge();
+
+    // RAW body: the HMAC covers the exact bytes Meta sent.
+    const body = await c.req.text();
+    if (body.length > MAX_WHATSAPP_WEBHOOK_BODY_BYTES) return tooLarge();
+
+    const headers: Record<string, string> = {};
+    c.req.raw.headers.forEach((value, name) => {
+      headers[name] = value;
+    });
+
+    const res = await whatsAppHandlers(c).receive({ body, headers });
+    return new Response(res.body, { status: res.status, headers: { "content-type": res.contentType } });
+  });
+
+  function whatsAppHandlers(c: Context<{ Bindings: AppBindings }>) {
+    return createWhatsAppWebhookHandlers({
+      confirm: deps.confirmPhoneFromWhatsApp,
+      appSecret: c.env.WHATSAPP_APP_SECRET,
+      verifyToken: c.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN,
+      phoneNumberId: c.env.WHATSAPP_PHONE_NUMBER_ID,
+      refusals: whatsAppRefusalsSinceBoot,
+    });
+  }
 }
 
 function tooLarge(): Response {

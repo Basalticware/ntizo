@@ -77,7 +77,12 @@ const communicationBootstrap = bootstrapCommunication({
 // cross-BC name readers, and this is the one instance for the isolate.
 const activityBootstrap = bootstrapActivity();
 
-// Inbound provider callbacks (Resend's bounce and complaint webhook).
+// Bootstrap the user BC once at module scope; the sign-up hook below shares
+// it, and so does the webhook mount on the next line.
+const userBootstrap = bootstrapUser();
+
+// Inbound provider callbacks (Resend's bounce and complaint webhook, Meta's
+// WhatsApp webhook).
 //
 // Registered BEFORE `authCors`, and the order is load-bearing: Hono composes
 // matching handlers in registration order, so a route registered after that
@@ -87,6 +92,7 @@ const activityBootstrap = bootstrapActivity();
 // write needs the request-scoped infra store.
 mountWebhooks(app, {
   handleResendWebhook: notificationBootstrap.useCases.internal.handleResendWebhook,
+  confirmPhoneFromWhatsApp: userBootstrap.useCases.internal.confirmPhoneFromWhatsApp,
 });
 
 app.use("/api/*", authCors);
@@ -97,9 +103,6 @@ app.use("/api/*", authCors);
 // for why, and for the origin allowlist shared with authCors.
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => getAuth().handler(c.req.raw));
-
-// Bootstrap the user BC once at module scope; the sign-up hook below shares it.
-const userBootstrap = bootstrapUser();
 
 // Wire the sign-up hook so every new better-auth user gets a matching
 // ntizo_user.profile row. The user BC's CreateProfile internal command

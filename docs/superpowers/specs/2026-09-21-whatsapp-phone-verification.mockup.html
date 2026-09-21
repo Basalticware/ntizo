@@ -1,0 +1,363 @@
+<title>Ntizo WhatsApp Verification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ presentation chrome, follows the viewer's theme ============ */
+:root{
+  --dc-bg:#eef0f4; --dc-fg:#141a24; --dc-muted:#5b6474; --dc-line:#d9dee7; --dc-card:#ffffff;
+  --dc-accent:#006ffd; --dc-bar:#0d1626; --dc-bar-fg:#f4f6fa; --dc-bar-muted:#9aa5ba; --dc-chip:#1b2740;
+  --dc-frame-shadow:0 30px 70px -40px rgba(9,20,45,.45);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --dc-bg:#0e1219; --dc-fg:#e8ecf3; --dc-muted:#9aa4b6; --dc-line:#262d3a; --dc-card:#151b25;
+    --dc-accent:#3d9bff; --dc-bar:#05080e; --dc-bar-fg:#f4f6fa; --dc-bar-muted:#8b96ab; --dc-chip:#1a2233;
+    --dc-frame-shadow:0 30px 70px -40px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --dc-bg:#0e1219; --dc-fg:#e8ecf3; --dc-muted:#9aa4b6; --dc-line:#262d3a; --dc-card:#151b25;
+  --dc-accent:#3d9bff; --dc-bar:#05080e; --dc-bar-fg:#f4f6fa; --dc-bar-muted:#8b96ab; --dc-chip:#1a2233;
+  --dc-frame-shadow:0 30px 70px -40px rgba(0,0,0,.9);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--dc-bg);color:var(--dc-fg);font-family:Figtree,"Segoe UI",Roboto,system-ui,sans-serif;font-size:15px;line-height:1.55;padding-bottom:80px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+ul,ol{list-style:none}
+h1,h2,h3{text-wrap:balance}
+:focus-visible{outline:2px solid var(--dc-accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+.doc-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:100;background:var(--dc-bar);color:var(--dc-bar-fg);padding:12px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.doc-bar strong{font-weight:700;font-size:14px}
+.doc-bar span{font-size:12px;color:var(--dc-bar-muted)}
+.doc-bar nav{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.doc-bar nav a{font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;background:var(--dc-chip);color:#cfd7e6}
+.doc-bar nav a:hover{color:#fff}
+.doc-h{max-width:1100px;margin:56px auto 20px;padding:0 24px}
+.doc-h h2{font-weight:700;font-size:28px;letter-spacing:-.02em;line-height:1.15}
+.doc-h p{color:var(--dc-muted);font-size:15px;margin-top:8px;max-width:68ch}
+.doc-h .kick{font-size:13px;font-weight:600;color:var(--dc-accent);margin-bottom:8px}
+.note{max-width:1100px;margin:22px auto 0;padding:0 24px;display:grid;gap:10px}
+.note p{font-size:14px;color:var(--dc-muted);padding-left:20px;position:relative;max-width:80ch}
+.note p::before{content:"";position:absolute;left:4px;top:9px;width:6px;height:6px;border-radius:50%;background:var(--dc-accent)}
+.note b{color:var(--dc-fg);font-weight:600}
+.intro{max-width:1100px;margin:0 auto;padding:0 24px;display:grid;gap:18px}
+.decisions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.decisions li{background:var(--dc-card);border:1px solid var(--dc-line);border-radius:14px;padding:18px 18px 16px}
+.decisions h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.decisions p{font-size:13.5px;color:var(--dc-muted);line-height:1.5}
+.flow{background:var(--dc-card);border:1px solid var(--dc-line);border-radius:14px;padding:22px 24px;overflow-x:auto}
+.flow pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.65;color:var(--dc-fg);white-space:pre}
+.phones{max-width:1300px;margin:0 auto;padding:0 24px;display:flex;gap:34px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.phones.two{max-width:900px}
+.phone{width:390px;max-width:100%;flex:none}
+.phone-label{font-size:13px;color:var(--dc-muted);text-align:center;margin-bottom:12px;font-weight:600}
+.phone-shell{border-radius:44px;border:10px solid #0d1626;background:#fff;overflow:hidden;box-shadow:var(--dc-frame-shadow)}
+.phone-scroll{height:780px;overflow:hidden;position:relative;background:#fff}
+.frame{max-width:1340px;margin:0 auto;padding:0 24px}
+.frame-inner{position:relative;overflow:hidden;border-radius:18px;box-shadow:var(--dc-frame-shadow);border:1px solid var(--dc-line);background:#fff;aspect-ratio:1280/600}
+.viewport{position:absolute;top:0;left:0;width:1280px;height:600px;transform-origin:0 0}
+@media (max-width:900px){
+  .decisions{grid-template-columns:1fr}
+  .doc-h,.note,.phones,.intro{padding-inline:16px}
+  .frame{padding-inline:12px}
+}
+
+/* ============ the product, painted light on purpose (this is the app) ============ */
+.app{
+  --blue:#006ffd; --navy:#00244c; --ink:#1a2333; --muted:#66708a; --line:#e7eaf0; --line2:#d5dae3;
+  --chip:#f3f5f9; --ok:#1f9d61; --bad:#c43d3d;
+  background:#fff;color:var(--ink);font-family:Figtree,"Segoe UI",Roboto,system-ui,sans-serif;font-size:15px;line-height:1.55;height:100%
+}
+.app .ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none;display:inline-block;vertical-align:middle}
+.num{font-variant-numeric:tabular-nums}
+
+/* the bar: wordmark only, as the page's one piece of chrome */
+.bar{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 0}
+.wordmark{font-weight:800;font-size:24px;color:var(--blue);letter-spacing:-.04em;line-height:1}
+.wordmark i{font-style:normal;color:#39b3ff}
+
+.pg{padding:48px 24px 32px;display:flex;flex-direction:column;gap:22px}
+.done-line{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:500;color:var(--ok)}
+.done-line .ic{width:15px;height:15px}
+.pg h1{font-size:28px;font-weight:600;line-height:1.2;letter-spacing:-.015em;color:var(--navy)}
+.lede{font-size:15.5px;color:var(--muted);max-width:40ch}
+.lede b{color:var(--ink);font-weight:600}
+
+/* the number: a labelled fact between hairlines, not a box */
+.fact{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.fact small{display:block;font-size:12.5px;color:var(--muted);margin-bottom:2px}
+.fact strong{font-size:21px;font-weight:600;color:var(--ink);letter-spacing:.005em}
+.link{font-size:14px;font-weight:600;color:var(--navy);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;height:52px;border-radius:14px;font-size:16px;font-weight:600;width:100%}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-quiet{border:1px solid var(--line2);color:var(--ink);background:#fff}
+.hint{font-size:13.5px;color:var(--muted);margin-top:-10px}
+.later{font-size:14.5px;font-weight:500;color:var(--muted)}
+.foot{margin-top:auto;padding-top:8px}
+
+/* the message about to be sent: the one lifted object on the page */
+.msg{background:var(--chip);border-radius:18px;padding:18px 18px 16px}
+.msg small{display:block;font-size:12.5px;color:var(--muted);margin-bottom:8px}
+.msg p{font-size:16px;line-height:1.45;color:var(--ink)}
+.msg .code{font-weight:700;color:var(--navy);letter-spacing:.06em}
+.msg .to{display:flex;justify-content:space-between;gap:12px;margin-top:12px;padding-top:10px;border-top:1px solid #e3e7ee;font-size:13px;color:var(--muted)}
+
+.waiting{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:500;color:var(--ink)}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--navy);position:relative;flex:none}
+.pulse::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--navy);opacity:.35;animation:ring 1.6s ease-out infinite}
+@keyframes ring{from{transform:scale(.6);opacity:.5}to{transform:scale(1.5);opacity:0}}
+
+.mark{width:44px;height:44px;color:var(--ok)}
+.mark .ic{width:44px;height:44px;stroke-width:1.6}
+.err{font-size:13.5px;font-weight:600;color:var(--bad);display:flex;align-items:center;gap:7px}
+.err .ic{width:15px;height:15px}
+
+/* the phone field on sign-up, as it is today, with the new hint */
+.field{display:grid;gap:7px}
+.field label{font-size:14px;font-weight:600;color:var(--ink)}
+.input{height:48px;border:1px solid var(--line2);border-radius:12px;display:flex;align-items:center;font-size:15px}
+.input .cc{display:flex;align-items:center;gap:6px;padding:0 12px;border-right:1px solid var(--line);height:28px;color:var(--ink)}
+.input .v{padding:0 12px;color:var(--ink)}
+.field .h{font-size:13px;color:var(--muted)}
+.field .h.new{color:var(--ink)}
+.strike{font-size:13px;color:var(--muted);text-decoration:line-through;text-decoration-color:#c9ced8}
+
+/* WhatsApp, illustrated: neutral, only enough to read as a chat */
+.wa{height:100%;display:flex;flex-direction:column;background:#efeae2;font-family:"Segoe UI",Roboto,system-ui,sans-serif}
+.wa-hd{background:#f0f2f5;padding:18px 16px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #dfe3e7}
+.wa-av{width:38px;height:38px;border-radius:50%;background:#00244c;color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;font-family:Figtree,system-ui,sans-serif;letter-spacing:-.03em}
+.wa-hd b{display:block;font-size:15.5px;color:#111b21}
+.wa-hd span{font-size:12.5px;color:#667781}
+.wa-body{flex:1;padding:18px 14px;display:flex;flex-direction:column;gap:8px}
+.day{align-self:center;font-size:12px;color:#54656f;background:#fff;border-radius:8px;padding:4px 10px;margin-bottom:6px}
+.b{max-width:82%;padding:8px 10px 6px;border-radius:10px;font-size:14.5px;line-height:1.4;color:#111b21;box-shadow:0 1px .5px rgba(11,20,26,.13)}
+.b time{display:block;text-align:right;font-size:11px;color:#667781;margin-top:2px}
+.b.out{align-self:flex-end;background:#d9fdd3;border-top-right-radius:2px}
+.b.in{align-self:flex-start;background:#fff;border-top-left-radius:2px}
+.wa-in{background:#f0f2f5;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.wa-in div{flex:1;background:#fff;border-radius:22px;height:40px}
+.wa-in i{width:40px;height:40px;border-radius:50%;background:#00a884;display:block}
+
+/* desktop */
+.dk{height:100%;display:flex;flex-direction:column}
+.dk .bar{padding:28px 56px 0}
+.dk-grid{flex:1;display:grid;grid-template-columns:minmax(0,460px) minmax(0,420px);gap:96px;justify-content:center;align-items:center;padding:0 56px 40px}
+.dk .pg{padding:0}
+.dk .msg{padding:26px 26px 22px;border-radius:22px}
+.dk .msg p{font-size:19px}
+</style>
+
+<div class="doc-bar">
+  <strong>Confirmar o número pelo WhatsApp</strong>
+  <span>Mockup · 21 Sep 2026 · replaces the SMS code on /verify-phone</span>
+  <nav>
+    <a href="#flow">Flow</a>
+    <a href="#screens">Screens</a>
+    <a href="#whatsapp">In WhatsApp</a>
+    <a href="#desktop">Desktop</a>
+    <a href="#signup">Sign-up</a>
+  </nav>
+</div>
+
+<div class="doc-h" id="flow">
+  <div class="kick">What changes</div>
+  <h2>The person sends us the code, instead of us sending it to them</h2>
+  <p>There is no SMS provider, so the code can never arrive by SMS. Here the direction flips: the screen gives the person a code, WhatsApp opens with it already typed, and they tap send. Meta tells our API who sent it. WhatsApp has already verified that sender's number, so a matching code proves the number belongs to the person. Nothing is paid: Meta does not charge for messages a user sends, and our reply falls inside the free 24-hour window.</p>
+</div>
+<div class="intro">
+  <ul class="decisions">
+    <li><h3>Invited once, never forced</h3><p>The email confirmation link now lands here first, with "Agora não" to carry on. Anyone with no number (Google sign-up) or an already confirmed one skips straight past. Conta → Segurança → Verificar still leads here.</p></li>
+    <li><h3>One code, 15 minutes</h3><p>Six digits, tied to the account and to the number it was issued for. If the number changes in between, the code no longer confirms anything.</p></li>
+    <li><h3>The page notices by itself</h3><p>While waiting it checks every 3 seconds and the moment the person switches back from WhatsApp, reading the session past its 60-second cookie cache.</p></li>
+  </ul>
+  <div class="flow"><pre>Ntizo (this page)                 WhatsApp (person's phone)          Ntizo API
+─────────────────                 ─────────────────────────          ─────────
+[Confirmar pelo WhatsApp]  ──►    opens wa.me/258…?text=…483920
+  code 483920 issued              person taps Send           ──►     webhook: from +258841234567
+                                                                      account with that number?
+                                                                      code matches, not expired?
+                                  "✅ Número confirmado…"    ◄──      phone_number_verified = true
+page sees verified  ◄──────────────────────────────────────────────  (next check, or on focus)</pre></div>
+</div>
+
+<div class="doc-h" id="screens">
+  <div class="kick">/verify-phone · 390 px</div>
+  <h2>Four states on one screen</h2>
+  <p>Drawn on the site's own rules, not on the card <code>AuthLayout</code> uses today: white page, navy heading and action, hairlines instead of a frame, no icon in a tinted circle, no blue of the page's own.</p>
+</div>
+<div class="phones two">
+  <div class="phone">
+    <div class="phone-label">1 · Convite (after the email link)</div>
+    <div class="phone-shell"><div class="phone-scroll"><div class="app" style="display:flex;flex-direction:column">
+      <div class="bar"><span class="wordmark">ntizo</span></div>
+      <div class="pg" style="flex:1">
+        <div class="done-line"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>E-mail confirmado</div>
+        <h1>Confirme o seu número</h1>
+        <p class="lede">Envie-nos uma mensagem pelo WhatsApp a partir deste número. Demora menos de um minuto.</p>
+        <div class="fact">
+          <div><small>O seu número</small><strong class="num">+258 84 123 4567</strong></div>
+          <a class="link" href="#">Alterar</a>
+        </div>
+        <button class="btn btn-primary"><svg class="ic" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Confirmar pelo WhatsApp</button>
+        <p class="hint">O WhatsApp abre com a mensagem já escrita. Só tem de tocar em enviar.</p>
+        <div class="foot"><a class="later" href="#">Agora não</a></div>
+      </div>
+    </div></div></div>
+  </div>
+
+  <div class="phone">
+    <div class="phone-label">2 · À espera (back from WhatsApp)</div>
+    <div class="phone-shell"><div class="phone-scroll"><div class="app" style="display:flex;flex-direction:column">
+      <div class="bar"><span class="wordmark">ntizo</span></div>
+      <div class="pg" style="flex:1">
+        <h1>Toque em enviar no WhatsApp</h1>
+        <p class="lede">Assim que a mensagem chegar, esta página confirma o número sozinha.</p>
+        <div class="msg">
+          <small>A mensagem</small>
+          <p>Olá Ntizo! O meu código de confirmação é <span class="code num">483920</span></p>
+          <div class="to"><span>Para a Ntizo · +258 84 300 2020</span><span class="num">até 14:52</span></div>
+        </div>
+        <div class="waiting"><span class="pulse"></span>À espera da mensagem…</div>
+        <button class="btn btn-quiet"><svg class="ic" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Abrir o WhatsApp outra vez</button>
+        <div class="foot"><p class="hint" style="margin:0 0 14px">Não tem WhatsApp neste número? Pode confirmar mais tarde em Conta › Segurança.</p><a class="later" href="#">Agora não</a></div>
+      </div>
+    </div></div></div>
+  </div>
+
+  <div class="phone">
+    <div class="phone-label">3 · Confirmado</div>
+    <div class="phone-shell"><div class="phone-scroll"><div class="app" style="display:flex;flex-direction:column">
+      <div class="bar"><span class="wordmark">ntizo</span></div>
+      <div class="pg" style="flex:1">
+        <span class="mark"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="m8 12.3 2.7 2.7L16.2 9.4"/></svg></span>
+        <h1>Número confirmado</h1>
+        <p class="lede"><b class="num">+258 84 123 4567</b> está confirmado na sua conta.</p>
+        <button class="btn btn-primary">Continuar</button>
+      </div>
+    </div></div></div>
+  </div>
+
+  <div class="phone">
+    <div class="phone-label">4 · Erro: o código expirou</div>
+    <div class="phone-shell"><div class="phone-scroll"><div class="app" style="display:flex;flex-direction:column">
+      <div class="bar"><span class="wordmark">ntizo</span></div>
+      <div class="pg" style="flex:1">
+        <div class="err"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5.2M12 16.3v.2"/></svg>Passaram mais de 15 minutos</div>
+        <h1>O código expirou</h1>
+        <p class="lede">Peça um novo e envie-o logo a seguir. O anterior deixa de funcionar.</p>
+        <div class="fact">
+          <div><small>O seu número</small><strong class="num">+258 84 123 4567</strong></div>
+          <a class="link" href="#">Alterar</a>
+        </div>
+        <button class="btn btn-primary"><svg class="ic" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Pedir um novo código</button>
+        <div class="foot"><a class="later" href="#">Agora não</a></div>
+      </div>
+    </div></div></div>
+  </div>
+</div>
+<div class="note">
+  <p><b>"Agora não" only appears when the page was reached as an invite</b> (it carries <code>?next=</code>). Reached from Conta → Segurança, the same spot reads "Voltar à conta".</p>
+  <p><b>"Alterar" goes to the profile form</b>, where the number is edited today. Changing it clears the confirmation, which the profile already does.</p>
+  <p><b>The other failure</b> (WhatsApp not configured on that stage, or the network) uses state 4's layout with "Não foi possível começar agora. Tente dentro de momentos." and a retry. A message sent from a different number is answered inside WhatsApp, where the person is at that moment, so the page simply keeps waiting.</p>
+  <p><b>The Ntizo number and "até 14:52"</b> come back from the API with the code, so the page never hard-codes the number.</p>
+</div>
+
+<div class="doc-h" id="whatsapp">
+  <div class="kick">In WhatsApp · illustration</div>
+  <h2>What the person sees on the other side</h2>
+  <p>The message is typed for them. The replies are sent by our API, automatically and for free. Nobody reads this inbox, which is why the number is its own SIM.</p>
+</div>
+<div class="phones">
+  <div class="phone">
+    <div class="phone-label">Confirmed</div>
+    <div class="phone-shell"><div class="phone-scroll"><div class="wa">
+      <div class="wa-hd"><span class="wa-av">ntz</span><div><b>Ntizo</b><span>Conta comercial</span></div></div>
+      <div class="wa-body">
+        <span class="day">Hoje</span>
+        <div class="b out">Olá Ntizo! O meu código de confirmação é 483920<time>14:37</time></div>
+        <div class="b in">✅ Número confirmado. Pode voltar à Ntizo.<time>14:37</time></div>
+      </div>
+      <div class="wa-in"><div></div><i></i></div>
+    </div></div></div>
+  </div>
+  <div class="phone">
+    <div class="phone-label">The four other replies</div>
+    <div class="phone-shell"><div class="phone-scroll"><div class="wa">
+      <div class="wa-hd"><span class="wa-av">ntz</span><div><b>Ntizo</b><span>Conta comercial</span></div></div>
+      <div class="wa-body">
+        <span class="day">Número sem conta</span>
+        <div class="b in">Não encontrámos nenhuma conta Ntizo com o número +258 84 111 2233. Envie a mensagem a partir do WhatsApp do número que registou.<time>14:40</time></div>
+        <span class="day">Código errado ou expirado</span>
+        <div class="b in">Este código já não é válido. Volte à Ntizo e toque outra vez em Confirmar pelo WhatsApp.<time>14:55</time></div>
+        <span class="day">Já confirmado</span>
+        <div class="b in">O seu número já está confirmado.<time>15:02</time></div>
+        <span class="day">Mensagem sem código</span>
+        <div class="b in">Este número serve só para confirmar contas Ntizo. Para ajuda, escreva para ola@ntizo.co.mz.<time>15:10</time></div>
+      </div>
+      <div class="wa-in"><div></div><i></i></div>
+    </div></div></div>
+  </div>
+</div>
+<div class="note">
+  <p><b>Replies follow the account's language</b>: Portuguese for pt-MZ and pt-PT, English for everything else. "Número sem conta" has no account to read it from, so it is always Portuguese.</p>
+</div>
+
+<div class="doc-h" id="desktop">
+  <div class="kick">/verify-phone · 1280 px</div>
+  <h2>On a computer, the message sits beside the steps</h2>
+  <p>The button opens WhatsApp Web or the desktop app, which send from the same account as the phone, so the flow does not change.</p>
+</div>
+<div class="frame"><div class="frame-inner" id="dk-frame"><div class="viewport" id="dk-vp"><div class="app dk">
+  <div class="bar"><span class="wordmark">ntizo</span></div>
+  <div class="dk-grid">
+    <div class="pg">
+      <h1>Toque em enviar no WhatsApp</h1>
+      <p class="lede">Assim que a mensagem chegar, esta página confirma o número sozinha.</p>
+      <div class="waiting"><span class="pulse"></span>À espera da mensagem…</div>
+      <button class="btn btn-quiet" style="width:auto;padding:0 22px;align-self:flex-start"><svg class="ic" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Abrir o WhatsApp outra vez</button>
+      <p class="hint" style="margin:6px 0 0">Não tem WhatsApp neste número? Pode confirmar mais tarde em Conta › Segurança.</p>
+      <a class="later" href="#">Agora não</a>
+    </div>
+    <div class="msg">
+      <small>A mensagem</small>
+      <p>Olá Ntizo! O meu código de confirmação é <span class="code num">483920</span></p>
+      <div class="to"><span>Para a Ntizo · +258 84 300 2020</span><span class="num">até 14:52</span></div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<div class="doc-h" id="signup">
+  <div class="kick">/sign-up · the phone field</div>
+  <h2>The form stops promising an SMS</h2>
+  <p>Only the hint under the field changes. The rest of the sign-up page stays as it is.</p>
+</div>
+<div class="phones">
+  <div class="phone">
+    <div class="phone-label">Hint under "Número de telemóvel"</div>
+    <div class="phone-shell"><div class="phone-scroll" style="height:300px"><div class="app"><div class="pg" style="padding-top:40px">
+      <div class="field">
+        <label>Número de telemóvel</label>
+        <div class="input"><span class="cc">🇲🇿 +258</span><span class="v num">84 123 4567</span></div>
+        <span class="strike">Vamos enviar um código de verificação por SMS para este número.</span>
+        <span class="h new">Vai confirmá-lo com uma mensagem no WhatsApp.</span>
+      </div>
+    </div></div></div></div>
+  </div>
+</div>
+<div class="note">
+  <p><b>Not in this change:</b> the other auth screens (forgot and reset password, accept invite) and the sign-up page keep today's blue card look. Moving them onto the site's rules is its own piece of work. Say if you want it folded in.</p>
+</div>
+
+<script>
+(function(){
+  var frame=document.getElementById('dk-frame'), vp=document.getElementById('dk-vp');
+  function fit(){ vp.style.transform='scale('+(frame.clientWidth/1280)+')'; }
+  fit(); window.addEventListener('resize',fit);
+})();
+</script>

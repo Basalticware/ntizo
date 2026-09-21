@@ -104,6 +104,25 @@ export const deleteMyAddress = defineMutation({
   docs: { summary: "Delete one of the authenticated user's addresses", tags: ["User"] },
 });
 
+/**
+ * Issues the code the caller will send from WhatsApp to confirm their number.
+ *
+ * No input: the number is the one on the account, never one the caller names.
+ * `expiresAt` travels as ISO text so the screen can show "até 14:52" and
+ * switch to "expired" on its own clock.
+ */
+export const startPhoneVerification = defineMutation({
+  input: zodSchema(z.object({})),
+  output: zodSchema(
+    z.object({
+      code: z.string(),
+      businessNumber: z.string(),
+      expiresAt: z.string(),
+    }),
+  ),
+  docs: { summary: "Start confirming your phone number by WhatsApp", tags: ["User"] },
+});
+
 export const userWriteSchema = defineGraphQLSchema(
   {
     user: {
@@ -111,6 +130,7 @@ export const userWriteSchema = defineGraphQLSchema(
       addAddress: addMyAddress,
       updateAddress: updateMyAddress,
       deleteAddress: deleteMyAddress,
+      startPhoneVerification,
     },
   },
   { defaults: { context: ntizoGraphqlContextSchema } },
