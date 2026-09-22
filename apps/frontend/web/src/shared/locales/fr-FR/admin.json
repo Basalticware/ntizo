@@ -114,7 +114,7 @@
   "userDetailGrantAbilityRoles": "changer le rôle des autres, y compris le vôtre",
   "userDetailGrantAudit": "C'est enregistré dans l'activité, à votre nom.",
   "userDetailGrantConfirm": "Donner l'accès",
-  "userDetailRevokeTitle": "Retirer l'accès administrateur de {{name}} ?",
+  "userDetailRevokeTitle": "Retirer l'accès administrateur à {{name}} ?",
   "userDetailRevokeBody": "Dès sa prochaine requête, {{name}} ne verra plus l'administration. Ses espaces ne changent pas.",
   "userDetailRevokeConfirm": "Retirer l'accès",
   "userDetailCancel": "Annuler",
