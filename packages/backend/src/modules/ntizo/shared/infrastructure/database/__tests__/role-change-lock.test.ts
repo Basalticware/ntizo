@@ -9,7 +9,7 @@
  * (lock_not_available), and must succeed on a row outside the lock.
  */
 import { afterAll, beforeAll, describe, expect, setDefaultTimeout, test } from "bun:test";
-import { inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import * as authSchema from "../../../../../better-auth/infrastructure/database/schema";
 import { __runWithTransactionContextForTests } from "../../../../../../shared/infrastructure/database/tx-context";
@@ -82,5 +82,51 @@ describe("DrizzleUserRepository.lockForRoleChange", () => {
     expect(bystanderWhileHeld).toBe("free");
     // Released at commit.
     expect(await tryLockElsewhere(adminId)).toBe("free");
+  });
+});
+
+describe("DrizzleUserRepository.save() and writeRole", () => {
+  const staleId = `role-lock-stale-${crypto.randomUUID()}`;
+  const writeRoleId = `role-lock-writerole-${crypto.randomUUID()}`;
+
+  // Awaited fully here, once, rather than stashed for tests to re-await: a
+  // drizzle insert builder re-sends its statement on every `await`/`.then()`
+  // it receives, so a second await of the same builder is a second INSERT.
+  beforeAll(async () => {
+    await db.insert(user).values([
+      { id: staleId, email: `${staleId}@example.com`, role: "customer" },
+      { id: writeRoleId, email: `${writeRoleId}@example.com`, role: "customer" },
+    ]);
+  });
+
+  afterAll(async () => {
+    await bestEffortCleanup([
+      () => db.delete(user).where(inArray(user.id, [staleId, writeRoleId])),
+    ]);
+  });
+
+  test("save() of a stale aggregate never changes role", async () => {
+    const stale = await __runWithTransactionContextForTests(db as unknown as DrizzleDb, () =>
+      repo.findById(staleId),
+    );
+    if (!stale) throw new Error("seed row missing: " + staleId);
+
+    // Simulate a role change committing between this aggregate's read and its
+    // (unrelated) save — e.g. an admin was granted while this one loaded.
+    await db.update(user).set({ role: "admin" }).where(eq(user.id, staleId));
+
+    await __runWithTransactionContextForTests(db as unknown as DrizzleDb, () => repo.save(stale));
+
+    const rows = await db.select({ role: user.role }).from(user).where(eq(user.id, staleId));
+    expect(rows[0]?.role).toBe("admin");
+  });
+
+  test("writeRole sets the role", async () => {
+    await __runWithTransactionContextForTests(db as unknown as DrizzleDb, () =>
+      repo.writeRole(writeRoleId, "admin"),
+    );
+
+    const rows = await db.select({ role: user.role }).from(user).where(eq(user.id, writeRoleId));
+    expect(rows[0]?.role).toBe("admin");
   });
 });

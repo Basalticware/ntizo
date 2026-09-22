@@ -54,7 +54,7 @@ export class SetPlatformRoleCommand implements SetPlatformRolePort {
       if (!user) throw new UserNotFoundError(input.userId);
 
       if (user.changePlatformRole(input.role, requester.userId)) {
-        await this.userRepo.save(user);
+        await this.roleChangeLock.writeRole(user.id, user.role);
         await this.authRole.setRole(user.id, user.role);
         // Last, inside the transaction, as every command here does it: the
         // outbox row and the role commit or roll back together.

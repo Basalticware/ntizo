@@ -24,7 +24,7 @@ const uow: UnitOfWorkPort = {
 
 class FakeUsers implements UserRepositoryPort, RoleChangeLockPort {
   readonly byId = new Map<string, User>();
-  readonly saved: { id: string; role: UserRole; inside: boolean }[] = [];
+  readonly roleWrites: { id: string; role: UserRole; inside: boolean }[] = [];
   readonly lockedFor: string[] = [];
   constructor(seed: { id: string; role: UserRole }[]) {
     for (const s of seed) {
@@ -49,12 +49,16 @@ class FakeUsers implements UserRepositoryPort, RoleChangeLockPort {
     return null;
   }
   async save(user: User) {
-    this.saved.push({ id: user.id, role: user.role, inside: tx.inside });
     this.byId.set(user.id, user);
   }
   async lockForRoleChange(targetUserId: string) {
     this.lockedFor.push(targetUserId);
     return [...this.byId.values()].filter((u) => u.role === "admin").map((u) => u.id);
+  }
+  async writeRole(id: string, role: UserRole) {
+    this.roleWrites.push({ id, role, inside: tx.inside });
+    const existing = this.byId.get(id);
+    if (existing) this.byId.set(id, User.rehydrate({ ...existing.toJSON(), role }));
   }
 }
 
@@ -101,7 +105,7 @@ describe("SetPlatformRoleCommand", () => {
 
     expect(result).toEqual({ userId: "u2", role: "admin" });
     expect(users.lockedFor).toEqual(["u2"]);
-    expect(users.saved).toEqual([{ id: "u2", role: "admin", inside: true }]);
+    expect(users.roleWrites).toEqual([{ id: "u2", role: "admin", inside: true }]);
     expect(authRole.calls).toEqual([{ userId: "u2", role: "admin", inside: true }]);
     expect(outbox.published).toHaveLength(1);
     expect(outbox.published[0]!.inside).toBe(true);
@@ -133,7 +137,7 @@ describe("SetPlatformRoleCommand", () => {
       command.execute(as("admin-1"), { userId: "admin-1", role: "customer" }),
     ).rejects.toMatchObject({ code: "CANNOT_CHANGE_OWN_ROLE" });
     expect(users.lockedFor).toEqual([]);
-    expect(users.saved).toEqual([]);
+    expect(users.roleWrites).toEqual([]);
   });
 
   it("refuses when, under the lock, the requester is no longer an admin", async () => {
@@ -146,7 +150,7 @@ describe("SetPlatformRoleCommand", () => {
     await expect(
       command.execute(as("was-admin"), { userId: "admin-2", role: "customer" }),
     ).rejects.toMatchObject({ code: "ADMIN_ONLY" });
-    expect(users.saved).toEqual([]);
+    expect(users.roleWrites).toEqual([]);
     expect(outbox.published).toEqual([]);
   });
 
@@ -167,7 +171,7 @@ describe("SetPlatformRoleCommand", () => {
     const result = await command.execute(as("admin-1"), { userId: "admin-2", role: "admin" });
 
     expect(result).toEqual({ userId: "admin-2", role: "admin" });
-    expect(users.saved).toEqual([]);
+    expect(users.roleWrites).toEqual([]);
     expect(authRole.calls).toEqual([]);
     expect(outbox.published).toEqual([]);
   });

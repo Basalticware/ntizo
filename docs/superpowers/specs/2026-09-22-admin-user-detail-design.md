@@ -137,12 +137,15 @@ administradora"). New strings go into all 8 locales of the `admin` namespace.
   4. `user.changePlatformRole(role, requesterId)`. If the role is unchanged
      this is a no-op with no event, and the command returns success (a double
      click is harmless).
-  5. `userRepo.save(user)`, then `authRole.setRole(userId, role)`, then
-     `outbox.publish(user.pullEvents(), "user")`.
+  5. `roleChangeLock.writeRole(userId, role)`, then `authRole.setRole(userId,
+     role)`, then `outbox.publish(user.pullEvents(), "user")`.
   - `RoleChangeLockPort` and `AuthRolePort` are two small ports of their own,
     implemented by `DrizzleUserRepository` and `BetterAuthIdentityAdapter`.
     Keeping them separate means `UserRepositoryPort` and `AuthIdentityPort`
     stay as they are, and so does every test double that implements them.
+  - `UserRepositoryPort.save()` no longer updates `role` on an existing row,
+    so no other command (e.g. the provider-upgrade commands, which read a
+    user without this lock) can overwrite a role change.
 - **Aggregate:** `User.changePlatformRole(to, byUserId)` records
   `UserPlatformRoleChanged` (`user.role.changed`) with
   `{ userId, from, to, changedByUserId }`.

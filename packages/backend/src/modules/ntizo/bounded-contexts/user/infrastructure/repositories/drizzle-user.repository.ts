@@ -1,4 +1,5 @@
 import { eq, or } from "drizzle-orm";
+import type { UserRole } from "@ntizo/shared";
 import type { RoleChangeLockPort, UserRepositoryPort } from "../../app/ports/outbound";
 import { User } from "../../domain/aggregates/user.aggregate";
 import { user } from "../../../../shared/infrastructure/database/user";
@@ -53,9 +54,13 @@ export class DrizzleUserRepository implements UserRepositoryPort, RoleChangeLock
       })
       .onConflictDoUpdate({
         target: user.id,
+        // `role` is deliberately absent here: on an existing row it is
+        // written only by `writeRole`, under the role-change lock. A command
+        // that reads a user without that lock (e.g. the provider-upgrade
+        // commands) and later calls `save()` must not be able to overwrite a
+        // role change that committed in between.
         set: {
           email: json.email,
-          role: json.role,
           status: json.status,
           verificationStatus: json.verificationStatus,
           updatedAt: json.updatedAt,
@@ -78,5 +83,16 @@ export class DrizzleUserRepository implements UserRepositoryPort, RoleChangeLock
       .where(or(eq(user.role, "admin"), eq(user.id, targetUserId)))
       .for("update");
     return rows.filter((r) => r.role === "admin").map((r) => r.id);
+  }
+
+  /**
+   * The one write that changes `role` on an existing row. Call it only
+   * inside the same transaction as `lockForRoleChange`.
+   */
+  async writeRole(userId: string, role: UserRole): Promise<void> {
+    await getDb()
+      .update(user)
+      .set({ role, updatedAt: new Date() })
+      .where(eq(user.id, userId));
   }
 }
