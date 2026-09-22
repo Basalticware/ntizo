@@ -8,9 +8,13 @@ async function cleanup(users: readonly VerifiedUser[]): Promise<void> {
     await sql()`DELETE FROM ntizo_activity.activity WHERE actor_user_id = ${user.id}`.catch((err) =>
       console.error("[e2e] admin-users cleanup: activity", err),
     );
-    // Cascades to ntizo_user.profile.
+    // Cascades to ntizo_user.profile (profile.schema.ts's onDelete: "cascade").
     await sql()`DELETE FROM ntizo_user."user" WHERE id = ${user.id}`.catch((err) =>
       console.error("[e2e] admin-users cleanup: user", err),
+    );
+    // Cascades to better_auth.session and better_auth.account.
+    await sql()`DELETE FROM better_auth."user" WHERE id = ${user.id}`.catch((err) =>
+      console.error("[e2e] admin-users cleanup: better_auth.user", err),
     );
   }
 }
@@ -38,6 +42,9 @@ test("an admin grants admin access from a person's page", async ({ page }) => {
     await dialog.getByRole("button", { name: "Give access" }).click();
     await expect(dialog).toBeHidden();
     await expect(page.getByRole("button", { name: "Remove admin" })).toBeVisible();
+    // exact: true — the role section's own hint text also contains the word
+    // "administrator", and a substring match would hit both elements.
+    await expect(page.getByText("Administrator", { exact: true })).toBeVisible();
 
     const [ntizo] = await sql()`SELECT role FROM ntizo_user."user" WHERE id = ${customer.id}`;
     const [auth] = await sql()`SELECT role FROM better_auth."user" WHERE id = ${customer.id}`;
