@@ -7,3 +7,5 @@ export type {
 } from "./phone-verification-code-store.port";
 export type { PhoneVerificationChannelPort } from "./phone-verification-channel.port";
 export type { PhoneVerificationRepliesPort } from "./phone-verification-replies.port";
+export type { RoleChangeLockPort } from "./role-change-lock.port";
+export type { AuthRolePort } from "./auth-role.port";

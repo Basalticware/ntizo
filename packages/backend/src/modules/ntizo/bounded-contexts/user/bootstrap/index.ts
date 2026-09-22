@@ -22,6 +22,7 @@ import { BetterAuthPhoneVerificationCodeStore } from "../infrastructure/adapters
 import { EnvPhoneVerificationChannel } from "../infrastructure/adapters/env-phone-verification-channel.adapter";
 import { WhatsAppPhoneVerificationReplies } from "../infrastructure/adapters/whatsapp-phone-verification-replies.adapter";
 import { LazyWhatsAppMessenger } from "../../../../../shared/infrastructure/whatsapp";
+import { SetPlatformRoleCommand } from "../app/use-cases/set-platform-role.command";
 
 export function bootstrapUser() {
   const userRepository = new DrizzleUserRepository();
@@ -43,6 +44,13 @@ export function bootstrapUser() {
   );
 
   const authIdentity = new BetterAuthIdentityAdapter();
+  const setPlatformRole = new SetPlatformRoleCommand(
+    userRepository,
+    userRepository,
+    authIdentity,
+    unitOfWork,
+    outboxPort,
+  );
   const updateMyProfile = new UpdateMyProfileCommand(
     profileRepository,
     unitOfWork,
@@ -82,6 +90,7 @@ export function bootstrapUser() {
       updateMyAddress,
       deleteMyAddress,
       startPhoneVerification,
+      setPlatformRole,
       internal: {
         upgradeProfileToProvider,
         revertProviderUpgrade,

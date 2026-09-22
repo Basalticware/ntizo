@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm";
-import type { AuthIdentityPort } from "../../app/ports/outbound";
+import type { UserRole } from "@ntizo/shared";
+import type { AuthIdentityPort, AuthRolePort } from "../../app/ports/outbound";
 import { PhoneNumberAlreadyInUseError } from "../../domain/exceptions";
 import { getDb } from "../../../../../better-auth/infrastructure/client/drizzle";
 import { user as authUser } from "../../../../../better-auth/infrastructure/database/schema";
@@ -31,7 +32,7 @@ function isUniqueViolation(error: unknown): boolean {
   );
 }
 
-export class BetterAuthIdentityAdapter implements AuthIdentityPort {
+export class BetterAuthIdentityAdapter implements AuthIdentityPort, AuthRolePort {
   /**
    * `update` is injectable so the error mapping can be tested without a
    * database; `db` so the reads and the conditional write can be tested
@@ -85,5 +86,9 @@ export class BetterAuthIdentityAdapter implements AuthIdentityPort {
       .where(and(eq(authUser.id, userId), eq(authUser.phoneNumber, issuedFor)))
       .returning({ id: authUser.id });
     return rows.length > 0;
+  }
+
+  async setRole(userId: string, role: UserRole): Promise<void> {
+    await this.db().update(authUser).set({ role }).where(eq(authUser.id, userId));
   }
 }
