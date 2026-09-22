@@ -269,7 +269,8 @@
     "serviceCreated": "Service créé",
     "servicePublished": "Service publié",
     "serviceUnpublished": "Service dépublié",
-    "reviewCreated": "Avis publié"
+    "reviewCreated": "Avis publié",
+    "userRoleChanged": "Rôle modifié"
   },
   "activityType": {
     "userRegistered": "Compte créé",
@@ -285,8 +286,12 @@
     "servicePublished": "{{serviceName}} publié",
     "serviceUnpublished": "{{serviceName}} dépublié",
     "reviewCreated": "{{providerName}} noté",
+    "userRoleChanged": "Rôle de {{targetName}} modifié",
+    "userRoleChanged_admin": "Accès administrateur donné à {{targetName}}",
+    "userRoleChanged_customer": "Accès administrateur retiré à {{targetName}}",
     "unnamedProvider": "un prestataire",
-    "unnamedService": "un service"
+    "unnamedService": "un service",
+    "unnamedUser": "un utilisateur"
   },
   "reviewsTitle": "Avis",
   "reviewsSubtitle": "Tous les avis de la plateforme, et ceux que la page d'accueil affiche.",

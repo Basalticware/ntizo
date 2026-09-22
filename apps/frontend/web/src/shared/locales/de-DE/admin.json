@@ -269,7 +269,8 @@
     "serviceCreated": "Leistung erstellt",
     "servicePublished": "Leistung veröffentlicht",
     "serviceUnpublished": "Leistung depubliziert",
-    "reviewCreated": "Bewertung abgegeben"
+    "reviewCreated": "Bewertung abgegeben",
+    "userRoleChanged": "Rolle geändert"
   },
   "activityType": {
     "userRegistered": "Konto erstellt",
@@ -285,8 +286,12 @@
     "servicePublished": "{{serviceName}} veröffentlicht",
     "serviceUnpublished": "{{serviceName}} depubliziert",
     "reviewCreated": "{{providerName}} bewertet",
+    "userRoleChanged": "Rolle von {{targetName}} geändert",
+    "userRoleChanged_admin": "{{targetName}} Administratorzugriff gegeben",
+    "userRoleChanged_customer": "{{targetName}} Administratorzugriff entzogen",
     "unnamedProvider": "Anbieter",
-    "unnamedService": "Dienst"
+    "unnamedService": "Dienst",
+    "unnamedUser": "einem Nutzer"
   },
   "reviewsTitle": "Bewertungen",
   "reviewsSubtitle": "Alle Bewertungen der Plattform und welche davon die Startseite zeigt.",

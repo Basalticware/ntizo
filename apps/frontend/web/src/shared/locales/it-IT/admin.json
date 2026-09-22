@@ -269,7 +269,8 @@
     "serviceCreated": "Servizio creato",
     "servicePublished": "Servizio pubblicato",
     "serviceUnpublished": "Servizio depubblicato",
-    "reviewCreated": "Recensione pubblicata"
+    "reviewCreated": "Recensione pubblicata",
+    "userRoleChanged": "Ruolo cambiato"
   },
   "activityType": {
     "userRegistered": "Account creato",
@@ -285,8 +286,12 @@
     "servicePublished": "Pubblicato {{serviceName}}",
     "serviceUnpublished": "Depubblicato {{serviceName}}",
     "reviewCreated": "Recensito {{providerName}}",
+    "userRoleChanged": "Cambiato il ruolo di {{targetName}}",
+    "userRoleChanged_admin": "Dato accesso di amministrazione a {{targetName}}",
+    "userRoleChanged_customer": "Tolto l'accesso di amministrazione a {{targetName}}",
     "unnamedProvider": "un fornitore",
-    "unnamedService": "un servizio"
+    "unnamedService": "un servizio",
+    "unnamedUser": "un utente"
   },
   "reviewsTitle": "Recensioni",
   "reviewsSubtitle": "Tutte le recensioni della piattaforma, e quali mostra la home page.",

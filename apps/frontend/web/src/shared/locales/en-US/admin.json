@@ -269,7 +269,8 @@
     "serviceCreated": "Service created",
     "servicePublished": "Service published",
     "serviceUnpublished": "Service unpublished",
-    "reviewCreated": "Review posted"
+    "reviewCreated": "Review posted",
+    "userRoleChanged": "Role changed"
   },
   "activityType": {
     "userRegistered": "Created an account",
@@ -285,8 +286,12 @@
     "servicePublished": "Published {{serviceName}}",
     "serviceUnpublished": "Unpublished {{serviceName}}",
     "reviewCreated": "Rated {{providerName}}",
+    "userRoleChanged": "Changed {{targetName}}'s role",
+    "userRoleChanged_admin": "Gave {{targetName}} admin access",
+    "userRoleChanged_customer": "Removed {{targetName}}'s admin access",
     "unnamedProvider": "a provider",
-    "unnamedService": "a service"
+    "unnamedService": "a service",
+    "unnamedUser": "a user"
   },
   "reviewsTitle": "Reviews",
   "reviewsSubtitle": "Every review on the platform, and which of them the home page shows.",
