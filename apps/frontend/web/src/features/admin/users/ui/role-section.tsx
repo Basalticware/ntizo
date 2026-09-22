@@ -23,7 +23,7 @@ export function RoleSection({
   loading: boolean;
 }) {
   const { t } = useTranslation("admin");
-  const [confirming, setConfirming] = useState(false);
+  const [confirmTo, setConfirmTo] = useState<"admin" | "customer" | null>(null);
   const change = detail?.roleChange;
 
   return (
@@ -46,19 +46,19 @@ export function RoleSection({
             type="button"
             variant={change.to === "admin" ? "default" : "outline"}
             className="w-full sm:w-auto"
-            onClick={() => setConfirming(true)}
+            onClick={() => setConfirmTo(change.to)}
           >
             {t(change.to === "admin" ? "userDetailGrant" : "userDetailRevoke")}
           </Button>
         ) : null}
       </div>
 
-      {confirming && detail && change?.to && name && (
+      {confirmTo && detail && name && (
         <RoleConfirmDialog
           userId={detail.id}
           name={name}
-          to={change.to}
-          onClose={() => setConfirming(false)}
+          to={confirmTo}
+          onClose={() => setConfirmTo(null)}
         />
       )}
     </section>
