@@ -1,3 +1,9 @@
+import type { UserAdminDetailDTO, UserAdminWorkspaceDTO } from "@ntizo/shared/read-models";
+
+/** One person as the detail page reads them — the server's shape, unchanged. */
+export type AdminUserDetail = UserAdminDetailDTO;
+export type AdminUserWorkspace = UserAdminWorkspaceDTO;
+
 /**
  * A person as the administration list sees them.
  *
@@ -28,6 +34,6 @@ export interface AdminUser {
  * unreadable. The email still appears in its own column — repeated, but a
  * repeated fact reads better than an anonymous row.
  */
-export function displayName(user: AdminUser): string {
+export function displayName(user: Pick<AdminUser, "name" | "email">): string {
   return user.name?.trim() || user.email;
 }

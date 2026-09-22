@@ -23,6 +23,11 @@ const LOCALES: Record<string, { name: string; region: string }> = {
   "nl-NL": { name: "Nederlands", region: "NL" },
 };
 
+/** A locale's own name for itself, as the picker shows it; the code itself for anything unknown. */
+export function localeName(code: string): string {
+  return LOCALES[code]?.name ?? code;
+}
+
 /**
  * The picker itself, controlled from outside.
  *
