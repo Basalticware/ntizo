@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { sessionGraphql } from "@/shared/lib/graphql/session-graphql";
+import { GraphqlError, sessionGraphql } from "@/shared/lib/graphql/session-graphql";
 import type { AdminUser, AdminUserDetail } from "../domain/types";
 
 const ALL = `
@@ -48,7 +48,7 @@ export const adminUserQueries = {
       enabled: userId.length > 0,
       // A stale link is not worth retrying.
       retry: (failures, error) =>
-        (error as { code?: string }).code !== "USER_NOT_FOUND" && failures < 2,
+        !(error instanceof GraphqlError && error.code === "USER_NOT_FOUND") && failures < 2,
     }),
 };
 
