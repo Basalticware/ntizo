@@ -15,6 +15,10 @@ import { AdminUserDetailPage } from "../user-detail-page";
 
 const fakes = vi.hoisted(() => ({
   detail: null as unknown as AdminUserDetail,
+  // Set for the one test that needs the read itself to fail. Checked ahead of
+  // `detail` in the queryFn below, so a test never has to remember to clear
+  // the fixture it isn't using.
+  detailError: null as unknown,
   setRole: vi.fn(),
 }));
 
@@ -26,10 +30,14 @@ vi.mock("@/features/admin/users/data/admin-user.repository", async (importOrigin
     adminUserQueries: {
       ...actual.adminUserQueries,
       // Real options, fake fetch: every read, including the refetch after a
-      // change, answers with whatever `fakes.detail` holds at that moment.
+      // change, answers with whatever `fakes.detail` holds at that moment —
+      // or rejects with `fakes.detailError`, when a test set one.
       detail: (userId: string) => ({
         ...actual.adminUserQueries.detail(userId),
-        queryFn: async () => fakes.detail,
+        queryFn: async () => {
+          if (fakes.detailError) throw fakes.detailError;
+          return fakes.detail;
+        },
       }),
     },
   };
@@ -37,6 +45,7 @@ vi.mock("@/features/admin/users/data/admin-user.repository", async (importOrigin
 
 afterEach(() => {
   fakes.setRole.mockReset();
+  fakes.detailError = null;
 });
 
 const base: AdminUserDetail = {
@@ -53,8 +62,7 @@ const base: AdminUserDetail = {
   roleChange: { to: "admin", blockedReason: null },
 };
 
-async function renderPage(detail: Partial<AdminUserDetail> = {}) {
-  fakes.detail = { ...base, ...detail };
+async function renderRouter() {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const rootRoute = createRootRoute();
   const router = createRouter({
@@ -71,7 +79,19 @@ async function renderPage(detail: Partial<AdminUserDetail> = {}) {
       <RouterProvider router={router} />
     </QueryClientProvider>,
   );
+}
+
+async function renderPage(detail: Partial<AdminUserDetail> = {}) {
+  fakes.detail = { ...base, ...detail };
+  await renderRouter();
   await screen.findByRole("heading", { name: "Ana Sitoe" });
+}
+
+/** For the one path with nothing to render but the error: the read itself fails. */
+async function renderFailedPage(error: unknown) {
+  fakes.detailError = error;
+  await renderRouter();
+  await screen.findByText("This user no longer exists.");
 }
 
 describe("AdminUserDetailPage", () => {
@@ -154,5 +174,19 @@ describe("AdminUserDetailPage", () => {
   it("says so when there are no workspaces", async () => {
     await renderPage({ workspaces: [] });
     expect(screen.getByText("Doesn't belong to any workspace.")).toBeInTheDocument();
+  });
+
+  it("shows only the back link and the error when the user no longer exists", async () => {
+    await renderFailedPage(
+      new GraphqlError(200, [
+        { message: "no", extensions: { code: "NOT_FOUND", originalCode: "USER_NOT_FOUND" } },
+      ]),
+    );
+
+    expect(screen.getByText("This user no longer exists.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Users" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /admin/i })).not.toBeInTheDocument();
+    expect(screen.queryByText("Doesn't belong to any workspace.")).not.toBeInTheDocument();
   });
 });

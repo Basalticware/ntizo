@@ -49,7 +49,7 @@ export function WorkspacesSection({
 
       {loading ? (
         <p className="type-body border-t border-[var(--color-border)] px-5 py-8 text-center text-[var(--color-muted-foreground)]">
-          {t("providerDetailDocumentsLoading")}
+          {t("userDetailWorkspacesLoading")}
         </p>
       ) : (
         <ul className="grid list-none gap-0 p-0">

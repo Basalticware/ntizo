@@ -129,6 +129,7 @@
   "userDetailWorkspacesHint": "The businesses this person belongs to, and what they do in each.",
   "userDetailWorkspaceLine": "{{role}} · member since {{date}}",
   "userDetailNoWorkspaces": "Doesn't belong to any workspace.",
+  "userDetailWorkspacesLoading": "Loading workspaces…",
   "userRole": {
     "customer": "Customer",
     "individual_provider": "Individual provider",

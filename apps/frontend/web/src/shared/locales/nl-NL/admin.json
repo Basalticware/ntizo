@@ -129,6 +129,7 @@
   "userDetailWorkspacesHint": "De bedrijven waartoe deze persoon behoort, en wat die er doet.",
   "userDetailWorkspaceLine": "{{role}} · lid sinds {{date}}",
   "userDetailNoWorkspaces": "Hoort bij geen enkele werkruimte.",
+  "userDetailWorkspacesLoading": "Werkruimtes laden…",
   "userRole": {
     "customer": "Klant",
     "individual_provider": "Individuele aanbieder",

@@ -129,6 +129,7 @@
   "userDetailWorkspacesHint": "Die Unternehmen, zu denen diese Person gehört, und was sie dort tut.",
   "userDetailWorkspaceLine": "{{role}} · Mitglied seit {{date}}",
   "userDetailNoWorkspaces": "Gehört zu keinem Arbeitsbereich.",
+  "userDetailWorkspacesLoading": "Arbeitsbereiche werden geladen…",
   "userRole": {
     "customer": "Kunde",
     "individual_provider": "Einzelanbieter",
