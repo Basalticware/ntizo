@@ -21,7 +21,10 @@ export function useSetPlatformRole(userId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (role: "admin" | "customer") => setPlatformRole(userId, role),
-    onSuccess: async () => {
+    // onSettled, not onSuccess: a refusal (USER_NOT_FOUND / ADMIN_ONLY) means
+    // the page behind the dialog is stale too, and should refresh even
+    // though the dialog itself stays open with the error.
+    onSettled: async () => {
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["admin", "user", userId] }),
         qc.invalidateQueries({ queryKey: ["admin", "users"] }),
