@@ -6,6 +6,8 @@ import type {
 } from "../../app/ports/inbound";
 import { ForbiddenError } from "@cosmneo/onion-lasagna";
 import type { ListUsersForAdminProjection } from "../../app/use-cases/list-users-for-admin.projection";
+import type { GetUserDetailForAdminProjection } from "../../app/use-cases/get-user-detail-for-admin.projection";
+import type { NtizoGraphqlContext } from "../../../../graphql/context";
 import { userReadSchema } from "../schema/queries";
 import { mapGetCurrentUserInput, mapListMyAddressesInput } from "./arg-mappers";
 
@@ -13,10 +15,24 @@ export interface UserReadModule {
   readonly getCurrentUser: GetCurrentUserProjectionPort;
   readonly listMyAddresses: ListMyAddressesPort;
   readonly listUsersForAdmin: ListUsersForAdminProjection;
+  readonly getUserDetailForAdmin: GetUserDetailForAdminProjection;
 }
 
 /** The page size when the caller does not ask for one. See the projection. */
 const DEFAULT_ADMIN_USER_PAGE = 25;
+
+/**
+ * Both the id and the role: the context defaults an anonymous caller to
+ * `customer` rather than to null, so a role check alone would be reading a
+ * value chosen for the absence of a user.
+ */
+function requireAdminRequester(ctx: NtizoGraphqlContext, message: string): string {
+  const { requesterUserId, role } = ctx;
+  if (!requesterUserId || role !== "admin") {
+    throw new ForbiddenError({ message, code: "ADMIN_ONLY" });
+  }
+  return requesterUserId;
+}
 
 export function createUserReadHandlers(readModule: UserReadModule) {
   return graphqlRoutes(userReadSchema)
@@ -35,16 +51,8 @@ export function createUserReadHandlers(readModule: UserReadModule) {
     .handleWithUseCase("user.allForAdmin", {
       argsMapper: (args, ctx) => {
         // Checked in the mapper, the one place that sees both the requester
-        // and the input. Both the id and the role: the context defaults an
-        // anonymous caller to `customer` rather than to null, so a role check
-        // alone would be reading a value chosen for the absence of a user.
-        const { requesterUserId, role } = asNtizoGraphqlContext(ctx);
-        if (!requesterUserId || role !== "admin") {
-          throw new ForbiddenError({
-            message: "Only administrators may list every user",
-            code: "ADMIN_ONLY",
-          });
-        }
+        // and the input.
+        requireAdminRequester(asNtizoGraphqlContext(ctx), "Only administrators may list every user");
         return {
           role: args.input.role,
           search: args.input.search,
@@ -53,6 +61,17 @@ export function createUserReadHandlers(readModule: UserReadModule) {
         };
       },
       useCase: readModule.listUsersForAdmin,
+      responseMapper: (output) => output,
+    })
+    .handleWithUseCase("user.detailForAdmin", {
+      argsMapper: (args, ctx) => ({
+        requesterUserId: requireAdminRequester(
+          asNtizoGraphqlContext(ctx),
+          "Only administrators may read a user's file",
+        ),
+        userId: args.input.userId,
+      }),
+      useCase: readModule.getUserDetailForAdmin,
       responseMapper: (output) => output,
     })
     .build();
