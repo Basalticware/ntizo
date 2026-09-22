@@ -91,3 +91,4 @@ export class TimezoneInvalidError extends UnprocessableError {
 }
 
 export * from "./phone-verification.exceptions";
+export * from "./platform-role.exceptions";
