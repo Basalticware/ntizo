@@ -1,6 +1,6 @@
 # Admin user detail, and granting admin access
 
-Date: 2026-09-22 · Status: design approved in chat, mockup awaiting review
+Date: 2026-09-22 · Status: design and mockup approved (2026-09-22)
 Mockup: `2026-09-22-admin-user-detail.mockup.html` (same folder)
 
 ## Why
@@ -73,9 +73,9 @@ administradora"). New strings go into all 8 locales of the `admin` namespace.
   admin" state and no `LAST_ADMIN` code.
 - **The race:** admins A and B remove each other at the same instant. Both
   passed `requireAdmin` when their requests started. Inside the transaction the
-  command locks every admin row (`SELECT id FROM ntizo_user.user WHERE role =
-  'admin' FOR UPDATE`) and then re-checks that the requester is still among
-  them. The second transaction waits for the first, finds it is no longer an
+  command locks every admin row and the target's row (see the write side),
+  then re-checks that the requester is still among the admins. The second
+  transaction waits for the first, finds it is no longer an
   admin, and is refused with `ADMIN_ONLY`. The platform can never reach zero
   admins.
 
@@ -92,7 +92,7 @@ administradora"). New strings go into all 8 locales of the `admin` namespace.
     language: string, createdAt: string,
     workspaces: Array<{
       providerId, name, slug, logoUrl: string | null,
-      providerStatus: string, memberRole: "owner" | "staff", joinedAt: string
+      providerStatus: string, memberRole: "owner" | "admin" | "staff", joinedAt: string
     }>,
     roleChange: { to: "admin" | "customer" | null, blockedReason: "self" | null }
   }
@@ -123,20 +123,30 @@ administradora"). New strings go into all 8 locales of the `admin` namespace.
   `requireAdmin` (the same shape and `ADMIN_ONLY` code as the other write
   modules).
 - **Command:** `SetPlatformRoleCommand` in `bounded-contexts/user/app/use-cases/`.
-  It runs inside `unitOfWork.atomicExecute`, like `DecideProviderStatusCommand`:
-  1. `userRepo.lockAdminIds()`: the `FOR UPDATE` above. Refuse with
-     `ADMIN_ONLY` if the requester is not in the result.
-  2. Refuse with `CANNOT_CHANGE_OWN_ROLE` if the target is the requester.
+  1. Refuse with `CANNOT_CHANGE_OWN_ROLE` if the target is the requester.
+     This check comes first because it needs no database.
+  2. The rest runs inside `unitOfWork.atomicExecute`, like
+     `DecideProviderStatusCommand`. First,
+     `roleChangeLock.lockForRoleChange(targetId)`: `SELECT id, role … WHERE
+     role = 'admin' OR id = $target FOR UPDATE`. It returns the admins' ids,
+     and refuses with `ADMIN_ONLY` if the requester is not among them.
+     - Locking the target as well means two admins granting the same person
+       at once cannot both record a change. The second waits, and its next
+       statement reads the committed role.
   3. `userRepo.findById(target)`: refuse with `USER_NOT_FOUND` if it is absent.
   4. `user.changePlatformRole(role, requesterId)`. If the role is unchanged
      this is a no-op with no event, and the command returns success (a double
      click is harmless).
-  5. `userRepo.save(user)`, then `authIdentity.setRole(userId, role)`, then
+  5. `userRepo.save(user)`, then `authRole.setRole(userId, role)`, then
      `outbox.publish(user.pullEvents(), "user")`.
+  - `RoleChangeLockPort` and `AuthRolePort` are two small ports of their own,
+    implemented by `DrizzleUserRepository` and `BetterAuthIdentityAdapter`.
+    Keeping them separate means `UserRepositoryPort` and `AuthIdentityPort`
+    stay as they are, and so does every test double that implements them.
 - **Aggregate:** `User.changePlatformRole(to, byUserId)` records
   `UserPlatformRoleChanged` (`user.role.changed`) with
   `{ userId, from, to, changedByUserId }`.
-- **`AuthIdentityPort.setRole`:** writes `better_auth.user.role` in the same
+- **`AuthRolePort.setRole`:** writes `better_auth.user.role` in the same
   transaction. Nothing reads it for authorization. It is written only so the
   two columns stop disagreeing, which was the trap of 2026-09-21.
 
@@ -190,8 +200,8 @@ administradora"). New strings go into all 8 locales of the `admin` namespace.
   - both handlers refuse non-admins;
   - the projection's `roleChange` for self, admin and non-admin targets;
   - the activity handler's payload;
-  - one repository test against a real Postgres (the e2e Docker database)
-    proving that `lockAdminIds` blocks a concurrent second transaction.
+  - one repository test against a real Postgres (the dev database, like the existing repository tests)
+    proving that `lockForRoleChange` really holds the row locks: a second connection's `FOR UPDATE NOWAIT` on a locked row fails with SQLSTATE 55P03.
 - **Web (vitest):** `user-detail-page.test.tsx`:
   - the button shown for each `roleChange`;
   - the self sentence;
