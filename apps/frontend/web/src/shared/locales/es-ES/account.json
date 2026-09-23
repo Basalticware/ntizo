@@ -167,7 +167,11 @@
     "servicePublished": "Publicaste {{serviceName}}",
     "serviceUnpublished": "Despublicaste {{serviceName}}",
     "reviewCreated": "Reseñaste {{providerName}}",
+    "userRoleChanged": "Cambió el rol de {{targetName}}",
+    "userRoleChanged_admin": "Dio acceso de administración a {{targetName}}",
+    "userRoleChanged_customer": "Quitó el acceso de administración a {{targetName}}",
     "unnamedProvider": "un proveedor",
-    "unnamedService": "un servicio"
+    "unnamedService": "un servicio",
+    "unnamedUser": "un usuario"
   }
 }

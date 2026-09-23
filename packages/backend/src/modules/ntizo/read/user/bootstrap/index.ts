@@ -1,5 +1,6 @@
 import { DrizzleUserReadRepository } from "../infra/repositories/drizzle/user-read.repository";
 import { ListUsersForAdminProjection } from "../app/use-cases/list-users-for-admin.projection";
+import { GetUserDetailForAdminProjection } from "../app/use-cases/get-user-detail-for-admin.projection";
 import { DrizzleUserAdminRepository } from "../infra/repositories/drizzle/user-admin.repository";
 import { GetCurrentUserProjection } from "../app/use-cases/get-current-user.projection";
 import { DrizzleAddressReadRepository } from "../infra/repositories/drizzle/address-read.repository";
@@ -22,6 +23,7 @@ export function bootstrapUserRead(): {
       getCurrentUser: new GetCurrentUserProjection(userReadRepository),
       listMyAddresses: new ListMyAddressesProjection(addressReadRepository),
       listUsersForAdmin: new ListUsersForAdminProjection(userAdminRepository),
+      getUserDetailForAdmin: new GetUserDetailForAdminProjection(userAdminRepository),
     },
   };
 }

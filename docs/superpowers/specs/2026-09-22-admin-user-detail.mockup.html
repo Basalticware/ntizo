@@ -1,0 +1,496 @@
+<title>Ntizo Admin User Page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ presentation chrome, follows the viewer's theme ============ */
+:root{
+  --dc-bg:#eef0f4; --dc-fg:#141a24; --dc-muted:#5b6474; --dc-line:#d9dee7; --dc-card:#ffffff;
+  --dc-accent:#006ffd; --dc-bar:#0d1626; --dc-bar-fg:#f4f6fa; --dc-bar-muted:#9aa5ba; --dc-chip:#1b2740;
+  --dc-frame-shadow:0 30px 70px -40px rgba(9,20,45,.45);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --dc-bg:#0e1219; --dc-fg:#e8ecf3; --dc-muted:#9aa4b6; --dc-line:#262d3a; --dc-card:#151b25;
+    --dc-accent:#3d9bff; --dc-bar:#05080e; --dc-bar-fg:#f4f6fa; --dc-bar-muted:#8b96ab; --dc-chip:#1a2233;
+    --dc-frame-shadow:0 30px 70px -40px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --dc-bg:#0e1219; --dc-fg:#e8ecf3; --dc-muted:#9aa4b6; --dc-line:#262d3a; --dc-card:#151b25;
+  --dc-accent:#3d9bff; --dc-bar:#05080e; --dc-bar-fg:#f4f6fa; --dc-bar-muted:#8b96ab; --dc-chip:#1a2233;
+  --dc-frame-shadow:0 30px 70px -40px rgba(0,0,0,.9);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--dc-bg);color:var(--dc-fg);font-family:Figtree,"Segoe UI",Roboto,system-ui,sans-serif;font-size:15px;line-height:1.55;padding-bottom:80px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+ul,ol{list-style:none}
+h1,h2,h3{text-wrap:balance}
+:focus-visible{outline:2px solid var(--dc-accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+.doc-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:100;background:var(--dc-bar);color:var(--dc-bar-fg);padding:12px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.doc-bar strong{font-weight:700;font-size:14px}
+.doc-bar span{font-size:12px;color:var(--dc-bar-muted)}
+.doc-bar nav{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.doc-bar nav a{font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;background:var(--dc-chip);color:#cfd7e6}
+.doc-bar nav a:hover{color:#fff}
+.doc-h{max-width:1100px;margin:56px auto 20px;padding:0 24px}
+.doc-h h2{font-weight:700;font-size:28px;letter-spacing:-.02em;line-height:1.15}
+.doc-h p{color:var(--dc-muted);font-size:15px;margin-top:8px;max-width:68ch}
+.doc-h .kick{font-size:13px;font-weight:600;color:var(--dc-accent);margin-bottom:8px}
+.note{max-width:1100px;margin:22px auto 0;padding:0 24px;display:grid;gap:10px}
+.note p{font-size:14px;color:var(--dc-muted);padding-left:20px;position:relative;max-width:80ch}
+.note p::before{content:"";position:absolute;left:4px;top:9px;width:6px;height:6px;border-radius:50%;background:var(--dc-accent)}
+.note b{color:var(--dc-fg);font-weight:600}
+.note code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--dc-fg)}
+.intro{max-width:1100px;margin:0 auto;padding:0 24px;display:grid;gap:18px}
+.decisions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.decisions li{background:var(--dc-card);border:1px solid var(--dc-line);border-radius:14px;padding:18px 18px 16px}
+.decisions h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.decisions p{font-size:13.5px;color:var(--dc-muted);line-height:1.5}
+.frame{max-width:1340px;margin:0 auto;padding:0 24px}
+.frame-inner{position:relative;overflow:hidden;border-radius:18px;box-shadow:var(--dc-frame-shadow);border:1px solid var(--dc-line);background:#fff;max-width:100%}
+.viewport{position:absolute;top:0;left:0;width:1280px;transform-origin:0 0}
+.states{max-width:1180px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.state-label{font-size:13px;color:var(--dc-muted);font-weight:600;margin-bottom:10px}
+.state-body{border-radius:18px;background:#fff;box-shadow:var(--dc-frame-shadow);border:1px solid var(--dc-line);padding:22px}
+.phones{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;gap:34px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.phone{width:390px;max-width:100%;flex:none}
+.phone-label{font-size:13px;color:var(--dc-muted);text-align:center;margin-bottom:12px;font-weight:600}
+.phone-shell{border-radius:44px;border:10px solid #0d1626;background:#fff;overflow:hidden;box-shadow:var(--dc-frame-shadow)}
+.phone-scroll{height:780px;overflow:hidden;position:relative;background:#fff;display:flex;flex-direction:column}
+@media (max-width:900px){
+  .decisions,.states{grid-template-columns:1fr}
+  .doc-h,.note,.phones,.intro,.states{padding-inline:16px}
+  .frame{padding-inline:12px}
+}
+
+/* ============ the product, painted light on purpose (this is the app) ============
+   Tokens copied from packages/frontend/src/styles/globals.css. */
+.app{
+  --primary:#006ffd; --fg:#13171b; --muted-fg:#71727a; --border:#e5e5e5; --muted:#f2f8fe;
+  --success:#21b872; --warning:#ffb020; --destructive:#ee4040;
+  --r-card:16px; --r-card-sm:12px; --r-field:8px;
+  background:#fff;color:var(--fg);font-family:Figtree,"Segoe UI",Roboto,system-ui,sans-serif;font-size:15px;line-height:1.55
+}
+.app .ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none;display:inline-block;vertical-align:middle}
+.num{font-variant-numeric:tabular-nums}
+.t-h3{font-size:18px;font-weight:600;line-height:1.35}
+.t-body{font-size:15px;line-height:1.55}
+.t-bm{font-size:14px;font-weight:600;line-height:1.5}
+.t-cap{font-size:12px;line-height:1.45}
+.mut{color:var(--muted-fg)}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-fg)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+
+/* console shell */
+.shell{display:grid;grid-template-columns:248px 1fr;min-height:100%}
+.side{border-right:1px solid var(--border);background:#fbfcfe;padding:18px 12px;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;align-items:baseline;gap:8px;padding:2px 10px 6px}
+.wordmark{font-weight:800;font-size:22px;color:var(--primary);letter-spacing:-.04em;line-height:1}
+.brand small{font-size:12px;color:var(--muted-fg);font-weight:600}
+.grp{display:grid;gap:2px}
+.grp > span{font-size:11.5px;font-weight:600;color:var(--muted-fg);padding:0 10px 4px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-field);font-size:14px;font-weight:500;color:#3b4049}
+.nav .ic{width:17px;height:17px;color:#6b7280}
+.nav.on{background:var(--muted);color:var(--primary);font-weight:600}
+.nav.on .ic{color:var(--primary)}
+.nav .cnt{margin-left:auto;font-size:11.5px;font-weight:700;background:var(--primary);color:#fff;border-radius:999px;padding:0 7px;line-height:18px}
+.main{display:flex;flex-direction:column;min-width:0}
+.hdr{height:64px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:16px}
+.hdr h1{font-size:17px;font-weight:600;line-height:1.2}
+.hdr p{font-size:12.5px;color:var(--muted-fg)}
+.me{width:34px;height:34px;border-radius:50%;background:#dbe6f6;color:#1d3a66;font-weight:700;font-size:12.5px;display:grid;place-items:center}
+.content{padding:28px 28px 40px}
+.col{max-width:896px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted-fg);font-size:15px;width:max-content}
+.back .ic{width:16px;height:16px}
+
+/* sections, as the provider detail page draws them */
+.sec{border:1px solid var(--border);border-radius:var(--r-card);padding:20px}
+.sec.flush{padding:0}
+.sec .head{padding:16px 20px}
+.who{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.who-l{display:flex;align-items:center;gap:16px;min-width:0}
+.av{border-radius:50%;background:#e8eef7;color:#274472;font-weight:700;display:grid;place-items:center;flex:none}
+.av.l{width:56px;height:56px;font-size:17px}
+.av.m{width:36px;height:36px;font-size:12px}
+.av.sq{border-radius:10px}
+.badge{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.b-ok{background:#e6f7ef;color:#137a4b}
+.b-warn{background:#fff4dc;color:#8a5a00}
+.b-bad{background:#fdeaea;color:#b42323}
+.b-info{background:#eaf2ff;color:#0a55c2}
+.pairs{margin-top:20px;border-top:1px solid var(--border);padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px 32px}
+.pair{display:grid;gap:2px;min-width:0}
+.pair dt{font-size:12px;color:var(--muted-fg)}
+.pair dd{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ver{font-size:12px;font-weight:600;margin-left:6px}
+.ver.y{color:#137a4b}
+.ver.n{color:#8a5a00}
+.btns{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px}
+.btn{height:44px;padding:0 18px;border-radius:var(--r-field);font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-p{background:var(--primary);color:#fff}
+.btn-o{border:1px solid var(--border);background:#fff;color:var(--fg)}
+.btn-d{background:var(--destructive);color:#fff}
+.blocked{margin-top:14px;display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--muted-fg);max-width:60ch}
+.blocked .ic{width:17px;height:17px;margin-top:3px}
+.rows{display:grid}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid var(--border);padding:14px 20px}
+.row-l{display:flex;align-items:center;gap:12px;min-width:0}
+.row a.name{font-size:14px;font-weight:600}
+.row a.name:hover,.row a.name.hov{text-decoration:underline}
+.chev{color:#9aa0aa}
+.chev .ic{width:16px;height:16px}
+
+/* dialog */
+.scrim{position:absolute;inset:0;background:rgba(19,23,27,.46);display:grid;place-items:center}
+.dlg{width:460px;max-width:calc(100% - 32px);background:#fff;border-radius:var(--r-card);box-shadow:0 24px 60px -20px rgba(0,0,0,.45);padding:24px;display:grid;gap:14px}
+.dlg h3{font-size:18px;font-weight:600;line-height:1.3}
+.dlg p{font-size:15px;color:var(--muted-fg)}
+.dlg ul{display:grid;gap:6px;margin-top:2px}
+.dlg li{display:flex;gap:9px;font-size:14.5px;color:var(--fg)}
+.dlg li .ic{width:16px;height:16px;margin-top:3px;color:var(--primary)}
+.dlg .err{font-size:14px;font-weight:600;color:#c62828;display:flex;gap:8px}
+.dlg .err .ic{width:16px;height:16px;margin-top:2px}
+.dlg-f{display:flex;justify-content:flex-end;gap:10px;margin-top:4px;flex-wrap:wrap}
+
+/* phone */
+.m-hdr{padding:16px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.m-hdr h1{font-size:16px;font-weight:600;line-height:1.2}
+.m-hdr p{font-size:12px;color:var(--muted-fg)}
+.m-body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:16px}
+.m-body .sec{padding:16px}
+.m-body .pairs{grid-template-columns:1fr;gap:10px;margin-top:16px;padding-top:16px}
+.m-body .btn{width:100%}
+.tabs{border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 4px 14px;background:#fff}
+.tab{display:grid;justify-items:center;gap:3px;font-size:11px;font-weight:600;color:#7a808a}
+.tab .ic{width:20px;height:20px}
+.tab.on{color:var(--primary)}
+
+/* activity + list excerpts */
+.excerpt{max-width:1100px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.act{display:flex;gap:12px;align-items:flex-start;padding:14px 20px;border-top:1px solid var(--border)}
+.act:first-child{border-top:0}
+.act p{font-size:14.5px}
+.act b{font-weight:600}
+@media (max-width:900px){ .excerpt{grid-template-columns:1fr;padding-inline:16px} }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-dash" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></symbol>
+    <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9l1.6-5h14.8L21 9M4 9v11h16V9M9 20v-6h6v6M3 9c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4"/></symbol>
+    <symbol id="i-buoy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.9 4.9 4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
+    <symbol id="i-quote" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
+    <symbol id="i-act" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+    <symbol id="i-tags" viewBox="0 0 24 24"><path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r=".6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  </defs>
+</svg>
+
+<div class="doc-bar">
+  <strong>Admin · user detail</strong>
+  <span>Mockup, 22 Sep 2026 · example data, not real people</span>
+  <nav>
+    <a href="#page">Page</a>
+    <a href="#confirm">Confirm</a>
+    <a href="#states">States</a>
+    <a href="#phone">Phone</a>
+    <a href="#trail">List &amp; activity</a>
+  </nav>
+</div>
+
+<header class="doc-h">
+  <p class="kick">/admin/users/$userId</p>
+  <h2>One person, and whether they run the platform</h2>
+  <p>The provider detail page's skeleton, reused: back link, a "who this is" section of label/value pairs, a decision section whose buttons the server chooses, then a list. Nothing here is new chrome.</p>
+</header>
+
+<section class="intro">
+  <ul class="decisions">
+    <li><h3>One column decides</h3><p><code>ntizo_user.user.role</code> is what authorization reads on every request, so a change applies on the next request. <code>better_auth.user.role</code> is written in the same transaction only so the two stop disagreeing.</p></li>
+    <li><h3>One guard keeps an admin</h3><p>Nobody changes their own role, so whoever makes a change is still an admin afterwards. The command re-checks that under a row lock, which closes the one gap: two admins removing each other at the same instant.</p></li>
+    <li><h3>Confirm, then write</h3><p>Granting full platform access is heavier than approving a business, so both directions go through an in-app dialog, never a browser alert.</p></li>
+  </ul>
+</section>
+
+<!-- ─────────────────────────── 1. the page ─────────────────────────── -->
+<header class="doc-h" id="page">
+  <p class="kick">1 · Desktop, 1280px</p>
+  <h2>A customer who can be made an admin</h2>
+</header>
+<div class="frame"><div class="frame-inner" data-h="1000"><div class="viewport" style="height:1000px">
+  <div class="app" style="height:100%">
+    <div class="shell">
+      <aside class="side">
+        <div class="brand"><span class="wordmark">ntizo</span><small>Plataforma</small></div>
+        <div class="grp"><a class="nav"><svg class="ic"><use href="#i-dash"/></svg>Painel</a></div>
+        <div class="grp"><span>Trabalho</span>
+          <a class="nav"><svg class="ic"><use href="#i-store"/></svg>Prestadores<span class="cnt num">3</span></a>
+          <a class="nav"><svg class="ic"><use href="#i-cal"/></svg>Reservas</a>
+          <a class="nav"><svg class="ic"><use href="#i-buoy"/></svg>Suporte</a>
+          <a class="nav"><svg class="ic"><use href="#i-mail"/></svg>Contactos</a>
+          <a class="nav"><svg class="ic"><use href="#i-quote"/></svg>Avaliações</a>
+        </div>
+        <div class="grp"><span>Gerir</span>
+          <a class="nav on"><svg class="ic"><use href="#i-users"/></svg>Utilizadores</a>
+          <a class="nav"><svg class="ic"><use href="#i-act"/></svg>Actividade</a>
+          <a class="nav"><svg class="ic"><use href="#i-tags"/></svg>Categorias</a>
+        </div>
+      </aside>
+      <div class="main">
+        <div class="hdr">
+          <div><h1>Ana Sitoe</h1><p>ana.sitoe@exemplo.co.mz</p></div>
+          <span class="me">SF</span>
+        </div>
+        <div class="content"><div class="col">
+          <a class="back"><svg class="ic"><use href="#i-back"/></svg>Utilizadores</a>
+
+          <section class="sec">
+            <div class="who">
+              <div class="who-l">
+                <span class="av l">AS</span>
+                <div><h2 class="t-h3">Ana Sitoe</h2><p class="t-body mut">ana.sitoe@exemplo.co.mz</p></div>
+              </div>
+              <span class="badge b-ok">Activo</span>
+            </div>
+            <dl class="pairs">
+              <div class="pair"><dt>Email</dt><dd>ana.sitoe@exemplo.co.mz<span class="ver y">verificado</span></dd></div>
+              <div class="pair"><dt>Telefone</dt><dd class="num">+258 84 555 0142<span class="ver n">por verificar</span></dd></div>
+              <div class="pair"><dt>Papel</dt><dd>Cliente</dd></div>
+              <div class="pair"><dt>Idioma</dt><dd>Português (Moçambique)</dd></div>
+              <div class="pair"><dt>Registado em</dt><dd class="num">14 de set. de 2026</dd></div>
+              <div class="pair"><dt>ID</dt><dd class="mono">Hq3vT9kZr2LmW8yPcX1bN5dFaE7uJ0sQ</dd></div>
+            </dl>
+          </section>
+
+          <section class="sec">
+            <p class="eyebrow">Papel na plataforma</p>
+            <p class="t-body mut" style="margin-top:2px">Um administrador aprova e suspende negócios, define comissões, vê todos os utilizadores e reservas, e pode mudar o papel de outras pessoas.</p>
+            <div class="btns"><button class="btn btn-p">Tornar admin</button></div>
+          </section>
+
+          <section class="sec flush">
+            <div class="head">
+              <p class="eyebrow">Espaços</p>
+              <p class="t-body mut" style="margin-top:2px">Os negócios a que esta pessoa pertence, e o que faz em cada um.</p>
+            </div>
+            <div class="rows">
+              <div class="row">
+                <div class="row-l"><span class="av m sq">EM</span>
+                  <div style="min-width:0"><a class="name hov">Estúdio Mavalane</a><p class="t-cap mut">Colaborador · membro desde 3 de set. de 2026</p></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px"><span class="badge b-ok">Activo</span><span class="chev"><svg class="ic"><use href="#i-chev"/></svg></span></div>
+              </div>
+              <div class="row">
+                <div class="row-l"><span class="av m sq">UA</span>
+                  <div style="min-width:0"><a class="name">Unhas da Ana</a><p class="t-cap mut">Proprietário · membro desde 20 de set. de 2026</p></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px"><span class="badge b-warn">Pendente</span><span class="chev"><svg class="ic"><use href="#i-chev"/></svg></span></div>
+              </div>
+            </div>
+          </section>
+        </div></div>
+      </div>
+    </div>
+  </div>
+</div></div></div>
+<div class="note">
+  <p><b>Header:</b> the name as the page title and the email as its subtitle, through the same <code>usePageHeader</code> the provider page uses. The back link returns to the list with its search and filter as they were.</p>
+  <p><b>Who this is:</b> the profile photo where there is one, initials otherwise, exactly as the provider page falls back from a logo. Email and phone carry their verification state beside the value; "por verificar" is amber because it is worth noticing, not an error. The ID is monospaced because support quotes it.</p>
+  <p><b>Left out on purpose:</b> bio, date of birth, gender, timezone. The list's projection already refuses them, and this screen answers the same question: who is this, what can they do, is anything wrong.</p>
+  <p><b>Espaços:</b> the same word as the list's column, counted from the same <code>provider_member</code> rows, so the number in the list and the rows here always agree. Role uses the workspace's own words (Proprietário, Colaborador); the badge is the business's status. The whole row opens <code>/admin/providers/$id</code>; the name underlines on hover, as it does in the provider queue. Empty state: "Não pertence a nenhum espaço."</p>
+</div>
+
+<!-- ─────────────────────────── 2. confirm ─────────────────────────── -->
+<header class="doc-h" id="confirm">
+  <p class="kick">2 · After "Tornar admin"</p>
+  <h2>The dialog says what the access is before it is given</h2>
+</header>
+<div class="frame"><div class="frame-inner" data-h="640"><div class="viewport" style="height:640px">
+  <div class="app" style="height:100%;position:relative">
+    <div class="shell" style="height:100%">
+      <aside class="side">
+        <div class="brand"><span class="wordmark">ntizo</span><small>Plataforma</small></div>
+        <div class="grp"><a class="nav"><svg class="ic"><use href="#i-dash"/></svg>Painel</a></div>
+        <div class="grp"><span>Gerir</span><a class="nav on"><svg class="ic"><use href="#i-users"/></svg>Utilizadores</a></div>
+      </aside>
+      <div class="main">
+        <div class="hdr"><div><h1>Ana Sitoe</h1><p>ana.sitoe@exemplo.co.mz</p></div><span class="me">SF</span></div>
+        <div class="content"><div class="col">
+          <a class="back"><svg class="ic"><use href="#i-back"/></svg>Utilizadores</a>
+          <section class="sec" style="height:260px"></section>
+          <section class="sec"><p class="eyebrow">Papel na plataforma</p><div class="btns"><button class="btn btn-p">Tornar admin</button></div></section>
+        </div></div>
+      </div>
+    </div>
+    <div class="scrim">
+      <div class="dlg" role="dialog" aria-labelledby="dlg-t1">
+        <h3 id="dlg-t1">Dar acesso de administração a Ana Sitoe?</h3>
+        <p>A partir do próximo pedido que fizer, a Ana passa a poder:</p>
+        <ul>
+          <li><svg class="ic"><use href="#i-check"/></svg>aprovar, recusar e suspender negócios</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>definir comissões</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>ver todos os utilizadores, reservas e pedidos de suporte</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>mudar o papel de outras pessoas, incluindo o seu</li>
+        </ul>
+        <p class="t-cap mut">Fica registado na actividade, com o seu nome.</p>
+        <div class="dlg-f"><button class="btn btn-o">Cancelar</button><button class="btn btn-p">Dar acesso</button></div>
+      </div>
+    </div>
+  </div>
+</div></div></div>
+<div class="note">
+  <p><b>Neutral in gender:</b> "Dar acesso de administração a Ana Sitoe", never "tornar administradora". The name is the display name, or the email when there is none.</p>
+  <p><b>"incluindo o seu":</b> the one line that makes an admin pause. A new admin can take this admin's role away; that is true and it belongs in the sentence that grants it.</p>
+  <p><b>While saving:</b> both buttons disabled, a spinner in "Dar acesso". On success the dialog closes, the detail refetches, the Papel pair reads "Administrador", and the section offers "Retirar admin".</p>
+</div>
+
+<!-- ─────────────────────────── 3. states ─────────────────────────── -->
+<header class="doc-h" id="states">
+  <p class="kick">3 · The decision section, every state</p>
+  <h2>The server picks the button, or explains why there is none</h2>
+  <p>The read returns <code>roleChange: { to, blockedReason }</code>. The page never works it out itself; like the provider's <code>allowedTransitions</code>, a button the server would refuse is worse than no button.</p>
+</header>
+<div class="states">
+  <div>
+    <p class="state-label">A · Anyone who is not an admin (section 1)</p>
+    <div class="state-body app">
+      <p class="eyebrow">Papel na plataforma</p>
+      <p class="t-body mut" style="margin-top:2px">Um administrador aprova e suspende negócios, define comissões, vê todos os utilizadores e reservas, e pode mudar o papel de outras pessoas.</p>
+      <div class="btns"><button class="btn btn-p">Tornar admin</button></div>
+    </div>
+  </div>
+  <div>
+    <p class="state-label">B · Is an admin, and not you</p>
+    <div class="state-body app">
+      <p class="eyebrow">Papel na plataforma</p>
+      <p class="t-body mut" style="margin-top:2px">Um administrador aprova e suspende negócios, define comissões, vê todos os utilizadores e reservas, e pode mudar o papel de outras pessoas.</p>
+      <div class="btns"><button class="btn btn-o">Retirar admin</button></div>
+    </div>
+  </div>
+  <div>
+    <p class="state-label">C · Your own account</p>
+    <div class="state-body app">
+      <p class="eyebrow">Papel na plataforma</p>
+      <p class="t-body mut" style="margin-top:2px">Um administrador aprova e suspende negócios, define comissões, vê todos os utilizadores e reservas, e pode mudar o papel de outras pessoas.</p>
+      <p class="blocked"><svg class="ic"><use href="#i-lock"/></svg>Esta é a sua conta. Só outro administrador pode mudar o seu papel.</p>
+    </div>
+  </div>
+  <div>
+    <p class="state-label">D · "Retirar acesso", refused mid-flight</p>
+    <div class="state-body app" style="background:#f4f5f7">
+      <div class="dlg" style="width:100%;max-width:none">
+        <h3>Retirar o acesso de administração a Carlos Mondlane?</h3>
+        <p>O Carlos deixa de ver a administração a partir do próximo pedido. Os espaços a que pertence não mudam.</p>
+        <p class="err"><svg class="ic"><use href="#i-alert"/></svg>Já não tem acesso de administração: outro administrador retirou-o entretanto. Nada foi alterado.</p>
+        <div class="dlg-f"><button class="btn btn-o">Fechar</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="note">
+  <p><b>B:</b> outline, not red. Removing access is reversible with one more click; the confirm button inside the dialog is the red one ("Retirar acesso").</p>
+  <p><b>C</b> replaces the button with a sentence, the way the provider page says "no actions" for an archived business. The lock icon says "not available" without looking like an error. There is no "only admin left" state: the person reading this page is an admin and is not the target, so the target is never the last one.</p>
+  <p><b>D</b> is the race the row lock exists for: two admins removing each other at once. The first to commit wins; the second finds, under the lock, that it is no longer an admin and is refused with <code>ADMIN_ONLY</code>, so the platform can never be left with none. The dialog keeps its place, shows the reason, and its only action becomes "Fechar". The other codes, <code>CANNOT_CHANGE_OWN_ROLE</code> and <code>USER_NOT_FOUND</code>, get their own sentences plus a generic fallback.</p>
+</div>
+
+<!-- ─────────────────────────── 4. phone ─────────────────────────── -->
+<header class="doc-h" id="phone">
+  <p class="kick">4 · Phone, 390px</p>
+  <h2>The same sections, one column</h2>
+</header>
+<div class="phones">
+  <div class="phone">
+    <p class="phone-label">Top of the page</p>
+    <div class="phone-shell"><div class="phone-scroll app">
+      <div class="m-hdr"><svg class="ic"><use href="#i-menu"/></svg><div><h1>Ana Sitoe</h1><p>ana.sitoe@exemplo.co.mz</p></div></div>
+      <div class="m-body">
+        <a class="back" style="font-size:14px"><svg class="ic"><use href="#i-back"/></svg>Utilizadores</a>
+        <section class="sec">
+          <div class="who"><div class="who-l"><span class="av l">AS</span><div><h2 class="t-h3">Ana Sitoe</h2><span class="badge b-ok" style="margin-top:4px">Activo</span></div></div></div>
+          <dl class="pairs">
+            <div class="pair"><dt>Email</dt><dd>ana.sitoe@exemplo.co.mz<span class="ver y">verificado</span></dd></div>
+            <div class="pair"><dt>Telefone</dt><dd class="num">+258 84 555 0142<span class="ver n">por verificar</span></dd></div>
+            <div class="pair"><dt>Papel</dt><dd>Cliente</dd></div>
+            <div class="pair"><dt>Registado em</dt><dd class="num">14 de set. de 2026</dd></div>
+          </dl>
+        </section>
+        <section class="sec">
+          <p class="eyebrow">Papel na plataforma</p>
+          <p class="t-body mut" style="margin-top:2px;font-size:14px">Um administrador aprova e suspende negócios, define comissões, vê todos os utilizadores e reservas.</p>
+          <div class="btns"><button class="btn btn-p">Tornar admin</button></div>
+        </section>
+      </div>
+      <nav class="tabs">
+        <span class="tab"><svg class="ic"><use href="#i-store"/></svg>Prestadores</span>
+        <span class="tab"><svg class="ic"><use href="#i-quote"/></svg>Avaliações</span>
+        <span class="tab on"><svg class="ic"><use href="#i-users"/></svg>Utilizadores</span>
+        <span class="tab"><svg class="ic"><use href="#i-menu"/></svg>Menu</span>
+      </nav>
+    </div></div>
+  </div>
+</div>
+<div class="note">
+  <p><b>Pairs stack</b> to one column; the badge moves under the name so the name keeps the width. The button goes full width, as primary actions do on the provider page at this size.</p>
+  <p><b>The dialog</b> on a phone is the app's existing <code>Dialog</code> at this width; nothing bespoke.</p>
+</div>
+
+<!-- ─────────────────────────── 5. list + activity ─────────────────────────── -->
+<header class="doc-h" id="trail">
+  <p class="kick">5 · Where it starts and where it is recorded</p>
+  <h2>The list opens it; the activity feed remembers it</h2>
+</header>
+<div class="excerpt">
+  <div>
+    <p class="state-label">Users list · the name becomes a link</p>
+    <div class="state-body app" style="padding:0">
+      <div class="row" style="border-top:0">
+        <div class="row-l"><span class="av m">AS</span><div style="min-width:0"><a class="name hov">Ana Sitoe</a><p class="t-cap mut">ana.sitoe@exemplo.co.mz</p></div></div>
+        <span class="t-body">Cliente</span>
+      </div>
+      <div class="row">
+        <div class="row-l"><span class="av m">CM</span><div style="min-width:0"><a class="name">Carlos Mondlane</a><p class="t-cap mut">carlos.m@exemplo.co.mz</p></div></div>
+        <span class="t-body">Administrador</span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <p class="state-label">Activity · new type <code>user.role.changed</code></p>
+    <div class="state-body app" style="padding:0">
+      <div class="act"><span class="av m">SF</span><div><p><b>Salif Faustino</b> deu acesso de administração a <b>Ana Sitoe</b></p><p class="t-cap mut">há 2 min</p></div></div>
+      <div class="act"><span class="av m">SF</span><div><p><b>Salif Faustino</b> retirou o acesso de administração a <b>Carlos Mondlane</b></p><p class="t-cap mut">ontem</p></div></div>
+    </div>
+  </div>
+</div>
+<div class="note">
+  <p><b>The list</b> keeps its columns; only the name gains a link, exactly as <code>ProviderRow</code> did when its detail page arrived.</p>
+  <p><b>Activity</b> records the admin as the actor and names the person changed, so "who made Ana an admin?" has an answer months later. The activity filter's type picker gains the new type.</p>
+  <p><b>Not in this change:</b> an email to the person promoted, suspending a user, editing their profile. Each is its own decision.</p>
+</div>
+
+<script>
+(function(){
+  var frames=document.querySelectorAll('.frame-inner[data-h]');
+  function fit(){
+    frames.forEach(function(f){
+      var h=Number(f.getAttribute('data-h')), s=f.clientWidth/1280;
+      f.style.height=(h*s)+'px';
+      var vp=f.querySelector('.viewport'); if(vp) vp.style.transform='scale('+s+')';
+    });
+  }
+  fit(); window.addEventListener('resize',fit);
+})();
+</script>

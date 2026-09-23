@@ -167,7 +167,11 @@
     "servicePublished": "Published {{serviceName}}",
     "serviceUnpublished": "Unpublished {{serviceName}}",
     "reviewCreated": "Rated {{providerName}}",
+    "userRoleChanged": "Changed {{targetName}}'s role",
+    "userRoleChanged_admin": "Gave {{targetName}} admin access",
+    "userRoleChanged_customer": "Removed {{targetName}}'s admin access",
     "unnamedProvider": "a provider",
-    "unnamedService": "a service"
+    "unnamedService": "a service",
+    "unnamedUser": "a user"
   }
 }

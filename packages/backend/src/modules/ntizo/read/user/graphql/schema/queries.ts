@@ -4,6 +4,7 @@ import { zodSchema } from "@cosmneo/onion-lasagna-zod";
 import {
   addressReadModel,
   currentUserReadModel,
+  userAdminDetailReadModel,
   userAdminReadModel,
 } from "@ntizo/shared/read-models";
 import { ntizoGraphqlContextSchema } from "../../../../graphql/context";
@@ -45,12 +46,20 @@ export const listUsersForAdmin = defineQuery({
   docs: { summary: "Every user, for administration", tags: ["Admin"] },
 });
 
+/** One person, for the administration detail page. Guarded by the handler. */
+export const getUserDetailForAdmin = defineQuery({
+  input: zodSchema(z.object({ userId: z.string().trim().min(1).max(64) })),
+  output: zodSchema(userAdminDetailReadModel),
+  docs: { summary: "One user, for administration", tags: ["Admin"] },
+});
+
 export const userReadSchema = defineGraphQLSchema(
   {
     user: {
       me: getCurrentUser,
       myAddresses: listMyAddresses,
       allForAdmin: listUsersForAdmin,
+      detailForAdmin: getUserDetailForAdmin,
     },
   },
   { defaults: { context: ntizoGraphqlContextSchema } },

@@ -83,11 +83,12 @@ describe("createUserReadHandlers", () => {
       getCurrentUser: new GetCurrentUserProjection(new FakeUserReadRepository(dto)),
       listUsersForAdmin: { execute: async () => [] } as never,
       listMyAddresses: { execute: async (): Promise<AddressDTO[]> => [] },
+      getUserDetailForAdmin: { execute: async () => { throw new Error("unused"); } } as never,
     });
-    // Three now: the profile, the address list and the admin user list.
-    // Asserting the count rather than just "not empty" is what catches a
-    // field silently dropped from the schema.
-    expect(handlers.length).toBe(3);
+    // Four now: the profile, the address list, the admin user list and the
+    // admin user detail. Asserting the count rather than just "not empty" is
+    // what catches a field silently dropped from the schema.
+    expect(handlers.length).toBe(4);
   });
 
   it("stamps requestedByUserId from the session, even when args try to smuggle a different id", async () => {
@@ -102,6 +103,7 @@ describe("createUserReadHandlers", () => {
       getCurrentUser: spy,
       listUsersForAdmin: { async execute() { return []; } } as never,
     listMyAddresses: { execute: async (): Promise<AddressDTO[]> => [] },
+      getUserDetailForAdmin: { execute: async () => { throw new Error("unused"); } } as never,
     });
 
     // A hostile/buggy client's args, carrying an attacker-supplied id under

@@ -1,10 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import type { NtizoGraphqlContext } from "../../../graphql/context";
 import type { UpdateMyProfileInput } from "../../../bounded-contexts/user/app/ports/inbound/update-my-profile.command.port";
+import type { SetPlatformRoleInput } from "../../../bounded-contexts/user/app/ports/inbound/set-platform-role.command.port";
 import type { ExecutionContext } from "../../../shared/infrastructure/execution-context";
 import { toExecutionContext } from "../graphql/handlers/arg-mappers";
 import { createUserWriteHandlers } from "../graphql/handlers/mutations.handlers";
-import { updateMyProfile } from "../graphql/schema/mutations";
+import { setPlatformRoleForAdmin, updateMyProfile } from "../graphql/schema/mutations";
 
 function ctx(overrides: Partial<NtizoGraphqlContext> = {}): NtizoGraphqlContext {
   return {
@@ -53,6 +54,7 @@ describe("createUserWriteHandlers", () => {
         startPhoneVerification: {
           execute: async () => ({ code: "", businessNumber: "", expiresAt: new Date() }),
         },
+        setPlatformRole: { execute: async () => ({ userId: "", role: "customer" as const }) },
       });
 
     // A hostile client's args. `handler(args, ctx)` receives the GraphQL
@@ -84,5 +86,58 @@ describe("createUserWriteHandlers", () => {
     expect(fields.length).toBeGreaterThan(0);
     expect(fields).not.toContain("userId");
     expect(fields).not.toContain("requestedByUserId");
+  });
+});
+
+describe("user.admin.setPlatformRole", () => {
+  function module(calls: { requester: string; input: SetPlatformRoleInput }[]) {
+    return createUserWriteHandlers({
+      updateMyProfile: { execute: async () => {} },
+      addMyAddress: { execute: async () => ({ id: "a1" }) },
+      updateMyAddress: { execute: async () => {} },
+      deleteMyAddress: { execute: async () => {} },
+      startPhoneVerification: {
+        execute: async () => ({ code: "", businessNumber: "", expiresAt: new Date() }),
+      },
+      setPlatformRole: {
+        execute: async (ec: ExecutionContext, input: SetPlatformRoleInput) => {
+          if (ec.requester.type !== "authenticated") throw new Error("unreachable");
+          calls.push({ requester: ec.requester.user.userId, input });
+          return { userId: input.userId, role: input.role };
+        },
+      },
+    });
+  }
+  const field = (calls: { requester: string; input: SetPlatformRoleInput }[]) =>
+    module(calls).find((h) => h.key === "user.admin.setPlatformRole")!;
+
+  it("refuses a non-admin with ADMIN_ONLY and never reaches the command", async () => {
+    const calls: { requester: string; input: SetPlatformRoleInput }[] = [];
+    await expect(
+      field(calls).handler({ userId: "u2", role: "admin" }, ctx({ role: "customer" })),
+    ).rejects.toMatchObject({ code: "ADMIN_ONLY" });
+    expect(calls).toEqual([]);
+  });
+
+  it("refuses an admin role with nobody behind it", async () => {
+    const calls: { requester: string; input: SetPlatformRoleInput }[] = [];
+    await expect(
+      field(calls).handler({ userId: "u2", role: "admin" }, ctx({ requesterUserId: null, role: "admin" })),
+    ).rejects.toMatchObject({ code: "ADMIN_ONLY" });
+    expect(calls).toEqual([]);
+  });
+
+  it("passes the session's admin as the requester, and the target from the input", async () => {
+    const calls: { requester: string; input: SetPlatformRoleInput }[] = [];
+    const result = await field(calls).handler({ userId: "u2", role: "admin" }, ctx({ role: "admin" }));
+    expect(calls).toEqual([{ requester: "u-session", input: { userId: "u2", role: "admin" } }]);
+    expect(result).toEqual({ userId: "u2", role: "admin" });
+  });
+
+  it("accepts only admin or customer as the role", () => {
+    const json = setPlatformRoleForAdmin.input!.toJsonSchema() as {
+      properties?: { role?: { enum?: string[] } };
+    };
+    expect(json.properties?.role?.enum).toEqual(["admin", "customer"]);
   });
 });

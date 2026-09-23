@@ -54,10 +54,11 @@ export function describeActivity(t: TFunction, entry: ActivityEntry): string {
 }
 
 /**
- * `payload`, with an explicitly-`null` `serviceName`/`providerName`
+ * `payload`, with an explicitly-`null` `serviceName`/`providerName`/`targetName`
  * replaced by a translated placeholder noun (`activityType.unnamedService`
- * / `activityType.unnamedProvider`). Every other field — `email`, `rating`,
- * whatever a given event carries — passes through untouched.
+ * / `activityType.unnamedProvider` / `activityType.unnamedUser`). Every other
+ * field — `email`, `rating`, whatever a given event carries — passes through
+ * untouched.
  *
  * A field that is simply *absent* — `providerName` is never part of a
  * `service.published` payload at all — is left alone and does not count as
@@ -71,13 +72,15 @@ function withFallbackNames(
 ): { replace: Record<string, unknown>; usedFallback: boolean } {
   const serviceIsNull = payload.serviceName === null;
   const providerIsNull = payload.providerName === null;
+  const targetIsNull = payload.targetName === null;
   return {
     replace: {
       ...payload,
       ...(serviceIsNull ? { serviceName: t("activityType.unnamedService") } : {}),
       ...(providerIsNull ? { providerName: t("activityType.unnamedProvider") } : {}),
+      ...(targetIsNull ? { targetName: t("activityType.unnamedUser") } : {}),
     },
-    usedFallback: serviceIsNull || providerIsNull,
+    usedFallback: serviceIsNull || providerIsNull || targetIsNull,
   };
 }
 

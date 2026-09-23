@@ -26,6 +26,7 @@ function module(execute: UserWriteModule["startPhoneVerification"]["execute"]): 
     updateMyAddress: unused,
     deleteMyAddress: unused,
     startPhoneVerification: { execute },
+    setPlatformRole: unused,
   };
 }
 

@@ -13,12 +13,12 @@ describe("activityTypeKey", () => {
     expect(activityTypeKey("welcome")).toBe("welcome");
   });
 
-  it("flattens all nine real wire types, including the two with a second dot", () => {
-    // provider.invite.sent and provider.invite.accepted are the only two of
-    // the nine with more than one dot. An implementation that only handles a
-    // single split (e.g. replacing just the first ".") would still pass the
-    // two-segment cases above and only fail here — this is the case that
-    // catches that mutation.
+  it("flattens all ten real wire types, including the four with a second dot", () => {
+    // provider.status.decided, provider.invite.sent, provider.invite.accepted
+    // and user.role.changed are four of the ten with more than one dot. An
+    // implementation that only handles a single split (e.g. replacing just
+    // the first ".") would still pass the two-segment cases above and only
+    // fail here — this is the case that catches that mutation.
     expect(activityTypeKey("user.registered")).toBe("userRegistered");
     expect(activityTypeKey("provider.created")).toBe("providerCreated");
     expect(activityTypeKey("provider.status.decided")).toBe(
@@ -34,6 +34,7 @@ describe("activityTypeKey", () => {
     expect(activityTypeKey("service.published")).toBe("servicePublished");
     expect(activityTypeKey("service.unpublished")).toBe("serviceUnpublished");
     expect(activityTypeKey("review.created")).toBe("reviewCreated");
+    expect(activityTypeKey("user.role.changed")).toBe("userRoleChanged");
   });
 
   it("degrades a type this bundle has never heard of to a key rather than throwing", () => {

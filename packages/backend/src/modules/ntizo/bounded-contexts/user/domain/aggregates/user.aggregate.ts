@@ -3,7 +3,7 @@
 
 import type { BaseDomainEvent } from "@cosmneo/onion-lasagna";
 import type { UserRole, UserStatus, VerificationStatus } from "@ntizo/shared";
-import { UserRegistered } from "../events";
+import { UserPlatformRoleChanged, UserRegistered } from "../events";
 
 export interface UserProps {
   id: string;
@@ -99,6 +99,24 @@ export class User {
   revertProviderUpgrade(): void {
     this.props.verificationStatus = null;
     this.props.updatedAt = new Date();
+  }
+
+  /**
+   * Grants or removes platform administration.
+   *
+   * Returns whether anything changed. Asking for the role somebody already
+   * has records nothing, so a double-clicked confirm publishes one event, not
+   * two. Who may ask is the command's rule, not this one's.
+   */
+  changePlatformRole(to: UserRole, changedByUserId: string): boolean {
+    const from = this.props.role;
+    if (from === to) return false;
+    this.props.role = to;
+    this.props.updatedAt = new Date();
+    this.recordEvent(
+      new UserPlatformRoleChanged({ userId: this.props.id, from, to, changedByUserId }),
+    );
+    return true;
   }
 
   // ---- events ------------------------------------------------------------

@@ -227,6 +227,7 @@ export function buildPrivateGraphQLFields(): {
         updateMyAddress: user.useCases.updateMyAddress,
         deleteMyAddress: user.useCases.deleteMyAddress,
         startPhoneVerification: user.useCases.startPhoneVerification,
+        setPlatformRole: user.useCases.setPlatformRole,
       }),
     ] as Parameters<typeof buildYoga>[0]["fields"],
   };

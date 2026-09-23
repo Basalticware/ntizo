@@ -15,6 +15,10 @@ const okResult = z.object({ ok: z.literal(true) });
  * "can this person edit that profile" question into a mutation that has no
  * legitimate caller needing it.
  *
+ * One exception, under `admin`: `setPlatformRole` names its subject, because
+ * an administrator acts on somebody else. Its handler's `requireAdmin` is its
+ * whole authorization surface, and the command refuses self-changes.
+ *
  * `.nullable()` on the contact fields (`phoneNumber`, `bio`, `avatarKey`) is
  * load-bearing: null clears the value, an omitted key leaves it alone.
  * Without the distinction there is no way to remove a phone number once it
@@ -123,6 +127,23 @@ export const startPhoneVerification = defineMutation({
   docs: { summary: "Start confirming your phone number by WhatsApp", tags: ["User"] },
 });
 
+/**
+ * An administrator grants or removes platform administration.
+ *
+ * `role` is only ever `admin` or `customer`. Provider access comes from
+ * membership, so no other role is an administrator's to hand out.
+ */
+export const setPlatformRoleForAdmin = defineMutation({
+  input: zodSchema(
+    z.object({
+      userId: z.string().trim().min(1).max(64),
+      role: z.enum(["admin", "customer"]),
+    }),
+  ),
+  output: zodSchema(z.object({ userId: z.string(), role: z.string() })),
+  docs: { summary: "Grant or remove platform administration", tags: ["Admin"] },
+});
+
 export const userWriteSchema = defineGraphQLSchema(
   {
     user: {
@@ -131,6 +152,7 @@ export const userWriteSchema = defineGraphQLSchema(
       updateAddress: updateMyAddress,
       deleteAddress: deleteMyAddress,
       startPhoneVerification,
+      admin: { setPlatformRole: setPlatformRoleForAdmin },
     },
   },
   { defaults: { context: ntizoGraphqlContextSchema } },

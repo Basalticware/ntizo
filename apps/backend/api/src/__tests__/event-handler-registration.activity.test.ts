@@ -23,11 +23,11 @@ import "../api";
  * The count asserted per event is exact, not `>= 1`: a duplicate
  * `register*ActivityHandlers(...)` call — e.g. a merge that lands the same
  * block twice — writes two identical rows per event and is invisible to a
- * `>= 1` assertion. Four of the nine (`user.registered`, `provider.created`,
+ * `>= 1` assertion. Four of the ten (`user.registered`, `provider.created`,
  * `provider.status.decided`, `provider.invite.sent`) are also where the
  * Notification context listens, so those carry 2 (one notification handler,
  * one activity handler — `event-handler-registration.test.ts` asserts the
- * same fact from the notification side); the other five carry 1. This file
+ * same fact from the notification side); the other six carry 1. This file
  * does not lean on that other file to prove activity's own handlers are
  * mounted — each file proves its own consumer independently, even though
  * both read the same router.
@@ -42,6 +42,7 @@ const EXPECTED_HANDLER_COUNT: Record<string, number> = {
   "service.published": 1,
   "service.unpublished": 1,
   "review.created": 1,
+  "user.role.changed": 1,
 };
 
 describe("activity event handlers are registered when the API loads", () => {

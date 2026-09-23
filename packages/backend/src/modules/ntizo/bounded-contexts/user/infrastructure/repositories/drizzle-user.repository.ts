@@ -1,10 +1,11 @@
-import { eq } from "drizzle-orm";
-import type { UserRepositoryPort } from "../../app/ports/outbound";
+import { eq, or } from "drizzle-orm";
+import type { UserRole } from "@ntizo/shared";
+import type { RoleChangeLockPort, UserRepositoryPort } from "../../app/ports/outbound";
 import { User } from "../../domain/aggregates/user.aggregate";
 import { user } from "../../../../shared/infrastructure/database/user";
 import { getDb } from "../../../../../better-auth/infrastructure/client/drizzle";
 
-export class DrizzleUserRepository implements UserRepositoryPort {
+export class DrizzleUserRepository implements UserRepositoryPort, RoleChangeLockPort {
   async findById(id: string): Promise<User | null> {
     const db = getDb();
     const rows = await db.select().from(user).where(eq(user.id, id));
@@ -53,13 +54,45 @@ export class DrizzleUserRepository implements UserRepositoryPort {
       })
       .onConflictDoUpdate({
         target: user.id,
+        // `role` is deliberately absent here: on an existing row it is
+        // written only by `writeRole`, under the role-change lock. A command
+        // that reads a user without that lock (e.g. the provider-upgrade
+        // commands) and later calls `save()` must not be able to overwrite a
+        // role change that committed in between.
         set: {
           email: json.email,
-          role: json.role,
           status: json.status,
           verificationStatus: json.verificationStatus,
           updatedAt: json.updatedAt,
         },
       });
+  }
+
+  /**
+   * `FOR UPDATE` on every admin row and on the target's row.
+   *
+   * Under READ COMMITTED a row another transaction changed is re-checked
+   * against this WHERE once its lock is released, and the `role` returned is
+   * the committed one. So an admin demoted a moment ago comes back as
+   * `customer`, and is not counted.
+   */
+  async lockForRoleChange(targetUserId: string): Promise<string[]> {
+    const rows = await getDb()
+      .select({ id: user.id, role: user.role })
+      .from(user)
+      .where(or(eq(user.role, "admin"), eq(user.id, targetUserId)))
+      .for("update");
+    return rows.filter((r) => r.role === "admin").map((r) => r.id);
+  }
+
+  /**
+   * The one write that changes `role` on an existing row. Call it only
+   * inside the same transaction as `lockForRoleChange`.
+   */
+  async writeRole(userId: string, role: UserRole): Promise<void> {
+    await getDb()
+      .update(user)
+      .set({ role, updatedAt: new Date() })
+      .where(eq(user.id, userId));
   }
 }
