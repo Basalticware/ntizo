@@ -1,12 +1,17 @@
 /**
  * Seeds the eight categories the landing page already shows.
  *
- * They exist today as translation keys in the web app's `landing` namespace,
+ * They used to exist as translation keys in the web app's `landing` namespace,
  * which works only for a list developers ship. The whole point of the admin
  * form is that somebody who is not a developer can add the ninth — so the
- * eight have to move into the database, and their translations come from the
- * files that already hold them rather than from a fresh guess at eight
- * languages.
+ * eight have to move into the database.
+ *
+ * The names are written out here rather than read from those files. This
+ * script first read `landing.json`'s `cat` keys, and the home refresh
+ * (`8bf2216f`) removed them once the database held the categories — after
+ * which a run on a fresh database created eight categories with no name in any
+ * language and reported success. The table below is what dev's database held
+ * when that was found, so every stage starts from the same words.
  *
  * Idempotent by `code`: a category already there keeps its row and its
  * translations. Run it twice and the second run changes nothing, which is what
@@ -15,8 +20,6 @@
  *   bun run --env-file=.env scripts/seed-categories.ts            # dry run
  *   bun run --env-file=.env scripts/seed-categories.ts --apply
  */
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { inArray } from "drizzle-orm";
 import postgres from "postgres";
@@ -54,16 +57,16 @@ const CODES = [
   "driving",
 ] as const;
 
-const LOCALES_DIR = join(
-  import.meta.dirname,
-  "../../../apps/frontend/web/src/shared/locales",
-);
-
-function labelsFor(locale: string): Record<string, string> {
-  const file = join(LOCALES_DIR, locale, "landing.json");
-  const json = JSON.parse(readFileSync(file, "utf8")) as { cat?: Record<string, string> };
-  return json.cat ?? {};
-}
+const NAMES: Record<(typeof CODES)[number], Record<string, string>> = {
+  plumbing: { "de-DE": "Sanitär", "en-US": "Plumbing", "es-ES": "Fontanería", "fr-FR": "Plomberie", "it-IT": "Idraulica", "nl-NL": "Loodgieterswerk", "pt-MZ": "Canalização", "pt-PT": "Canalização" },
+  electrical: { "de-DE": "Elektrik", "en-US": "Electrical", "es-ES": "Electricidad", "fr-FR": "Électricité", "it-IT": "Elettricità", "nl-NL": "Elektra", "pt-MZ": "Electricidade", "pt-PT": "Electricidade" },
+  cleaning: { "de-DE": "Hausreinigung", "en-US": "House cleaning", "es-ES": "Limpieza del hogar", "fr-FR": "Ménage", "it-IT": "Pulizie domestiche", "nl-NL": "Huisschoonmaak", "pt-MZ": "Limpeza de casa", "pt-PT": "Limpeza de casa" },
+  mechanic: { "de-DE": "Kfz-Werkstatt", "en-US": "Mechanic", "es-ES": "Mecánico", "fr-FR": "Mécanicien", "it-IT": "Meccanico", "nl-NL": "Automonteur", "pt-MZ": "Mecânico", "pt-PT": "Mecânico" },
+  cooking: { "de-DE": "Koch", "en-US": "Cook", "es-ES": "Cocinero", "fr-FR": "Cuisinier", "it-IT": "Cuoco", "nl-NL": "Kok", "pt-MZ": "Cozinheiro", "pt-PT": "Cozinheiro" },
+  delivery: { "de-DE": "Lieferungen", "en-US": "Delivery", "es-ES": "Entregas", "fr-FR": "Livraisons", "it-IT": "Consegne", "nl-NL": "Bezorging", "pt-MZ": "Entregas", "pt-PT": "Entregas" },
+  building: { "de-DE": "Maurer", "en-US": "Builder", "es-ES": "Albañil", "fr-FR": "Maçon", "it-IT": "Muratore", "nl-NL": "Metselaar", "pt-MZ": "Pedreiro", "pt-PT": "Pedreiro" },
+  driving: { "de-DE": "Fahrer", "en-US": "Drivers", "es-ES": "Conductores", "fr-FR": "Chauffeurs", "it-IT": "Autisti", "nl-NL": "Chauffeurs", "pt-MZ": "Motoristas", "pt-PT": "Motoristas" },
+};
 
 async function main(): Promise<void> {
   const sql = postgres(stageUrl(), { max: 1 });
@@ -75,9 +78,15 @@ async function main(): Promise<void> {
     .where(inArray(category.code, [...CODES]));
   const have = new Set(existing.map((r) => r.code));
 
-  const labels = Object.fromEntries(
-    LOCALES.map((l) => [l, labelsFor(l)] as const),
+  // A locale added to the platform without a name here would ship a category
+  // that reads as its code on that language's pages. Refuse before writing
+  // anything, rather than half-seed and say it worked.
+  const missing = CODES.flatMap((code) =>
+    LOCALES.filter((l) => !NAMES[code][l]?.trim()).map((l) => `${code}/${l}`),
   );
+  if (missing.length > 0) {
+    throw new Error(`Faltam nomes para: ${missing.join(", ")}`);
+  }
 
   let created = 0;
   for (const [i, code] of CODES.entries()) {
@@ -85,10 +94,7 @@ async function main(): Promise<void> {
       console.log(`  = ${code} (já existe)`);
       continue;
     }
-    const translations = LOCALES.flatMap((locale) => {
-      const name = labels[locale]?.[code];
-      return name?.trim() ? [{ locale, name: name.trim() }] : [];
-    });
+    const translations = LOCALES.map((locale) => ({ locale, name: NAMES[code][locale]!.trim() }));
     console.log(
       `  ${apply ? "+" : "?"} ${code} — ${translations.length}/${LOCALES.length} idiomas`,
     );

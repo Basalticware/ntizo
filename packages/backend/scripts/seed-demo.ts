@@ -7,18 +7,24 @@
  * shows a card, a rating, an icon or a price was being reviewed against
  * placeholder text, and the placeholders were what kept looking wrong.
  *
- * **Development only, and it says so.** It refuses any stage but `dev`, because
- * it writes fictional businesses and fictional verdicts about them, and neither
- * belongs anywhere a customer can read it.
+ * **Dev and QA only, and it says so.** It refuses `prod`, because it writes
+ * fictional businesses and fictional verdicts about them, and neither belongs
+ * anywhere a customer can read it. QA is where testers judge the same screens
+ * dev's designers do, and an empty directory there tests nothing.
  *
  * Idempotent by slug and by email: a second run updates what it made before
- * rather than adding a parallel set. The test rows it finds are deactivated, not
- * deleted — the suites that created them may still be asserting they exist, and
- * a directory only lists `active` providers, so hiding them is enough.
+ * rather than adding a parallel set. On dev, the test rows it finds are
+ * deactivated, not deleted — the suites that created them may still be
+ * asserting they exist, and a directory only lists `active` providers, so hiding
+ * them is enough. On QA it hides nothing: every other business there belongs to
+ * a real tester.
  *
  *   bun run --env-file=.env scripts/seed-demo.ts            # dry run
  *   export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"   # wrangler needs Node 22
  *   bun run --env-file=.env scripts/seed-demo.ts --apply
+ *
+ *   STAGE=qa bun run --env-file=.env scripts/seed-categories.ts --apply   # a fresh database has none
+ *   STAGE=qa bun run --env-file=.env scripts/seed-demo.ts --apply
  *
  * Images are generated here rather than downloaded: a seed that reaches out to
  * a photo site works until the network is down or the licence changes, and
@@ -41,6 +47,7 @@ import {
   serviceTranslation,
 } from "../src/modules/ntizo/shared/infrastructure/database/catalog/schemas";
 import { memberAvailability } from "../src/modules/ntizo/shared/infrastructure/database/scheduling/schemas";
+import { emailSuppression } from "../src/modules/ntizo/shared/infrastructure/database/notification/schemas";
 import {
   provider,
   providerDocument,
@@ -51,16 +58,25 @@ import { profile, user } from "../src/modules/ntizo/shared/infrastructure/databa
 
 const apply = process.argv.includes("--apply");
 
-/** Same stage selection the cities seed and the slug backfill use. */
-function stageUrl(): string {
+type Stage = "dev" | "qa";
+
+/** Same stage selection the cities seed and the slug backfill use, minus prod. */
+function readStage(): Stage {
   const stage = (process.env["STAGE"] ?? "dev").toLowerCase();
-  if (stage !== "dev") {
+  if (stage !== "dev" && stage !== "qa") {
     throw new Error(
-      `Refusing to run against "${stage}". This seed writes fictional businesses and fictional reviews of them; only dev may hold either.`,
+      `Refusing to run against "${stage}". This seed writes fictional businesses and fictional reviews of them; only dev and qa may hold either.`,
     );
   }
-  const value = process.env["DEV_DB_URL"];
-  if (!value) throw new Error("DEV_DB_URL is not set. Seeding dev needs it.");
+  return stage;
+}
+
+const STAGE = readStage();
+
+function stageUrl(): string {
+  const key = STAGE === "dev" ? "DEV_DB_URL" : "QA_DB_URL";
+  const value = process.env[key];
+  if (!value) throw new Error(`${key} is not set. Seeding ${STAGE} needs it.`);
   return value;
 }
 
@@ -96,8 +112,35 @@ const CATEGORY_ICONS: Record<string, string> = {
  * one trade missing. Every locale the platform speaks, because a category with
  * no name in the reader's language falls back to its code, and `beauty` on a
  * Portuguese page is not a category name.
+ *
+ * `aulas-de-musica` and `jardinagem-e-piscinas` were added on dev through the
+ * admin form, so they live in dev's database and nowhere in code — a fresh
+ * database such as QA's does not have them, and two demo businesses file their
+ * services there. The names dev's admin typed are kept as typed; the locales it
+ * left blank are filled in. Listed before `beauty` so they take the same places
+ * in the band they hold on dev.
  */
 const NEW_CATEGORIES: Record<string, Record<string, string>> = {
+  "aulas-de-musica": {
+    "en-US": "Music Lessons",
+    "pt-MZ": "Aulas de Música",
+    "pt-PT": "Aulas de Música",
+    "es-ES": "Clases de música",
+    "fr-FR": "Cours de musique",
+    "de-DE": "Musikunterricht",
+    "it-IT": "Lezioni di musica",
+    "nl-NL": "Muziekles",
+  },
+  "jardinagem-e-piscinas": {
+    "en-US": "Gardening & Pools",
+    "pt-MZ": "Jardinagem e Piscinas",
+    "pt-PT": "Jardinagem e Piscinas",
+    "es-ES": "Jardinería y piscinas",
+    "fr-FR": "Jardinage et piscines",
+    "de-DE": "Garten & Pools",
+    "it-IT": "Giardinaggio e piscine",
+    "nl-NL": "Tuin & zwembad",
+  },
   beauty: {
     "en-US": "Beauty & hair",
     "pt-MZ": "Beleza e cabelo",
@@ -411,6 +454,30 @@ const REVIEWERS = [
   { email: "demo-cliente-7@ntizo.test", name: "Aida Cumbe" },
 ];
 
+function ownerEmail(p: DemoProvider): string {
+  return `demo-${p.slug}@ntizo.test`;
+}
+
+function staffEmail(p: DemoProvider, fullName: string): string {
+  return `${slugifyName(fullName)}@${p.slug}.demo.ntizo.test`;
+}
+
+/**
+ * Every address this seed invents, so none of them is ever written to.
+ *
+ * `.test` is reserved and never resolves, so a mail to one is a bounce — and a
+ * tester booking a demo business on QA notifies its owner. Each bounce spends
+ * the day's Resend quota the real sign-up mails need, and counts against the
+ * sender's reputation. The delivery path already consults the suppression
+ * list before it writes, so listing these addresses there stops the mail at
+ * the source; the delivery is still recorded, as `suppressed`.
+ */
+const DEMO_EMAILS = [
+  ...REVIEWERS.map((r) => r.email),
+  ...PROVIDERS.map(ownerEmail),
+  ...PROVIDERS.flatMap((p) => (p.staff ?? []).map((name) => staffEmail(p, name))),
+];
+
 function initials(name: string): string {
   return name
     .trim()
@@ -445,7 +512,19 @@ function initials(name: string): string {
  * on dev through the bucket's public `r2.dev` host. Writing one and not the
  * other leaves whichever environment was missed showing the fallback mark
  * forever.
+ *
+ * QA gets only its own bucket. The local bucket is there for a local
+ * `wrangler dev`, whose `.dev.vars` point it at dev's database — nothing local
+ * ever reads QA's rows.
  */
+const MEDIA_BUCKETS: Record<Stage, { bucket: string; local: boolean }[]> = {
+  dev: [
+    { bucket: "ntizo-media-local", local: true },
+    { bucket: "ntizo-media-dev", local: false },
+  ],
+  qa: [{ bucket: "ntizo-media-qa", local: false }],
+};
+
 let mediaChecked = false;
 
 /**
@@ -472,11 +551,10 @@ async function assertWranglerCanRun(): Promise<void> {
 async function putOneBucket(
   key: string,
   file: string,
-  target: "local" | "remote",
+  { bucket, local }: { bucket: string; local: boolean },
 ): Promise<void> {
-  const bucket = target === "local" ? "ntizo-media-local" : "ntizo-media-dev";
   const placement =
-    target === "local"
+    local
       ? ["--local", "--persist-to", ".wrangler/state"]
       : // `--remote` is not the default here: wrangler resolves an unqualified
         // put against the local simulation, which is the mistake that produced
@@ -503,12 +581,11 @@ async function putMedia(key: string, svg: string): Promise<void> {
   await assertWranglerCanRun();
   const file = `/tmp/ntizo-seed-${key.replace(/[^a-z0-9]/gi, "-")}.svg`;
   await Bun.write(file, svg);
-  await putOneBucket(key, file, "local");
   // The remote write needs Cloudflare credentials, which a machine that has
   // only ever run the local stack may not have. It still throws rather than
   // warning: a seed that half-succeeds is what shipped the broken images, and
   // an error naming the bucket is the cheapest possible way to find that out.
-  await putOneBucket(key, file, "remote");
+  for (const target of MEDIA_BUCKETS[STAGE]) await putOneBucket(key, file, target);
 }
 
 /* ── the run ─────────────────────────────────────────────────────────────── */
@@ -520,7 +597,7 @@ const DEMO_CODES = Object.keys(CATEGORY_ICONS);
 const now = new Date();
 
 async function run(): Promise<void> {
-  console.log(apply ? "Applying." : "Dry run — pass --apply to write.\n");
+  console.log(`${STAGE}: ${apply ? "applying." : "dry run — pass --apply to write.\n"}`);
 
   /* 1. Categories: give them their icons, and hide the ones named after UUIDs. */
   const categories = await db.select().from(category);
@@ -545,6 +622,7 @@ async function run(): Promise<void> {
 
   /* 1b. Any demo category the platform does not have yet, with its names. */
   const categoryByCode = new Map(demoCategories.map((c) => [c.code, c.id]));
+  let nextSortOrder = categories.length;
   for (const [code, names] of Object.entries(NEW_CATEGORIES)) {
     if (categoryByCode.has(code)) continue;
     console.log(`categories: creating "${code}" — the platform had nowhere to file it`);
@@ -558,8 +636,9 @@ async function run(): Promise<void> {
         isActive: true,
         // Last in the band. The existing order is a layout somebody chose, and
         // inserting into the middle of it would reshuffle a row of controls
-        // people have learned the shape of.
-        sortOrder: categories.length,
+        // people have learned the shape of. Counted up, so two categories new
+        // in the same run do not tie for the same place.
+        sortOrder: nextSortOrder++,
       })
       .returning({ id: category.id });
     categoryByCode.set(code, row!.id);
@@ -621,8 +700,7 @@ async function run(): Promise<void> {
 
   /* 4. The businesses, their services and their verdicts. */
   for (const p of PROVIDERS) {
-    const ownerEmail = `demo-${p.slug}@ntizo.test`;
-    const [existingUser] = await db.select({ id: user.id }).from(user).where(eq(user.email, ownerEmail));
+    const [existingUser] = await db.select({ id: user.id }).from(user).where(eq(user.email, ownerEmail(p)));
     const ownerId = existingUser?.id ?? `demo-${randomUUID()}`;
 
     if (!apply) {
@@ -635,7 +713,7 @@ async function run(): Promise<void> {
 
     if (!existingUser) {
       await db.insert(user).values({
-        id: ownerId, email: ownerEmail,
+        id: ownerId, email: ownerEmail(p),
         role: p.type === "organization" ? "organization_owner" : "individual_provider",
         status: "active",
       });
@@ -693,7 +771,7 @@ async function run(): Promise<void> {
     // same people instead of hiring a parallel set, matching how the reviewers
     // above are keyed.
     for (const fullName of p.staff ?? []) {
-      const email = `${slugifyName(fullName)}@${p.slug}.demo.ntizo.test`;
+      const email = staffEmail(p, fullName);
       const [existingUser] = await db.select({ id: user.id }).from(user).where(eq(user.email, email));
       let staffUserId = existingUser?.id;
       if (!staffUserId) {
@@ -847,18 +925,39 @@ async function run(): Promise<void> {
     );
   }
 
-  /* 5. Hide the leftover test businesses so the directory reads as a directory. */
-  const demoSlugs = PROVIDERS.map((p) => p.slug);
-  const stale = await db
-    .select({ id: provider.id, name: provider.name })
-    .from(provider)
-    .where(and(eq(provider.status, "active"), notInArray(provider.slug, demoSlugs)));
-  console.log(`\ntest businesses to hide: ${stale.length}`);
-  if (apply && stale.length > 0) {
+  /* 5. Stop every invented address from being mailed. */
+  console.log(`\nemail suppressions: ${DEMO_EMAILS.length} demo addresses`);
+  if (apply) {
     await db
-      .update(provider)
-      .set({ status: "suspended", updatedAt: now })
-      .where(inArray(provider.id, stale.map((s) => s.id)));
+      .insert(emailSuppression)
+      .values(
+        DEMO_EMAILS.map((email) => ({
+          email,
+          // The column accepts only what a provider reports. "bounce" is what
+          // any write here would come back as, so it is the honest one of the two.
+          reason: "bounce",
+          detail: { source: "seed-demo", note: "Reserved .test address; never deliverable." },
+        })),
+      )
+      .onConflictDoNothing();
+  }
+
+  /* 6. Hide the leftover test businesses so the directory reads as a directory. */
+  // Dev only. On QA every business this seed did not make belongs to a real
+  // tester, and suspending one would take it off the directory mid-test.
+  if (STAGE === "dev") {
+    const demoSlugs = PROVIDERS.map((p) => p.slug);
+    const stale = await db
+      .select({ id: provider.id, name: provider.name })
+      .from(provider)
+      .where(and(eq(provider.status, "active"), notInArray(provider.slug, demoSlugs)));
+    console.log(`\ntest businesses to hide: ${stale.length}`);
+    if (apply && stale.length > 0) {
+      await db
+        .update(provider)
+        .set({ status: "suspended", updatedAt: now })
+        .where(inArray(provider.id, stale.map((s) => s.id)));
+    }
   }
 
   const [{ n }] = await db
