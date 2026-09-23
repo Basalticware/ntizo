@@ -34,6 +34,7 @@ import { describeActivity } from "../describe-activity";
  *   service.published          .../catalog.event-handlers.ts:67-76                               -> { serviceId, serviceName }
  *   service.unpublished        .../catalog.event-handlers.ts:78-87                               -> { serviceId, serviceName }
  *   review.created             .../review.event-handlers.ts:20-32                                -> { providerName, rating }
+ *   user.role.changed          .../user.event-handlers.ts                                        -> { targetName, to }
  *
  * Only `serviceId` is not read by any template — kept in the payload here
  * anyway (as the handler writes it) so a template that started using it
@@ -49,6 +50,7 @@ const HANDLER_PAYLOADS: Record<string, Record<string, unknown>> = {
   "service.published": { serviceId: "svc-1", serviceName: "Corte de cabelo" },
   "service.unpublished": { serviceId: "svc-1", serviceName: "Corte de cabelo" },
   "review.created": { providerName: "Barbearia do João", rating: 5 },
+  "user.role.changed": { targetName: "Ana Sitoe", to: "admin" },
 };
 
 describe("activity copy renders every handler's real payload with no token left over", () => {

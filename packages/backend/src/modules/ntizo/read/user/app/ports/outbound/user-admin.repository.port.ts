@@ -1,4 +1,7 @@
-import type { UserAdminDTO } from "@ntizo/shared/read-models";
+import type { UserAdminDetailDTO, UserAdminDTO } from "@ntizo/shared/read-models";
+
+/** What the detail page knows about one person before anyone asks who is looking. */
+export type UserAdminDetailRecord = Omit<UserAdminDetailDTO, "roleChange">;
 
 /**
  * The platform-wide view of people, for the administration list.
@@ -15,4 +18,6 @@ export interface UserAdminRepositoryPort {
     offset: number,
   ): Promise<UserAdminDTO[]>;
   countAll(): Promise<number>;
+  /** One person, or null for an id nobody has. */
+  findDetail(userId: string): Promise<UserAdminDetailRecord | null>;
 }

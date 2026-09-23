@@ -1,9 +1,21 @@
 import type { LucideIcon } from "lucide-react";
-import { Activity, Briefcase, Eye, EyeOff, Gavel, Send, Star, Store, UserCheck, UserPlus } from "lucide-react";
+import {
+  Activity,
+  Briefcase,
+  Eye,
+  EyeOff,
+  Gavel,
+  Send,
+  ShieldCheck,
+  Star,
+  Store,
+  UserCheck,
+  UserPlus,
+} from "lucide-react";
 import type { ActivityType } from "@ntizo/shared";
 
 /**
- * One glyph per kind of thing that gets recorded — the same nine the type
+ * One glyph per kind of thing that gets recorded — the same ten the type
  * picker offers and the badge names, so a row, an option and a label all
  * say the kind the same way.
  */
@@ -17,6 +29,7 @@ const ICONS: Record<ActivityType, LucideIcon> = {
   "service.published": Eye,
   "service.unpublished": EyeOff,
   "review.created": Star,
+  "user.role.changed": ShieldCheck,
 };
 
 /** The glyph for a wire type. A type this list does not know draws the generic activity mark rather than nothing. */

@@ -11,6 +11,7 @@
 // every consumer written against it.
 
 import { BaseDomainEvent } from "@cosmneo/onion-lasagna";
+import type { UserRole } from "@ntizo/shared";
 
 /**
  * Somebody finished signing up.
@@ -47,5 +48,23 @@ export class UserRegistered extends BaseDomainEvent<{
     emailVerified: boolean;
   }) {
     super("user.registered", payload.userId, payload);
+  }
+}
+
+/**
+ * An administrator granted or removed platform administration.
+ *
+ * `changedByUserId` is on the event because the history row it becomes is
+ * filed under the administrator who acted, not under the person changed.
+ * `from` is carried so a consumer never has to guess what the role was.
+ */
+export class UserPlatformRoleChanged extends BaseDomainEvent<{
+  userId: string;
+  from: UserRole;
+  to: UserRole;
+  changedByUserId: string;
+}> {
+  constructor(payload: { userId: string; from: UserRole; to: UserRole; changedByUserId: string }) {
+    super("user.role.changed", payload.userId, payload);
   }
 }

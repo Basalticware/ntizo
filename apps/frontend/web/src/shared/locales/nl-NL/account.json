@@ -167,7 +167,11 @@
     "servicePublished": "{{serviceName}} gepubliceerd",
     "serviceUnpublished": "{{serviceName}} gedepubliceerd",
     "reviewCreated": "{{providerName}} beoordeeld",
+    "userRoleChanged": "Rol van {{targetName}} gewijzigd",
+    "userRoleChanged_admin": "{{targetName}} beheerderstoegang gegeven",
+    "userRoleChanged_customer": "Beheerderstoegang van {{targetName}} ingetrokken",
     "unnamedProvider": "een aanbieder",
-    "unnamedService": "een dienst"
+    "unnamedService": "een dienst",
+    "unnamedUser": "een gebruiker"
   }
 }

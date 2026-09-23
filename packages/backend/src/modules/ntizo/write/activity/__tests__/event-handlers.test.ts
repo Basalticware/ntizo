@@ -7,6 +7,7 @@ import type {
 } from "../../../bounded-contexts/activity/app/ports/inbound/record-activity.internal.command.port";
 import type { ProviderNameReaderPort } from "../../../bounded-contexts/activity/app/ports/outbound/provider-name-reader.port";
 import type { ServiceNameReaderPort } from "../../../bounded-contexts/activity/app/ports/outbound/service-name-reader.port";
+import type { UserNameReaderPort } from "../../../bounded-contexts/activity/app/ports/outbound/user-name-reader.port";
 import {
   ProviderCreated,
   ProviderInviteAccepted,
@@ -20,7 +21,7 @@ import {
 } from "../../../bounded-contexts/catalog/domain/events";
 import { ACTIVITY_TYPES } from "../../../bounded-contexts/activity/domain/activity-type";
 import { ReviewCreated } from "../../../bounded-contexts/review/domain/events";
-import { UserRegistered } from "../../../bounded-contexts/user/domain/events";
+import { UserPlatformRoleChanged, UserRegistered } from "../../../bounded-contexts/user/domain/events";
 import { registerCatalogActivityHandlers } from "../events/handlers/catalog.event-handlers";
 import { registerProviderActivityHandlers } from "../events/handlers/provider.event-handlers";
 import { registerReviewActivityHandlers } from "../events/handlers/review.event-handlers";
@@ -71,13 +72,28 @@ class ThrowingServiceNames implements ServiceNameReaderPort {
   }
 }
 
+class FakeUserNames implements UserNameReaderPort {
+  constructor(private readonly namesById: Record<string, string> = {}) {}
+  async findNameById(userId: string): Promise<string | null> {
+    return this.namesById[userId] ?? null;
+  }
+}
+class ThrowingUserNames implements UserNameReaderPort {
+  async findNameById(): Promise<string | null> {
+    throw new Error("boom");
+  }
+}
+
 let router: EventRouter;
 let record: SpyRecord;
 
 beforeEach(() => {
   router = new EventRouter();
   record = new SpyRecord();
-  registerUserActivityHandlers(router, { recordActivity: record });
+  registerUserActivityHandlers(router, {
+    recordActivity: record,
+    userNameReader: new FakeUserNames({ u2: "Ana Sitoe" }),
+  });
   registerProviderActivityHandlers(router, {
     recordActivity: record,
     providerNameReader: new FakeProviderNames({ p1: "Salão X" }),
@@ -294,5 +310,42 @@ describe("ACTIVITY_TYPES alignment", () => {
     for (const type of ACTIVITY_TYPES) {
       expect(router.handlerCount(type)).toBe(1);
     }
+  });
+});
+
+describe("user.role.changed", () => {
+  const changed = (to: "admin" | "customer") =>
+    new UserPlatformRoleChanged({
+      userId: "u2",
+      from: to === "admin" ? "customer" : "admin",
+      to,
+      changedByUserId: "admin-1",
+    });
+
+  it("files the row under the admin who acted, naming the person changed", async () => {
+    await router.dispatch([changed("admin")]);
+    expect(record.calls[0]).toMatchObject({ actorUserId: "admin-1", type: "user.role.changed" });
+    expect(record.calls[0]!.payload).toEqual({ targetName: "Ana Sitoe", to: "admin" });
+  });
+
+  it("records a removal with to = customer", async () => {
+    await router.dispatch([changed("customer")]);
+    expect(record.calls[0]!.payload).toEqual({ targetName: "Ana Sitoe", to: "customer" });
+  });
+
+  it("still records, nameless, when the name cannot be resolved", async () => {
+    const r = new EventRouter();
+    const rec = new SpyRecord();
+    registerUserActivityHandlers(r, { recordActivity: rec, userNameReader: new FakeUserNames() });
+    await r.dispatch([changed("admin")]);
+    expect(rec.calls[0]!.payload).toEqual({ targetName: null, to: "admin" });
+  });
+
+  it("still records, nameless, when the lookup throws", async () => {
+    const r = new EventRouter();
+    const rec = new SpyRecord();
+    registerUserActivityHandlers(r, { recordActivity: rec, userNameReader: new ThrowingUserNames() });
+    await r.dispatch([changed("admin")]);
+    expect(rec.calls[0]!.payload).toEqual({ targetName: null, to: "admin" });
   });
 });

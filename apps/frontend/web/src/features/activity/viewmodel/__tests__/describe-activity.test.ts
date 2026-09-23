@@ -145,3 +145,22 @@ describe("provider.status.decided is outcome-aware", () => {
     ).toBe("Reviewed X");
   });
 });
+
+describe("describeActivity: user.role.changed", () => {
+  it("says which way the role went, by `to`", () => {
+    const t = i18n.getFixedT("en-US", "admin");
+    expect(describeActivity(t, entry("user.role.changed", { targetName: "Ana Sitoe", to: "admin" }))).toBe(
+      "Gave Ana Sitoe admin access",
+    );
+    expect(
+      describeActivity(t, entry("user.role.changed", { targetName: "Ana Sitoe", to: "customer" })),
+    ).toBe("Removed Ana Sitoe's admin access");
+  });
+
+  it("names nobody in particular when the account is gone", () => {
+    const t = i18n.getFixedT("pt-MZ", "account");
+    expect(describeActivity(t, entry("user.role.changed", { targetName: null, to: "admin" }))).toBe(
+      "Deu acesso de administração a um utilizador",
+    );
+  });
+});

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Users } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback, Badge } from "@ntizo/frontend-ui";
 import { CollectionCard } from "@/shared/components/collection-card";
 import { initialsFrom } from "@/shared/lib/initials";
@@ -142,7 +143,15 @@ function Person({ user }: { user: AdminUser }) {
         <AvatarFallback className="text-xs">{initialsFrom(name)}</AvatarFallback>
       </Avatar>
       <div className="min-w-0">
-        <p className="type-body-medium truncate font-semibold">{name}</p>
+        {/* A link now that there is somewhere to go, as `ProviderRow` did when
+            the provider page arrived. */}
+        <Link
+          to="/admin/users/$userId"
+          params={{ userId: user.id }}
+          className="type-body-medium block truncate font-semibold hover:underline"
+        >
+          {name}
+        </Link>
         {/* The email under the name, unless it is already the name — somebody
             with no display name would otherwise get the same string twice.
             The phone takes its place there, and where there is neither, one

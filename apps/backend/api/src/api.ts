@@ -157,6 +157,7 @@ registerProviderActivityHandlers(eventRouter, {
 });
 registerUserActivityHandlers(eventRouter, {
   recordActivity: activityBootstrap.useCases.internal.recordActivity,
+  userNameReader: activityBootstrap.adapters.userNameReader,
 });
 registerCatalogActivityHandlers(eventRouter, {
   recordActivity: activityBootstrap.useCases.internal.recordActivity,
