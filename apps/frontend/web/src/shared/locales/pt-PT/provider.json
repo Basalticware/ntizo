@@ -740,5 +740,88 @@
     "body": "Complete o seu perfil e receba mais reservas.",
     "cta": "Completar perfil"
   },
-  "verifiedProvider": "Prestador verificado"
+  "verifiedProvider": "Prestador verificado",
+  "membersPage": {
+    "eyebrow": "Equipa",
+    "title": "Lista de membros",
+    "subtitle": "Faça a gestão da sua equipa e convide pessoas para colaborar no seu negócio.",
+    "invite": "Convidar membro",
+    "inviteLead": "Adicione um novo membro à sua equipa. Receberá um convite por e-mail para se juntar a {{name}} na Ntizo.",
+    "inviteEmail": "E-mail",
+    "inviteEmailPlaceholder": "Ex.: pedro@exemplo.co.mz",
+    "inviteRole": "Função",
+    "roleHint": {
+      "admin": "Gere a equipa: convida, remove e muda funções.",
+      "staff": "Faz parte da equipa; vê os membros, mas não os gere."
+    },
+    "cancel": "Cancelar",
+    "you": "Você",
+    "col": {
+      "name": "Nome",
+      "contact": "Contacto"
+    },
+    "tab": {
+      "all": "Todos",
+      "active": "Activos",
+      "invited": "Convites pendentes",
+      "expired": "Expirados"
+    },
+    "state": {
+      "active": "Activo",
+      "invited": "Convite pendente",
+      "expired": "Convite expirado"
+    }
+  },
+  "settingsPage": {
+    "subtitle": "Faça a gestão da sua conta, identidade e documentos.",
+    "nav": {
+      "brand": "Marca e fotografia",
+      "brandHint": "Apresente o seu negócio",
+      "identityHint": "Dados e descrição",
+      "addressHint": "Localização e morada",
+      "documentsHint": "Documentos e credenciais",
+      "dangerHint": "Desactivar o negócio"
+    },
+    "identityTitle": "Identidade do prestador",
+    "name": "Nome do prestador",
+    "documentsTitle": "Verificação de documentos",
+    "brandBlurb": "Adicione o logótipo e fotografias que representam o seu negócio.",
+    "identityBlurb": "Ajude os clientes a conhecer melhor o seu negócio.",
+    "documentsBlurb": "Documentos necessários para validar o seu perfil e aumentar a confiança dos clientes.",
+    "tipTitle": "Dica",
+    "tipBody": "Use fotografias reais do seu trabalho. Imagens de qualidade aumentam a confiança dos clientes.",
+    "verified": "Verificado",
+    "completeness": "Perfil completo",
+    "completenessHint": "Complete todas as secções para ganhar mais visibilidade e confiança.",
+    "viewPublic": "Ver o meu perfil público",
+    "quick": "Acções rápidas",
+    "quickView": "Ver perfil público",
+    "quickShare": "Partilhar perfil",
+    "quickCopied": "Ligação copiada",
+    "status": "Estado do perfil",
+    "statusDone": "Perfil completo!",
+    "statusAlmost": "Perfil quase completo!",
+    "statusStart": "Complete o seu perfil",
+    "statusHint": "Complete as secções em falta para ganhar mais visibilidade.",
+    "step": {
+      "brand": "Marca e fotografia",
+      "identity": "Identidade",
+      "address": "Onde trabalha",
+      "documents": "Verificação"
+    },
+    "stepDone": "Concluído",
+    "stepTodo": "Por completar",
+    "stepDocuments": "{{held}} de {{needed}} documentos",
+    "help": "Precisa de ajuda?",
+    "helpBody": "Visite o nosso centro de ajuda ou fale com a nossa equipa.",
+    "helpLink": "Abrir centro de ajuda",
+    "doc": {
+      "accepted": "Carregado e verificado",
+      "pending": "Carregado, em análise",
+      "rejected": "Recusado",
+      "missing": "Não carregado",
+      "upload": "Carregue o documento"
+    }
+  },
+  "availabilitySubtitle": "Defina quando trabalha e quando os clientes podem reservar."
 }

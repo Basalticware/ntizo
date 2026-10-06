@@ -42,5 +42,16 @@
     "bookingDisputed": "Se abrió una reclamación sobre una reserva",
     "bookingDisputeResolved": "Se tomó una decisión sobre la reclamación de tu reserva",
     "unknown": "Tienes una notificación nueva"
-  }
+  },
+  "providerSubtitle": "Esté al tanto de toda la actividad relacionada con su negocio en Ntizo.",
+  "tabAll": "Todas",
+  "tabUnread": "No leídas",
+  "tabsLabel": "Mostrar",
+  "groupCount": "{{count}} notificación",
+  "groupCount_other": "{{count}} notificaciones",
+  "actionBooking": "Ver reserva",
+  "actionThread": "Abrir conversación",
+  "rowActions": "Más acciones",
+  "unreadEmptyTitle": "Nada sin leer",
+  "unreadEmptyBody": "Ha leído todas sus notificaciones."
 }

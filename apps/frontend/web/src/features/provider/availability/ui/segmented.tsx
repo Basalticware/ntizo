@@ -29,7 +29,7 @@ export function Segmented<T extends string>({
     <div
       role="radiogroup"
       aria-label={ariaLabel}
-      className="inline-flex gap-0.5 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)] p-0.5"
+      className="inline-flex rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)]"
     >
       {options.map((option) => {
         const selected = option.value === value;
@@ -41,10 +41,12 @@ export function Segmented<T extends string>({
             aria-checked={selected}
             onClick={() => onChange(option.value)}
             className={cn(
-              "type-caption cursor-pointer rounded-full px-3.5 py-1.5 whitespace-nowrap transition-colors",
+              // The console's joined tabs: hairlines between, the chosen one on
+              // the soft blue ground and drawn over the frame's edge.
+              "-my-px cursor-pointer border px-3.5 py-1.5 text-[13.5px] font-medium whitespace-nowrap transition-colors first:-ml-px first:rounded-l-[10px] last:-mr-px last:rounded-r-[10px]",
               selected
-                ? "bg-[var(--color-background)] font-medium text-[var(--color-foreground)] shadow-[0_1px_2px_rgba(19,23,27,0.05)]"
-                : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]",
+                ? "relative z-[1] rounded-[10px] border-[var(--color-blue-line)] bg-[var(--color-blue-soft)] text-[color-mix(in_srgb,var(--color-primary)_80%,var(--color-headline))]"
+                : "border-transparent text-[var(--color-headline)] hover:bg-[color-mix(in_srgb,var(--color-blue-soft)_50%,transparent)]",
             )}
           >
             {option.label}

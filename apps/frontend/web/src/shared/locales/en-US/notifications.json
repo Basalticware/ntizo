@@ -42,5 +42,16 @@
     "bookingDisputed": "A dispute was opened on a booking",
     "bookingDisputeResolved": "A decision was made on your booking's dispute",
     "unknown": "You have a new notification"
-  }
+  },
+  "providerSubtitle": "Keep up with everything happening around your business on Ntizo.",
+  "tabAll": "All",
+  "tabUnread": "Unread",
+  "tabsLabel": "Show",
+  "groupCount": "{{count}} notification",
+  "groupCount_other": "{{count}} notifications",
+  "actionBooking": "View booking",
+  "actionThread": "Open conversation",
+  "rowActions": "More actions",
+  "unreadEmptyTitle": "Nothing unread",
+  "unreadEmptyBody": "You have read all your notifications."
 }

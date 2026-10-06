@@ -42,5 +42,16 @@
     "bookingDisputed": "Un litige a été ouvert sur une réservation",
     "bookingDisputeResolved": "Une décision a été prise concernant le litige de votre réservation",
     "unknown": "Vous avez une nouvelle notification"
-  }
+  },
+  "providerSubtitle": "Suivez toute l'activité liée à votre entreprise sur Ntizo.",
+  "tabAll": "Toutes",
+  "tabUnread": "Non lues",
+  "tabsLabel": "Afficher",
+  "groupCount": "{{count}} notification",
+  "groupCount_other": "{{count}} notifications",
+  "actionBooking": "Voir la réservation",
+  "actionThread": "Ouvrir la conversation",
+  "rowActions": "Plus d'actions",
+  "unreadEmptyTitle": "Rien de non lu",
+  "unreadEmptyBody": "Vous avez lu toutes vos notifications."
 }

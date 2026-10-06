@@ -1,25 +1,40 @@
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { MoreHorizontal, UserRound } from "lucide-react";
+import { Ellipsis, UserRound } from "lucide-react";
 import { CollectionCard } from "@/shared/components/collection-card";
 import { initialsFrom } from "@/shared/lib/initials";
 import {
   Avatar,
   AvatarFallback,
-  Badge,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  cn,
 } from "@ntizo/frontend-ui";
 import type { PeopleFilters, PersonRow, PersonStatus } from "../domain/people";
 import type { ProviderRole } from "../domain/types";
 
-const STATUS_TONE: Record<PersonStatus, "success" | "warning" | "danger"> = {
-  active: "success",
-  invited: "warning",
-  expired: "danger",
+/**
+ * The role pill's ground and ink. The mockup's four job titles are not roles
+ * this workspace has — it has three — so the three take the mockup's tones in
+ * order of reach: the owner the violet "Administrador" wears, staff the
+ * lightest blue.
+ */
+const ROLE_PILL: Record<ProviderRole, string> = {
+  owner: "bg-[var(--color-violet-bg)] text-[var(--color-violet-fg)]",
+  admin: "bg-[var(--color-info-bg)] text-[var(--color-info-fg)]",
+  staff: "bg-[var(--color-blue-soft)] text-[var(--color-primary)]",
 };
 
+/** The state pill: a dot in front, in the colour of the words. */
+const STATE_PILL: Record<PersonStatus, string> = {
+  active: "bg-[var(--color-ok-bg)] text-[var(--color-ok-fg)] before:bg-current",
+  invited: "bg-[var(--color-warn-bg)] text-[var(--color-warn-fg)] before:bg-current",
+  expired: "bg-[var(--color-bad-bg)] text-[var(--color-bad-fg)] before:bg-current",
+};
+
+const PILL = "inline-flex h-[30px] items-center rounded-full px-3 text-[13px] font-medium whitespace-nowrap";
 
 /**
  * Everyone on the workspace, in one table.
@@ -32,16 +47,22 @@ const STATUS_TONE: Record<PersonStatus, "success" | "warning" | "danger"> = {
  * The row's actions differ by kind, and that is the only place the distinction
  * survives: a member's role can change and a member can be removed; an
  * invitation can only be revoked, because there is nobody to demote.
+ *
+ * The mockup's "Serviços" and "Acesso" columns and the phone under the email
+ * are not drawn: a member carries a name, an email, a role and a date, and
+ * nothing else the server sends would fill them.
  */
 export function PeopleTable({
   rows,
   total,
   loading,
+  tabs,
   filters,
   onFiltersChange,
   onOpenFilters,
   activeFilterCount,
   canManage,
+  currentUserId,
   onChangeRole,
   onRemove,
   onRevoke,
@@ -50,11 +71,15 @@ export function PeopleTable({
   /** Before filtering, for the "n of m" line. */
   total: number;
   loading: boolean;
+  /** The tab row drawn where the card's heading would be. */
+  tabs?: ReactNode;
   filters: PeopleFilters;
   onFiltersChange: (next: PeopleFilters) => void;
   onOpenFilters: () => void;
   activeFilterCount: number;
   canManage: boolean;
+  /** Whose row says "Você". */
+  currentUserId?: string | null;
   onChangeRole: (row: PersonRow, role: ProviderRole) => void;
   onRemove: (row: PersonRow) => void;
   onRevoke: (row: PersonRow) => void;
@@ -73,6 +98,7 @@ export function PeopleTable({
   return (
     <CollectionCard
       title={t("peopleTitle")}
+      tabs={tabs}
       shown={rows.length}
       total={total}
       loading={loading}
@@ -82,40 +108,61 @@ export function PeopleTable({
       onOpenFilters={onOpenFilters}
       activeFilterCount={activeFilterCount}
       columns={[
-        { key: "person", label: t("peoplePerson"), className: "pl-5" },
-        { key: "role", label: t("peopleRole"), skeletonWidth: "w-16" },
+        { key: "person", label: t("membersPage.col.name"), className: "w-[260px] pl-4" },
+        {
+          key: "role",
+          label: t("peopleRole"),
+          skeletonWidth: "w-24",
+          skeletonShape: "badge",
+          className: "w-[170px]",
+        },
+        { key: "contact", label: t("membersPage.col.contact"), skeletonWidth: "w-40" },
         {
           key: "status",
           label: t("peopleStatusLabel"),
-          skeletonWidth: "w-20",
+          skeletonWidth: "w-24",
           skeletonShape: "badge",
+          className: "w-[200px]",
         },
-        { key: "date", label: t("peopleDate"), skeletonWidth: "w-24" },
+        { key: "date", label: t("peopleDate"), skeletonWidth: "w-24", className: "w-[150px]" },
         {
           key: "actions",
-          label: t("peopleActions"),
-          align: "right",
-          className: "pr-5",
+          label: "",
+          className: "w-[60px] pr-5",
+          hideOnCard: true,
         },
       ]}
       emptyText={t("peopleEmpty")}
-        emptyTitle={t("peopleEmptyTitle")}
-        emptyBadge={UserRound}
+      emptyTitle={t("peopleEmptyTitle")}
+      emptyBadge={UserRound}
       noMatchesText={t("peopleNoMatches")}
-        noMatchesTitle={t("peopleNoMatchesTitle")}
+      noMatchesTitle={t("peopleNoMatchesTitle")}
       filtered={total > 0 && rows.length !== total}
       rows={rows.map((row) => ({
         key: row.key,
-        primary: <Person row={row} />,
+        primary: <Person row={row} isYou={row.kind === "member" && row.key === currentUserId} />,
         cells: {
-          role: t(`peopleRoles.${row.role}`),
+          role: <span className={cn(PILL, ROLE_PILL[row.role])}>{t(`peopleRoles.${row.role}`)}</span>,
+          contact: (
+            // Whole here, where the name column may have cut an invitation's
+            // address short to fit.
+            <span className="block max-w-full min-w-0 truncate text-[15px] text-[var(--color-headline)]">
+              {row.email}
+            </span>
+          ),
           status: (
-            <Badge tone={STATUS_TONE[row.status]}>
-              {t(`peopleStatus.${row.status}`)}
-            </Badge>
+            <span
+              className={cn(
+                PILL,
+                "gap-[7px] before:h-2 before:w-2 before:rounded-full before:content-['']",
+                STATE_PILL[row.status],
+              )}
+            >
+              {t(`membersPage.state.${row.status}`)}
+            </span>
           ),
           date: (
-            <span className="tabular-nums text-[var(--color-muted-foreground)]">
+            <span className="text-sm whitespace-nowrap text-[var(--color-muted-foreground)] tabular-nums">
               {row.date ? dateFormat.format(new Date(row.date)) : "—"}
             </span>
           ),
@@ -134,21 +181,32 @@ export function PeopleTable({
   );
 }
 
-/** Who the row is about. An invitation has no name, so its address stands in. */
-function Person({ row }: { row: PersonRow }) {
+/**
+ * Who the row is about. An invitation has no name, so its address stands in —
+ * the state pill already says it is waiting. The member reading the page is
+ * told which row is theirs.
+ */
+function Person({ row, isYou }: { row: PersonRow; isYou: boolean }) {
   const { t } = useTranslation("provider");
   return (
-    <div className="flex items-center gap-3">
-      <Avatar className="h-9 w-9 shrink-0">
-        <AvatarFallback className="text-xs">{initialsFrom(row.name ?? row.email)}</AvatarFallback>
+    <div className="flex min-w-0 items-center gap-[15px]">
+      <Avatar className="h-[50px] w-[50px] shrink-0">
+        <AvatarFallback className="bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] text-sm font-semibold text-[var(--color-primary)]">
+          {initialsFrom(row.name ?? row.email)}
+        </AvatarFallback>
       </Avatar>
-      <div className="min-w-0">
-        <p className="type-body-medium truncate font-semibold">
+      <div className="grid min-w-0 justify-items-start">
+        <p
+          title={row.name ? undefined : row.email}
+          className="w-full truncate text-[15px] leading-5 font-bold text-[var(--color-headline)]"
+        >
           {row.name ?? row.email}
         </p>
-        <p className="type-caption truncate text-[var(--color-muted-foreground)]">
-          {row.name ? row.email : t("peopleInvitePending")}
-        </p>
+        {isYou && (
+          <span className="mt-1.5 inline-flex h-[22px] items-center rounded-md bg-[var(--color-blue-soft)] px-[9px] text-[13px] font-semibold text-[var(--color-primary)]">
+            {t("membersPage.you")}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -185,13 +243,9 @@ function RowActions({
         <button
           type="button"
           aria-label={t("peopleActions")}
-          // `ml-auto`, because `grid` makes this a block-level box and a
-          // block-level box ignores the cell's `text-align`. Without it the
-          // button sat flush left in a right-aligned column, 88px adrift of
-          // the header it belongs under.
-          className="ml-auto grid h-8 w-8 place-items-center rounded-full text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]"
+          className="grid h-9 w-9 place-items-center rounded-full text-[var(--color-ink-2)] hover:bg-[var(--color-muted)]"
         >
-          <MoreHorizontal className="h-4 w-4" />
+          <Ellipsis className="h-6 w-6" strokeWidth={2.6} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -219,4 +273,3 @@ function RowActions({
     </DropdownMenu>
   );
 }
-

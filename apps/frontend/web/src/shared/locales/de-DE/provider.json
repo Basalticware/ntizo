@@ -740,5 +740,88 @@
     "body": "Vervollständigen Sie Ihr Profil und erhalten Sie mehr Buchungen.",
     "cta": "Profil vervollständigen"
   },
-  "verifiedProvider": "Verifizierter Anbieter"
+  "verifiedProvider": "Verifizierter Anbieter",
+  "membersPage": {
+    "eyebrow": "Team",
+    "title": "Mitglieder",
+    "subtitle": "Verwalten Sie Ihr Team und laden Sie Personen zur Mitarbeit an Ihrem Unternehmen ein.",
+    "invite": "Mitglied einladen",
+    "inviteLead": "Fügen Sie Ihrem Team ein neues Mitglied hinzu. Es erhält eine E-Mail-Einladung, {{name}} auf Ntizo beizutreten.",
+    "inviteEmail": "E-Mail",
+    "inviteEmailPlaceholder": "z. B. pedro@beispiel.de",
+    "inviteRole": "Rolle",
+    "roleHint": {
+      "admin": "Verwaltet das Team: lädt ein, entfernt und ändert Rollen.",
+      "staff": "Gehört zum Team; sieht die Mitglieder, verwaltet sie aber nicht."
+    },
+    "cancel": "Abbrechen",
+    "you": "Sie",
+    "col": {
+      "name": "Name",
+      "contact": "Kontakt"
+    },
+    "tab": {
+      "all": "Alle",
+      "active": "Aktiv",
+      "invited": "Offene Einladungen",
+      "expired": "Abgelaufen"
+    },
+    "state": {
+      "active": "Aktiv",
+      "invited": "Einladung offen",
+      "expired": "Einladung abgelaufen"
+    }
+  },
+  "settingsPage": {
+    "subtitle": "Verwalten Sie Ihr Konto, Ihre Identität und Ihre Dokumente.",
+    "nav": {
+      "brand": "Marke und Fotos",
+      "brandHint": "Stellen Sie Ihr Unternehmen vor",
+      "identityHint": "Angaben und Beschreibung",
+      "addressHint": "Standort und Adresse",
+      "documentsHint": "Dokumente und Nachweise",
+      "dangerHint": "Unternehmen deaktivieren"
+    },
+    "identityTitle": "Identität des Anbieters",
+    "name": "Name des Anbieters",
+    "documentsTitle": "Dokumentenprüfung",
+    "brandBlurb": "Fügen Sie das Logo und Fotos hinzu, die Ihr Unternehmen zeigen.",
+    "identityBlurb": "Helfen Sie Kunden, Ihr Unternehmen besser kennenzulernen.",
+    "documentsBlurb": "Die Dokumente, mit denen Ihr Profil bestätigt wird und Kunden Ihnen vertrauen.",
+    "tipTitle": "Tipp",
+    "tipBody": "Verwenden Sie echte Fotos Ihrer Arbeit. Gute Bilder stärken das Vertrauen der Kunden.",
+    "verified": "Verifiziert",
+    "completeness": "Profil vollständig",
+    "completenessHint": "Füllen Sie alle Bereiche aus, um sichtbarer und vertrauenswürdiger zu werden.",
+    "viewPublic": "Mein öffentliches Profil ansehen",
+    "quick": "Schnellaktionen",
+    "quickView": "Öffentliches Profil ansehen",
+    "quickShare": "Profil teilen",
+    "quickCopied": "Link kopiert",
+    "status": "Profilstatus",
+    "statusDone": "Profil vollständig!",
+    "statusAlmost": "Profil fast vollständig!",
+    "statusStart": "Vervollständigen Sie Ihr Profil",
+    "statusHint": "Füllen Sie die fehlenden Bereiche aus, um sichtbarer zu werden.",
+    "step": {
+      "brand": "Marke und Fotos",
+      "identity": "Identität",
+      "address": "Wo Sie arbeiten",
+      "documents": "Prüfung"
+    },
+    "stepDone": "Erledigt",
+    "stepTodo": "Offen",
+    "stepDocuments": "{{held}} von {{needed}} Dokumenten",
+    "help": "Brauchen Sie Hilfe?",
+    "helpBody": "Besuchen Sie unser Hilfecenter oder sprechen Sie mit unserem Team.",
+    "helpLink": "Hilfecenter öffnen",
+    "doc": {
+      "accepted": "Hochgeladen und geprüft",
+      "pending": "Hochgeladen, in Prüfung",
+      "rejected": "Abgelehnt",
+      "missing": "Nicht hochgeladen",
+      "upload": "Laden Sie das Dokument hoch"
+    }
+  },
+  "availabilitySubtitle": "Legen Sie fest, wann Sie arbeiten und wann Kunden buchen können."
 }

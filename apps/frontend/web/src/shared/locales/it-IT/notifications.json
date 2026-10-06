@@ -42,5 +42,16 @@
     "bookingDisputed": "È stata aperta una contestazione su una prenotazione",
     "bookingDisputeResolved": "È stata presa una decisione sulla contestazione della tua prenotazione",
     "unknown": "Hai una nuova notifica"
-  }
+  },
+  "providerSubtitle": "Resti aggiornato su tutte le attività legate alla sua attività su Ntizo.",
+  "tabAll": "Tutte",
+  "tabUnread": "Non lette",
+  "tabsLabel": "Mostra",
+  "groupCount": "{{count}} notifica",
+  "groupCount_other": "{{count}} notifiche",
+  "actionBooking": "Vedi prenotazione",
+  "actionThread": "Apri conversazione",
+  "rowActions": "Altre azioni",
+  "unreadEmptyTitle": "Niente da leggere",
+  "unreadEmptyBody": "Ha letto tutte le sue notifiche."
 }

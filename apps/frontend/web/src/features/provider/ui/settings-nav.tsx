@@ -4,6 +4,8 @@ import { cn } from "@ntizo/frontend-ui";
 export interface SettingsSection {
   id: string;
   label: string;
+  /** The line under the label: what the section holds. */
+  hint?: string;
   icon: React.ReactNode;
   /** Drives the unsaved dot. */
   dirty?: boolean;
@@ -83,57 +85,57 @@ export function SettingsNav({
 
   return (
     <nav aria-label={title} className="hidden lg:block">
-      {/* Bounded, not floating. The rail sat loose in whitespace with nothing
-          saying where it ended, so it read as stray links rather than as one
-          control. A soft edge and a tinted ground give it an outline without
-          competing with the section cards it points at — those carry the
-          content, so they keep the stronger border and the plain background. */}
-      <div className="sticky top-6 rounded-[var(--radius-card)] border border-[color-mix(in_srgb,var(--color-border)_60%,transparent)] bg-[color-mix(in_srgb,var(--color-muted)_45%,transparent)] p-3">
-        <p className="type-caption px-3 pt-1 font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
-          {title}
-        </p>
-        <ul className="mt-3 grid gap-0.5">
-          {sections.map((section) => {
-            const active = current === section.id;
-            return (
-              // `min-w-0` because a grid item defaults to `min-width: auto`,
-              // which refuses to shrink below its content — so the row grew
-              // past the rail instead of letting the label truncate. Invisible
-              // until the container added padding and took 24px away.
-              <li key={section.id} className="min-w-0">
-                <a
-                  href={`#${section.id}`}
-                  aria-current={active ? "true" : undefined}
-                  className={cn(
-                    "type-body flex items-center gap-2.5 rounded-[var(--radius-field)] px-3 py-2 transition-colors",
-                    // Lifted, not tinted. The selected row used to be
-                    // `bg-muted`, which was the same value the rail's own
-                    // ground now carries — it would have vanished into it.
-                    active
-                      ? "bg-[var(--color-background)] font-semibold text-[var(--color-foreground)] shadow-sm"
-                      : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-background)]/60 hover:text-[var(--color-foreground)]",
-                    section.tone === "danger" &&
-                      "text-[var(--color-destructive)]",
-                  )}
-                >
-                  <span className="shrink-0 opacity-80">{section.icon}</span>
-                  <span className="min-w-0 flex-1 truncate">
-                    {section.label}
+      {/* One white box, as the section cards are; the current section on the
+          soft blue ground with the brand bar on its left edge. */}
+      <ul className="sticky top-6 grid gap-1 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] px-3 pt-2.5 pb-3">
+        {sections.map((section) => {
+          const active = current === section.id;
+          return (
+            // `min-w-0` because a grid item defaults to `min-width: auto`,
+            // which refuses to shrink below its content — so the row grew
+            // past the rail instead of letting the label truncate.
+            <li key={section.id} className="relative min-w-0">
+              {active && (
+                <span
+                  aria-hidden
+                  className="absolute top-1/2 -left-3 h-[50px] w-[3px] -translate-y-1/2 rounded-r-sm bg-[var(--color-primary)]"
+                />
+              )}
+              <a
+                href={`#${section.id}`}
+                aria-current={active ? "true" : undefined}
+                className={cn(
+                  "flex gap-4 rounded-[9px] py-3 pr-2 pl-2.5 transition-colors",
+                  active
+                    ? "bg-[var(--color-blue-soft)] text-[var(--color-primary)]"
+                    : "text-[var(--color-headline)] hover:bg-[color-mix(in_srgb,var(--color-blue-soft)_50%,transparent)]",
+                  section.tone === "danger" && !active && "text-[var(--color-destructive)]",
+                )}
+              >
+                <span className="mt-1 shrink-0 [&_svg]:h-[21px] [&_svg]:w-[21px]">{section.icon}</span>
+                <span className="grid min-w-0 flex-1">
+                  <span className="flex items-center gap-2">
+                    <span className="truncate text-[14.5px] leading-[19px] font-medium">{section.label}</span>
+                    {section.dirty && (
+                      // The one thing this rail knows that the headings don't:
+                      // where the unsaved edit is, when it has been scrolled off.
+                      <span
+                        aria-hidden
+                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-primary)]"
+                      />
+                    )}
                   </span>
-                  {section.dirty && (
-                    // The one thing this rail knows that the headings don't:
-                    // where the unsaved edit is, when it has been scrolled off.
-                    <span
-                      aria-hidden
-                      className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-primary)]"
-                    />
+                  {section.hint && (
+                    <span className="mt-0.5 text-[13px] leading-[1.4] text-[var(--color-muted-foreground)]">
+                      {section.hint}
+                    </span>
                   )}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }

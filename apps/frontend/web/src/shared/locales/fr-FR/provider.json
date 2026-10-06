@@ -740,5 +740,88 @@
     "body": "Complétez votre profil et recevez plus de réservations.",
     "cta": "Compléter le profil"
   },
-  "verifiedProvider": "Prestataire vérifié"
+  "verifiedProvider": "Prestataire vérifié",
+  "membersPage": {
+    "eyebrow": "Équipe",
+    "title": "Liste des membres",
+    "subtitle": "Gérez votre équipe et invitez des personnes à collaborer à votre activité.",
+    "invite": "Inviter un membre",
+    "inviteLead": "Ajoutez un nouveau membre à votre équipe. Il recevra une invitation par e-mail pour rejoindre {{name}} sur Ntizo.",
+    "inviteEmail": "E-mail",
+    "inviteEmailPlaceholder": "Ex. : pedro@exemple.com",
+    "inviteRole": "Rôle",
+    "roleHint": {
+      "admin": "Gère l'équipe : invite, retire et change les rôles.",
+      "staff": "Fait partie de l'équipe ; voit les membres sans les gérer."
+    },
+    "cancel": "Annuler",
+    "you": "Vous",
+    "col": {
+      "name": "Nom",
+      "contact": "Contact"
+    },
+    "tab": {
+      "all": "Tous",
+      "active": "Actifs",
+      "invited": "Invitations en attente",
+      "expired": "Expirées"
+    },
+    "state": {
+      "active": "Actif",
+      "invited": "Invitation en attente",
+      "expired": "Invitation expirée"
+    }
+  },
+  "settingsPage": {
+    "subtitle": "Gérez votre compte, votre identité et vos documents.",
+    "nav": {
+      "brand": "Marque et photos",
+      "brandHint": "Présentez votre activité",
+      "identityHint": "Informations et description",
+      "addressHint": "Lieu et adresse",
+      "documentsHint": "Documents et justificatifs",
+      "dangerHint": "Désactiver l'activité"
+    },
+    "identityTitle": "Identité du prestataire",
+    "name": "Nom du prestataire",
+    "documentsTitle": "Vérification des documents",
+    "brandBlurb": "Ajoutez le logo et les photos qui représentent votre activité.",
+    "identityBlurb": "Aidez les clients à mieux connaître votre activité.",
+    "documentsBlurb": "Les documents nécessaires pour valider votre profil et gagner la confiance des clients.",
+    "tipTitle": "Conseil",
+    "tipBody": "Utilisez de vraies photos de votre travail. De belles images renforcent la confiance des clients.",
+    "verified": "Vérifié",
+    "completeness": "Profil complet",
+    "completenessHint": "Complétez toutes les sections pour gagner en visibilité et en confiance.",
+    "viewPublic": "Voir mon profil public",
+    "quick": "Actions rapides",
+    "quickView": "Voir le profil public",
+    "quickShare": "Partager le profil",
+    "quickCopied": "Lien copié",
+    "status": "État du profil",
+    "statusDone": "Profil complet !",
+    "statusAlmost": "Profil presque complet !",
+    "statusStart": "Complétez votre profil",
+    "statusHint": "Complétez les sections manquantes pour gagner en visibilité.",
+    "step": {
+      "brand": "Marque et photos",
+      "identity": "Identité",
+      "address": "Où vous travaillez",
+      "documents": "Vérification"
+    },
+    "stepDone": "Terminé",
+    "stepTodo": "À faire",
+    "stepDocuments": "{{held}} sur {{needed}} documents",
+    "help": "Besoin d'aide ?",
+    "helpBody": "Consultez notre centre d'aide ou parlez à notre équipe.",
+    "helpLink": "Ouvrir le centre d'aide",
+    "doc": {
+      "accepted": "Envoyé et vérifié",
+      "pending": "Envoyé, en cours d'examen",
+      "rejected": "Refusé",
+      "missing": "Non envoyé",
+      "upload": "Envoyez le document"
+    }
+  },
+  "availabilitySubtitle": "Indiquez quand vous travaillez et quand les clients peuvent réserver."
 }

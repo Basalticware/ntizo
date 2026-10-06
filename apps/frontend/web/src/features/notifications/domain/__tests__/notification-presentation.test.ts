@@ -18,6 +18,7 @@ describe("presentationFor", () => {
     expect(presentationFor("INVENTED_TYPE_NOBODY_SHIPPED")).toEqual({
       icon: Mail,
       key: "unknown",
+      tone: "grey",
     });
   });
 
@@ -29,6 +30,14 @@ describe("presentationFor", () => {
     expect(presentationFor("PROVIDER_WORKSPACE_WELCOME")).toEqual({
       icon: Store,
       key: "providerWorkspaceWelcome",
+      tone: "grey",
     });
+  });
+
+  it("tints a row by what it is about", () => {
+    expect(presentationFor("PROVIDER_BOOKING_RECEIVED").tone).toBe("blue");
+    expect(presentationFor("TEAM_INVITATION").tone).toBe("violet");
+    expect(presentationFor("PROVIDER_VERIFIED").tone).toBe("green");
+    expect(presentationFor("BOOKING_DISPUTED").tone).toBe("amber");
   });
 });
