@@ -1,7 +1,10 @@
+import type { ReactNode } from "react";
 import { Activity } from "lucide-react";
-import { Skeleton } from "@ntizo/frontend-ui";
+import { Skeleton, cn } from "@ntizo/frontend-ui";
 import { EmptyCard } from "@/shared/components/empty-card";
+import { relativeDayLabel, shortDate } from "@/shared/lib/relative-day";
 import type { ActivityEntry } from "../domain/types";
+import { ActivityKindIcon } from "./activity-icon";
 
 /**
  * A feed of what happened, for whichever zone renders it.
@@ -17,6 +20,11 @@ import type { ActivityEntry } from "../domain/types";
  * borrowing it. `renderDescription` is the same idea applied to one row: the
  * list gets `type` + `payload`, and only the zone knows the `activityType.*`
  * namespace to read them through — see `domain/types.ts`'s `activityTypeKey`.
+ *
+ * Drawn as the October mockup's "Linha temporal": a card, the events grouped
+ * under their day, each one a time, the kind's tile and the sentence. The
+ * admin console's audit trail is built from the same pieces below, with the
+ * actor added beside each event.
  */
 export function ActivityList({
   entries,
@@ -43,99 +51,150 @@ export function ActivityList({
   skeletonRows?: number;
 }) {
   return (
-    <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)]">
-      <div className="px-4 py-4 sm:px-5">
-        <p className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
-          {title}
-        </p>
-        {hint && (
-          <p className="type-body mt-0.5 text-[var(--color-muted-foreground)]">
-            {hint}
-          </p>
-        )}
-      </div>
-
-      <div className="border-t border-[var(--color-border)]">
-        {loading ? (
-          <ActivitySkeleton rows={skeletonRows} />
-        ) : entries.length === 0 ? (
-          <EmptyCard badge={Activity} title={emptyTitle} body={emptyBody} />
-        ) : (
-          <ul className="grid list-none gap-0 p-0">
-            {entries.map((entry) => (
-              <EntryRow
-                key={entry.id}
-                entry={entry}
-                locale={locale}
-                description={renderDescription(entry)}
-              />
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
+    <TimelineCard title={title} hint={hint}>
+      {loading ? (
+        <TimelineSkeleton rows={skeletonRows} />
+      ) : entries.length === 0 ? (
+        <EmptyCard badge={Activity} title={emptyTitle} body={emptyBody} />
+      ) : (
+        <TimelineDays
+          entries={entries}
+          locale={locale}
+          renderEntry={(entry, time) => (
+            <TimelineRow key={entry.id} time={time} type={entry.type} title={renderDescription(entry)} />
+          )}
+        />
+      )}
+    </TimelineCard>
   );
 }
 
-/** One event: what it was and when. */
-function EntryRow({
-  entry,
+/** The card the timeline sits in: its heading, and the line under it. */
+export function TimelineCard({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
+  return (
+    <section
+      aria-label={title}
+      className="min-w-0 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] px-4 pt-[18px] pb-[22px] sm:px-6"
+    >
+      <h2 className="m-0 text-[17.5px] font-bold text-[var(--color-headline)]">{title}</h2>
+      {hint && <p className="mt-1 mb-0 text-sm text-[var(--color-muted-foreground)]">{hint}</p>}
+      {children}
+    </section>
+  );
+}
+
+/**
+ * Entries under the day they happened, newest day first — the order the
+ * feeds already arrive in, so grouping never reorders. "Hoje" and "Ontem" in
+ * the reader's language; older days by their weekday, with the date beside.
+ * Days are the reader's own, which is the zone the times beside them are in.
+ */
+export function TimelineDays<E extends { occurredAt: string }>({
+  entries,
   locale,
-  description,
+  renderEntry,
+  now = new Date(),
 }: {
-  entry: ActivityEntry;
+  entries: readonly E[];
   locale: string;
-  description: string;
+  renderEntry: (entry: E, time: string) => ReactNode;
+  now?: Date;
 }) {
-  const when = new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(entry.occurredAt));
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const civil = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" });
+  const clock = new Intl.DateTimeFormat(locale, { timeZone, hour: "2-digit", minute: "2-digit" });
+  const weekday = new Intl.DateTimeFormat(locale, { timeZone, weekday: "long" });
+  const today = civil.format(now);
+  const yesterday = civil.format(new Date(now.getTime() - 86_400_000));
+
+  const days: { key: string; first: string; entries: E[] }[] = [];
+  for (const entry of entries) {
+    const key = civil.format(new Date(entry.occurredAt));
+    const last = days[days.length - 1];
+    if (last?.key === key) last.entries.push(entry);
+    else days.push({ key, first: entry.occurredAt, entries: [entry] });
+  }
 
   return (
-    <li className="flex items-center gap-4 border-t border-[var(--color-border)] px-4 py-3.5 first:border-t-0 sm:px-5">
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[var(--color-muted)] text-[var(--color-muted-foreground)]">
-          <Activity className="h-4 w-4" />
-        </span>
-        <div className="min-w-0">
-          <p className="type-body-medium truncate font-semibold">
-            {description}
-          </p>
-          <p className="type-caption truncate text-[var(--color-muted-foreground)]">
-            {when}
-          </p>
-        </div>
+    <>
+      {days.map((day, i) => {
+        const near = day.key === today || day.key === yesterday;
+        const name = near ? relativeDayLabel(day.first, timeZone, now, locale) : weekday.format(new Date(day.first));
+        return (
+          <div key={day.key}>
+            <h3 className={cn("mb-2 flex items-center text-[15px] font-normal text-[var(--color-faint)]", i === 0 ? "mt-4" : "mt-[22px]")}>
+              <b className="mr-3 text-base font-bold text-[var(--color-headline)]">
+                {name.charAt(0).toLocaleUpperCase(locale) + name.slice(1)}
+              </b>
+              <span aria-hidden="true" className="mr-2.5 text-[10px]">•</span>
+              {shortDate(day.first, timeZone, locale, { year: true })}
+            </h3>
+            <ul className="m-0 grid list-none p-0">
+              {day.entries.map((entry) => renderEntry(entry, clock.format(new Date(entry.occurredAt))))}
+            </ul>
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+/**
+ * One event: the bullet, the time, the kind's tile, who did it when the feed
+ * says, the sentence and the line under it, and a pill at the end.
+ */
+export function TimelineRow({
+  time,
+  type,
+  avatar,
+  title,
+  sub,
+  aside,
+}: {
+  time: string;
+  type: string;
+  avatar?: ReactNode;
+  title: ReactNode;
+  sub?: ReactNode;
+  aside?: ReactNode;
+}) {
+  return (
+    <li
+      className={cn(
+        "grid min-h-[58px] items-center gap-x-3 border-b border-[var(--color-line-2)] py-2 last:border-b-0 sm:gap-x-[18px]",
+        avatar
+          ? "grid-cols-[44px_38px_minmax(0,1fr)] sm:grid-cols-[22px_54px_38px_38px_minmax(0,1fr)_auto]"
+          : "grid-cols-[44px_38px_minmax(0,1fr)] sm:grid-cols-[22px_54px_38px_minmax(0,1fr)_auto]",
+      )}
+    >
+      <span aria-hidden="true" className="hidden h-[7px] w-[7px] justify-self-center rounded-full bg-[color-mix(in_srgb,var(--color-faint)_60%,white)] sm:block" />
+      <span className="text-sm whitespace-nowrap tabular-nums text-[color-mix(in_srgb,var(--color-faint)_85%,var(--color-primary))]">{time}</span>
+      <ActivityKindIcon type={type} />
+      {avatar && <span className="hidden sm:block">{avatar}</span>}
+      <div className="min-w-0">
+        <p className="m-0 text-[14.5px] leading-[1.35] text-[var(--color-headline)]">{title}</p>
+        {sub && <p className="m-0 mt-[3px] truncate text-[13.5px] leading-[1.35] text-[var(--color-faint)]">{sub}</p>}
       </div>
+      {aside ? <span className="hidden justify-self-end sm:block">{aside}</span> : <span className="hidden sm:block" />}
     </li>
   );
 }
 
 /**
- * The loading state, built to the height of the row it stands in for.
- *
- * The bars are the same heights as the text they replace — 15 and 13 against a
- * 32px disc — so the list does not change height the moment the data lands.
- * A shorter placeholder is not a smaller mistake; it is the page jumping under
- * somebody's cursor.
+ * The loading state, built to the height of the row it stands in for: a
+ * 58px row with the 38px tile, so the card does not change height the
+ * moment the data lands.
  */
-function ActivitySkeleton({ rows }: { rows: number }) {
+export function TimelineSkeleton({ rows }: { rows: number }) {
   return (
-    <ul className="grid list-none gap-0 p-0">
+    <ul className="m-0 mt-4 grid list-none p-0">
       {Array.from({ length: rows }, (_, i) => (
-        <li
-          key={i}
-          className="flex items-center gap-4 border-t border-[var(--color-border)] px-4 py-3.5 first:border-t-0 sm:px-5"
-        >
-          <div className="flex min-w-0 items-center gap-3">
-            <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
-            <div className="grid gap-1.5">
-              <Skeleton className="h-[15px] w-44 max-w-full" />
-              <Skeleton className="h-[13px] w-28" />
-            </div>
+        <li key={i} className="flex min-h-[58px] items-center gap-[18px] border-b border-[var(--color-line-2)] py-2 last:border-b-0">
+          <Skeleton className="h-4 w-[54px]" />
+          <Skeleton className="h-[38px] w-[38px] shrink-0 rounded-[9px]" />
+          <div className="grid gap-1.5">
+            <Skeleton className="h-[15px] w-56 max-w-full" />
+            <Skeleton className="h-[13px] w-36" />
           </div>
         </li>
       ))}
