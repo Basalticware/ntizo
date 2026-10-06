@@ -734,5 +734,10 @@
     "services": "Diensten",
     "bookings": "Boekingen",
     "quotes": "Offertes"
+  },
+  "profileNudge": {
+    "title": "Word een topaanbieder",
+    "body": "Vul uw profiel aan en ontvang meer boekingen.",
+    "cta": "Profiel aanvullen"
   }
 }

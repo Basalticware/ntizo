@@ -23,7 +23,7 @@ export function ProviderNotificationsPage() {
   if (!activeProvider) return null;
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
+    <div className="flex w-full max-w-[1400px] flex-col gap-4">
       <NotificationsPage
         scope={{ kind: "provider", providerId: activeProvider.id }}
         // The zone is the workspace's routes, which need its slug; the scope

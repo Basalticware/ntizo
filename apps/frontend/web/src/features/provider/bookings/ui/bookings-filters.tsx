@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Select } from "@ntizo/frontend-ui";
 import type { ProviderBookingPageDTO } from "@ntizo/shared/read-models";
 import { FilterField, FilterSheet } from "@/shared/components/filter-sheet";
-import { PROVIDER_TABS, type ProviderTab } from "../domain/status";
+import type { ProviderTab } from "../domain/status";
 
 /** The tab the page opens on, and the one "Clear filters" goes back to. */
 export const DEFAULT_PROVIDER_TAB: ProviderTab = "requests";
@@ -12,20 +12,20 @@ export interface BookingFilters {
   memberId: string | null;
 }
 
-/** How many of the two are set to something other than the default — the number on the Filter button. */
+/**
+ * How many filters are set — the number on the Filter button. The tab is not
+ * one: it has its own row above the list now, and is always set to something.
+ */
 export function bookingFilterCount(filters: BookingFilters): number {
-  return (filters.tab !== DEFAULT_PROVIDER_TAB ? 1 : 0) + (filters.memberId !== null ? 1 : 0);
+  return filters.memberId !== null ? 1 : 0;
 }
 
 /**
  * The workspace's booking filters, in the panel every list shares.
  *
- * The three tabs used to be a row above the card and the professional a
- * native `select` beside it — two controls in a place no other list keeps
- * its filters. They are still what they were: the tab is a different
- * question per choice (answer, prepare, look back), so its picker always has
- * a value and "Clear filters" means the first one; the professional narrows
- * that list, and is offered only when the workspace has more than one.
+ * The tabs are the row above the list (`StatusTabs`); what is left here is
+ * the professional, which narrows the tab on screen and is offered only when
+ * the workspace has more than one. "Clear filters" leaves the tab alone.
  */
 export function BookingsFilterSheet({
   open,
@@ -49,18 +49,8 @@ export function BookingsFilterSheet({
       onOpenChange={onOpenChange}
       title={t("bookings.filterTitle")}
       canClear={bookingFilterCount(filters) > 0}
-      onClear={() => onChange({ tab: DEFAULT_PROVIDER_TAB, memberId: null })}
+      onClear={() => onChange({ ...filters, memberId: null })}
     >
-      <FilterField id="filter-tab" label={t("bookings.showLabel")}>
-        <Select
-          id="filter-tab"
-          value={filters.tab}
-          onChange={(value) => onChange({ ...filters, tab: value as ProviderTab })}
-          ariaLabel={t("bookings.showLabel")}
-          options={PROVIDER_TABS.map((key) => ({ value: key, label: t(`bookings.tab.${key}`) }))}
-        />
-      </FilterField>
-
       {members.length > 1 && (
         <FilterField id="filter-member" label={t("bookings.memberLabel")}>
           <Select

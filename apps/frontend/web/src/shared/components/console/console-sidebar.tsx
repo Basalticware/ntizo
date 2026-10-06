@@ -1,62 +1,36 @@
 import type { ReactNode } from "react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarRail,
-} from "@ntizo/frontend-ui";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@ntizo/frontend-ui";
 import type { ConsoleNav } from "@/shared/lib/console-nav";
 import { ConsoleNavItems } from "./console-nav-items";
-import { ConsoleUserMenu } from "./console-user-menu";
 
 /**
- * The console's sidebar: one masthead, the menu, the account at the foot.
+ * The console's sidebar, under the top bar: the business (in a workspace),
+ * the menu, and whatever the zone puts at its foot.
  *
- * The masthead is the wordmark and which zone this is. No coloured tile — a
- * logo squeezed into a 20px square is a texture, not a logo. Collapsed to
- * icons the wordmark has nowhere to go, so the mark alone takes over.
- *
- * `workspaceMenu` is the zone's contribution to the account menu — the
- * switcher, for a workspace; nothing, for the platform. This component does
- * not know which it is in.
+ * The wordmark and the person moved to the top bar with the mockups; this
+ * column is now only about where to go. `header` and `footer` are the zone's
+ * — the workspace card and the profile nudge for a provider, nothing for the
+ * platform — so this component still never asks which zone it is in.
  */
 export function ConsoleSidebar({
   nav,
   slug,
-  zoneLabel,
-  workspaceMenu,
+  header,
+  footer,
 }: {
   nav: ConsoleNav;
   slug: string | undefined;
-  zoneLabel: string;
-  workspaceMenu?: ReactNode;
+  header?: ReactNode;
+  footer?: ReactNode;
 }) {
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <div className="flex items-center gap-2.5 px-2 py-2">
-              <img
-                src="/brand/icon-primary.svg"
-                alt=""
-                aria-hidden="true"
-                className="hidden h-8 w-auto shrink-0 group-data-[collapsible=icon]:block"
-              />
-              <div className="grid gap-1 group-data-[collapsible=icon]:hidden">
-                <img src="/brand/logo-primary.svg" alt="Ntizo" className="h-7 w-auto" />
-                <span className="truncate text-[11px] text-[var(--color-muted-foreground)]">{zoneLabel}</span>
-              </div>
-            </div>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
+    // Starts under the 76px top bar rather than at the window's top edge.
+    <Sidebar collapsible="icon" className="top-[76px] h-[calc(100svh-76px)] border-r-[var(--color-border)]">
+      {header && <SidebarHeader className="px-4 pt-5 pb-2 group-data-[collapsible=icon]:px-2">{header}</SidebarHeader>}
+      <SidebarContent className="px-2 pt-3 group-data-[collapsible=icon]:px-0">
         <ConsoleNavItems nav={nav} slug={slug} />
       </SidebarContent>
-      <ConsoleUserMenu ns={nav.ns}>{workspaceMenu}</ConsoleUserMenu>
+      {footer && <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden">{footer}</SidebarFooter>}
       <SidebarRail />
     </Sidebar>
   );

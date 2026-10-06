@@ -68,11 +68,14 @@ test("creating a provider makes it appear in its own creator's dashboard", async
   // what makes the provider visible to its own creator, not a fresh load.
   await page.getByRole("link", { name: /go to the dashboard/i }).click();
   await page.waitForURL(/\/provider\/[^/]+\/overview/);
-  await expect(page.getByText(providerName)).toBeVisible();
+  // The sidebar's business card names the active workspace; the overview's
+  // greeting says it again, so the check is scoped to the card.
+  const workspaceCard = page.locator('[data-slot="workspace-card"]');
+  await expect(workspaceCard.getByText(providerName)).toBeVisible();
 
   // And a cold reload sees it too: this isn't only true of a still-warm
   // client cache — the server-side read (`providerMine`) itself reflects
   // the write a moment after `providerCreate` committed.
   await page.reload();
-  await expect(page.getByText(providerName)).toBeVisible();
+  await expect(workspaceCard.getByText(providerName)).toBeVisible();
 });

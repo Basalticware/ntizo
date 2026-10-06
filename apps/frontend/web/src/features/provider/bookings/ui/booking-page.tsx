@@ -90,6 +90,7 @@ export function BookingPage() {
   usePageHeader(
     b ? b.customerFirstName : t("bookings.title"),
     b ? `${b.serviceName}${b.optionName ? ` · ${b.optionName}` : ""}` : undefined,
+    { ownHeading: true },
   );
   // The countdown is measured from the moment the booking was answered for,
   // not from whenever React last re-rendered: a re-render for an unrelated

@@ -1,18 +1,20 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
-  Briefcase,
+  BarChart3,
+  Bell,
   CalendarCheck,
-  CalendarClock,
+  CalendarDays,
+  CalendarPlus,
+  ContactRound,
   FileText,
-  LayoutDashboard,
-  LifeBuoy,
-  Mail,
-  MessageSquare,
-  MessageSquareQuote,
+  Headphones,
+  House,
+  LayoutGrid,
+  MessageSquareText,
   Settings,
-  Store,
-  Tags,
+  Star,
+  UserRound,
   Users,
   Wallet,
 } from "lucide-react";
@@ -75,52 +77,48 @@ export const PRIMARY_TAB_COUNT = 3;
 const WORKSPACE: ConsoleNav = {
   zone: "workspace",
   ns: "provider",
-  home: { key: "overview", titleKey: "nav.overview", url: "/provider/$slug/overview", icon: LayoutDashboard },
+  home: { key: "overview", titleKey: "nav.overview", url: "/provider/$slug/overview", icon: House },
+  // The mockups' order: what the provider offers, then when, then the work
+  // that arrives against it.
   work: [
-    // Bookings first: the queue with a respond-by clock on it, the thing this
-    // zone exists to answer. The tab bar takes the three marked `primary`;
-    // Services is a seven-step wizard, a desk job, and lives in the sheet.
-    { key: "bookings", titleKey: "nav.bookings", shortKey: "navShort.bookings", url: "/provider/$slug/bookings", icon: CalendarCheck, primary: true, count: "bookingRequests" },
+    { key: "services", titleKey: "nav.services", shortKey: "navShort.services", url: "/provider/$slug/services", icon: LayoutGrid },
+    { key: "availability", titleKey: "nav.availability", shortKey: "navShort.availability", url: "/provider/$slug/availability", icon: CalendarDays },
+    { key: "bookings", titleKey: "nav.bookings", shortKey: "navShort.bookings", url: "/provider/$slug/bookings", icon: CalendarPlus, primary: true, count: "bookingRequests" },
     { key: "quotes", titleKey: "nav.quotes", shortKey: "navShort.quotes", url: "/provider/$slug/quotes", icon: FileText, primary: true, count: "quoteRequests" },
-    { key: "messages", titleKey: "nav.messages", shortKey: "navShort.messages", url: "/provider/$slug/messages", icon: MessageSquare, primary: true, count: "unreadThreads" },
-    // Availability keeps its place in the sidebar and the sheet but gives up
-    // the phone's tab bar: a request with a 48-hour clock on it is owed
-    // sooner than a week of availability is, and PRIMARY_TAB_COUNT stays 3.
-    { key: "availability", titleKey: "nav.availability", shortKey: "navShort.availability", url: "/provider/$slug/availability", icon: CalendarClock },
-    { key: "services", titleKey: "nav.services", shortKey: "navShort.services", url: "/provider/$slug/services", icon: Briefcase },
+    { key: "messages", titleKey: "nav.messages", shortKey: "navShort.messages", url: "/provider/$slug/messages", icon: MessageSquareText, primary: true, count: "unreadThreads" },
   ],
   manage: [
-    { key: "members", titleKey: "nav.members", url: "/provider/$slug/members", icon: Users },
     { key: "wallet", titleKey: "nav.wallet", url: "/provider/$slug/wallet", icon: Wallet },
+    { key: "members", titleKey: "nav.members", url: "/provider/$slug/members", icon: Users },
+    { key: "notifications", titleKey: "nav.notifications", url: "/provider/$slug/notifications", icon: Bell },
     { key: "activity", titleKey: "nav.activity", url: "/provider/$slug/activity", icon: Activity },
     { key: "settings", titleKey: "nav.settings", url: "/provider/$slug/settings", icon: Settings },
   ],
 };
 
-/** The platform zone: the same slots, filled by the platform. */
 const PLATFORM: ConsoleNav = {
   zone: "platform",
   ns: "admin",
-  home: { key: "dashboard", titleKey: "nav.dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
+  home: { key: "dashboard", titleKey: "nav.dashboard", url: "/admin/dashboard", icon: House },
   work: [
     // What arrives at the platform, in the order somebody is waiting on it:
     // applications to approve, bookings an administrator has to close, support
     // threads and contact requests owed a reply, reviews to moderate. The three
     // tabs stay Providers, Reviews and Users; the bookings and support reads
     // expose counts now, and re-choosing the tabs is follow-up #203.
-    { key: "providers", titleKey: "nav.providers", shortKey: "navShort.providers", url: "/admin/providers", icon: Store, primary: true, count: "pendingProviders" },
+    { key: "providers", titleKey: "nav.providers", shortKey: "navShort.providers", url: "/admin/providers", icon: Users, primary: true, count: "pendingProviders" },
     { key: "bookings", titleKey: "nav.bookings", url: "/admin/bookings", icon: CalendarCheck },
-    { key: "support", titleKey: "nav.support", url: "/admin/support", icon: LifeBuoy },
-    { key: "contact", titleKey: "nav.contact", url: "/admin/contact", icon: Mail },
-    { key: "reviews", titleKey: "nav.reviews", shortKey: "navShort.reviews", url: "/admin/reviews", icon: MessageSquareQuote, primary: true, count: "flaggedReviews" },
+    { key: "support", titleKey: "nav.support", url: "/admin/support", icon: Headphones },
+    { key: "contact", titleKey: "nav.contact", url: "/admin/contact", icon: ContactRound },
+    { key: "reviews", titleKey: "nav.reviews", shortKey: "navShort.reviews", url: "/admin/reviews", icon: Star, primary: true, count: "flaggedReviews" },
   ],
   manage: [
     // Users is the platform's people registry, as Members is the
     // workspace's — a fact you look up, not a queue that arrives. It takes a
     // tab because it is the third thing an admin opens on a phone.
-    { key: "users", titleKey: "nav.users", shortKey: "navShort.users", url: "/admin/users", icon: Users, primary: true },
-    { key: "activity", titleKey: "nav.activity", url: "/admin/activity", icon: Activity },
-    { key: "categories", titleKey: "nav.categories", url: "/admin/categories", icon: Tags },
+    { key: "users", titleKey: "nav.users", shortKey: "navShort.users", url: "/admin/users", icon: UserRound, primary: true },
+    { key: "activity", titleKey: "nav.activity", url: "/admin/activity", icon: BarChart3 },
+    { key: "categories", titleKey: "nav.categories", url: "/admin/categories", icon: LayoutGrid },
   ],
 };
 

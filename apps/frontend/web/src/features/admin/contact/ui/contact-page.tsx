@@ -59,7 +59,7 @@ export function AdminContactPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-4">
+    <div className="flex w-full max-w-[1400px] flex-col gap-4">
       {query.error && <p className="type-body text-[var(--color-destructive)]">{t("contactError")}</p>}
       {setRequestStatus.error && <p className="type-body text-[var(--color-destructive)]">{t("contactStatusFailed")}</p>}
 

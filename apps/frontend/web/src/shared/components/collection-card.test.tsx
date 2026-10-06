@@ -305,7 +305,7 @@ describe("CollectionCard while loading", () => {
   describe("tableFrom", () => {
     const wrappers = (container: HTMLElement) => ({
       table: container.querySelector("table")!.closest("div")!.className,
-      cards: container.querySelector("ul")!.closest("div[class*='border-t']")!.className,
+      cards: container.querySelector("ul")!.closest("[data-slot='collection-cards']")!.className,
     });
 
     it("draws the table from md by default, as every list did before the prop existed", () => {

@@ -734,5 +734,10 @@
     "services": "Serviços",
     "bookings": "Reservas",
     "quotes": "Orçamentos"
+  },
+  "profileNudge": {
+    "title": "Seja um prestador de referência",
+    "body": "Complete o seu perfil e receba mais reservas.",
+    "cta": "Completar perfil"
   }
 }

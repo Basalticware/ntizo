@@ -44,7 +44,8 @@ test("an admin grants admin access from a person's page", async ({ page }) => {
     await expect(page.getByRole("button", { name: "Remove admin" })).toBeVisible();
     // exact: true — the role section's own hint text also contains the word
     // "administrator", and a substring match would hit both elements.
-    await expect(page.getByText("Administrator", { exact: true })).toBeVisible();
+    // In the person's facts, not the top bar's role line under the admin's own name.
+    await expect(page.locator("dl").getByText("Administrator", { exact: true })).toBeVisible();
 
     const [ntizo] = await sql()`SELECT role FROM ntizo_user."user" WHERE id = ${customer.id}`;
     const [auth] = await sql()`SELECT role FROM better_auth."user" WHERE id = ${customer.id}`;

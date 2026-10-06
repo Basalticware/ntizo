@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { ArrowLeft, ChevronsUpDown, LogOut, Monitor, Moon, Palette, Sun, User as UserIcon } from "lucide-react";
+import { ArrowLeft, ChevronDown, LogOut, Monitor, Moon, Palette, Sun, User as UserIcon } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
@@ -16,10 +16,6 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@ntizo/frontend-ui";
 import { useCurrentUser } from "@/features/user/viewmodel/use-current-user";
 import { useSignOut } from "@/features/user/viewmodel/use-sign-out";
@@ -27,21 +23,29 @@ import { initialsFrom } from "@/shared/lib/initials";
 import { applyThemePreference } from "@/shared/lib/theme";
 
 /**
- * The signed-in person's menu, at the foot of the console sidebar.
+ * The signed-in person's menu, at the right of the console's top bar: their
+ * photo, their name, and what they are in this zone.
  *
  * One component for both zones. What differs between them — the workspace
  * switcher, which belongs to a business rather than a person — arrives as
  * `children` from the zone that has one, so this file never asks which zone
- * it is in. It opens to the right because the trigger is the last thing in a
- * sidebar pinned to the left edge; a menu anchored to its right edge would
- * unfold back across the sidebar and off the screen.
+ * it is in. It opens downwards and aligned to its right edge, because the
+ * trigger is the last thing in a bar that ends at the window's edge.
  *
  * Both "My account" and "Back to Ntizo" leave the zone, and that is the
  * point: an account belongs to a person, a zone belongs to an organization
  * or the platform. Keeping them here is what keeps the sidebar about the
  * business.
  */
-export function ConsoleUserMenu({ ns, children }: { ns: "provider" | "admin"; children?: ReactNode }) {
+export function ConsoleUserMenu({
+  ns,
+  roleLabel,
+  children,
+}: {
+  ns: "provider" | "admin";
+  roleLabel: string;
+  children?: ReactNode;
+}) {
   const { t } = useTranslation(ns);
   const { t: ta } = useTranslation("auth");
   const { t: tc } = useTranslation("common");
@@ -57,26 +61,28 @@ export function ConsoleUserMenu({ ns, children }: { ns: "provider" | "admin"; ch
   const initials = initialsFrom(user?.name ?? user?.email ?? "?");
 
   return (
-    <SidebarFooter>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <SidebarMenuButton size="lg" tooltip={user?.name ?? user?.email ?? ""}>
-                <Avatar className="h-8 w-8">
-                  {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt={user.name ?? ""} /> : null}
-                  <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-                </Avatar>
-                {/* Gone when the rail collapses to icons: a name truncated to
-                    four characters says nothing, and the tooltip carries it. */}
-                <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-                  <span className="truncate text-sm font-semibold">{user?.name ?? ""}</span>
-                  <span className="truncate text-[11px] text-muted-foreground">{user?.email ?? ""}</span>
-                </div>
-                <ChevronsUpDown className="ml-auto size-4 opacity-60 group-data-[collapsible=icon]:hidden" />
-              </SidebarMenuButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-64" side="right">
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <button
+          type="button"
+          data-slot="console-account"
+          aria-label={user?.name ?? user?.email ?? ""}
+          className="flex items-center gap-3 rounded-xl px-1.5 py-1 text-left hover:bg-[var(--color-muted)]"
+        >
+          <Avatar className="h-11 w-11">
+            {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt="" /> : null}
+            <AvatarFallback className="text-sm">{initials}</AvatarFallback>
+          </Avatar>
+          {/* Name and role from `lg`: below that the bar has the search to
+              keep, and the photo alone still opens the menu. */}
+          <span className="hidden max-w-[180px] leading-tight lg:grid">
+            <span className="truncate text-[15px] font-semibold text-[var(--color-headline)]">{user?.name ?? ""}</span>
+            <span className="truncate text-[13px] text-[var(--color-muted-foreground)]">{roleLabel}</span>
+          </span>
+          <ChevronDown aria-hidden="true" className="hidden size-4 text-[var(--color-headline)] lg:block" />
+        </button>
+      </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-64" align="end">
               <DropdownMenuLabel className="px-3 py-3">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
@@ -132,9 +138,6 @@ export function ConsoleUserMenu({ ns, children }: { ns: "provider" | "admin"; ch
                 {ta("signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </SidebarFooter>
+    </DropdownMenu>
   );
 }

@@ -16,16 +16,17 @@ const { ConsoleUserMenu } = await import("./console-user-menu");
 function renderMenu(children?: React.ReactNode) {
   return render(
     <SidebarProvider>
-      <ConsoleUserMenu ns="provider">{children}</ConsoleUserMenu>
+      <ConsoleUserMenu ns="provider" roleLabel="Proprietário">{children}</ConsoleUserMenu>
     </SidebarProvider>,
   );
 }
 
 describe("ConsoleUserMenu", () => {
-  it("renders the signed-in name inside the sidebar trigger — the e2e sign-out helper matches on it", () => {
+  it("renders the signed-in name and role inside the top-bar trigger — the e2e sign-out helper matches on it", () => {
     renderMenu();
-    const trigger = document.querySelector('[data-sidebar="menu-button"]');
+    const trigger = document.querySelector('[data-slot="console-account"]');
     expect(trigger).toHaveTextContent("Ana M");
+    expect(trigger).toHaveTextContent("Proprietário");
   });
 
   it("offers Sign out as a menu item", async () => {

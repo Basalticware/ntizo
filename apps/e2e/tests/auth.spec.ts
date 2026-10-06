@@ -106,7 +106,7 @@ test("signing in as a different user shows that user's session, not the previous
   // The admin's own name, not the previous user's — the whole point of this
   // test. Admin is not a segment in the pill any more; it is reached from the
   // account menu, so only the identity assertion belongs here.
-  await expect(page.locator('[data-sidebar="menu-button"]').filter({ hasText: admin.name })).toBeVisible();
+  await expect(page.locator(`[data-slot="console-account"][aria-label="${admin.name}"]`)).toBeVisible();
 
   await signOutViaSidebar(page, admin.name);
   await page.waitForURL(/\/sign-in/);
@@ -118,7 +118,7 @@ test("signing in as a different user shows that user's session, not the previous
   // QueryClient entry from `admin`'s session could still be sitting in
   // cache under the same query keys `providerOwner`'s hooks now read.
   await expect(
-    page.locator('[data-sidebar="menu-button"]').filter({ hasText: providerOwner.name }),
+    page.locator(`[data-slot="console-account"][aria-label="${providerOwner.name}"]`),
   ).toBeVisible();
   await expect(page.getByText(admin.name)).toHaveCount(0);
 

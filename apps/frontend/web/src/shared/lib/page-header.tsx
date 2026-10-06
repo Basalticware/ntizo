@@ -3,6 +3,12 @@ import { createContext, useContext, useEffect, type ReactNode } from "react";
 export interface PageHeaderState {
   title: string;
   subtitle?: string;
+  /**
+   * The page draws its own heading — a detail page's hero with a photo and
+   * badges. The shell then keeps the title for the document and the menu but
+   * does not print it a second time above the page.
+   */
+  ownHeading?: boolean;
 }
 
 export const PageHeaderContext = createContext<{
@@ -20,7 +26,8 @@ export function usePageHeaderAction() {
   return useContext(PageHeaderContext)?.action ?? null;
 }
 
-export function usePageHeader(title: string, subtitle?: string) {
+export function usePageHeader(title: string, subtitle?: string, options?: { ownHeading?: boolean }) {
+  const ownHeading = options?.ownHeading ?? false;
   // Depend on the setter, not the whole context object. Shells build their
   // context value inline, so `ctx` is a new object every render — keeping it
   // in the dep array re-fires this effect on every render, and setHeader's new
@@ -28,11 +35,11 @@ export function usePageHeader(title: string, subtitle?: string) {
   // useState setters are referentially stable, so this settles.
   const setHeader = useContext(PageHeaderContext)?.setHeader;
   useEffect(() => {
-    setHeader?.({ title, subtitle });
+    setHeader?.({ title, subtitle, ownHeading });
     // Clears on unmount, as `usePageAction` already does: a page that sets no
     // title would otherwise wear the previous page's.
     return () => setHeader?.({ title: "" });
-  }, [title, subtitle, setHeader]);
+  }, [title, subtitle, ownHeading, setHeader]);
 }
 
 export function usePageAction(node: ReactNode, deps: unknown[] = []) {

@@ -60,7 +60,7 @@ export function AdminSupportPage() {
   const when = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-4">
+    <div className="flex w-full max-w-[1400px] flex-col gap-4">
       {errorCode && <p className="type-body text-[var(--color-destructive)]">{t("supportError")}</p>}
 
       <CollectionCard

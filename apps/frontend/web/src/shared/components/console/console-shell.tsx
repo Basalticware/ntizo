@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { SidebarInset, SidebarProvider, useIsMobile } from "@ntizo/frontend-ui";
 import { NotificationBellLink } from "@/shared/components/notification-bell-link";
@@ -10,21 +10,23 @@ import { consoleNav, type ConsoleNav, type ConsoleZone } from "@/shared/lib/cons
 import { useIsTablet } from "@/shared/hooks/use-is-tablet";
 import { PageHeaderContext, type PageHeaderState } from "@/shared/lib/page-header";
 import { ConsoleCountsProvider } from "./console-counts";
-import { ConsoleHeader } from "./console-header";
+import { isWorkspaceLive } from "@/features/provider/domain/workspace-status";
 import { ConsoleMenuProvider } from "./console-menu-context";
 import { ConsoleMenuSheet } from "./console-menu-sheet";
+import { ConsolePageHeading } from "./console-page-heading";
+import { ConsoleProfileNudge } from "./console-profile-nudge";
 import { ConsoleSidebar } from "./console-sidebar";
 import { ConsoleStrip } from "./console-strip";
 import { ConsoleTabBar } from "./console-tab-bar";
-import { MobileWorkspaceSwitcher, WorkspaceSwitcher } from "./workspace-switcher";
+import { ConsoleTopBar } from "./console-top-bar";
+import { MobileWorkspaceSwitcher, WorkspaceCard } from "./workspace-switcher";
 
 /**
- * The bordered square the bell sits in. 44px on a phone — where it is the
- * only route to the inbox, and the only control in this header a thumb has
- * to hit — and the designed 36px from `md` up, beside the trigger.
+ * The bare bell of the top bar. 44px at every width: on a phone it is the
+ * only route to the inbox, and the only control in this bar a thumb has to hit.
  */
 const BELL_CLASS =
-  "relative inline-flex h-11 w-11 items-center justify-center rounded-md border border-input bg-secondary text-foreground hover:bg-accent md:h-9 md:w-9";
+  "relative inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-headline)] hover:bg-[var(--color-muted)] [&_svg]:size-[22px]";
 
 /**
  * The console: one shell for `/provider/$slug/*` and `/admin/*`.
@@ -82,6 +84,7 @@ function WorkspaceShell({ nav, children }: { nav: ConsoleNav; children: ReactNod
         nav={nav}
         slug={activeProvider?.slug}
         zoneLabel={t("providerConsole")}
+        roleLabel={activeProvider ? t(`peopleRoles.${activeProvider.role}`) : ""}
         bell={
           // The workspace's own inbox, not the person's. `useUnreadCount`'s
           // `enabled` guard keeps it from firing while `providerId` is "".
@@ -92,8 +95,15 @@ function WorkspaceShell({ nav, children }: { nav: ConsoleNav; children: ReactNod
             className={BELL_CLASS}
           />
         }
-        strip={activeProvider ? <ConsoleStrip status={activeProvider.status} commission={commission} /> : null}
-        workspaceMenu={<WorkspaceSwitcher />}
+        // Only while the workspace is not live: the mockups carry no strip,
+        // and a business that cannot take bookings yet still has to be told.
+        strip={
+          activeProvider && !isWorkspaceLive(activeProvider.status) ? (
+            <ConsoleStrip status={activeProvider.status} commission={commission} />
+          ) : null
+        }
+        sidebarHeader={<WorkspaceCard commission={commission} />}
+        sidebarFooter={<ConsoleProfileNudge slug={activeProvider?.slug} />}
         sheetHeader={<MobileWorkspaceSwitcher />}
       >
         {children}
@@ -111,6 +121,8 @@ function PlatformShell({ nav, children }: { nav: ConsoleNav; children: ReactNode
         nav={nav}
         slug={undefined}
         zoneLabel={t("adminConsole")}
+        zoneTag={t("adminConsole")}
+        roleLabel={t("userRole.admin")}
         bell={<NotificationBellLink scope={{ kind: "mine" }} to="/account/notifications" className={BELL_CLASS} />}
         strip={null}
       >
@@ -129,18 +141,24 @@ function ShellFrame({
   nav,
   slug,
   zoneLabel,
+  zoneTag,
+  roleLabel,
   bell,
   strip,
-  workspaceMenu,
+  sidebarHeader,
+  sidebarFooter,
   sheetHeader,
   children,
 }: {
   nav: ConsoleNav;
   slug: string | undefined;
   zoneLabel: string;
+  zoneTag?: string;
+  roleLabel: string;
   bell: ReactNode;
   strip: ReactNode;
-  workspaceMenu?: ReactNode;
+  sidebarHeader?: ReactNode;
+  sidebarFooter?: ReactNode;
   sheetHeader?: ReactNode;
   children: ReactNode;
 }) {
@@ -149,21 +167,37 @@ function ShellFrame({
   const isTablet = useIsTablet();
   const isMobile = useIsMobile();
   return (
-    <SidebarProvider defaultOpen={!isTablet}>
-      {/* Below `md` there is no sidebar — the bar and the sheet are the
-          navigation. Not rendered rather than hidden: `SidebarProvider`'s
-          ⌘B shortcut would otherwise open the primitive's own left-hand
-          drawer, the model the spec rejected, on any window under 768px. */}
-      {!isMobile && (
-        <ConsoleSidebar nav={nav} slug={slug} zoneLabel={zoneLabel} workspaceMenu={workspaceMenu} />
-      )}
-      <SidebarInset className="h-svh min-h-0 overflow-hidden">
-        <ConsoleHeader bell={bell} />
-        {strip}
-        <main className="min-h-0 flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
-        <ConsoleTabBar nav={nav} slug={slug} />
-        <ConsoleMenuSheet nav={nav} slug={slug} zoneLabel={zoneLabel} header={sheetHeader} />
-      </SidebarInset>
+    <SidebarProvider
+      defaultOpen={!isTablet}
+      className="flex-col"
+      style={{ "--sidebar-width": "17.5rem", "--sidebar-width-icon": "4.5rem" } as CSSProperties}
+    >
+      <ConsoleTopBar
+        homeUrl={nav.home.url}
+        slug={slug}
+        zoneTag={zoneTag}
+        roleLabel={roleLabel}
+        ns={nav.ns}
+        bell={bell}
+      />
+      <div className="flex min-h-0 flex-1">
+        {/* Below `md` there is no sidebar — the bar and the sheet are the
+            navigation. Not rendered rather than hidden: `SidebarProvider`'s
+            ⌘B shortcut would otherwise open the primitive's own left-hand
+            drawer, the model the spec rejected, on any window under 768px. */}
+        {!isMobile && (
+          <ConsoleSidebar nav={nav} slug={slug} header={sidebarHeader} footer={sidebarFooter} />
+        )}
+        <SidebarInset className="h-[calc(100svh-76px)] min-h-0 min-w-0 overflow-hidden">
+          {strip}
+          <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
+            <ConsolePageHeading />
+            {children}
+          </main>
+          <ConsoleTabBar nav={nav} slug={slug} />
+          <ConsoleMenuSheet nav={nav} slug={slug} zoneLabel={zoneLabel} header={sheetHeader} />
+        </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 }

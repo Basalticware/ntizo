@@ -40,7 +40,7 @@ export function ProviderActivityPage() {
   const renderDescription = (): string => "";
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
+    <div className="flex w-full max-w-[1400px] flex-col gap-4">
       <ActivityList
         entries={[]}
         loading={false}

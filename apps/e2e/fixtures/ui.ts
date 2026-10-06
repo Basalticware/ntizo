@@ -35,20 +35,16 @@ export async function fillSignInForm(
 }
 
 /**
- * Opens the signed-in user's sidebar menu and clicks "Sign out". Both zones
- * now render the trigger through the same
- * `src/shared/components/console/console-user-menu.tsx`, as a plain
- * `<button data-sidebar="menu-button">` with no shared accessible role to
- * hang a selector off (packages/frontend/src/components/sidebar.tsx), so
- * this matches on the trigger containing the current user's own visible
- * name — which also happens to be the assertion that matters here: the
- * button we click is provably *this* user's, not a leftover from whoever
- * was signed in before.
+ * Opens the signed-in user's account menu and clicks "Sign out". Both zones
+ * render the trigger through the same
+ * `src/shared/components/console/console-user-menu.tsx`, at the right of the
+ * console's top bar, as `<button data-slot="console-account">` named with the
+ * person's name. Matching on that name is also the assertion that matters
+ * here: the button we click is provably *this* user's, not a leftover from
+ * whoever was signed in before. The name is the button's `aria-label`
+ * because the visible name is hidden below `lg`.
  */
 export async function signOutViaSidebar(page: Page, currentUserName: string): Promise<void> {
-  await page
-    .locator('[data-sidebar="menu-button"]')
-    .filter({ hasText: currentUserName })
-    .click();
+  await page.locator(`[data-slot="console-account"][aria-label="${currentUserName}"]`).click();
   await page.getByRole("menuitem", { name: /sign out/i }).click();
 }

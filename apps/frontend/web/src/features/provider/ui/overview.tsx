@@ -84,7 +84,7 @@ export function OverviewPage() {
   const money = (minor: number) => formatMoney(minor, s?.currency ?? "MZN", locale);
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-4">
+    <div className="grid w-full max-w-[1400px] gap-4">
       {stats.isError && (
         <p role="alert" className="type-body text-[var(--color-destructive)]">
           {t("overview.loadError")}{" "}
