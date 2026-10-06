@@ -44,6 +44,14 @@ const SET_COMMISSION = `
     providerAdminSetCommission(input: $input) { providerId }
   }`;
 
+/** Rows a page of the admin queue draws. The field's own default. */
+export const ADMIN_PROVIDERS_PAGE_SIZE = 25;
+
+export interface AdminProvidersPage {
+  items: AdminProvider[];
+  hasMore: boolean;
+}
+
 export const adminProviderQueries = {
   detail: (providerId: string) =>
     queryOptions({
@@ -67,6 +75,28 @@ export const adminProviderQueries = {
           input,
         });
         return d.providerAllForAdmin;
+      },
+    }),
+
+  /**
+   * One page of the queue, and whether there is another after it.
+   *
+   * Asks for one row more than it draws: the list read returns no total, and
+   * the extra row is the only honest way to know a next page exists without
+   * offering one that turns out empty.
+   */
+  page: (input: { status?: string; search?: string; offset: number }) =>
+    queryOptions({
+      queryKey: ["admin", "providers", "page", input],
+      queryFn: async (): Promise<AdminProvidersPage> => {
+        const d = await sessionGraphql<{ providerAllForAdmin: AdminProvider[] }>(ALL, {
+          input: { ...input, limit: ADMIN_PROVIDERS_PAGE_SIZE + 1 },
+        });
+        const rows = d.providerAllForAdmin;
+        return {
+          items: rows.slice(0, ADMIN_PROVIDERS_PAGE_SIZE),
+          hasMore: rows.length > ADMIN_PROVIDERS_PAGE_SIZE,
+        };
       },
     }),
 

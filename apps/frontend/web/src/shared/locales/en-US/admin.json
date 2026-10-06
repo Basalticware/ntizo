@@ -58,9 +58,9 @@
     "retry": "Try again"
   },
   "providersTitle": "Providers",
-  "providersSubtitle": "Every business on the platform.",
-  "providersSearchPlaceholder": "Search by name, slug or owner",
-  "providersBusiness": "Business",
+  "providersSubtitle": "Manage, review and follow the platform's providers.",
+  "providersSearchPlaceholder": "Search by name, address or owner email...",
+  "providersBusiness": "Provider",
   "providersOwner": "Owner",
   "providersStatus": "Status",
   "providersCommission": "Commission",
@@ -78,10 +78,10 @@
   },
   "providersFilterTitle": "Filter providers",
   "usersTitle": "Users",
-  "usersSubtitle": "Everyone on the platform.",
-  "usersSearchPlaceholder": "Search by name, email or phone",
-  "usersPerson": "Person",
-  "usersRole": "Role",
+  "usersSubtitle": "Manage the platform's user accounts and their permissions.",
+  "usersSearchPlaceholder": "Search by name or email...",
+  "usersPerson": "User",
+  "usersRole": "Type",
   "usersStatus": "Status",
   "usersWorkspaces": "Workspaces",
   "usersJoined": "Joined",
@@ -366,7 +366,7 @@
   "reviewsSearchPlaceholder": "Search a business, a name, or what was said",
   "reviewsAction": "Home page",
   "contactTitle": "Contact",
-  "contactSubtitle": "What people wrote to us through the contact and feedback forms, and what is still unanswered.",
+  "contactSubtitle": "Manage every message received through the platform.",
   "contactKindAll": "All",
   "contactKind": {
     "contact": "Contact",
@@ -384,15 +384,15 @@
   "contactTopic": "Topic",
   "contactDate": "Received",
   "contactAction": "Actions",
-  "contactSearchPlaceholder": "Search a name, an email, the text, or a reference",
+  "contactSearchPlaceholder": "Search by name, email, message or reference...",
   "contactEmpty": "Nothing to answer.",
   "contactEmptyTitle": "Queue empty",
   "contactNoMatches": "No request matches this search.",
   "contactNoMatchesTitle": "No results",
   "contactError": "The requests could not be loaded.",
   "contactStatusFailed": "That request could not be changed. Try again.",
-  "contactReply": "Reply by email",
-  "contactResolve": "Mark resolved",
+  "contactReply": "Reply",
+  "contactResolve": "Mark as resolved",
   "contactReopen": "Reopen",
   "contactPrevious": "Previous",
   "contactNext": "Next",
@@ -441,7 +441,7 @@
   "supportNotFound": "No such request.",
   "supportLoadError": "The request could not be loaded.",
   "bookingsTitle": "Bookings",
-  "bookingsSubtitle": "Bookings that need closing, ones inside the customer's window, and disputes waiting on a decision.",
+  "bookingsSubtitle": "Manage bookings, follow their status and resolve cases that need a hand.",
   "bookingsTab": {
     "unclosed": "Unclosed",
     "in_window": "In window",
@@ -449,7 +449,7 @@
   },
   "bookingsFilterTitle": "Filter bookings",
   "bookingsQueueLabel": "Queue",
-  "bookingsSearchPlaceholder": "Search by provider, customer or service",
+  "bookingsSearchPlaceholder": "Search by customer, provider or service...",
   "bookingsNoMatches": "No booking matches that.",
   "bookingsNoMatchesTitle": "No matches",
   "bookingsCol": {
@@ -458,7 +458,8 @@
     "service": "Service",
     "when": "When",
     "status": "Status",
-    "actions": "Actions"
+    "actions": "Actions",
+    "price": "Price"
   },
   "bookingsWaiting": "waiting {{duration}}",
   "bookingsAction": {
@@ -494,5 +495,43 @@
     "providers": "Providers",
     "reviews": "Reviews",
     "users": "Users"
-  }
+  },
+  "providersPlace": "Location",
+  "providersTab": {
+    "all": "All",
+    "pending": "To review",
+    "active": "Approved",
+    "rejected": "Rejected",
+    "suspended": "Suspended",
+    "archived": "Archived"
+  },
+  "providersShowing": "Showing {{from}}–{{to}} of {{total}} providers",
+  "usersContact": "Contact",
+  "usersTab": {
+    "all": "All",
+    "customer": "Customers",
+    "individual_provider": "Providers",
+    "organization_owner": "Organizations",
+    "admin": "Administrators"
+  },
+  "usersViewProfile": "View profile",
+  "listShowingRange": "Showing {{from}}–{{to}}",
+  "pager": {
+    "label": "Pagination",
+    "previous": "Previous page",
+    "next": "Next page"
+  },
+  "bookingsShowing": "Showing {{from}}–{{to}} of {{total}} bookings",
+  "contactShowing": "Showing {{from}}–{{to}} of {{total}} messages",
+  "contactRequestStatus": {
+    "open": "Open",
+    "resolved": "Resolved"
+  },
+  "contactOriginLabel": "Message origin",
+  "contactReceivedLabel": "Received",
+  "contactReceivedAt": "{{date}} at {{time}}",
+  "contactMessage": "Message",
+  "contactLocale": "Language",
+  "supportShowing": "Showing {{shown}} of {{total}} requests",
+  "supportShowingPartial": "Showing {{shown}} requests"
 }

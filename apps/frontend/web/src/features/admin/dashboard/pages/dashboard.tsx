@@ -140,7 +140,10 @@ export function DashboardPage() {
           primary: <ProviderBusiness provider={provider} />,
           cells: {
             status: (
-              <Badge tone={PROVIDER_STATUS_TONE[provider.status] ?? "info"}>
+              <Badge
+                tone={PROVIDER_STATUS_TONE[provider.status] ?? "info"}
+                className="min-w-[113px] justify-center text-[14.5px]"
+              >
                 {t(`providerStatus.${provider.status}`)}
               </Badge>
             ),

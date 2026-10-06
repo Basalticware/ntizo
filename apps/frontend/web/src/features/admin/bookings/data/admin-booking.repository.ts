@@ -3,15 +3,15 @@ import type { AdminBookingDTO, AdminBookingTab } from "@ntizo/shared/read-models
 import { sessionGraphql } from "@/shared/lib/graphql/session-graphql";
 
 /**
- * The eleven fields the queue draws, of the seventeen the row carries.
+ * The thirteen fields the queue draws, of the seventeen the row carries.
  *
  * A `Pick` of the published read model rather than a shape of this app's own:
  * every name here is the contract's, so a field that is renamed on the wire
- * stops type-checking here instead of arriving as `undefined`. The six left
- * out — `priceMinor`, the two commission columns, `currency`, `remindedAt`
- * and `expiresAt` — are not asked for because nothing on this screen shows
- * them, and a document that asks for what it does not draw is a column the
- * next reader has to go looking for a consumer of.
+ * stops type-checking here instead of arriving as `undefined`. The four left
+ * out — the two commission columns, `remindedAt` and `expiresAt` — are not
+ * asked for because nothing on this screen shows them, and a document that
+ * asks for what it does not draw is a column the next reader has to go
+ * looking for a consumer of.
  */
 export type AdminBookingRowDTO = Pick<
   AdminBookingDTO,
@@ -26,6 +26,8 @@ export type AdminBookingRowDTO = Pick<
   | "timezone"
   | "markedDoneAt"
   | "threadId"
+  | "priceMinor"
+  | "currency"
 >;
 
 export interface AdminBookingQueuePage {
@@ -50,7 +52,7 @@ const PAGE = `
     bookingNeedsAttentionForAdmin(input: $input) {
       items {
         id status providerId providerName customerFirstName serviceName
-        startsAt endsAt timezone markedDoneAt threadId
+        startsAt endsAt timezone markedDoneAt threadId priceMinor currency
       }
       total nextOffset
     }

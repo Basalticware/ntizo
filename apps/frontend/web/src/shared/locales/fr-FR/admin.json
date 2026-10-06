@@ -58,9 +58,9 @@
     "retry": "Réessayer"
   },
   "providersTitle": "Prestataires",
-  "providersSubtitle": "Toutes les entreprises de la plateforme.",
-  "providersSearchPlaceholder": "Rechercher par nom, adresse ou propriétaire",
-  "providersBusiness": "Entreprise",
+  "providersSubtitle": "Gérer, examiner et suivre les prestataires de la plateforme.",
+  "providersSearchPlaceholder": "Rechercher par nom, adresse ou e-mail du titulaire...",
+  "providersBusiness": "Prestataire",
   "providersOwner": "Propriétaire",
   "providersStatus": "Statut",
   "providersCommission": "Commission",
@@ -78,10 +78,10 @@
   },
   "providersFilterTitle": "Filtrer les prestataires",
   "usersTitle": "Utilisateurs",
-  "usersSubtitle": "Toutes les personnes sur la plateforme.",
-  "usersSearchPlaceholder": "Rechercher par nom, e-mail ou téléphone",
-  "usersPerson": "Personne",
-  "usersRole": "Rôle",
+  "usersSubtitle": "Gérer les comptes utilisateurs de la plateforme et leurs autorisations.",
+  "usersSearchPlaceholder": "Rechercher par nom ou e-mail...",
+  "usersPerson": "Utilisateur",
+  "usersRole": "Type",
   "usersStatus": "Statut",
   "usersWorkspaces": "Espaces",
   "usersJoined": "Inscription",
@@ -366,7 +366,7 @@
   "reviewsSearchPlaceholder": "Rechercher une entreprise, un nom, ou ce qui a été dit",
   "reviewsAction": "Accueil",
   "contactTitle": "Contact",
-  "contactSubtitle": "Ce que les gens nous ont écrit via les formulaires de contact et d'avis, et ce qui reste sans réponse.",
+  "contactSubtitle": "Gérer tous les messages reçus via la plateforme.",
   "contactKindAll": "Toutes",
   "contactKind": {
     "contact": "Contact",
@@ -384,15 +384,15 @@
   "contactTopic": "Sujet",
   "contactDate": "Reçu",
   "contactAction": "Actions",
-  "contactSearchPlaceholder": "Rechercher par nom, e-mail, texte ou référence",
+  "contactSearchPlaceholder": "Rechercher par nom, e-mail, message ou référence...",
   "contactEmpty": "Rien à répondre.",
   "contactEmptyTitle": "File vide",
   "contactNoMatches": "Aucune demande ne correspond à cette recherche.",
   "contactNoMatchesTitle": "Aucun résultat",
   "contactError": "Les demandes n'ont pas pu être chargées.",
   "contactStatusFailed": "Cette demande n'a pas pu être modifiée. Réessayez.",
-  "contactReply": "Répondre par e-mail",
-  "contactResolve": "Marquer résolue",
+  "contactReply": "Répondre",
+  "contactResolve": "Marquer comme résolue",
   "contactReopen": "Rouvrir",
   "contactPrevious": "Précédent",
   "contactNext": "Suivant",
@@ -441,7 +441,7 @@
   "supportNotFound": "Cette demande n'existe pas.",
   "supportLoadError": "La demande n'a pas pu être chargée.",
   "bookingsTitle": "Réservations",
-  "bookingsSubtitle": "Réservations à clôturer, réservations dans le délai de réponse du client et litiges en attente d'une décision.",
+  "bookingsSubtitle": "Gérer les réservations, suivre leur statut et résoudre les cas qui demandent une intervention.",
   "bookingsTab": {
     "unclosed": "À clôturer",
     "in_window": "Dans le délai",
@@ -449,7 +449,7 @@
   },
   "bookingsFilterTitle": "Filtrer les réservations",
   "bookingsQueueLabel": "File",
-  "bookingsSearchPlaceholder": "Rechercher par prestataire, client ou service",
+  "bookingsSearchPlaceholder": "Rechercher par client, prestataire ou service...",
   "bookingsNoMatches": "Aucune réservation ne correspond.",
   "bookingsNoMatchesTitle": "Aucun résultat",
   "bookingsCol": {
@@ -458,7 +458,8 @@
     "service": "Service",
     "when": "Quand",
     "status": "Statut",
-    "actions": "Actions"
+    "actions": "Actions",
+    "price": "Prix"
   },
   "bookingsWaiting": "en attente depuis {{duration}}",
   "bookingsAction": {
@@ -494,5 +495,43 @@
     "providers": "Prestataires",
     "reviews": "Avis",
     "users": "Utilisateurs"
-  }
+  },
+  "providersPlace": "Localisation",
+  "providersTab": {
+    "all": "Tous",
+    "pending": "À examiner",
+    "active": "Approuvés",
+    "rejected": "Refusés",
+    "suspended": "Suspendus",
+    "archived": "Archivés"
+  },
+  "providersShowing": "Affichage de {{from}}–{{to}} sur {{total}} prestataires",
+  "usersContact": "Contact",
+  "usersTab": {
+    "all": "Tous",
+    "customer": "Clients",
+    "individual_provider": "Prestataires",
+    "organization_owner": "Organisations",
+    "admin": "Administrateurs"
+  },
+  "usersViewProfile": "Voir le profil",
+  "listShowingRange": "Affichage de {{from}}–{{to}}",
+  "pager": {
+    "label": "Pagination",
+    "previous": "Page précédente",
+    "next": "Page suivante"
+  },
+  "bookingsShowing": "Affichage de {{from}}–{{to}} sur {{total}} réservations",
+  "contactShowing": "Affichage de {{from}}–{{to}} sur {{total}} messages",
+  "contactRequestStatus": {
+    "open": "Ouverte",
+    "resolved": "Résolue"
+  },
+  "contactOriginLabel": "Origine du message",
+  "contactReceivedLabel": "Reçu le",
+  "contactReceivedAt": "{{date}} à {{time}}",
+  "contactMessage": "Message",
+  "contactLocale": "Langue",
+  "supportShowing": "Affichage de {{shown}} sur {{total}} demandes",
+  "supportShowingPartial": "Affichage de {{shown}} demandes"
 }
