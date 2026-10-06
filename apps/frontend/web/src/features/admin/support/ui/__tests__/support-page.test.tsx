@@ -66,9 +66,9 @@ describe("AdminSupportPage", () => {
   it("counts the page against the platform's open requests while the queue is on open", async () => {
     // `supportRequests` never returns a count, but the open count is the
     // whole this page exists to bring down — so with more pages behind a
-    // one-row page, the header says "1 of 3 shown" rather than "1 shown".
+    // one-row page, the foot says "1 of 3" rather than "1".
     await renderPage([row()], "2026-09-03T10:00:00.000Z|t-1", 3);
-    expect(screen.getByText("1 of 3 shown")).toBeInTheDocument();
+    expect(screen.getByText("Showing 1 of 3 requests")).toBeInTheDocument();
   });
 
   it("keeps its filters in the shared panel, and asks for resolved requests as a different list", async () => {

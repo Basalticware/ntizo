@@ -19,6 +19,11 @@ export function useAdminProviders(input: {
   return useQuery(adminProviderQueries.all(input));
 }
 
+/** One page of the queue, for the list screen. `useAdminProviders` is the dashboard's glance. */
+export function useAdminProvidersPage(input: { status?: string; search?: string; offset: number }) {
+  return useQuery(adminProviderQueries.page(input));
+}
+
 /** How many providers stand in each status; `pending` is the queue. */
 export function useProviderStatusCounts() {
   return useQuery(adminProviderQueries.counts());

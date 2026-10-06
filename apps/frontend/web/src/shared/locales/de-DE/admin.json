@@ -58,9 +58,9 @@
     "retry": "Erneut versuchen"
   },
   "providersTitle": "Anbieter",
-  "providersSubtitle": "Alle Betriebe der Plattform.",
-  "providersSearchPlaceholder": "Nach Name, Adresse oder Inhaber suchen",
-  "providersBusiness": "Betrieb",
+  "providersSubtitle": "Die Anbieter der Plattform verwalten, prüfen und begleiten.",
+  "providersSearchPlaceholder": "Nach Name, Adresse oder E-Mail des Inhabers suchen...",
+  "providersBusiness": "Anbieter",
   "providersOwner": "Inhaber",
   "providersStatus": "Status",
   "providersCommission": "Provision",
@@ -78,10 +78,10 @@
   },
   "providersFilterTitle": "Anbieter filtern",
   "usersTitle": "Benutzer",
-  "usersSubtitle": "Alle Personen auf der Plattform.",
-  "usersSearchPlaceholder": "Nach Name, E-Mail oder Telefon suchen",
-  "usersPerson": "Person",
-  "usersRole": "Rolle",
+  "usersSubtitle": "Die Benutzerkonten der Plattform und ihre Berechtigungen verwalten.",
+  "usersSearchPlaceholder": "Nach Name oder E-Mail suchen...",
+  "usersPerson": "Benutzer",
+  "usersRole": "Typ",
   "usersStatus": "Status",
   "usersWorkspaces": "Arbeitsbereiche",
   "usersJoined": "Beitritt",
@@ -432,7 +432,7 @@
     "removeFromHome": "Von der Startseite nehmen"
   },
   "contactTitle": "Kontakt",
-  "contactSubtitle": "Was uns über das Kontakt- und Feedback-Formular geschrieben wurde, und was noch unbeantwortet ist.",
+  "contactSubtitle": "Alle über die Plattform eingegangenen Nachrichten verwalten.",
   "contactKindAll": "Alle",
   "contactKind": {
     "contact": "Kontakt",
@@ -450,14 +450,14 @@
   "contactTopic": "Thema",
   "contactDate": "Eingegangen",
   "contactAction": "Aktionen",
-  "contactSearchPlaceholder": "Nach Name, E-Mail, Text oder Referenz suchen",
+  "contactSearchPlaceholder": "Nach Name, E-Mail, Nachricht oder Referenz suchen...",
   "contactEmpty": "Nichts zu beantworten.",
   "contactEmptyTitle": "Warteschlange leer",
   "contactNoMatches": "Keine Anfrage entspricht dieser Suche.",
   "contactNoMatchesTitle": "Keine Ergebnisse",
   "contactError": "Die Anfragen konnten nicht geladen werden.",
   "contactStatusFailed": "Diese Anfrage konnte nicht geändert werden. Versuchen Sie es erneut.",
-  "contactReply": "Per E-Mail antworten",
+  "contactReply": "Antworten",
   "contactResolve": "Als erledigt markieren",
   "contactReopen": "Wieder öffnen",
   "contactPrevious": "Zurück",
@@ -507,7 +507,7 @@
   "supportNotFound": "Diese Anfrage gibt es nicht.",
   "supportLoadError": "Die Anfrage konnte nicht geladen werden.",
   "bookingsTitle": "Buchungen",
-  "bookingsSubtitle": "Buchungen, die geschlossen werden müssen, Buchungen in der Antwortfrist der Kunden und Reklamationen, die auf eine Entscheidung warten.",
+  "bookingsSubtitle": "Buchungen verwalten, ihren Status verfolgen und Fälle lösen, die ein Eingreifen brauchen.",
   "bookingsTab": {
     "unclosed": "Offen",
     "in_window": "In der Frist",
@@ -515,7 +515,7 @@
   },
   "bookingsFilterTitle": "Buchungen filtern",
   "bookingsQueueLabel": "Warteschlange",
-  "bookingsSearchPlaceholder": "Nach Anbieter, Kunde oder Leistung suchen",
+  "bookingsSearchPlaceholder": "Nach Kunde, Anbieter oder Leistung suchen...",
   "bookingsNoMatches": "Keine Buchung passt dazu.",
   "bookingsNoMatchesTitle": "Keine Treffer",
   "bookingsCol": {
@@ -524,7 +524,8 @@
     "service": "Leistung",
     "when": "Wann",
     "status": "Status",
-    "actions": "Aktionen"
+    "actions": "Aktionen",
+    "price": "Preis"
   },
   "bookingsWaiting": "wartet seit {{duration}}",
   "bookingsAction": {
@@ -560,5 +561,43 @@
     "providers": "Anbieter",
     "reviews": "Bewertungen",
     "users": "Benutzer"
-  }
+  },
+  "providersPlace": "Standort",
+  "providersTab": {
+    "all": "Alle",
+    "pending": "Zu prüfen",
+    "active": "Freigegeben",
+    "rejected": "Abgelehnt",
+    "suspended": "Gesperrt",
+    "archived": "Archiviert"
+  },
+  "providersShowing": "{{from}}–{{to}} von {{total}} Anbietern",
+  "usersContact": "Kontakt",
+  "usersTab": {
+    "all": "Alle",
+    "customer": "Kunden",
+    "individual_provider": "Anbieter",
+    "organization_owner": "Organisationen",
+    "admin": "Administratoren"
+  },
+  "usersViewProfile": "Profil ansehen",
+  "listShowingRange": "{{from}}–{{to}} angezeigt",
+  "pager": {
+    "label": "Seitennavigation",
+    "previous": "Vorherige Seite",
+    "next": "Nächste Seite"
+  },
+  "bookingsShowing": "{{from}}–{{to}} von {{total}} Buchungen",
+  "contactShowing": "{{from}}–{{to}} von {{total}} Nachrichten",
+  "contactRequestStatus": {
+    "open": "Offen",
+    "resolved": "Erledigt"
+  },
+  "contactOriginLabel": "Herkunft der Nachricht",
+  "contactReceivedLabel": "Eingegangen am",
+  "contactReceivedAt": "{{date}} um {{time}}",
+  "contactMessage": "Nachricht",
+  "contactLocale": "Sprache",
+  "supportShowing": "{{shown}} von {{total}} Anfragen",
+  "supportShowingPartial": "{{shown}} Anfragen angezeigt"
 }

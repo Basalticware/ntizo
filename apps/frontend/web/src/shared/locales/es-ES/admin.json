@@ -58,9 +58,9 @@
     "retry": "Reintentar"
   },
   "providersTitle": "Proveedores",
-  "providersSubtitle": "Todos los negocios de la plataforma.",
-  "providersSearchPlaceholder": "Buscar por nombre, dirección o propietario",
-  "providersBusiness": "Negocio",
+  "providersSubtitle": "Gestionar, revisar y seguir a los proveedores de la plataforma.",
+  "providersSearchPlaceholder": "Buscar por nombre, dirección o correo del titular...",
+  "providersBusiness": "Proveedor",
   "providersOwner": "Propietario",
   "providersStatus": "Estado",
   "providersCommission": "Comisión",
@@ -78,10 +78,10 @@
   },
   "providersFilterTitle": "Filtrar proveedores",
   "usersTitle": "Usuarios",
-  "usersSubtitle": "Todas las personas de la plataforma.",
-  "usersSearchPlaceholder": "Buscar por nombre, correo o teléfono",
-  "usersPerson": "Persona",
-  "usersRole": "Rol",
+  "usersSubtitle": "Gestionar las cuentas de usuario de la plataforma y sus permisos.",
+  "usersSearchPlaceholder": "Buscar por nombre o correo...",
+  "usersPerson": "Usuario",
+  "usersRole": "Tipo",
   "usersStatus": "Estado",
   "usersWorkspaces": "Espacios",
   "usersJoined": "Registro",
@@ -432,7 +432,7 @@
     "removeFromHome": "Quitar de la página de inicio"
   },
   "contactTitle": "Contacto",
-  "contactSubtitle": "Lo que las personas nos escribieron a través de los formularios de contacto y opinión, y lo que aún está sin responder.",
+  "contactSubtitle": "Gestionar todos los mensajes recibidos a través de la plataforma.",
   "contactKindAll": "Todas",
   "contactKind": {
     "contact": "Contacto",
@@ -450,14 +450,14 @@
   "contactTopic": "Asunto",
   "contactDate": "Recibido",
   "contactAction": "Acciones",
-  "contactSearchPlaceholder": "Buscar por nombre, correo, texto o referencia",
+  "contactSearchPlaceholder": "Buscar por nombre, correo, mensaje o referencia...",
   "contactEmpty": "Nada por responder.",
   "contactEmptyTitle": "Cola vacía",
   "contactNoMatches": "Ninguna solicitud coincide con esta búsqueda.",
   "contactNoMatchesTitle": "Sin resultados",
   "contactError": "No se pudieron cargar las solicitudes.",
   "contactStatusFailed": "No se pudo cambiar esa solicitud. Inténtelo de nuevo.",
-  "contactReply": "Responder por correo",
+  "contactReply": "Responder",
   "contactResolve": "Marcar como resuelta",
   "contactReopen": "Reabrir",
   "contactPrevious": "Anterior",
@@ -507,7 +507,7 @@
   "supportNotFound": "Esta solicitud no existe.",
   "supportLoadError": "No se pudo cargar la solicitud.",
   "bookingsTitle": "Reservas",
-  "bookingsSubtitle": "Reservas por cerrar, reservas dentro del plazo de respuesta del cliente y reclamaciones por decidir.",
+  "bookingsSubtitle": "Gestionar reservas, seguir su estado y resolver los casos que requieren intervención.",
   "bookingsTab": {
     "unclosed": "Por cerrar",
     "in_window": "En plazo",
@@ -515,7 +515,7 @@
   },
   "bookingsFilterTitle": "Filtrar reservas",
   "bookingsQueueLabel": "Cola",
-  "bookingsSearchPlaceholder": "Buscar por proveedor, cliente o servicio",
+  "bookingsSearchPlaceholder": "Buscar por cliente, proveedor o servicio...",
   "bookingsNoMatches": "Ninguna reserva coincide.",
   "bookingsNoMatchesTitle": "Sin coincidencias",
   "bookingsCol": {
@@ -524,7 +524,8 @@
     "service": "Servicio",
     "when": "Cuándo",
     "status": "Estado",
-    "actions": "Acciones"
+    "actions": "Acciones",
+    "price": "Precio"
   },
   "bookingsWaiting": "esperando desde hace {{duration}}",
   "bookingsAction": {
@@ -560,5 +561,43 @@
     "providers": "Proveedores",
     "reviews": "Reseñas",
     "users": "Usuarios"
-  }
+  },
+  "providersPlace": "Ubicación",
+  "providersTab": {
+    "all": "Todos",
+    "pending": "Por revisar",
+    "active": "Aprobados",
+    "rejected": "Rechazados",
+    "suspended": "Suspendidos",
+    "archived": "Archivados"
+  },
+  "providersShowing": "Mostrando {{from}}–{{to}} de {{total}} proveedores",
+  "usersContact": "Contacto",
+  "usersTab": {
+    "all": "Todos",
+    "customer": "Clientes",
+    "individual_provider": "Proveedores",
+    "organization_owner": "Organizaciones",
+    "admin": "Administradores"
+  },
+  "usersViewProfile": "Ver perfil",
+  "listShowingRange": "Mostrando {{from}}–{{to}}",
+  "pager": {
+    "label": "Paginación",
+    "previous": "Página anterior",
+    "next": "Página siguiente"
+  },
+  "bookingsShowing": "Mostrando {{from}}–{{to}} de {{total}} reservas",
+  "contactShowing": "Mostrando {{from}}–{{to}} de {{total}} mensajes",
+  "contactRequestStatus": {
+    "open": "Abierta",
+    "resolved": "Resuelta"
+  },
+  "contactOriginLabel": "Origen del mensaje",
+  "contactReceivedLabel": "Recibido el",
+  "contactReceivedAt": "{{date}} a las {{time}}",
+  "contactMessage": "Mensaje",
+  "contactLocale": "Idioma",
+  "supportShowing": "Mostrando {{shown}} de {{total}} solicitudes",
+  "supportShowingPartial": "Mostrando {{shown}} solicitudes"
 }
