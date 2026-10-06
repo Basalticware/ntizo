@@ -134,7 +134,7 @@ function renderPage(url: string, page: ProviderPageDTO) {
  * They are the same control with the same options; a test that acts on the
  * first is acting on the sort.
  */
-const sortTrigger = () => screen.getAllByRole("button", { name: /^Sort:/ })[0]!;
+const sortTrigger = () => screen.getAllByRole("button", { name: /^Sort by:/ })[0]!;
 
 describe("DirectoryPage", () => {
   it("states how many matched, not how many fit on this page", async () => {
@@ -226,7 +226,7 @@ describe("DirectoryPage", () => {
     await screen.findByRole("heading", { level: 1 });
     // The order in force is part of what the trigger is *called*, with this
     // page's own copy in it — not only part of what it draws.
-    expect(sortTrigger()).toHaveAccessibleName("Sort: Best rated");
+    expect(sortTrigger()).toHaveAccessibleName("Sort by: Best rated");
     fireEvent.click(sortTrigger());
 
     expect(screen.getByRole("menuitemradio", { name: "Suggested" })).toHaveAttribute(
@@ -284,7 +284,7 @@ describe("DirectoryPage", () => {
     // offering five.
     const { router } = renderPage("/providers", { items: [provider()], total: 1 });
     await screen.findByRole("heading", { level: 1 });
-    const triggers = screen.getAllByRole("button", { name: /^Sort:/ });
+    const triggers = screen.getAllByRole("button", { name: /^Sort by:/ });
     expect(triggers).toHaveLength(2);
 
     const ordersIn = (trigger: HTMLElement) => {
@@ -456,7 +456,7 @@ describe("DirectoryPage", () => {
     expect(controls.className.split(/\s+/)).not.toContain("bottom-0");
     // Both halves ride in it, so the phone gets one sort and not two.
     expect(within(controls).getByRole("button", { name: /^Filters/ })).toBeInTheDocument();
-    expect(within(controls).getByRole("button", { name: /^Sort:/ })).toBeInTheDocument();
+    expect(within(controls).getByRole("button", { name: /^Sort by:/ })).toBeInTheDocument();
   });
 
   it("counts on the phone's control only what its sheet can take off, and offers a way to take them all off", async () => {

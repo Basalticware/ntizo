@@ -60,9 +60,15 @@ describe("BecomeProviderPage", () => {
   it("draws no blue of its own — every one on screen belongs to the header", async () => {
     await render();
 
-    const blue = [...page().querySelectorAll<HTMLElement>("[class*='--color-primary']")];
-    // Two, and both the header's: the search submit and the sign-in pill.
-    // Neither is this page's to spend.
+    // The public pages' blue is `--color-blue-public` since the October 2026
+    // header; either token counts as blue here.
+    const blue = [
+      ...page().querySelectorAll<HTMLElement>(
+        "[class*='--color-primary'], [class*='--color-blue-public']",
+      ),
+    ];
+    // The header's: the search submit, "Entrar" and "Criar conta". None of
+    // them is this page's to spend.
     expect(blue.length).toBeGreaterThan(0);
     for (const el of blue) expect(el.closest("header")).not.toBeNull();
   });

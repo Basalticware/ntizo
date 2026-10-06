@@ -54,9 +54,12 @@ describe("CheckoutRail", () => {
 
     expect(screen.getByText("Hélder Cossa")).toBeInTheDocument();
     // "4,8" in pt-MZ — the reader's own decimal separator, and pinned to one
-    // decimal so a business on a round 5 reads "5,0" rather than "5".
-    expect(screen.getByText("4,8")).toBeInTheDocument();
-    expect(screen.getByText("Verificado")).toBeInTheDocument();
+    // decimal so a business on a round 5 reads "5,0" rather than "5". Twice,
+    // as the mockup draws it: under the service's name, and on the provider
+    // row at the card's foot.
+    expect(screen.getAllByText("4,8")).toHaveLength(2);
+    expect(screen.getByText("Prestador verificado")).toBeInTheDocument();
+    expect(screen.getByLabelText("Verificado")).toBeInTheDocument();
   });
 
   it("says no score at all for a business nobody has reviewed", () => {
@@ -72,10 +75,11 @@ describe("CheckoutRail", () => {
   it("drops the badge for a business the platform has not verified", () => {
     render(<CheckoutRail {...REQUIRED} providerVerified={false} />);
 
-    expect(screen.queryByText("Verificado")).not.toBeInTheDocument();
+    expect(screen.queryByText("Prestador verificado")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Verificado")).not.toBeInTheDocument();
     // The rest of the line survives on its own — the two halves are
     // independent, so an unverified business with reviews still shows them.
-    expect(screen.getByText("4,8")).toBeInTheDocument();
+    expect(screen.getAllByText("4,8").length).toBeGreaterThan(0);
   });
 
   it("renders with no price at all, for a service that has no priced package", () => {
@@ -92,15 +96,15 @@ describe("CheckoutRail", () => {
   });
 
   it("shows the travel line only where the provider is the one travelling", () => {
+    // Under the Local row, where the mockup puts the place.
     const { unmount } = render(<CheckoutRail {...REQUIRED} locationType="at_customer" />);
-    expect(screen.getByText("Deslocação")).toBeInTheDocument();
-    expect(screen.getByText("Incluída")).toBeInTheDocument();
+    expect(screen.getByText("Deslocação · incluída")).toBeInTheDocument();
     unmount();
 
     // A barber's shop: the customer travels, so "deslocação incluída" would
     // be a false statement about money.
     render(<CheckoutRail {...REQUIRED} locationType="at_provider" />);
-    expect(screen.queryByText("Deslocação")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Deslocação/)).not.toBeInTheDocument();
   });
 
   it("omits the travel line when the caller cannot know where the work happens", () => {
@@ -108,19 +112,18 @@ describe("CheckoutRail", () => {
     // carries no location type, so the steps that have only a booking pass
     // nothing. Silence is the safe direction for a claim about money.
     render(<CheckoutRail {...REQUIRED} locationType={null} />);
-    expect(screen.queryByText("Deslocação")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Deslocação/)).not.toBeInTheDocument();
   });
 
   it("never shows a fee, a commission or a cancellation promise", () => {
     render(<CheckoutRail {...REQUIRED} />);
 
-    // Exactly two amounts — the service line and the total — and both the
-    // package's own. A "Taxa Ntizo" row would be a third, and would change
-    // the second.
+    // Exactly one amount — the mockup's "Preço" row — and it is the
+    // package's own. A "Taxa Ntizo" row would be a second.
     const amounts = screen
       .getAllByText(/MTn/)
       .map((node) => (node.textContent ?? "").replace(/\s+/g, " ").trim());
-    expect(amounts).toEqual(["900,00 MTn", "900,00 MTn"]);
+    expect(amounts).toEqual(["900,00 MTn"]);
     expect(screen.queryByText(/comiss/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/taxa/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/cancelamento/i)).not.toBeInTheDocument();
@@ -184,5 +187,19 @@ describe("CheckoutRail", () => {
     render(<CheckoutRail {...REQUIRED} />);
     expect(screen.getByText(/pagamento fica retido/i)).toBeInTheDocument();
     expect(screen.getByText(/documentos do prestador verificados/i)).toBeInTheDocument();
+  });
+
+  it("leaves the promises out where the caller says the card ends on the provider", () => {
+    // Step 1's mockup closes the card on the provider row.
+    render(<CheckoutRail {...REQUIRED} showTrust={false} />);
+    expect(screen.queryByText(/pagamento fica retido/i)).not.toBeInTheDocument();
+  });
+
+  it("names the category and the place when the caller has them", () => {
+    render(
+      <CheckoutRail {...REQUIRED} locationType="at_provider" categoryName="Beleza" place="Maputo, Polana" />,
+    );
+    expect(screen.getByText("Beleza")).toBeInTheDocument();
+    expect(screen.getByText("Maputo, Polana")).toBeInTheDocument();
   });
 });

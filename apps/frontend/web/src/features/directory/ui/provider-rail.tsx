@@ -2,12 +2,13 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { MessageSquare } from "lucide-react";
-import { Button, buttonVariants } from "@ntizo/frontend-ui";
+import { Button, cn } from "@ntizo/frontend-ui";
 import type { ProviderPublicDetailDTO } from "@ntizo/shared/read-models";
 import { formatHeadlinePrice } from "@/features/directory/services/domain/service-card";
 import { RailCard } from "@/features/directory/ui/rail-card";
 import { TrustList } from "@/features/directory/ui/trust-list";
 import { WeeklyHoursCard } from "@/features/directory/ui/weekly-hours-card";
+import { ProviderReviews } from "@/features/directory/ui/provider-reviews";
 import { useStartThread } from "@/features/messaging/viewmodel/use-start-thread";
 
 /**
@@ -58,28 +59,27 @@ export function ProviderRail({ provider }: { provider: ProviderPublicDetailDTO }
   // sentence is conditional on it here rather than baked into `TrustList`. A
   // badge that is always lit says nothing; a sentence that is always printed
   // lies.
-  const trustItems = [provider.verified ? t("trustVerified") : null, t("trustMessagesKept")].filter(
+  const trustItems = [
+    provider.verified ? t("trustVerified") : null,
+    t("trustMessagesKept"),
+    // Only when both halves are true: checked documents, and somebody who
+    // actually reviewed.
+    provider.verified && provider.reviewCount > 0 ? t("trustVerifiedReviewed") : null,
+  ].filter(
     (item): item is string => item !== null,
   );
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-6">
       <RailCard>
         {price !== null && (
           <>
-            <p className="flex flex-wrap items-baseline gap-2">
-              {/* Neither `type-display` nor `type-h1`: this is a number in a
-                  22rem column, and the display scale's `clamp(30px, 3.6vw,
-                  42px)` grows with the viewport rather than with the card it
-                  sits in. Assembled from the same tokens those classes use,
-                  the way `ProviderReviews`'s own 52px score already is. */}
-              <b className="font-display text-[30px] leading-none font-semibold tracking-[-0.02em] tabular-nums">
-                {price}
-              </b>
-              <span className="type-body text-[var(--color-muted-foreground)]">
-                {t("railFromPrice")}
-              </span>
-            </p>
+            {/* "A partir de", the number, and what the number is — the
+                mockup's 46px headline in a 360px column. */}
+            <span className="block text-sm text-[#4d6189]">{t("railFromLabel")}</span>
+            <b className="mt-1 block text-[46px] leading-none font-extrabold tracking-[-0.02em] text-[var(--color-headline)] tabular-nums">
+              {price}
+            </b>
             {/* No count in this sentence, deliberately. `fromAmountMinor` is
                 the minimum over *priced options*; `serviceCount` counts
                 *published services*, and the two are not the same set — a
@@ -88,17 +88,18 @@ export function ProviderRail({ provider }: { provider: ProviderPublicDetailDTO }
                 The read model exposes no priced-service count, so the honest
                 fix is to stop claiming a denominator rather than to print one
                 the number was not drawn from. */}
-            <p className="type-body mt-2 text-[var(--color-muted-foreground)]">
-              {t("railCheapestOf")}
-            </p>
+            <span className="mt-2 block text-sm text-[#586592]">{t("railCheapestOf")}</span>
           </>
         )}
 
         <div className={price === null ? "grid gap-2.5" : "mt-5 grid gap-2.5"}>
-          <MessageProviderButton providerId={provider.id} />
+          <MessageProviderButton
+            providerId={provider.id}
+            className="h-12 gap-3 rounded-lg bg-[#0061fe] text-base font-semibold"
+          />
           <a
             href="#servicos"
-            className={buttonVariants({ variant: "outline", className: "w-full" })}
+            className="grid h-[46px] place-items-center rounded-lg bg-[#e7f2fe] text-base font-bold text-[var(--color-headline)] hover:bg-[var(--color-blue-soft)]"
           >
             {t("railViewServices")}
           </a>
@@ -111,6 +112,8 @@ export function ProviderRail({ provider }: { provider: ProviderPublicDetailDTO }
           availability — see its own doc comment for why seven rows of
           "Closed" would be a claim rather than a fact. */}
       <WeeklyHoursCard hours={provider.weeklyHours} />
+
+      <ProviderReviews providerId={provider.id} layout="rail" />
     </div>
   );
 }
@@ -156,7 +159,10 @@ export function MessageProviderButton({
   variant = "default",
   compact = false,
   label,
+  className,
 }: {
+  /** Merged onto the full-size button — the October mockups' blue and soft-blue shapes. */
+  className?: string;
   providerId: string;
   /** `outline` where another control is already the page's primary action. */
   variant?: "default" | "outline";
@@ -232,9 +238,9 @@ export function MessageProviderButton({
           variant={variant}
           onClick={handleClick}
           disabled={starting}
-          className="w-full gap-2"
+          className={cn("w-full gap-2", className)}
         >
-          <MessageSquare className="h-4 w-4" aria-hidden="true" />
+          <MessageSquare className="h-[18px] w-[18px]" aria-hidden="true" />
           {word}
         </Button>
       )}

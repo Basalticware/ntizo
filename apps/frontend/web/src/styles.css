@@ -2,3 +2,23 @@
 @import "@ntizo/frontend-ui/styles/globals.css";
 
 @source "../../../../packages/frontend/src";
+
+/*
+ * The public site's frame, from the October 2026 mockups (client/public.css).
+ *
+ * `--color-blue-public` is the public pages' button blue, a touch lighter than
+ * the consoles' `--color-primary`. `--pw-pad` is the side inset the header and
+ * the page share; each page sets its own mockup's inset on its wrapper, and
+ * `.public-inset` keeps the frame at 1440px on a wider window so a 3-column
+ * grid does not stretch across a 1920px screen.
+ */
+:root {
+  --color-blue-public: #016efe;
+  --pw-pad: clamp(16px, 2.9vw, 40px);
+}
+
+@layer components {
+  .public-inset {
+    padding-inline: max(var(--pw-pad), calc((100% - 1440px) / 2 + var(--pw-pad)));
+  }
+}

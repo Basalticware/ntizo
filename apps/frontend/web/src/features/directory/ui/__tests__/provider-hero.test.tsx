@@ -51,13 +51,15 @@ describe("ProviderHero", () => {
     expect(screen.getByRole("heading", { level: 1, name: /Studio Beleza/ })).toBeInTheDocument();
   });
 
-  it("reads the kind and the trades into one eyebrow", () => {
+  it("leaves the trade to the facts row under it, as the mockup does", () => {
+    // The October 2026 mockup has no eyebrow over the name: the category is
+    // the first of the four facts the page draws below this block.
     render(
       <ProviderHero
         provider={provider({ categories: [{ code: "hair", name: "Hair & beauty" }] })}
       />,
     );
-    expect(screen.getByText("Organization · Hair & beauty")).toBeInTheDocument();
+    expect(screen.queryByText(/Hair & beauty/)).not.toBeInTheDocument();
   });
 
   it("badges a verified business", () => {
@@ -88,12 +90,10 @@ describe("ProviderHero", () => {
     expect(screen.queryByText("Nine years cutting hair in Maputo.")).not.toBeInTheDocument();
   });
 
-  it("does not draw a second picture of the business", () => {
-    // The logo tile is gone: the page opens on `DetailGallery`, at full
-    // width, and an 80px avatar under it is the same business twice.
-    const { container } = render(
-      <ProviderHero provider={provider({ logoUrl: "https://cdn.test/logo.png" })} />,
-    );
-    expect(container.querySelector("img")).toBeNull();
+  it("puts the business's initials in the logo's circle when it has no logo", () => {
+    // The mockup's 114px avatar beside the name. With no logo the circle
+    // still says who it is, rather than standing empty.
+    render(<ProviderHero provider={provider({ logoUrl: null })} />);
+    expect(screen.getByText("SB")).toBeInTheDocument();
   });
 });

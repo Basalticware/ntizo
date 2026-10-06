@@ -5,7 +5,7 @@
   "stepDetails": "Details",
   "stepConfirm": "Bevestigen",
   "secureCheckout": "Veilig boeken",
-  "chooseWhenTitle": "Kies een datum en tijd",
+  "chooseWhenTitle": "Kies de dag en het tijdstip",
   "chooseWhenIntro": "Als je doorgaat, houden we dit tijdstip voor je vast terwijl je de rest invult.",
   "hourlyNotBookable": "Deze dienst wordt per uur afgerekend en kan hier nog niet worden geboekt. Ga terug naar de dienst en stuur de dienstverlener een bericht om het af te spreken.",
   "whereHeading": "Waar de dienst plaatsvindt",
@@ -22,7 +22,7 @@
   "railTrustPayment": "De betaling wordt vastgehouden tot de dienst is afgerond.",
   "railTrustVerified": "Documenten van de aanbieder geverifieerd door Ntizo.",
   "continueAction": "Doorgaan",
-  "backToService": "Terug naar de dienst",
+  "backToService": "Terug",
   "backToWhen": "Terug naar datum en tijd",
   "detailsTitle": "Details van de aanvraag",
   "detailsIntro": "Controleer je gegevens, vertel waar het is en wat er moet gebeuren.",
@@ -105,5 +105,8 @@
   "submitErrorGeneric": "We konden de aanvraag nu niet versturen. Probeer het opnieuw.",
   "holdExpired": "De tijd om af te ronden is verstreken en het tijdstip is vrijgegeven. Kies een ander tijdstip.",
   "holdRemaining": "Tijdstip vastgehouden {{time}}",
-  "holdRemainingLabel": "Resterende tijd om deze boeking af te ronden"
+  "holdRemainingLabel": "Resterende tijd om deze boeking af te ronden",
+  "availableTimes": "Beschikbare tijden",
+  "chooseWhenLede": "Kies de datum en het tijdstip die u het beste uitkomen.",
+  "railPlaceLabel": "Locatie"
 }

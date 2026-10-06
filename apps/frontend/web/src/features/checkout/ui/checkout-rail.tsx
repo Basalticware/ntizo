@@ -1,6 +1,21 @@
 import { useTranslation } from "react-i18next";
+import { Link } from "@tanstack/react-router";
+import {
+  BadgeCheck,
+  Building2,
+  CalendarDays,
+  Check,
+  ChevronRight,
+  Clock,
+  Database,
+  MapPin,
+  ShieldCheck,
+  Star,
+  type LucideIcon,
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage, cn } from "@ntizo/frontend-ui";
 import { BrandImage } from "@/shared/components/brand-image";
-import { BadgeCheck, Check, ImageIcon, Star } from "lucide-react";
+import { initialsFrom } from "@/shared/lib/initials";
 import { formatRating } from "@/shared/domain/rating";
 import { formatAmount } from "@/features/directory/services/domain/service-card";
 import type { CompactSlot } from "@/features/checkout/domain/slot-wording";
@@ -94,18 +109,23 @@ export function CheckoutRail({
   priceMinor,
   currency,
   hourly = false,
+  categoryName = null,
+  place = null,
+  providerSlug = null,
+  providerLogoUrl = null,
+  showTrust = true,
   onChangeSlot,
   countdown,
   children,
 }: {
-  /** The service's own picture, or null when it has none. */
+  /** The service's own picture, or null when it has none — then the card opens on the title. */
   imageUrl: string | null;
   serviceName: string;
   providerName: string;
   /**
    * The business's average review score, or **null when nobody has reviewed
-   * it** — in which case the score is left out of the line entirely rather
-   * than shown as a zero. Zero is a score a person could have given.
+   * it** — in which case the score is left out entirely rather than shown as
+   * a zero. Zero is a score a person could have given.
    */
   providerRatingAverage: number | null;
   /** Whether the platform has accepted at least one of the business's documents. */
@@ -118,32 +138,30 @@ export function CheckoutRail({
    *
    * Worded by the caller rather than formatted here, because a component
    * handed two instants is a component that will eventually format them in
-   * whichever zone it is running in — the substitution that drew step 1 an
-   * empty grid under a live confirm button.
+   * whichever zone it is running in.
    */
   slot: CompactSlot | null;
   /** The service's location type, or null when the caller cannot know it. */
   locationType: string | null;
   durationMinutes: number | null;
   /**
-   * What the customer pays, or **null when there is no price to state**.
-   *
-   * Null is a real case rather than defensive typing: a quote service has no
-   * priced option at all, and a `priced` one whose provider deactivated its
-   * last package looks identical on the wire. Both reach this page, both draw
-   * a notice instead of a calendar, and neither has an amount — so the whole
-   * price block is left out rather than printed as a zero.
+   * What the customer pays, or **null when there is no price to state** — a
+   * quote service, or a priced one whose last package was deactivated. The
+   * price row is left out rather than printed as a zero.
    */
   priceMinor: number | null;
   currency: string;
-  /**
-   * An hourly package, whose total is not knowable until a length is chosen.
-   *
-   * The breakdown collapses to the hourly rate rather than printing a "Total"
-   * that is really the price of one hour — a number a customer would read as
-   * the whole job.
-   */
+  /** An hourly package: the price is a rate, and says so. */
   hourly?: boolean;
+  /** The service's category, where the caller has it — step 1 does. */
+  categoryName?: string | null;
+  /** Where the business is ("Maputo, Sommerschield"), under the Local row. */
+  place?: string | null;
+  /** The business's page, for the provider row's chevron. */
+  providerSlug?: string | null;
+  providerLogoUrl?: string | null;
+  /** The two promises at the foot; step 1's mockup ends on the provider. */
+  showTrust?: boolean;
   /** Back to step 1. Absent on step 1 itself, which is already where the choosing happens. */
   onChangeSlot?: () => void;
   /** The hold countdown, on the steps that have a draft to count down. */
@@ -155,171 +173,180 @@ export function CheckoutRail({
   const { t: td } = useTranslation("directory");
   const locale = i18n.resolvedLanguage ?? i18n.language;
 
-  const { length, line: whereAndLength } = useWhereAndLength(
-    locationType,
-    durationMinutes,
-    hourly,
-  );
+  const { where, length } = useWhereAndLength(locationType, durationMinutes, hourly);
   // Guarded rather than defaulted to zero: `Intl.NumberFormat` throws on a
   // blank currency code, and a quote service genuinely has neither.
   const price = priceMinor === null ? null : formatAmount(priceMinor, currency, locale);
+  const score = providerRatingAverage === null ? null : formatRating(providerRatingAverage, locale);
 
   return (
-    <div className="grid gap-5 rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
-      {countdown}
+    <div className="grid gap-0 rounded-[14px] border border-[#f0f4f9] p-6">
+      {countdown && <div className="mb-5">{countdown}</div>}
 
-      <div className="flex items-start gap-3">
-        {imageUrl ? (
-          // `alt=""`: the service is named in the heading right beside it, and
-          // a screen reader repeating that name for the picture is noise.
-          <BrandImage src={imageUrl} alt="" className="h-14 w-14 shrink-0 rounded-[var(--radius-card-sm)] object-cover" />
-        ) : (
-          <span
-            aria-hidden="true"
-            className="grid h-14 w-14 shrink-0 place-items-center rounded-[var(--radius-card-sm)] bg-[var(--color-muted)] text-[var(--color-muted-foreground)]"
-          >
-            <ImageIcon className="h-5 w-5" />
-          </span>
-        )}
-        <div className="min-w-0">
-          <h2 className="type-body-medium font-semibold">{serviceName}</h2>
-          {/* The trust line: who it is, what people have said about them, and
-              whether the platform has seen their documents. It is the reason a
-              customer holding a slot believes somebody will turn up, which is
-              why both halves were added to `serviceDetailReadModel` and
-              `bookingReadModel` rather than dropped for not being there.
-
-              Each half disappears on its own when it has nothing to say — an
-              unreviewed business shows no score rather than a zero, and an
-              unverified one shows no badge rather than a greyed-out promise —
-              so the line degrades to the name alone rather than to a row of
-              blanks. */}
-          <p className="type-caption flex flex-wrap items-center gap-x-1.5 text-[var(--color-muted-foreground)]">
-            <span className="truncate">{providerName}</span>
-            {providerRatingAverage !== null && (
-              <>
-                <span aria-hidden="true">·</span>
-                <span className="inline-flex items-center gap-0.5 tabular-nums">
-                  {formatRating(providerRatingAverage, locale)}
-                  <Star
-                    className="h-3 w-3 fill-[var(--color-warning)] text-[var(--color-warning)]"
-                    aria-hidden="true"
-                  />
-                  {/* The star is decorative; without this the score is
-                      announced as a bare number with nothing saying what it
-                      measures. */}
-                  <span className="sr-only">{td("railRatingOutOfFive")}</span>
-                </span>
-              </>
-            )}
-            {providerVerified && (
-              <>
-                <span aria-hidden="true">·</span>
-                <span className="inline-flex items-center gap-0.5">
-                  <BadgeCheck
-                    className="h-3.5 w-3.5 text-[var(--color-success)]"
-                    aria-hidden="true"
-                  />
-                  {td("providerVerified")}
-                </span>
-              </>
-            )}
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-[var(--radius-card-sm)] bg-[var(--color-muted)] p-3">
-        <div className="flex items-baseline justify-between gap-3">
-          <p className="type-caption font-semibold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
-            {t("railWhenLabel")}
-          </p>
-          {onChangeSlot && (
-            <button
-              type="button"
-              onClick={onChangeSlot}
-              className="type-caption font-semibold text-[var(--color-primary)] hover:underline"
-            >
-              {t("railChangeAction")}
-            </button>
-          )}
-        </div>
-        {slot ? (
-          <>
-            <p className="type-body-medium mt-1 font-semibold tabular-nums">
-              {t("railWhen", { date: slot.date, start: slot.start, end: slot.end })}
-            </p>
-            {whereAndLength && (
-              <p className="type-caption text-[var(--color-muted-foreground)]">
-                {whereAndLength}
-              </p>
-            )}
-          </>
-        ) : (
-          // Said, not left blank. The customer is in the middle of choosing,
-          // and an empty panel where a time is about to go reads as a page
-          // that failed to load rather than as one waiting for them.
-          <p className="type-caption mt-1 text-[var(--color-muted-foreground)]">
-            {t("railWhenPending")}
-          </p>
-        )}
-      </div>
-
-      {price !== null && (
-        <div className="grid gap-2">
-          <div className="flex items-baseline justify-between gap-3">
-            <div className="min-w-0">
-              <p className="type-body">{t("railPriceService")}</p>
-              {optionName && (
-                <p className="type-caption text-[var(--color-muted-foreground)]">
-                  {[optionName, length].filter(Boolean).join(" · ")}
-                </p>
-              )}
-            </div>
-            <p className="type-body tabular-nums">
-              {price}
-              {hourly && (
-                <span className="text-[var(--color-muted-foreground)]">
-                  {td("priceHourlySuffix")}
-                </span>
-              )}
-            </p>
-          </div>
-
-          {/* Only where somebody actually travels — see `providerTravels`. */}
-          {providerTravels(locationType) && (
-            <div className="flex items-baseline justify-between gap-3">
-              <p className="type-body">{t("railPriceTravel")}</p>
-              <p className="type-body text-[var(--color-muted-foreground)]">
-                {t("railPriceTravelIncluded")}
-              </p>
-            </div>
-          )}
-
-          {/* No total on an hourly package: the length is still the customer's
-              to choose, so any figure here would be the price of the minimum
-              wearing the whole job's name. */}
-          {!hourly && (
-            <div className="mt-1 flex items-baseline justify-between gap-3 border-t border-[var(--color-border)] pt-3">
-              <p className="type-body-medium font-semibold">{t("railPriceTotal")}</p>
-              <p className="type-h3 font-semibold tabular-nums">{price}</p>
-            </div>
-          )}
-        </div>
+      {imageUrl && (
+        // `alt=""`: the service is named in the heading right under it.
+        <BrandImage src={imageUrl} alt="" className="mb-5 block h-[207px] w-full rounded-[10px] object-cover" />
       )}
 
-      {children}
+      <h2 className="text-[22px] leading-[1.2] font-bold text-[#06154a] md:text-[27px]">{serviceName}</h2>
+      {/* The trust line: what people have said about the business, and
+          whether the platform has seen its documents — the reason a customer
+          holding a slot believes somebody will turn up. Each half disappears
+          on its own when it has nothing to say. */}
+      {(score !== null || providerVerified) && (
+        <p className="mt-3 flex flex-wrap items-center gap-1.5 text-[15px] text-[var(--color-muted-foreground)]">
+          {score !== null && (
+            <span className="inline-flex items-center gap-1 tabular-nums">
+              <Star className="h-[19px] w-[19px] fill-[var(--color-star)] stroke-none" aria-hidden="true" />
+              <b className="font-bold text-[var(--color-headline)]">{score}</b>
+              <span className="sr-only">{td("railRatingOutOfFive")}</span>
+            </span>
+          )}
+          {score !== null && providerVerified && (
+            <span aria-hidden="true" className="mx-2.5 text-[#7c87a8]">
+              •
+            </span>
+          )}
+          {providerVerified && (
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="h-[22px] w-[22px] text-[var(--color-blue-public)]" strokeWidth={2} aria-hidden="true" />
+              {td("providerVerifiedLong")}
+            </span>
+          )}
+        </p>
+      )}
 
-      <ul className="type-caption grid gap-2 text-[var(--color-muted-foreground)]">
-        {[t("railTrustPayment"), t("railTrustVerified")].map((line) => (
-          <li key={line} className="flex items-start gap-2">
-            <Check
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--color-success)]"
-              aria-hidden="true"
-            />
-            {line}
-          </li>
-        ))}
-      </ul>
+      <div className="mt-[22px] mb-2 border-t border-[#eef2f7]" />
+
+      <dl className="grid">
+        {length && (
+          <RailRow icon={Clock} label={td("packageDuration")}>
+            {length}
+          </RailRow>
+        )}
+        {price !== null && (
+          <RailRow icon={Database} label={td("railPriceLabel")} top={Boolean(optionName)}>
+            <b className="text-[19px] font-bold tabular-nums">
+              {price}
+              {hourly && <span className="text-[15px] font-normal text-[var(--color-muted-foreground)]">{td("priceHourlySuffix")}</span>}
+            </b>
+            {/* Which package that price is for, so a fallback substitution
+                is never silent. */}
+            {optionName && <small className="mt-0.5 block text-[14.5px] text-[var(--color-muted-foreground)]">{optionName}</small>}
+          </RailRow>
+        )}
+        {categoryName && (
+          <RailRow icon={Building2} label={td("factCategory")}>
+            {categoryName}
+          </RailRow>
+        )}
+        {(where || place) && (
+          <RailRow icon={MapPin} label={t("railPlaceLabel")} top>
+            {where || place}
+            {/* "Deslocação incluída" only where the provider is the one who
+                travels — a claim about money, so the safe direction is
+                silence for anything else. */}
+            {providerTravels(locationType) ? (
+              <small className="mt-0.5 block text-[14.5px] text-[var(--color-muted-foreground)]">
+                {t("railPriceTravel")} · {t("railPriceTravelIncluded").toLowerCase()}
+              </small>
+            ) : (
+              where && place && <small className="mt-0.5 block text-[14.5px] text-[var(--color-muted-foreground)]">{place}</small>
+            )}
+          </RailRow>
+        )}
+        {/* When: worded by the caller, or a sentence saying it is still to be
+            chosen — never left blank. "Alterar" only where there is a step 1
+            to go back to. */}
+        <RailRow icon={CalendarDays} label={t("railWhenLabel")} top>
+          {slot ? (
+            <>
+              <span className="tabular-nums">{t("railWhen", { date: slot.date, start: slot.start, end: slot.end })}</span>
+              {onChangeSlot && (
+                <button
+                  type="button"
+                  onClick={onChangeSlot}
+                  className="mt-0.5 block w-full text-right text-[14.5px] font-semibold text-[var(--color-blue-public)] hover:underline"
+                >
+                  {t("railChangeAction")}
+                </button>
+              )}
+            </>
+          ) : (
+            <span className="text-[14.5px] text-[var(--color-muted-foreground)]">{t("railWhenPending")}</span>
+          )}
+        </RailRow>
+      </dl>
+
+      <div className="mt-2 border-t border-[#eef2f7]" />
+
+      <div className="mt-[18px] flex items-center">
+        <Avatar className="mr-[18px] h-[74px] w-[74px] shrink-0">
+          {providerLogoUrl && <AvatarImage src={providerLogoUrl} alt="" />}
+          <AvatarFallback className="text-lg">{initialsFrom(providerName)}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <p className="flex items-center gap-[7px] text-[17.5px] font-bold text-[#06154a]">
+            <span className="truncate">{providerName}</span>
+            {providerVerified && (
+              <BadgeCheck className="h-5 w-5 shrink-0 fill-[var(--color-blue-public)] text-white" aria-label={td("providerVerified")} />
+            )}
+          </p>
+          {score !== null && (
+            <p className="mt-1.5 flex items-center gap-1 text-[14.5px] text-[var(--color-muted-foreground)]">
+              <Star className="h-[18px] w-[18px] fill-[var(--color-star)] stroke-none" aria-hidden="true" />
+              <b className="text-base font-bold text-[#06154a] tabular-nums">{score}</b>
+            </p>
+          )}
+        </div>
+        {providerSlug && (
+          <Link
+            to="/providers/$slug"
+            params={{ slug: providerSlug }}
+            aria-label={td("viewProviderProfile")}
+            className="ml-auto grid h-9 w-9 shrink-0 place-items-center rounded-full text-[var(--color-blue-public)] hover:bg-[var(--color-blue-soft)]"
+          >
+            <ChevronRight className="h-[26px] w-[26px]" strokeWidth={2.2} aria-hidden="true" />
+          </Link>
+        )}
+      </div>
+
+      {children && <div className="mt-5 grid gap-3">{children}</div>}
+
+      {/* Two promises the platform actually keeps: the money is held until
+          the job is done, and the provider's papers were looked at. */}
+      {showTrust && (
+        <ul className="mt-5 grid gap-2 text-[13px] text-[var(--color-muted-foreground)]">
+          {[t("railTrustPayment"), t("railTrustVerified")].map((line) => (
+            <li key={line} className="flex items-start gap-2">
+              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--color-success)]" aria-hidden="true" />
+              {line}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** One line of the summary: a glyph, its label, and the value on the right. */
+function RailRow({
+  icon: Icon,
+  label,
+  top = false,
+  children,
+}: {
+  icon: LucideIcon;
+  label: string;
+  /** Align to the top, for a value that runs to a second line. */
+  top?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={cn("flex min-h-[50px] py-1 text-[15.5px] text-[var(--color-muted-foreground)]", top ? "items-start pt-2.5" : "items-center")}>
+      <Icon className="mr-5 h-[26px] w-[26px] shrink-0 text-[#24365f]" strokeWidth={1.6} aria-hidden="true" />
+      <dt className={cn(top && "mt-0.5")}>{label}</dt>
+      <dd className="ml-auto pl-4 text-right text-base leading-[1.45] text-[#182654]">{children}</dd>
     </div>
   );
 }

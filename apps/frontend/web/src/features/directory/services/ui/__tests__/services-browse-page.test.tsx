@@ -137,7 +137,7 @@ function renderPage(url: string, page: ServicePageDTO) {
  * They are the same control with the same options; a test that acts on the
  * first is acting on the sort.
  */
-const sortTrigger = () => screen.getAllByRole("button", { name: /^Sort:/ })[0]!;
+const sortTrigger = () => screen.getAllByRole("button", { name: /^Sort by:/ })[0]!;
 
 describe("ServicesBrowsePage", () => {
   it("states how many matched, not how many fit on this page", async () => {
@@ -228,8 +228,8 @@ describe("ServicesBrowsePage", () => {
     await screen.findByRole("link", { name: "Corte de cabelo" });
     const list = container.querySelector("article")!.closest("ul")!;
     expect(list.className).toContain("grid-cols-1");
-    expect(list.className).toContain("gap-x-6");
-    expect(list.className).toContain("gap-y-8");
+    // 24px both ways, the mockup's three-column grid.
+    expect(list.className).toContain("gap-6");
     expect(list.className.split(/\s+/)).not.toContain("gap-0");
     expect(list.className).not.toMatch(/\bdivide-y\b/);
   });
@@ -323,24 +323,28 @@ describe("ServicesBrowsePage", () => {
     expect(removals).toContain("/services?city=Maputo");
   });
 
-  it("the search bar sits under the header and submits to this page", async () => {
-    // The site's own bar — the landing hero's `ServiceSearch` — under the
-    // header rather than inside it, and what it writes is this page's own
-    // `?q=`. The page used to draw a search pill of its own in the header,
-    // which is the inconsistency this replaced.
+  /**
+   * Two bars, on purpose: the header's, which is on every page, and the
+   * list's own big one under the hero (`client/servicos.html`). Both write
+   * this page's `?q=` through `browseSearch`; the list's is the one named for
+   * the question it asks.
+   */
+  const listBar = () => screen.getByRole("search", { name: "What service are you looking for?" });
+
+  it("draws the list's own search under the header, and it submits to this page", async () => {
     const { router } = renderPage("/services", {
       items: [service()],
       nextOffset: null,
       total: 1,
     });
-    const form = await screen.findByRole("search");
-    // Under the header, which is half of what this case is called: the bar is
-    // a band of the page, not a pill the header carries. `FOLLOWING` is "the
-    // form comes after the header in document order".
+    await screen.findByRole("link", { name: "Corte de cabelo" });
+    const form = listBar();
+    // After the header in document order: a band of the page, under the
+    // site's own bar.
     const header = screen.getByRole("banner");
     expect(header.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "corte" } });
+    fireEvent.change(within(form).getByRole("searchbox"), { target: { value: "corte" } });
     fireEvent.submit(form);
 
     await waitFor(() => {
@@ -349,26 +353,29 @@ describe("ServicesBrowsePage", () => {
     });
   });
 
-  it("the search bar shows the current term", async () => {
+  it("shows the current term in both bars", async () => {
     // A results page whose search box is empty tells the reader they searched
     // for nothing, and a second search from it starts from scratch.
     renderPage("/services?q=barba", { items: [service()], nextOffset: null, total: 1 });
-    expect(await screen.findByRole("searchbox")).toHaveValue("barba");
+    await screen.findByRole("link", { name: "Corte de cabelo" });
+    const boxes = screen.getAllByRole("searchbox");
+    expect(boxes).toHaveLength(2);
+    for (const box of boxes) expect(box).toHaveValue("barba");
   });
 
-  it("searching from a narrowed list keeps the narrowing", async () => {
-    // The bar is a control on this page like any other, so it changes one part
-    // of the URL and keeps the rest. Submitting used to write `?q=` and
+  it("searching from a narrowed list keeps the narrowing, from either bar", async () => {
+    // The bars are controls on this page like any other, so they change one
+    // part of the URL and keep the rest. Submitting used to write `?q=` and
     // nothing else: a reader who had picked a category and a filter typed one
-    // word and was handed the whole platform back, with no way to see what
-    // they had lost.
+    // word and was handed the whole platform back.
     const { router } = renderPage("/services?category=hair&locationType=at_customer&offset=24", {
       items: [service()],
       nextOffset: null,
       total: 1,
     });
-    fireEvent.change(await screen.findByRole("searchbox"), { target: { value: "barba" } });
-    fireEvent.submit(screen.getByRole("search"));
+    await screen.findByRole("link", { name: "Corte de cabelo" });
+    fireEvent.change(within(listBar()).getByRole("searchbox"), { target: { value: "barba" } });
+    fireEvent.submit(listBar());
 
     await waitFor(() => {
       // And the page resets, like every other change that is not the page
@@ -377,6 +384,17 @@ describe("ServicesBrowsePage", () => {
         category: "hair",
         locationType: "at_customer",
         q: "barba",
+      });
+    });
+
+    const headerBar = within(screen.getByRole("banner")).getByRole("search");
+    fireEvent.change(within(headerBar).getByRole("searchbox"), { target: { value: "corte" } });
+    fireEvent.submit(headerBar);
+    await waitFor(() => {
+      expect(router.state.location.search).toEqual({
+        category: "hair",
+        locationType: "at_customer",
+        q: "corte",
       });
     });
   });
@@ -449,7 +467,7 @@ describe("ServicesBrowsePage", () => {
     expect(controls.className.split(/\s+/)).not.toContain("bottom-0");
     // Both halves ride in it, so the phone gets one sort and not two.
     expect(within(controls).getByRole("button", { name: /^Filters/ })).toBeInTheDocument();
-    expect(within(controls).getByRole("button", { name: /^Sort:/ })).toBeInTheDocument();
+    expect(within(controls).getByRole("button", { name: /^Sort by:/ })).toBeInTheDocument();
   });
 
   it("counts on the phone's control only what its sheet can take off, and offers a way to take them all off", async () => {
@@ -538,7 +556,7 @@ describe("ServicesBrowsePage", () => {
       total: 1,
     });
     await screen.findByRole("heading", { level: 1 });
-    const triggers = screen.getAllByRole("button", { name: /^Sort:/ });
+    const triggers = screen.getAllByRole("button", { name: /^Sort by:/ });
     expect(triggers).toHaveLength(2);
 
     const ordersIn = (trigger: HTMLElement) => {

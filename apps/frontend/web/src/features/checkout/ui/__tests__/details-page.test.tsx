@@ -650,8 +650,8 @@ describe("DetailsPage", () => {
     expect(await screen.findByText("Studio X")).toBeInTheDocument();
     // "4,2" in `pt-MZ` — the reader's own decimal separator, and a value no
     // default would produce.
-    expect(screen.getByText("4,2")).toBeInTheDocument();
-    expect(screen.getByText("Verificado")).toBeInTheDocument();
+    expect(screen.getAllByText("4,2")).toHaveLength(2);
+    expect(screen.getByText("Prestador verificado")).toBeInTheDocument();
   });
 
   it("says nothing about a score or a badge the booking does not carry", async () => {
@@ -709,12 +709,12 @@ describe("DetailsPage", () => {
     renderDetails({ bookingId: "bk-1" });
 
     await waitFor(() =>
-      expect(screen.getAllByText("No espaço dele · 90 min")).toHaveLength(2),
+      expect(screen.getAllByText("No espaço dele · 90 min")).toHaveLength(1),
     );
     // A barber's shop: the customer travels, so the rail must not claim the
     // travel is included. The fixture is on this branch precisely so the
     // opposite case below cannot pass by accident.
-    expect(screen.queryByText("Deslocação")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Deslocação/)).not.toBeInTheDocument();
   });
 
   it("claims the travel is included only for a job at the customer's", async () => {
@@ -723,9 +723,8 @@ describe("DetailsPage", () => {
       booking: bookingFixture({ locationType: "at_customer" }),
     });
 
-    await waitFor(() => expect(screen.getAllByText("Em sua casa · 90 min")).toHaveLength(2));
-    expect(screen.getByText("Deslocação")).toBeInTheDocument();
-    expect(screen.getByText("Incluída")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByText("Em sua casa · 90 min")).toHaveLength(1));
+    expect(screen.getByText("Deslocação · incluída")).toBeInTheDocument();
   });
 
   it("reads the slot back in the service's zone, not the device's", async () => {
@@ -771,7 +770,7 @@ describe("DetailsPage", () => {
     const amounts = screen
       .getAllByText(/MTn/)
       .map((node) => (node.textContent ?? "").replace(/\s+/g, " ").trim());
-    expect(amounts).toEqual(["900,00 MTn", "900,00 MTn"]);
+    expect(amounts).toEqual(["900,00 MTn"]);
     expect(screen.queryByText(/comiss/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/taxa/i)).not.toBeInTheDocument();
   });

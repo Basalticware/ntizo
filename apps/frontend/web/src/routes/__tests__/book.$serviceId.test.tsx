@@ -262,25 +262,24 @@ describe("the /book/$serviceId route", () => {
     expect(fakes.prefetch).toHaveBeenCalledWith(expect.anything(), "svc-1");
   });
 
-  it("starts a different service over rather than carrying the last one's week", async () => {
+  it("starts a different service over rather than carrying the last one's month", async () => {
     // The route keys the page by `serviceId`. Without that key the router
     // reuses one match across a param change, React reconciles the same
-    // component instance, and the week somebody paged to for one service
+    // component instance, and the month somebody paged to for one service
     // greets them on another's calendar.
     const { router } = renderRoute("/book/svc-1");
     await screen.findByRole("button", { name: /^09:00/ });
 
-    await userEvent.click(screen.getByRole("button", { name: /pr[óo]xima semana/i }));
-    // Named in full, because a day card now announces its free-time count too
-    // and a bare "11" would eventually match "11 livres" on somebody else's
-    // date.
-    const pagedAway = screen.getByRole("button", { name: /11 de setembro/i });
+    await userEvent.click(screen.getByRole("button", { name: /m[eê]s seguinte/i }));
+    // Named from the comma, because the month grid also holds the 11th, the
+    // 21st and the 31st, and each day announces its free-time count too.
+    const pagedAway = screen.getByRole("button", { name: /, 1 de outubro/i });
     expect(pagedAway).toHaveAttribute("aria-pressed", "true");
 
     await router.navigate({ to: "/book/$serviceId", params: { serviceId: "svc-2" } });
 
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: /4 de setembro/i })).toHaveAttribute(
+      expect(screen.getByRole("button", { name: /, 4 de setembro/i })).toHaveAttribute(
         "aria-pressed",
         "true",
       ),

@@ -49,25 +49,30 @@ describe("SiteHeader", () => {
     expect(screen.getByRole("link", { name: /^providers$/i })).toBeInTheDocument();
   });
 
+  /**
+   * The October 2026 mockups light the current page in the public blue,
+   * bold, with a 3px bar on the header's bottom edge — superseding the bare
+   * navy text of 7 September 2026.
+   */
   it("lights the current destination and leaves the other two resting", async () => {
     await renderHeader({ current: "providers" });
 
     const active = screen.getByRole("link", { name: /^providers$/i });
-    expect(active.className).toContain("font-semibold");
-    expect(active.className).toContain("text-[var(--color-headline)]");
+    expect(active.className).toContain("font-bold");
+    expect(active.className).toContain("text-[#004bf4]");
+    expect(active.className).toContain("after:bg-[var(--color-blue-public)]");
 
     const resting = screen.getByRole("link", { name: /^services$/i });
-    expect(resting.className).not.toContain("text-[var(--color-headline)]");
-    expect(resting.className).toContain("text-[var(--color-muted-foreground)]");
+    expect(resting.className).not.toContain("text-[#004bf4]");
+    expect(resting.className).toContain("font-medium");
   });
 
   /**
-   * The site's one blue is the search's button and the sign-in, and the
-   * destinations are not a third claim on it. They were a pill group with the
-   * lit one filled blue until 7 September 2026; weight and navy say the same
-   * thing without competing with the button beside them.
+   * Still words, not a pill group: the lit one is marked by its colour and
+   * its bar, and none of them is a filled shape competing with the search's
+   * button and "Sign up".
    */
-  it("spends no blue and draws no capsule on the destinations", async () => {
+  it("draws no capsule on the destinations", async () => {
     await renderHeader({ current: "services" });
 
     for (const name of [/explore/i, /^services$/i, /^providers$/i]) {
@@ -86,10 +91,24 @@ describe("SiteHeader", () => {
     await renderHeader({ current: "none" });
 
     for (const name of [/explore/i, /^services$/i, /^providers$/i]) {
-      expect(screen.getByRole("link", { name }).className).not.toContain(
-        "text-[var(--color-headline)]",
-      );
+      expect(screen.getByRole("link", { name }).className).not.toContain("text-[#004bf4]");
     }
+  });
+
+  /**
+   * A visitor gets the mockup's pair: "Sign in" as a link and a blue "Sign
+   * up". "How it works" is not drawn — there is no page or section for it to
+   * land on.
+   */
+  it("offers a visitor both the sign-in and the account, and no dead destination", async () => {
+    await renderHeader();
+
+    expect(screen.getByRole("link", { name: /^sign in$/i })).toHaveAttribute("href", "/sign-in");
+    expect(screen.getByRole("link", { name: /sign up|create account/i })).toHaveAttribute(
+      "href",
+      "/sign-up",
+    );
+    expect(screen.queryByRole("link", { name: /how it works/i })).toBeNull();
   });
 
   /**
@@ -162,7 +181,7 @@ describe("SiteHeader", () => {
     await renderHeader();
 
     expect(screen.getByAltText("Ntizo")).toHaveClass("max-w-none");
-    expect(screen.getByRole("link", { name: /sign in/i })).toHaveClass("whitespace-nowrap");
+    expect(screen.getByRole("link", { name: /^sign in$/i })).toHaveClass("whitespace-nowrap");
   });
 
   /**
