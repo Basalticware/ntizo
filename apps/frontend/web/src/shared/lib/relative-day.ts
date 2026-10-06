@@ -14,13 +14,32 @@ export function relativeDayLabel(iso: string, timeZone: string, now: Date, local
     const word = new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(diff, "day");
     return word.charAt(0).toLocaleUpperCase(locale) + word.slice(1);
   }
-  // Long month, because `pt-MZ`'s short day-and-month is the numeric "9/10";
-  // the year only when it is not this one.
-  const sameYear = civil(target).slice(0, 4) === civil(now).slice(0, 4);
-  return new Intl.DateTimeFormat(locale, {
+  return shortDate(iso, timeZone, locale, { year: true });
+}
+
+/**
+ * "11 Out", or "13 Out 2024" with the year — the mockups' short date.
+ *
+ * Built in two steps, because CLDR answers `pt-MZ`'s short day-and-month
+ * (with or without the year) with a numeric pattern, "11/10". The word order
+ * comes from the long form ("11 de outubro de 2024" → day, month, year;
+ * en-US "October 11, 2024" → month, day, year), and the month is then
+ * written in the locale's own abbreviation, asked for on its own, without
+ * its point and with its first letter raised.
+ */
+export function shortDate(iso: string, timeZone: string, locale: string, opts: { year?: boolean } = {}): string {
+  const date = new Date(iso);
+  const month = new Intl.DateTimeFormat(locale, { timeZone, month: "short" })
+    .format(date)
+    .replace(/\.$/, "");
+  const order = new Intl.DateTimeFormat(locale, {
     timeZone,
     day: "numeric",
     month: "long",
-    ...(sameYear ? {} : { year: "numeric" }),
-  }).format(target);
+    ...(opts.year ? { year: "numeric" } : {}),
+  }).formatToParts(date);
+  return order
+    .filter((p) => p.type === "day" || p.type === "month" || p.type === "year")
+    .map((p) => (p.type === "month" ? month.charAt(0).toLocaleUpperCase(locale) + month.slice(1) : p.value))
+    .join(" ");
 }

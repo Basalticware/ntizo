@@ -74,9 +74,10 @@ describe("design tokens", () => {
   });
 
   it("does not silently change the brand blue", () => {
-    // The redesign adds a deeper blue beside the brand one; it must not
-    // replace it. Every other surface in the product reads --color-primary,
-    // and none of them is part of this work.
-    expect(root).toContain("--color-primary: #006ffd");
+    // Every surface in the product reads --color-primary, so a change here
+    // repaints all of them. It moved once, on purpose: #006ffd → #005cfe,
+    // the blue measured off the October 2026 mockups
+    // (docs/design/2026-10-mockups). Move it again only the same way.
+    expect(root).toContain("--color-primary: #005cfe");
   });
 });

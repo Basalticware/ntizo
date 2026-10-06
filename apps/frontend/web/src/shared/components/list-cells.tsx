@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CalendarDays, MapPin } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage, cn } from "@ntizo/frontend-ui";
 import { initialsFrom } from "@/shared/lib/initials";
 
@@ -24,17 +24,17 @@ export function PersonCell({
   place?: string | null;
 }) {
   return (
-    <div className="flex min-w-0 items-center gap-3.5">
-      <Avatar className="h-12 w-12 shrink-0">
+    <div className="flex min-w-0 items-center gap-5">
+      <Avatar className="h-[58px] w-[58px] shrink-0">
         {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
         <AvatarFallback className="bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] text-sm font-semibold text-[var(--color-primary)]">
           {initialsFrom(name)}
         </AvatarFallback>
       </Avatar>
       <div className="grid min-w-0 leading-tight">
-        <div className="truncate text-[15px] font-semibold text-[var(--color-headline)]">{title}</div>
+        <div className="truncate text-base font-bold text-[var(--color-headline)]">{title}</div>
         {place && (
-          <span className="mt-1 flex min-w-0 items-center gap-1 text-[13px] text-[var(--color-muted-foreground)]">
+          <span className="mt-1 flex min-w-0 items-center gap-[5px] text-sm text-[var(--color-muted-foreground)]">
             <MapPin aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{place}</span>
           </span>
@@ -48,8 +48,8 @@ export function PersonCell({
 export function TwoLineCell({ title, sub }: { title: ReactNode; sub?: ReactNode }) {
   return (
     <div className="grid min-w-0 leading-tight">
-      <span className="text-[15px] font-semibold text-[var(--color-headline)]">{title}</span>
-      {sub && <span className="mt-1 text-[13px] text-[var(--color-muted-foreground)]">{sub}</span>}
+      <span className="truncate text-[15px] font-bold text-[var(--color-headline)]">{title}</span>
+      {sub && <span className="mt-1 truncate text-sm text-[var(--color-muted-foreground)]">{sub}</span>}
     </div>
   );
 }
@@ -57,11 +57,11 @@ export function TwoLineCell({ title, sub }: { title: ReactNode; sub?: ReactNode 
 /** The calendar glyph, the day, and the hours under it. */
 export function WhenCell({ day, time }: { day: ReactNode; time: ReactNode }) {
   return (
-    <div className="flex items-start gap-3">
-      <CalendarDays aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-primary)]" />
+    <div className="flex items-start gap-4">
+      <Calendar aria-hidden="true" className="mt-0.5 h-[22px] w-[22px] shrink-0 text-[var(--color-primary)]" />
       <div className="grid leading-tight tabular-nums">
         <span className="text-[15px] font-medium text-[var(--color-headline)]">{day}</span>
-        <span className="mt-1 text-[13px] text-[var(--color-muted-foreground)]">{time}</span>
+        <span className="mt-1 text-sm text-[var(--color-muted-foreground)]">{time}</span>
       </div>
     </div>
   );
@@ -73,6 +73,6 @@ export function WhenCell({ day, time }: { day: ReactNode; time: ReactNode }) {
  * row stays one real link, not a button wrapped around one.
  */
 export const DETAILS_BUTTON_CLASS = cn(
-  "inline-flex h-10 items-center justify-center rounded-[10px] border border-[color-mix(in_srgb,var(--color-primary)_55%,transparent)] px-4 text-sm font-semibold whitespace-nowrap text-[var(--color-primary)]",
+  "inline-flex h-10 items-center justify-center rounded-lg border border-[var(--color-blue-edge)] bg-[var(--color-card)] px-[22px] text-[15px] font-semibold whitespace-nowrap text-[var(--color-primary)]",
   "hover:bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]",
 );

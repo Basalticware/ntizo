@@ -98,7 +98,7 @@
   "registerMe": "Registreer mij en maak standaardorganisatie aan",
   "bookings": {
     "title": "Boekingen",
-    "subtitle": "Aanvragen die op antwoord wachten, aankomende afspraken en wat al is gebeurd.",
+    "subtitle": "Beheer alle dienstboekingen van uw klanten.",
     "tab": {
       "requests": "Aanvragen",
       "upcoming": "Aankomend",
@@ -739,5 +739,6 @@
     "title": "Word een topaanbieder",
     "body": "Vul uw profiel aan en ontvang meer boekingen.",
     "cta": "Profiel aanvullen"
-  }
+  },
+  "verifiedProvider": "Geverifieerde aanbieder"
 }

@@ -39,8 +39,9 @@ export function ConsoleNavItems({ nav, slug }: { nav: ConsoleNav; slug: string |
           isActive={isActive}
           tooltip={t(item.titleKey)}
           className={cn(
-            "relative h-12 gap-3.5 rounded-[10px] px-4 text-[15px] font-medium text-[var(--color-headline)] [&>svg]:size-5",
-            "data-[active=true]:bg-[var(--color-primary)] data-[active=true]:font-semibold data-[active=true]:text-[var(--color-primary-foreground)]",
+            "relative h-[46px] gap-6 rounded-[10px] px-5 text-[17px] font-medium text-[var(--color-headline)] [&>svg]:size-6",
+            "hover:bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)]",
+            "data-[active=true]:bg-[var(--color-primary)] data-[active=true]:text-[var(--color-primary-foreground)]",
             "hover:data-[active=true]:bg-[var(--color-primary)] hover:data-[active=true]:text-[var(--color-primary-foreground)]",
             "group-data-[collapsible=icon]:mx-auto",
           )}

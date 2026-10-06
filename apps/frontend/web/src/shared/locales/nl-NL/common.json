@@ -37,5 +37,7 @@
   "menu": "Menu",
   "consoleSearch": "Wat zoekt u?",
   "viewDetails": "Details bekijken",
-  "colActions": "Acties"
+  "colActions": "Acties",
+  "consoleCity": "Zoekstad",
+  "consoleAllCities": "Alle steden"
 }

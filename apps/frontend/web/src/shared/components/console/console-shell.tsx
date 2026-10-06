@@ -26,7 +26,7 @@ import { MobileWorkspaceSwitcher, WorkspaceCard } from "./workspace-switcher";
  * only route to the inbox, and the only control in this bar a thumb has to hit.
  */
 const BELL_CLASS =
-  "relative inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-headline)] hover:bg-[var(--color-muted)] [&_svg]:size-[22px]";
+  "relative inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-headline)] hover:bg-[var(--color-muted)] [&_svg]:size-[26px]";
 
 /**
  * The console: one shell for `/provider/$slug/*` and `/admin/*`.
@@ -84,7 +84,16 @@ function WorkspaceShell({ nav, children }: { nav: ConsoleNav; children: ReactNod
         nav={nav}
         slug={activeProvider?.slug}
         zoneLabel={t("providerConsole")}
-        roleLabel={activeProvider ? t(`peopleRoles.${activeProvider.role}`) : ""}
+        // "Prestador verificado" once the platform has approved the
+        // workspace, as the mockups write it; the role until then.
+        roleLabel={
+          activeProvider
+            ? isWorkspaceLive(activeProvider.status)
+              ? t("verifiedProvider")
+              : t(`peopleRoles.${activeProvider.role}`)
+            : ""
+        }
+        defaultCity={detail?.address?.city ?? null}
         bell={
           // The workspace's own inbox, not the person's. `useUnreadCount`'s
           // `enabled` guard keeps it from firing while `providerId` is "".
@@ -143,6 +152,7 @@ function ShellFrame({
   zoneLabel,
   zoneTag,
   roleLabel,
+  defaultCity,
   bell,
   strip,
   sidebarHeader,
@@ -155,6 +165,7 @@ function ShellFrame({
   zoneLabel: string;
   zoneTag?: string;
   roleLabel: string;
+  defaultCity?: string | null;
   bell: ReactNode;
   strip: ReactNode;
   sidebarHeader?: ReactNode;
@@ -170,13 +181,15 @@ function ShellFrame({
     <SidebarProvider
       defaultOpen={!isTablet}
       className="flex-col"
-      style={{ "--sidebar-width": "17.5rem", "--sidebar-width-icon": "4.5rem" } as CSSProperties}
+      data-zone={nav.zone}
+      style={{ "--sidebar-width": "297px", "--sidebar-width-icon": "4.5rem" } as CSSProperties}
     >
       <ConsoleTopBar
         homeUrl={nav.home.url}
         slug={slug}
         zoneTag={zoneTag}
         roleLabel={roleLabel}
+        defaultCity={defaultCity}
         ns={nav.ns}
         bell={bell}
       />
@@ -188,9 +201,9 @@ function ShellFrame({
         {!isMobile && (
           <ConsoleSidebar nav={nav} slug={slug} header={sidebarHeader} footer={sidebarFooter} />
         )}
-        <SidebarInset className="h-[calc(100svh-76px)] min-h-0 min-w-0 overflow-hidden">
+        <SidebarInset className="h-[calc(100svh-4rem)] min-h-0 min-w-0 overflow-hidden md:h-[calc(100svh-91px)]">
           {strip}
-          <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
+          <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 md:pt-[26px] md:pr-8 md:pb-10 md:pl-[30px]">
             <ConsolePageHeading />
             {children}
           </main>

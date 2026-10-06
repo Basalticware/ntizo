@@ -98,7 +98,7 @@
   "registerMe": "Registrami e crea l'organizzazione predefinita",
   "bookings": {
     "title": "Prenotazioni",
-    "subtitle": "Richieste da rispondere, appuntamenti in arrivo e quello che è già successo.",
+    "subtitle": "Gestisca tutte le prenotazioni di servizi fatte dai suoi clienti.",
     "tab": {
       "requests": "Richieste",
       "upcoming": "In arrivo",
@@ -739,5 +739,6 @@
     "title": "Diventi un fornitore di riferimento",
     "body": "Completi il suo profilo e riceva più prenotazioni.",
     "cta": "Completa il profilo"
-  }
+  },
+  "verifiedProvider": "Fornitore verificato"
 }

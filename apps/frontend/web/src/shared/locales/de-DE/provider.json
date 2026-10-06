@@ -98,7 +98,7 @@
   "registerMe": "Registrieren und Standardorganisation erstellen",
   "bookings": {
     "title": "Buchungen",
-    "subtitle": "Anfragen, die auf Antwort warten, bevorstehende Termine und was schon vorbei ist.",
+    "subtitle": "Verwalten Sie alle Servicebuchungen Ihrer Kunden.",
     "tab": {
       "requests": "Anfragen",
       "upcoming": "Bevorstehend",
@@ -739,5 +739,6 @@
     "title": "Werden Sie ein Top-Anbieter",
     "body": "Vervollständigen Sie Ihr Profil und erhalten Sie mehr Buchungen.",
     "cta": "Profil vervollständigen"
-  }
+  },
+  "verifiedProvider": "Verifizierter Anbieter"
 }

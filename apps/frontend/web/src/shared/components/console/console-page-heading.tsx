@@ -21,13 +21,13 @@ export function ConsolePageHeading() {
   }
 
   return (
-    <div className="mb-6 flex w-full max-w-[1400px] flex-wrap items-start justify-between gap-4">
+    <div className="mb-[30px] flex w-full max-w-[1400px] flex-wrap items-start justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="font-display text-[28px] leading-[1.1] font-bold tracking-[-0.02em] text-[var(--color-headline)] md:text-[38px]">
+        <h1 className="font-display text-[30px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[44px]">
           {header.title}
         </h1>
         {header.subtitle && (
-          <p className="mt-1.5 text-base text-[var(--color-muted-foreground)] md:text-[17px]">{header.subtitle}</p>
+          <p className="mt-[7px] text-base text-[var(--color-muted-foreground)] md:text-[16.5px]">{header.subtitle}</p>
         )}
       </div>
       {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}

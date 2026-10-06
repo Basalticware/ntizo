@@ -6,9 +6,9 @@ import type {
   CollectionRow,
 } from "@/shared/components/collection-card";
 import { compactSlotWording } from "@/features/checkout/domain/slot-wording";
-import { formatMoney } from "@/features/wallet/domain/money";
+import { formatMoneyShort } from "@/features/wallet/domain/money";
 import { DETAILS_BUTTON_CLASS, PersonCell, TwoLineCell, WhenCell } from "@/shared/components/list-cells";
-import { relativeDayLabel } from "@/shared/lib/relative-day";
+import { relativeDayLabel, shortDate } from "@/shared/lib/relative-day";
 import { timeLeftWording } from "../domain/status";
 import { BookingStatusBadge } from "./booking-status-badge";
 
@@ -18,19 +18,21 @@ import { BookingStatusBadge } from "./booking-status-badge";
  */
 export function bookingColumns(t: TFunction<"provider">): CollectionColumn[] {
   return [
-    { key: "customer", label: t("bookings.col.customer"), className: "pl-5" },
-    { key: "service", label: t("bookings.col.service"), skeletonWidth: "w-40" },
-    { key: "when", label: t("bookings.col.when"), skeletonWidth: "w-28" },
+    { key: "customer", label: t("bookings.col.customer"), className: "w-[277px]" },
+    { key: "service", label: t("bookings.col.service"), skeletonWidth: "w-40", className: "w-[289px]" },
+    { key: "when", label: t("bookings.col.when"), skeletonWidth: "w-28", className: "w-[242px]" },
     {
       key: "price",
       label: t("bookings.col.price"),
       skeletonWidth: "w-20",
+      className: "w-[142px]",
     },
     {
       key: "status",
       label: t("bookings.col.status"),
       skeletonWidth: "w-24",
       skeletonShape: "badge",
+      className: "w-[149px]",
     },
     { key: "actions", label: t("common:colActions"), className: "pr-5", hideOnCard: true },
   ];
@@ -84,12 +86,12 @@ export function bookingRow(
       when: (
         <WhenCell
           day={relativeDayLabel(b.startsAt, b.timezone, now, locale)}
-          time={`${slot.start} – ${slot.end}`}
+          time={`${shortDate(b.startsAt, b.timezone, locale)} • ${slot.start} – ${slot.end}`}
         />
       ),
       price: (
-        <span className="text-[15px] font-bold whitespace-nowrap text-[var(--color-headline)] tabular-nums">
-          {formatMoney(b.priceMinor, b.currency, locale)}
+        <span className="text-lg font-bold whitespace-nowrap text-[var(--color-headline)] tabular-nums">
+          {formatMoneyShort(b.priceMinor, b.currency, locale)}
         </span>
       ),
       status: (

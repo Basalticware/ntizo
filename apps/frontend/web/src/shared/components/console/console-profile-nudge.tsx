@@ -11,17 +11,17 @@ export function ConsoleProfileNudge({ slug }: { slug: string | undefined }) {
   const { t } = useTranslation("provider");
   if (!slug) return null;
   return (
-    <div className="rounded-2xl bg-[color-mix(in_srgb,var(--color-primary)_6%,var(--color-background))] p-5">
-      <Crown aria-hidden="true" className="h-6 w-6 fill-[#f5b301] text-[#f5b301]" />
-      <p className="mt-3 text-base leading-snug font-bold text-[var(--color-headline)]">{t("profileNudge.title")}</p>
-      <p className="mt-1.5 text-sm text-[var(--color-muted-foreground)]">{t("profileNudge.body")}</p>
+    <div className="rounded-[14px] bg-[var(--color-blue-softer)] px-6 pt-[18px] pb-5">
+      <Crown aria-hidden="true" className="h-7 w-7 fill-[#f6b500] text-[#f6b500]" />
+      <p className="mt-1 max-w-[170px] text-[17.5px] leading-[1.3] font-bold text-[var(--color-headline)]">{t("profileNudge.title")}</p>
+      <p className="mt-1.5 max-w-[190px] text-[15.5px] leading-[1.45] text-[var(--color-muted-foreground)]">{t("profileNudge.body")}</p>
       <Link
         to="/provider/$slug/settings"
         params={{ slug }}
-        className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)] hover:underline"
+        className="mt-2.5 inline-flex items-center gap-2 text-base font-semibold text-[var(--color-primary)] hover:underline"
       >
         {t("profileNudge.cta")}
-        <ArrowRight aria-hidden="true" className="h-4 w-4" />
+        <ArrowRight aria-hidden="true" className="h-[18px] w-[18px]" />
       </Link>
     </div>
   );

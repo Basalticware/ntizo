@@ -48,7 +48,7 @@ export function StatusTabs<K extends string>({
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={cn("-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]", className)}
+      className={cn("-mx-1 flex shrink-0 gap-[15px] overflow-x-auto px-1 py-px [scrollbar-width:none]", className)}
     >
       {tabs.map((tab) => {
         const selected = tab.key === value;
@@ -60,19 +60,19 @@ export function StatusTabs<K extends string>({
             aria-selected={selected}
             onClick={() => onChange(tab.key)}
             className={cn(
-              "inline-flex h-11 shrink-0 items-center gap-2.5 rounded-[10px] border px-4 text-sm whitespace-nowrap transition-colors",
+              "inline-flex h-[47px] shrink-0 items-center gap-3.5 rounded-[10px] border px-5 text-base font-medium whitespace-nowrap transition-colors",
               selected
-                ? "border-[color-mix(in_srgb,var(--color-primary)_35%,transparent)] bg-[color-mix(in_srgb,var(--color-primary)_9%,var(--color-background))] font-semibold text-[var(--color-headline)]"
-                : "border-[var(--color-border)] bg-[var(--color-card)] font-medium text-[var(--color-foreground)] hover:border-[var(--color-border-strong)]",
+                ? "border-[var(--color-blue-line)] bg-[var(--color-blue-soft)] pl-[22px] text-[color-mix(in_srgb,var(--color-primary)_80%,var(--color-headline))]"
+                : "border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-headline)] hover:border-[var(--color-blue-line)]",
             )}
           >
             {tab.label}
             {tab.count != null && (
               <span
                 className={cn(
-                  "grid h-6 min-w-6 place-items-center rounded-full px-1.5 text-xs font-semibold tabular-nums",
+                  "grid h-[26px] min-w-[26px] place-items-center rounded-full px-[7px] text-sm font-semibold tabular-nums",
                   selected
-                    ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                    ? "min-w-[34px] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
                     : CHIP_TONE[tab.tone ?? "neutral"],
                 )}
               >

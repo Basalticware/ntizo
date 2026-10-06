@@ -98,7 +98,7 @@
   "registerMe": "Registar-me + criar organização padrão",
   "bookings": {
     "title": "Reservas",
-    "subtitle": "Pedidos por responder, marcações à frente e o que já passou.",
+    "subtitle": "Gerir todas as reservas de serviços feitas pelos seus clientes.",
     "tab": {
       "requests": "Pedidos",
       "upcoming": "Próximas",
@@ -739,5 +739,6 @@
     "title": "Seja um prestador de referência",
     "body": "Complete o seu perfil e receba mais reservas.",
     "cta": "Completar perfil"
-  }
+  },
+  "verifiedProvider": "Prestador verificado"
 }

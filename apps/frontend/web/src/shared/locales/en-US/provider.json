@@ -98,7 +98,7 @@
   "registerMe": "Register me + create default org",
   "bookings": {
     "title": "Bookings",
-    "subtitle": "Requests waiting on you, what's coming up, and what's already happened.",
+    "subtitle": "Manage every service booking your customers make.",
     "tab": {
       "requests": "Requests",
       "upcoming": "Upcoming",
@@ -739,5 +739,6 @@
     "title": "Become a top provider",
     "body": "Complete your profile and get more bookings.",
     "cta": "Complete profile"
-  }
+  },
+  "verifiedProvider": "Verified provider"
 }
