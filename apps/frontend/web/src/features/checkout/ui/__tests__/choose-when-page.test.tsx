@@ -1195,22 +1195,23 @@ describe("ChooseWhenPage", () => {
       // space, which is why `queryByText("500,00")` could not see
       // "500,00 MTn" and why this normalises before comparing.
       .map((node) => (node.textContent ?? "").replace(/\s+/g, " ").trim());
-    expect(amounts).toEqual(["500,00 MTn", "500,00 MTn"]);
+    expect(amounts).toEqual(["500,00 MTn"]);
     expect(screen.queryByText(/comiss/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/taxa/i)).not.toBeInTheDocument();
   });
 
-  it("prices the rail as Serviço, Deslocação and Total, and nothing else", async () => {
-    // The panel the owner approved, minus the fee line it drew. "Deslocação —
-    // Incluída" is a true sentence here because this fixture is
-    // `at_provider`… which is exactly why it must NOT appear: nobody is
-    // travelling to the customer, so there is no journey to include.
+  it("prices the rail as the mockup does — one Preço row — and nothing else", async () => {
+    // `client/reserva.html`'s summary: Duração, Preço, Categoria, Local. The
+    // price is the package's own and is the total, so there is no separate
+    // "Total" to add up. "Deslocação incluída" must NOT appear for this
+    // `at_provider` fixture: nobody is travelling to the customer.
     renderChooseWhen({ serviceId: "svc-1" });
     await screen.findByRole("button", { name: /^09:00/ });
 
-    expect(screen.getByText("Serviço")).toBeInTheDocument();
-    expect(screen.getByText("Total")).toBeInTheDocument();
-    expect(screen.queryByText("Deslocação")).not.toBeInTheDocument();
+    expect(screen.getByText("Preço")).toBeInTheDocument();
+    expect(screen.getByText("Duração")).toBeInTheDocument();
+    expect(screen.queryByText("Total")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Deslocação/)).not.toBeInTheDocument();
     // Neither of the two lines the mockup carries and this product cannot
     // keep: nothing models a cancellation window, and materials do not exist
     // in the catalogue.
@@ -1225,14 +1226,14 @@ describe("ChooseWhenPage", () => {
     });
     await screen.findByRole("button", { name: /^09:00/ });
 
-    expect(screen.getByText("Deslocação")).toBeInTheDocument();
-    expect(screen.getByText("Incluída")).toBeInTheDocument();
-    // Still only two amounts: "included" is a word, not a second charge.
-    expect(screen.getAllByText(/MTn/)).toHaveLength(2);
+    expect(screen.getByText("Deslocação · incluída")).toBeInTheDocument();
+    // Still one amount: "included" is a word, not a second charge.
+    expect(screen.getAllByText(/MTn/)).toHaveLength(1);
   });
 
-  it("counts the day's bookable start times on its card", async () => {
-    // "2 livres" is `days[i].starts.length` — how many appointments can be
+  it("counts the day's bookable start times in its name", async () => {
+    // The month's 60px days have no room for a caption, so the count is in
+    // each day's accessible name. "2 livres" is `days[i].starts.length` — how many appointments can be
     // asked for that day. Deliberately not a seat count: the fixture's two
     // starts carry one seat each here, and a page summing `seatsLeft` would
     // be republishing the provider's capacity rather than answering "is this
@@ -1248,7 +1249,8 @@ describe("ChooseWhenPage", () => {
     // announced while leaving it unusable: still not disabled by the
     // platform's own rules, still marked disabled to assistive tech, and
     // still reachable by keyboard.
-    const closed = screen.getByRole("button", { name: /5 de setembro, fechado/i });
+    // `, 5 de`, not `5 de`: the month grid also holds the 15th and the 25th.
+    const closed = screen.getByRole("button", { name: /, 5 de setembro, fechado/i });
     expect(closed).not.toBeDisabled();
     expect(closed).toHaveAttribute("aria-disabled", "true");
     closed.focus();
@@ -1376,8 +1378,8 @@ describe("ChooseWhenPage", () => {
     await screen.findByRole("button", { name: /^09:00/ });
 
     expect(screen.getByText("Studio X")).toBeInTheDocument();
-    expect(screen.getByText("4,8")).toBeInTheDocument();
-    expect(screen.getByText("Verificado")).toBeInTheDocument();
+    expect(screen.getAllByText("4,8")).toHaveLength(2);
+    expect(screen.getByText("Prestador verificado")).toBeInTheDocument();
   });
 
   it("renders the rail for a service with no priced package at all", async () => {

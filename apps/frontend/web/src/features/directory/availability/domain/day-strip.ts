@@ -229,3 +229,30 @@ export function memberDayFree(
   }
   return { count: theirs.length, nextStartsAt: earliest?.startsAt ?? null };
 }
+
+/**
+ * The month a date falls in, as a calendar draws it: whole weeks from the
+ * Monday on or before the 1st to the Sunday on or after the last day — five
+ * or six rows of seven, the neighbouring months' days included.
+ *
+ * Forty-two days at most, inside the 62 `availability.forService` will answer
+ * for in one request, so the whole grid is one query.
+ */
+export function monthGrid(anchorIso: string): { month: string; cells: string[] } {
+  const month = `${anchorIso.slice(0, 7)}-01`;
+  const [y, m] = month.split("-").map(Number) as [number, number];
+  const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const last = `${month.slice(0, 8)}${String(daysInMonth).padStart(2, "0")}`;
+  const start = weekOf(month)[0]!;
+  const end = weekOf(last)[6]!;
+  const cells: string[] = [];
+  for (let d = start; d <= end; d = addDays(d, 1)) cells.push(d);
+  return { month, cells };
+}
+
+/** The 1st of the month `delta` months from the one `anchorIso` is in. */
+export function shiftMonth(anchorIso: string, delta: number): string {
+  const [y, m] = anchorIso.split("-").map(Number) as [number, number];
+  const date = new Date(Date.UTC(y, m - 1 + delta, 1));
+  return date.toISOString().slice(0, 10);
+}

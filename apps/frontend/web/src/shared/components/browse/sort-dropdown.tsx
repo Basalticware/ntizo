@@ -53,8 +53,15 @@ export function SortDropdown<Sort extends string>({
   options,
   sortLabel,
   triggerClassName,
+  boxed = false,
   onChoose,
 }: {
+  /**
+   * The October mockups' list header: "Ordenar por:" as plain text beside a
+   * 42px bordered box holding the order and a chevron. Off, the label rides
+   * inside the button — the phone's capsule has no room for a second piece.
+   */
+  boxed?: boolean;
   /** The order presently in force — `undefined` when the URL says nothing. */
   active: Sort | undefined;
   /** Every order this page offers, default first. */
@@ -93,6 +100,27 @@ export function SortDropdown<Sort extends string>({
   // even if `active` is a value this page no longer offers.
   const current = options.find((option) => option.value === active) ?? options[0];
 
+  if (boxed) {
+    return (
+      <div className={cn("items-center gap-3 text-sm text-[var(--color-ink-2)]", triggerClassName)}>
+        <span aria-hidden="true">{sortLabel}</span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`${sortLabel} ${current?.label ?? ""}`}
+              className="flex h-[42px] w-[170px] items-center rounded-[10px] border border-[#e9eef6] px-3.5 font-medium hover:border-[var(--color-blue-line)]"
+            >
+              {current?.label}
+              <ChevronDown className="ml-auto h-[15px] w-[15px]" strokeWidth={2.4} aria-hidden="true" />
+            </button>
+          </DropdownMenuTrigger>
+          <SortMenu options={options} current={current} onChoose={onChoose} />
+        </DropdownMenu>
+      </div>
+    );
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -116,6 +144,22 @@ export function SortDropdown<Sort extends string>({
         </Button>
       </DropdownMenuTrigger>
 
+      <SortMenu options={options} current={current} onChoose={onChoose} />
+    </DropdownMenu>
+  );
+}
+
+/** The menu itself, shared by both triggers. */
+function SortMenu<Sort extends string>({
+  options,
+  current,
+  onChoose,
+}: {
+  options: ReadonlyArray<SortDropdownOption<Sort>>;
+  current: SortDropdownOption<Sort> | undefined;
+  onChoose: (value: Sort | undefined) => void;
+}) {
+  return (
       <DropdownMenuContent align="end" className="min-w-[13rem]">
         {options.map((option) => {
           const isActive = option === current;
@@ -151,6 +195,5 @@ export function SortDropdown<Sort extends string>({
           );
         })}
       </DropdownMenuContent>
-    </DropdownMenu>
   );
 }

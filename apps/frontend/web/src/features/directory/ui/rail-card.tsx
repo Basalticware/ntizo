@@ -21,7 +21,7 @@ import { cn } from "@ntizo/frontend-ui";
  */
 export function RailCard({
   label,
-  flat = false,
+  flat = true,
   className,
   children,
 }: {
@@ -34,7 +34,8 @@ export function RailCard({
   return (
     <div
       className={cn(
-        "rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-background)] p-6",
+        // The October mockups' rail card: a hairline and nothing else.
+        "rounded-xl border border-[#eef2f8] bg-[var(--color-background)] px-5 pt-5 pb-[22px]",
         !flat && "shadow-[var(--shadow-sm)]",
         className,
       )}

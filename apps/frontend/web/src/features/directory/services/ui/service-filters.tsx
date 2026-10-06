@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SlidersHorizontal, X } from "lucide-react";
+import { ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { LOCALES } from "@ntizo/shared";
@@ -31,6 +31,7 @@ import {
 import type { BrowseSort } from "@/features/directory/services/domain/types";
 import { useServiceCities } from "@/features/directory/services/viewmodel/use-browse-services";
 import { PriceRangeFilter } from "@/features/directory/services/ui/price-range-filter";
+import { CATEGORY_PILL_ID } from "@/features/directory/services/ui/browse-aside";
 import {
   CATEGORY_FILTER_LIMIT,
   useCategoryPreview,
@@ -218,7 +219,7 @@ function ClearAll({ current, onNavigate }: { current: BrowseSearch; onNavigate?:
       activeOptions={EXACT_MATCH}
       search={clearedBrowseSearch(current)}
       {...(onNavigate ? { onClick: onNavigate } : {})}
-      className="type-caption font-semibold text-[var(--color-headline)] underline underline-offset-[3px] hover:opacity-80"
+      className="ml-2 text-sm font-semibold whitespace-nowrap text-[#1d7dfc] hover:underline"
     >
       {t("filtersClearAll")}
     </Link>
@@ -284,6 +285,8 @@ export function ServiceFilters({ current }: { current: BrowseSearch }) {
           before everything else. */}
       <FilterPill
         label={categoryLabel}
+        icon={ShieldCheck}
+        id={CATEGORY_PILL_ID}
         active={categoryName}
         clear={
           current.category ? (

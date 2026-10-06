@@ -5,7 +5,7 @@
   "stepDetails": "Details",
   "stepConfirm": "Bestätigen",
   "secureCheckout": "Sichere Buchung",
-  "chooseWhenTitle": "Datum und Uhrzeit wählen",
+  "chooseWhenTitle": "Tag und Uhrzeit wählen",
   "chooseWhenIntro": "Wenn Sie fortfahren, halten wir diese Uhrzeit für Sie frei, während Sie den Rest ausfüllen.",
   "hourlyNotBookable": "Diese Leistung wird stundenweise abgerechnet und kann hier noch nicht gebucht werden. Gehen Sie zurück zur Leistung und schreiben Sie dem Anbieter, um einen Termin abzustimmen.",
   "whereHeading": "Wo die Leistung stattfindet",
@@ -22,7 +22,7 @@
   "railTrustPayment": "Die Zahlung wird einbehalten, bis die Leistung erbracht ist.",
   "railTrustVerified": "Dokumente des Anbieters von Ntizo geprüft.",
   "continueAction": "Weiter",
-  "backToService": "Zurück zur Leistung",
+  "backToService": "Zurück",
   "backToWhen": "Zurück zu Datum und Uhrzeit",
   "detailsTitle": "Details der Anfrage",
   "detailsIntro": "Prüfen Sie Ihre Daten, sagen Sie, wo es stattfindet und was zu tun ist.",
@@ -105,5 +105,8 @@
   "submitErrorGeneric": "Wir konnten die Anfrage gerade nicht senden. Bitte versuchen Sie es erneut.",
   "holdExpired": "Die Zeit zum Abschließen ist abgelaufen und die Uhrzeit wurde freigegeben. Bitte wählen Sie eine andere.",
   "holdRemaining": "Uhrzeit reserviert {{time}}",
-  "holdRemainingLabel": "Verbleibende Zeit zum Abschließen der Buchung"
+  "holdRemainingLabel": "Verbleibende Zeit zum Abschließen der Buchung",
+  "availableTimes": "Verfügbare Zeiten",
+  "chooseWhenLede": "Wählen Sie das Datum und die Uhrzeit, die Ihnen am besten passen.",
+  "railPlaceLabel": "Ort"
 }

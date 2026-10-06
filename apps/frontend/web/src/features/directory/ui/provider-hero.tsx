@@ -1,78 +1,68 @@
 import { useTranslation } from "react-i18next";
 import { BadgeCheck, MapPin } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@ntizo/frontend-ui";
 import type { ProviderPublicDTO } from "@ntizo/shared";
-import { RatingStars } from "@/features/directory/ui/rating-stars";
+import { initialsFrom } from "@/shared/lib/initials";
+import { formatRating } from "@/shared/domain/rating";
+import { Stars } from "@/features/directory/ui/provider-reviews";
 
 /**
- * Who this business is: the eyebrow, the name, and the one line of meta a
- * reader weighs it by.
+ * Who this business is — `client/prestador-detalhe.html`'s identity row: the
+ * logo in a 114px circle, the name with its "Verificado" pill, the score, and
+ * where it is.
  *
- * Everything here is something the platform actually knows. The reference
- * design this follows also promised "312 jobs completed", the languages the
- * provider speaks, and a map of the area they cover — none of which exists:
- * there are no bookings to count, nothing records what anyone speaks (the
- * services browse's own language filter says so, because it filters the
- * language a *listing* is written in), and the precise location is deliberately
- * kept out of the public read model, so a coverage radius would be a circle
- * drawn around a guess. Inventing any of the three would be the page telling a
- * customer something nobody checked.
+ * Everything here is something the platform actually knows. The logo falls
+ * back to the business's initials; the pill is `verified` — an administrator
+ * accepted at least one of its documents — and absent otherwise; the score
+ * is absent until somebody has reviewed, because empty stars would show a
+ * business nobody has rated as the worst on the platform.
  *
- * Three things this used to carry and no longer does, because the page around
- * it grew somewhere better to put them:
- *
- * - The **logo tile** — the page now opens on `DetailGallery`, the business's
- *   own photographs at full width. An 80px avatar under a 520px collage is a
- *   second, smaller picture of the same business competing with the first.
- * - The **description** — moved to the page's own "About" section, under a
- *   heading, where a reader looking for it can find it and a crawler can see
- *   what it is. A paragraph tucked under a rating line is neither.
- * - The **message button** — moved into `ProviderRail`, beside the price. The
- *   two are one decision, and the rail is the part of the page that stays in
- *   view while this block scrolls away.
- *
- * The verification badge stays here rather than moving with the button. It is
- * a fact about the *name* it sits beside, and the gallery that repeats it over
- * the main photograph renders nothing at all for a provider with no photos —
- * which is most of them.
+ * The trade moved out of an eyebrow over the name and into the facts row
+ * below, where the mockup puts it.
  */
 export function ProviderHero({ provider }: { provider: ProviderPublicDTO }) {
-  const { t } = useTranslation("directory");
-
+  const { t, i18n } = useTranslation("directory");
+  const locale = i18n.resolvedLanguage ?? i18n.language;
   const where = [provider.district, provider.city, provider.country].filter(Boolean).join(", ");
-  const kind = provider.type === "organization" ? t("typeOrganization") : t("typeIndividual");
+  const score = provider.ratingAverage === null ? null : formatRating(provider.ratingAverage, locale);
 
   return (
-    // `mt-10` because this block always follows something: the collage, in the
-    // left column above it, or — for the majority of providers with no
-    // photographs — the breadcrumb, past a `DetailGallery` that rendered
-    // nothing. Either way the gap is the 40px the page's grid used to supply
-    // as its own top padding, and it is stated here for the same reason
-    // `ServiceDetailPage` states it on its header: the distance belongs to the
-    // heading that opens the column, not to the picture that may not exist.
-    <header className="mt-10 min-w-0">
-      <p className="type-body text-[var(--color-muted-foreground)]">
-        {[kind, ...provider.categories.map((c) => c.name)].join(" · ")}
-      </p>
-
-      <h1 className="type-h1 mt-1.5 flex flex-wrap items-center gap-2">
-        {provider.name}
-        {provider.verified && (
-          <span className="type-caption inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] px-2 py-0.5 font-semibold text-[var(--color-primary)]">
-            <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
-            {t("providerVerified")}
-          </span>
+    <header className="mt-6 flex min-w-0 items-center gap-5 sm:gap-7">
+      <Avatar className="h-20 w-20 shrink-0 sm:h-[114px] sm:w-[114px]">
+        {provider.logoUrl && <AvatarImage src={provider.logoUrl} alt="" />}
+        <AvatarFallback className="text-2xl">{initialsFrom(provider.name)}</AvatarFallback>
+      </Avatar>
+      <div className="min-w-0">
+        <h1 className="flex flex-wrap items-center gap-2.5 text-[26px] leading-[1.1] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] sm:text-[33px]">
+          {provider.name}
+          {provider.verified && (
+            <span className="inline-flex h-7 items-center gap-2 rounded-[14px] bg-[#e2f0fe] pr-2.5 pl-1 text-[15px] font-medium tracking-normal text-[#0244fe]">
+              <BadgeCheck className="h-[22px] w-[22px] fill-[#1060f8] text-white" strokeWidth={2.4} aria-hidden="true" />
+              {t("providerVerified")}
+            </span>
+          )}
+        </h1>
+        {score !== null && provider.ratingAverage !== null && (
+          <p
+            className="mt-3 flex items-center gap-1.5 text-[15px]"
+            aria-label={t("providerRatingLabel", { score, count: provider.reviewCount })}
+          >
+            <Stars value={provider.ratingAverage} size={18} />
+            <b aria-hidden="true" className="ml-1.5 font-semibold text-[var(--color-headline)]">
+              {score}
+            </b>
+            <span aria-hidden="true" className="text-[#56628e]">
+              ({provider.reviewCount})
+            </span>
+          </p>
         )}
-      </h1>
-
-      <p className="type-body mt-3.5 flex flex-wrap items-center gap-x-7 gap-y-2">
-        <RatingStars average={provider.ratingAverage} count={provider.reviewCount} />
         {where && (
-          <span className="inline-flex items-center gap-1 text-[var(--color-muted-foreground)]">
-            <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+          <p className="mt-3.5 flex items-center gap-2.5 text-[15px] text-[#283466]">
+            <MapPin className="h-[17px] w-[17px] text-[#1f2b5a]" aria-hidden="true" />
             {where}
-          </span>
+          </p>
         )}
-      </p>
+      </div>
     </header>
   );
 }

@@ -140,28 +140,29 @@ export function ServiceSearch({
         // the term instead of writing `q=` into the URL.
         navigate({ to, search: buildSearch(q || undefined) });
       }}
-      className={cn(
-        "flex w-full items-center gap-2 rounded-full border border-[var(--color-border)]",
-        "bg-[var(--color-background)] p-2 pl-5 shadow-sm",
-        className,
-      )}
+      // Two shapes side by side, as the October mockups draw it in the bar: a
+      // 42px field with the glyph inside it, and the button beside it rather
+      // than nested in it. The form itself draws nothing.
+      className={cn("flex w-full items-center gap-2.5", className)}
     >
-      <Search className="h-5 w-5 shrink-0 text-[var(--color-muted-foreground)]" />
-      {/*
-        The field names its own text colour. A form control inherits `color`
-        from its container, and the home hero paints its block white; without
-        this the typed text and the caret were white on the field's white
-        background, and typing showed nothing (3 September 2026).
-      */}
-      <input
-        type="search"
-        value={value}
-        autoFocus={autoFocus}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder ?? t("searchPlaceholder")}
-        aria-label={label ?? t("searchLabel")}
-        className="min-w-0 flex-1 bg-transparent text-sm text-[var(--color-foreground)] outline-none placeholder:text-[var(--color-muted-foreground)]"
-      />
+      <label className="flex h-[42px] min-w-0 flex-1 items-center gap-2.5 rounded-[10px] border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 focus-within:border-[var(--color-blue-outline)]">
+        <Search className="h-[17px] w-[17px] shrink-0 text-[var(--color-headline)]" aria-hidden="true" />
+        {/*
+          The field names its own text colour. A form control inherits `color`
+          from its container, and the home hero paints its block white; without
+          this the typed text and the caret were white on the field's white
+          background, and typing showed nothing (3 September 2026).
+        */}
+        <input
+          type="search"
+          value={value}
+          autoFocus={autoFocus}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder ?? t("searchPlaceholder")}
+          aria-label={label ?? t("searchLabel")}
+          className="min-w-0 flex-1 bg-transparent text-sm text-[var(--color-foreground)] outline-none placeholder:text-[var(--color-faint)]"
+        />
+      </label>
       {/*
         A word from `sm` up, a glyph below it.
 
@@ -178,7 +179,7 @@ export function ServiceSearch({
       */}
       <button
         type="submit"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-semibold text-white hover:opacity-90 sm:h-auto sm:w-auto sm:px-6 sm:py-2.5"
+        className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[10px] bg-[var(--color-blue-public)] text-sm font-semibold whitespace-nowrap text-white hover:opacity-90 sm:w-auto sm:px-[22px]"
       >
         <Search className="h-[18px] w-[18px] sm:hidden" aria-hidden="true" />
         <span className="sr-only sm:not-sr-only">{t("searchAction")}</span>

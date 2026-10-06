@@ -1,56 +1,33 @@
-import { Link } from "@tanstack/react-router";
-import { Lock } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import type { ReactNode } from "react";
+import { SiteHeader } from "@/shared/components/site-header";
 import { CheckoutSteps, type CheckoutStep } from "@/features/checkout/ui/checkout-steps";
 
 /**
- * The bar above every checkout page: the logo, the steps, and a lock.
+ * The top of every checkout page, as `client/reserva.html` draws it: the
+ * site's own header, then a row with the way back on the left and the steps
+ * centred.
  *
- * Not `SiteHeader`. That one carries the public navigation pill, the bell and
- * the account menu — three invitations to go somewhere else, on the one page
- * where somewhere else costs a slot on hold. Checkout is a corridor: the
- * customer finishes it, or leaves by the back link or the logo. So the bar
- * says where in the corridor they are and that the purchase is secure, and
- * nothing else. The phone's bottom bar stays, though: it is the same on every
- * customer page by decision — see `zoneOwnsChrome`.
+ * The public header rather than a bar of its own. The checkout used to wear a
+ * stripped one — the logo, the steps and "Reserva segura" — on the reasoning
+ * that the site's navigation is an invitation to wander off with a slot on
+ * hold. The October mockups the user approved put the ordinary header here,
+ * and a hold that lapses is already handled: the slot is released and the
+ * customer is sent back to step 1 with the reason.
  *
- * The steps live here rather than in the page body. The body already has a
- * back link, a title and an intro above the first control, and a fourth thing
- * before the calendar pushed it down a screen on a phone. A sticky bar puts
- * the position where the eye glances for it and keeps it there while the form
- * scrolls.
- *
- * Three columns from `md`, for the reason `SiteHeader` gives: `mx-auto` on the
- * middle item centres it between two sides of different widths, so the steps
- * would sit a little off centre. Below `md` the steps take a second row of
- * their own, the whole width of it — the three markers spread across the
- * screen with their names underneath, which is `CheckoutSteps`' phone shape.
- *
- * Sticky from `md` only. On a phone the bar is two rows tall, and pinning
- * ninety-odd pixels to the top of a 660px viewport takes the calendar's
- * first row off the screen while the customer scrolls for a time. The rail's
- * own sticky offset only applies from `lg`, so nothing depends on the bar
- * staying put below that.
+ * Three columns from `md` — `1fr auto 1fr` — so the steps sit at the true
+ * centre of the row whatever the back link's width is. Below `md` the steps
+ * take a row of their own under the back link.
  */
-export function CheckoutHeader({ current }: { current: CheckoutStep }) {
-  const { t } = useTranslation("checkout");
-
+export function CheckoutHeader({ current, back }: { current: CheckoutStep; back?: ReactNode }) {
   return (
-    <header className="z-20 border-b border-[var(--color-border)] bg-[var(--color-background)] md:sticky md:top-0">
-      <div className="page-shell grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-4 pt-3 pb-4 md:h-16 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:py-0">
-        <Link to="/" className="col-start-1 row-start-1 justify-self-start">
-          <img src="/brand/logo-primary.svg" alt="Ntizo" className="h-7" />
-        </Link>
-
-        <div className="col-span-2 row-start-2 w-full md:col-span-1 md:col-start-2 md:row-start-1 md:w-auto md:justify-self-center">
+    <>
+      <SiteHeader current="services" />
+      <div className="public-inset grid grid-cols-1 items-center gap-y-5 pt-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:pt-8">
+        <div className="justify-self-start empty:hidden md:empty:block">{back}</div>
+        <div className="w-full md:w-auto md:justify-self-center">
           <CheckoutSteps current={current} />
         </div>
-
-        <p className="type-caption col-start-2 row-start-1 inline-flex items-center gap-1.5 justify-self-end font-semibold text-[var(--color-muted-foreground)] md:col-start-3">
-          <Lock className="h-4 w-4" aria-hidden="true" />
-          {t("secureCheckout")}
-        </p>
       </div>
-    </header>
+    </>
   );
 }

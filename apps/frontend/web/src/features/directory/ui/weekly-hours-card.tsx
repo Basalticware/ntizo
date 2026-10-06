@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { Calendar } from "lucide-react";
 import type { WeeklyHoursDTO } from "@ntizo/shared/read-models";
 import { groupWeekdays, hasAnyHours } from "@/features/directory/domain/weekly-hours";
 import { minutesToLabel } from "@/shared/domain/week-format";
@@ -31,26 +32,30 @@ export function WeeklyHoursCard({ hours }: { hours: readonly WeeklyHoursDTO[] })
   const rows = groupWeekdays(hours, locale);
 
   return (
-    <RailCard label={t("availabilityHeading")} flat>
-      <dl className="grid gap-2.5">
+    <RailCard>
+      <h2 className="flex items-center gap-3.5 text-base font-extrabold text-[var(--color-headline)]">
+        <Calendar className="h-[19px] w-[19px] text-[#0a5afe]" strokeWidth={2} aria-hidden="true" />
+        {t("availabilityHeading")}
+      </h2>
+      <dl className="mt-[18px] ml-2.5 grid gap-3 text-[15px] leading-[1.3] text-[#152b72]">
         {rows.map((row) => (
-          <div key={row.key} className="flex justify-between gap-4 type-body">
+          <div key={row.key} className="flex justify-between gap-4">
             <dt className="first-letter:uppercase">{row.label}</dt>
             {row.intervals.length > 0 ? (
-              <dd className="font-semibold tabular-nums">
+              <dd className="font-medium text-[var(--color-headline)] tabular-nums">
                 {row.intervals
                   .map((interval) => `${minutesToLabel(interval.startMinute)} – ${minutesToLabel(interval.endMinute)}`)
                   .join(", ")}
               </dd>
             ) : (
-              <dd className="font-medium text-[var(--color-muted-foreground)]">
+              <dd className="font-medium text-[var(--color-headline)]">
                 {t("availabilityClosed")}
               </dd>
             )}
           </div>
         ))}
       </dl>
-      <p className="type-caption text-[var(--color-muted-foreground)] mt-3.5">
+      <p className="mt-4 ml-2.5 text-[13px] leading-normal text-[#737ea3]">
         {t("availabilityUsualNote")}
       </p>
     </RailCard>

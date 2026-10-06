@@ -381,7 +381,7 @@ describe("ConfirmPage", () => {
     const amounts = screen
       .getAllByText(/MTn/)
       .map((node) => (node.textContent ?? "").replace(/\s+/g, " ").trim());
-    expect(amounts).toEqual(["1500,00 MTn", "1500,00 MTn"]);
+    expect(amounts).toEqual(["1500,00 MTn"]);
     expect(screen.queryByText(/comiss/i)).not.toBeInTheDocument();
     // A regex, not the exact string. `queryByText("180,00")` matches a node
     // whose whole text is "180,00" and cannot see "180,00 MTn" — which is
@@ -412,8 +412,8 @@ describe("ConfirmPage", () => {
     expect(await screen.findByText("Studio X")).toBeInTheDocument();
     // "4,2" in `pt-MZ` — the reader's own decimal separator, and a value no
     // default and no other fixture in the repo produces.
-    expect(screen.getByText("4,2")).toBeInTheDocument();
-    expect(screen.getByText("Verificado")).toBeInTheDocument();
+    expect(screen.getAllByText("4,2")).toHaveLength(2);
+    expect(screen.getByText("Prestador verificado")).toBeInTheDocument();
     // The two promises the platform can actually keep. Still no cancellation
     // window: nothing in this product models one.
     expect(screen.getByText(/pagamento fica retido/i)).toBeInTheDocument();
@@ -446,9 +446,11 @@ describe("ConfirmPage", () => {
     // included would be a false statement about money.
     renderConfirm({ bookingId: "bk-1" });
 
-    expect(await screen.findByText("No espaço dele · 90 min")).toBeInTheDocument();
-    expect(screen.queryByText("Deslocação")).not.toBeInTheDocument();
-    expect(screen.queryByText("Incluída")).not.toBeInTheDocument();
+    // The rail's Local and Duração rows, one fact each.
+    expect(await screen.findByText("No espaço dele")).toBeInTheDocument();
+    expect(screen.getByText("90 min")).toBeInTheDocument();
+    expect(screen.queryByText(/Deslocação/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/incluída/i)).not.toBeInTheDocument();
   });
 
   it("includes the travel only where the provider is the one travelling", async () => {
@@ -460,9 +462,8 @@ describe("ConfirmPage", () => {
       booking: bookingFixture({ locationType: "at_customer" }),
     });
 
-    expect(await screen.findByText("Em sua casa · 90 min")).toBeInTheDocument();
-    expect(screen.getByText("Deslocação")).toBeInTheDocument();
-    expect(screen.getByText("Incluída")).toBeInTheDocument();
+    expect(await screen.findByText("Em sua casa")).toBeInTheDocument();
+    expect(screen.getByText("Deslocação · incluída")).toBeInTheDocument();
   });
 
   it("drops the location half alone when the booking cannot say where the work happens", async () => {
@@ -477,7 +478,7 @@ describe("ConfirmPage", () => {
     // The length survives on its own; only the location half disappears.
     expect(await screen.findByText("90 min")).toBeInTheDocument();
     expect(screen.queryByText(/No espaço dele/)).not.toBeInTheDocument();
-    expect(screen.queryByText("Deslocação")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Deslocação/)).not.toBeInTheDocument();
   });
 
   it("offers one way back to the time, on this booking's own package", async () => {

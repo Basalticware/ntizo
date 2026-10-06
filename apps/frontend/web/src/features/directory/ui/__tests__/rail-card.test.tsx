@@ -20,8 +20,15 @@ describe("RailCard", () => {
     expect(label.className).toContain("mb-3");
   });
 
-  it("carries a shadow by default", () => {
+  // The October 2026 mockups draw the rail's cards as a hairline and nothing
+  // else, so a card is flat unless a caller asks otherwise.
+  it("draws no shadow by default", () => {
     const { container } = render(<RailCard>Book now</RailCard>);
+    expect(container.firstElementChild?.className).not.toContain("shadow-[var(--shadow-sm)]");
+  });
+
+  it("carries a shadow only when asked to", () => {
+    const { container } = render(<RailCard flat={false}>Book now</RailCard>);
     expect(container.firstElementChild?.className).toContain("shadow-[var(--shadow-sm)]");
   });
 

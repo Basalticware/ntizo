@@ -1,23 +1,24 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useRouterState, useSearch } from "@tanstack/react-router";
-import { ArrowLeft, PackageX } from "lucide-react";
+import { ArrowLeft, ArrowRight, Info, PackageX } from "lucide-react";
 import type { AddressDTO } from "@ntizo/shared";
 import type { ServiceDetailDTO, ServiceDetailOptionDTO } from "@ntizo/shared/read-models";
-import { addDays, localDateAt } from "@ntizo/shared/datetime";
+import { localDateAt } from "@ntizo/shared/datetime";
 import { Button, Skeleton } from "@ntizo/frontend-ui";
 import { CheckoutHeader } from "@/features/checkout/ui/checkout-header";
 import { EmptyCard } from "@/shared/components/empty-card";
 import {
   daysFor,
   endOfStart,
+  monthGrid,
+  shiftMonth,
   startsByDate,
-  weekOf,
 } from "@/features/directory/availability/domain/day-strip";
 import { distinctMemberIds, panelMode } from "@/features/directory/availability/domain/types";
 import type { Start } from "@/features/directory/availability/domain/types";
 import { useServiceAvailability } from "@/features/directory/availability/viewmodel/use-service-availability";
-import { DateStrip } from "@/features/directory/availability/ui/date-strip";
+import { MonthCalendar } from "@/features/directory/availability/ui/month-calendar";
 import { MemberPicker } from "@/features/directory/availability/ui/member-picker";
 import { TimeGrid } from "@/features/directory/availability/ui/time-grid";
 import {
@@ -335,7 +336,9 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
    */
   const addressChoiceSettled = !viewerPending && (!viewer || !addressesLoading);
 
-  const week = weekOf(anchorDate);
+  // The month on screen, as whole weeks — at most 42 days, which one
+  // `availability.forService` request answers (its window is 62).
+  const grid = monthGrid(anchorDate);
   /**
    * **The whole roster's window, never one person's, whatever the picker
    * says.**
@@ -357,8 +360,8 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
   const { data, isPending, isError, error, refetch } = useServiceAvailability({
     serviceId: service.id,
     memberId: undefined,
-    from: week[0]!,
-    to: week[6]!,
+    from: grid.cells[0]!,
+    to: grid.cells[grid.cells.length - 1]!,
   });
 
   /**
@@ -393,11 +396,11 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
     // this landing a render later. Needed because the device's guess can put
     // a chosen slot in the neighbouring week, and a week nobody fetched has
     // no starts to select from.
-    if (chosenCivilDate && !weekOf(anchorDate).includes(chosenCivilDate)) {
+    if (chosenCivilDate && chosenCivilDate.slice(0, 7) !== anchorDate.slice(0, 7)) {
       setAnchorDate(chosenCivilDate);
     }
-    // `anchorDate`, not `week`: `weekOf` builds a fresh array every render, so
-    // depending on it would re-run this on every render for nothing.
+    // `anchorDate`, not `grid`: `monthGrid` builds a fresh array every
+    // render, so depending on it would re-run this on every render for nothing.
   }, [chosenCivilDate, anchorDate]);
 
   useEffect(() => {
@@ -441,7 +444,7 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
     });
   }
 
-  function goToWeek(nextAnchor: string) {
+  function goToMonth(nextAnchor: string) {
     setAnchorDate(nextAnchor);
     setBrowsedDate(nextAnchor);
     setSelectedLengthMinutes(null);
@@ -696,65 +699,69 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
     // the visitor's only way back out of a filter.
     const memberIds = distinctMemberIds(data.memberIds);
 
+    const shownTitle = new Intl.DateTimeFormat(locale, {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      timeZone: "UTC",
+    }).format(new Date(`${shownDate}T12:00:00Z`));
+
     body = (
       <div className="grid gap-6">
-        <DateStrip
-          week={week}
-          selectedDate={shownDate}
-          todayIso={todayIso}
-          locale={locale}
-          // How many bookable times each day carries, so the strip can say so
-          // on the card rather than making the customer open seven days to
-          // find out. **Narrowed, like the grid**: the customer has just said
-          // which person they are asking about, and a card promising two free
-          // times on a day that person has one would disagree with the grid
-          // directly underneath it.
-          startsByDate={startsByDate(narrowedDays)}
-          onSelectDate={selectDate}
-          onPreviousWeek={() => goToWeek(addDays(anchorDate, -7))}
-          onNextWeek={() => goToWeek(addDays(anchorDate, 7))}
-        />
         {/*
           `performers` comes off `serviceById`, which this page already reads,
           so a member the service names is labelled with their real first
           name. The numbered fallback underneath — "Professional 1",
-          "Professional 2" — is not a loading state and not a gap waiting to
-          be filled: `availability.forService` answers "who is free" by id
-          alone and never carries a name, so an id this list does not cover
-          (or covers with the blank `firstName` its schema defaults to) has a
-          real, permanent answer rather than a temporary one. See
-          `MemberPicker`'s own doc comment.
+          "Professional 2" — is a real, permanent answer rather than a
+          temporary one: `availability.forService` answers "who is free" by id
+          alone. See `MemberPicker`'s own doc comment.
         */}
         <MemberPicker
           memberIds={memberIds}
           selectedMemberId={search.memberId}
           onChange={selectMember}
           performers={service.performers}
-          // **The roster's day, not the grid's.** Every other consumer on
-          // this page wants the window narrowed to whoever is chosen; this
-          // one is the single place that must see all of it, because a row
-          // saying what Ana has free is worthless on a page filtered to
-          // Flávio. Same date as the grid below, so the two can never be
-          // counting different days.
           starts={rosterDay?.starts ?? []}
           locale={locale}
-          // `data.timezone`, never the device's: the same rule `chosenCivilDate`
-          // above already had to learn the hard way.
           timezone={data.timezone}
         />
-        <TimeGrid
-          starts={day?.starts ?? []}
-          pricingMode={data.pricingMode}
-          durationMinutes={cardDurationMinutes}
-          minMinutes={option?.minMinutes ?? null}
-          stepMinutes={option?.stepMinutes ?? null}
-          locale={locale}
-          timezone={data.timezone}
-          selectedStart={selectedStart}
-          selectedLengthMinutes={selectedLengthMinutes}
-          onSelectStart={selectStart}
-          onSelectLength={setSelectedLengthMinutes}
-        />
+        {/* The month on the left and the chosen day's times on the right,
+            parted by a rule — `client/reserva.html`'s calendar card. */}
+        <section className="grid gap-8 rounded-[14px] border border-[#f0f4f9] px-4 py-6 sm:px-8 sm:py-10 sm:pl-[22px] lg:grid-cols-[minmax(0,434px)_2px_minmax(0,1fr)] lg:gap-x-[30px]">
+          <MonthCalendar
+            month={grid.month}
+            cells={grid.cells}
+            selectedDate={shownDate}
+            todayIso={todayIso}
+            locale={locale}
+            startsByDate={startsByDate(narrowedDays)}
+            onSelectDate={selectDate}
+            onPreviousMonth={() => goToMonth(shiftMonth(anchorDate, -1))}
+            onNextMonth={() => goToMonth(shiftMonth(anchorDate, 1))}
+          />
+          <span aria-hidden="true" className="hidden bg-[#f1f5fa] lg:block" />
+          <div className="min-w-0">
+            <h2 className="text-[19.8px] font-bold whitespace-nowrap text-[var(--color-headline)] first-letter:uppercase">
+              {shownTitle}
+            </h2>
+            <p className="mt-2.5 text-base text-[#5068a0]">{t("availableTimes")}</p>
+            <div className="mt-7">
+              <TimeGrid
+                starts={day?.starts ?? []}
+                pricingMode={data.pricingMode}
+                durationMinutes={cardDurationMinutes}
+                minMinutes={option?.minMinutes ?? null}
+                stepMinutes={option?.stepMinutes ?? null}
+                locale={locale}
+                timezone={data.timezone}
+                selectedStart={selectedStart}
+                selectedLengthMinutes={selectedLengthMinutes}
+                onSelectStart={selectStart}
+                onSelectLength={setSelectedLengthMinutes}
+              />
+            </div>
+          </div>
+        </section>
         <WhereSection
           addresses={addresses}
           loading={Boolean(viewer) && addressesLoading}
@@ -791,113 +798,104 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
       : null;
 
   return (
-    <>
-      <CheckoutHeader current="when" />
+    // The mockup's 40px inset at its 1378px width.
+    <div className="[--pw-pad:clamp(16px,2.9vw,40px)]">
+      <CheckoutHeader
+        current="when"
+        back={
+          <Link
+            to="/services/$id"
+            params={{ id: service.id }}
+            className="inline-flex items-center gap-[13px] text-[16.5px] font-medium text-[var(--color-blue-public)] hover:underline"
+          >
+            <ArrowLeft className="h-[21px] w-[21px]" strokeWidth={2.2} aria-hidden="true" />
+            {t("backToService")}
+          </Link>
+        }
+      />
 
-      <main className="page-shell py-8">
-        <Link
-          to="/services/$id"
-          params={{ id: service.id }}
-          className="type-caption inline-flex items-center gap-1.5 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-          {t("backToService")}
-        </Link>
+      <main className="public-inset grid gap-x-10 gap-y-8 pt-8 pb-10 md:pt-10 lg:grid-cols-[minmax(0,1fr)_433px]">
+        <div className="min-w-0">
+          <h1 className="text-[36px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[#020d3a] md:text-[62px]">
+            {t("chooseWhenTitle")}
+          </h1>
+          <p className="mt-3 text-lg leading-[1.45] text-[#3d5884] md:text-[22px]">{t("chooseWhenLede")}</p>
 
-        <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-          <div className="min-w-0">
-            <h1 className="type-h1">{t("chooseWhenTitle")}</h1>
-            <p className="type-body mt-2 text-[var(--color-muted-foreground)]">
-              {t("chooseWhenIntro")}
-            </p>
-
-            {search.expired && (
-              <p
-                role="alert"
-                className="mt-4 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] p-3 text-sm"
-              >
-                {t("holdExpired")}
-              </p>
-            )}
-
-            <div className="mt-8">{body}</div>
-          </div>
-
-          {/* 80px, not 0: the checkout header is 64px and sticky, so a rail
-              pinned to the top of the viewport would slide under it. */}
-          <aside className="grid gap-4 lg:sticky lg:top-[80px]">
-            {/* No `onChangeSlot`: this page *is* where the slot is changed,
-                and an "Alterar" pointing at the grid two inches to its left
-                would be a control that does nothing. */}
-            <CheckoutRail
-              imageUrl={service.imageUrls[0] ?? null}
-              serviceName={service.name}
-              providerName={service.providerName}
-              providerRatingAverage={service.providerRatingAverage}
-              providerVerified={service.providerVerified}
-              optionName={option?.name ?? null}
-              slot={railSlot}
-              locationType={service.locationType}
-              // The *package's* own figure, not whatever length is currently
-              // selected: on an hourly option this reads "Mínimo de 60 min",
-              // which stays true however long the customer picks, while the
-              // finishing time in the panel above follows the pick.
-              durationMinutes={minutes}
-              // Null rather than zero when there is no package: a quote
-              // service reaches this page and has no priced option at all,
-              // and `Intl` throws on the blank currency code a `?? 0` would
-              // have to be paired with.
-              priceMinor={option?.amountMinor ?? null}
-              currency={option?.currency ?? ""}
-              hourly={isHourly}
+          {search.expired && (
+            <p
+              role="alert"
+              className="mt-4 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] p-3 text-sm"
             >
-              {failed && (
-                <p
-                  id="checkout-create-error"
-                  role="alert"
-                  className="text-sm text-[var(--color-destructive)]"
-                >
-                  {errorCode
-                    ? t(`createError.${errorCode}`, { defaultValue: t("createErrorGeneric") })
-                    : t("createErrorGeneric")}
-                </p>
-              )}
+              {t("holdExpired")}
+            </p>
+          )}
 
-              {/* Directly above the button, because it is the answer to why
-                  the button is dead — and referenced by it, so a screen
-                  reader that reaches a disabled control is given the reason
-                  rather than silence. */}
-              {isHourly && (
-                <p
-                  id="checkout-hourly-notice"
-                  className="type-caption text-[var(--color-muted-foreground)]"
-                >
-                  {t("hourlyNotBookable")}
-                </p>
-              )}
+          <div className="mt-9">{body}</div>
+        </div>
 
-              <Button
-                type="button"
-                className="w-full"
-                disabled={!canConfirm}
-                {...(isHourly
-                  ? { "aria-describedby": "checkout-hourly-notice" }
-                  : // Same reasoning as the hourly notice: a control that has
-                    // just gone dead has to say why to a screen reader that
-                    // lands on it, and here the reason is the refusal
-                    // rendered directly above.
-                    refusedPermanently
-                    ? { "aria-describedby": "checkout-create-error" }
-                    : {})}
-                onClick={confirm}
-              >
-                {t("continueAction")}
-              </Button>
-            </CheckoutRail>
-          </aside>
+        <aside className="lg:sticky lg:top-[84px] lg:self-start">
+          <CheckoutRail
+            imageUrl={service.imageUrls[0] ?? null}
+            serviceName={service.name}
+            providerName={service.providerName}
+            providerRatingAverage={service.providerRatingAverage}
+            providerVerified={service.providerVerified}
+            optionName={option?.name ?? null}
+            slot={railSlot}
+            locationType={service.locationType}
+            durationMinutes={minutes}
+            priceMinor={option?.amountMinor ?? null}
+            currency={option?.currency ?? ""}
+            hourly={isHourly}
+            categoryName={service.categoryName}
+            place={[service.providerCity, service.providerDistrict].filter(Boolean).join(", ") || null}
+            providerSlug={service.providerSlug}
+            providerLogoUrl={service.providerLogoUrl}
+            showTrust={false}
+          />
+        </aside>
+
+        {/* What pressing Continuar does, said before it is pressed: the time
+            is held while the rest is filled in, and the provider confirms it
+            after the request is sent. */}
+        <p className="flex min-h-[74px] items-center gap-4 rounded-xl bg-[#ecf6fe] px-5 py-4 text-[15px] leading-[1.45] text-[#3a5ba8] md:px-8">
+          <Info className="h-[27px] w-[27px] shrink-0 text-[#0b48f5]" strokeWidth={1.8} aria-hidden="true" />
+          {t("chooseWhenIntro")}
+        </p>
+
+        <div className="grid content-start gap-3">
+          {failed && (
+            <p id="checkout-create-error" role="alert" className="text-sm text-[var(--color-destructive)]">
+              {errorCode
+                ? t(`createError.${errorCode}`, { defaultValue: t("createErrorGeneric") })
+                : t("createErrorGeneric")}
+            </p>
+          )}
+          {isHourly && (
+            <p id="checkout-hourly-notice" className="text-[13px] text-[var(--color-muted-foreground)]">
+              {t("hourlyNotBookable")}
+            </p>
+          )}
+          {/* Disabled until a real slot is chosen — and named by whichever
+              sentence says why when the refusal is permanent, so a keyboard
+              user who lands on a dead button is told the reason. */}
+          <Button
+            type="button"
+            className="h-[74px] w-full gap-[17px] rounded-[10px] bg-[var(--color-blue-public)] text-[23px] font-bold"
+            disabled={!canConfirm}
+            {...(isHourly
+              ? { "aria-describedby": "checkout-hourly-notice" }
+              : refusedPermanently
+                ? { "aria-describedby": "checkout-create-error" }
+                : {})}
+            onClick={confirm}
+          >
+            {t("continueAction")}
+            <ArrowRight className="h-8 w-8" strokeWidth={2.2} aria-hidden="true" />
+          </Button>
         </div>
       </main>
-    </>
+    </div>
   );
 }
 

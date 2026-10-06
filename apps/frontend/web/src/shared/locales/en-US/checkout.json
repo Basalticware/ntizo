@@ -5,7 +5,7 @@
   "stepDetails": "Details",
   "stepConfirm": "Confirm",
   "secureCheckout": "Secure checkout",
-  "chooseWhenTitle": "Choose a date and time",
+  "chooseWhenTitle": "Choose the day and time",
   "chooseWhenIntro": "Continuing holds this time for you while you fill in the rest.",
   "hourlyNotBookable": "This service is charged by the hour and can't be booked here yet. Go back to the service and message the provider to arrange it.",
   "whereHeading": "Where the service happens",
@@ -22,7 +22,7 @@
   "railTrustPayment": "Payment is held until the service is finished.",
   "railTrustVerified": "The provider's documents are verified by Ntizo.",
   "continueAction": "Continue",
-  "backToService": "Back to the service",
+  "backToService": "Back",
   "backToWhen": "Back to date and time",
   "detailsTitle": "Booking details",
   "detailsIntro": "Check your details, say where it happens and what needs doing.",
@@ -105,5 +105,8 @@
   "submitErrorGeneric": "We couldn't send the request just now. Please try again.",
   "holdExpired": "Your time to finish ran out and the slot was released. Please choose another.",
   "holdRemaining": "Time held {{time}}",
-  "holdRemainingLabel": "Time left to finish this booking"
+  "holdRemainingLabel": "Time left to finish this booking",
+  "availableTimes": "Available times",
+  "chooseWhenLede": "Pick the date and time that suit you best.",
+  "railPlaceLabel": "Place"
 }

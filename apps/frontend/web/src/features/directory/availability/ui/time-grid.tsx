@@ -72,19 +72,22 @@ function HalfDay({
     durationMinutes === null ? last.startsAt : endOfStart(last.startsAt, durationMinutes);
 
   return (
-    <div className="grid gap-2">
-      <div className="flex items-baseline justify-between gap-3">
-        <h4 className="text-xs font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
+    // One column per half of the day, as `client/reserva.html` draws the
+    // times: the morning down the left, the afternoon down the right. The
+    // half's name and range are for a screen reader; the columns say it.
+    <div className="grid content-start gap-4">
+      <div className="sr-only">
+        <h4>
           {heading}
         </h4>
-        <span className="type-caption tabular-nums text-[var(--color-muted-foreground)]">
+        <span>
           {t("availabilityHalfDayRange", {
             from: formatTime(first.startsAt, locale, timezone),
             to: formatTime(lastEndsAt, locale, timezone),
           })}
         </span>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
+      <div className="grid gap-4">
         {starts.map((start) => {
           const selected = selectedStart?.startsAt === start.startsAt;
           // The end of *this* appointment, from the package's own length — so
@@ -115,23 +118,20 @@ function HalfDay({
               aria-label={until ? `${at} ${until}` : at}
               onClick={() => onSelectStart(start)}
               className={cn(
-                "grid gap-0.5 rounded-[var(--radius-card-sm)] border px-3 py-2 text-center transition-colors",
+                "grid h-[58px] w-full place-content-center rounded-[9px] border text-center transition-colors",
                 selected
-                  ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                  : "border-[var(--color-border)] hover:border-[var(--color-muted-foreground)]",
+                  ? "border-[var(--color-blue-public)] bg-[var(--color-blue-public)] font-semibold text-white"
+                  : "border-[#e8edf4] font-medium text-[#0b1440] hover:border-[var(--color-blue-line)]",
               )}
             >
-              <span aria-hidden="true" className="text-sm font-semibold tabular-nums">
+              <span aria-hidden="true" className="text-lg tabular-nums">
                 {at}
               </span>
+              {/* The end is in the button's name, not drawn: the mockup's
+                  cards carry the start alone, and the rail beside them says
+                  the whole appointment once one is chosen. */}
               {until && (
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "type-caption tabular-nums",
-                    !selected && "text-[var(--color-muted-foreground)]",
-                  )}
-                >
+                <span aria-hidden="true" className="sr-only">
                   {until}
                 </span>
               )}
@@ -204,6 +204,7 @@ export function TimeGrid({
 
   return (
     <div className="grid gap-5">
+      <div className="grid grid-cols-2 gap-x-4 sm:max-w-[296px]">
       <HalfDay
         heading={t("availabilityMorning")}
         starts={morning}
@@ -222,10 +223,13 @@ export function TimeGrid({
         selectedStart={selectedStart}
         onSelectStart={onSelectStart}
       />
+      </div>
 
       {/* Two entries, not three. There is no "ocupado" swatch because there
-          are no occupied cards to explain — see this component's own note. */}
-      <ul className="type-caption flex flex-wrap gap-4 text-[var(--color-muted-foreground)]">
+          are no occupied cards to explain — see this component's own note.
+          For a screen reader only: the mockup draws no legend, and the
+          blue card is its own explanation to the eye. */}
+      <ul className="sr-only">
         <li className="flex items-center gap-1.5">
           <span
             aria-hidden="true"

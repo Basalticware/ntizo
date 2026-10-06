@@ -5,7 +5,7 @@
   "stepDetails": "Detalles",
   "stepConfirm": "Confirmar",
   "secureCheckout": "Reserva segura",
-  "chooseWhenTitle": "Elige la fecha y la hora",
+  "chooseWhenTitle": "Elija el día y la hora",
   "chooseWhenIntro": "Al continuar, te guardamos esta hora mientras completas el resto.",
   "hourlyNotBookable": "Este servicio se cobra por hora y todavía no se puede reservar aquí. Vuelve al servicio y escribe al profesional para acordarlo.",
   "whereHeading": "Dónde se hace el servicio",
@@ -22,7 +22,7 @@
   "railTrustPayment": "El pago queda retenido hasta que el servicio esté terminado.",
   "railTrustVerified": "Documentos del profesional verificados por Ntizo.",
   "continueAction": "Continuar",
-  "backToService": "Volver al servicio",
+  "backToService": "Volver",
   "backToWhen": "Volver a la fecha y la hora",
   "detailsTitle": "Detalles de la solicitud",
   "detailsIntro": "Comprueba tus datos, di dónde es y qué hay que hacer.",
@@ -105,5 +105,8 @@
   "submitErrorGeneric": "No hemos podido enviar la solicitud ahora mismo. Inténtalo de nuevo.",
   "holdExpired": "Se acabó el tiempo para terminar y la hora se liberó. Elige otra.",
   "holdRemaining": "Hora reservada {{time}}",
-  "holdRemainingLabel": "Tiempo restante para terminar la reserva"
+  "holdRemainingLabel": "Tiempo restante para terminar la reserva",
+  "availableTimes": "Horarios disponibles",
+  "chooseWhenLede": "Seleccione la fecha y la hora que mejor le convengan.",
+  "railPlaceLabel": "Lugar"
 }
