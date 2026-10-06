@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Definições · Prestador</title>
+<link rel="stylesheet" href="../shared.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* definiçoes.png is drawn at a smaller scale than reservas.png (no browser chrome,
+     1672x941 viewport): the shell is re-measured and pinned here. */
+  body { background: #f7fbfe; }
+  .console { grid-template-rows: 62px 1fr; height: 100vh; overflow: hidden; }
+  .body { grid-template-columns: 248px 1fr; min-height: 0; }
+  .body > * { min-height: 0; overflow: hidden; }
+  .topbar { background: #fcfefe; border-bottom-color: #edf2f9; }
+  .topbar .brand { width: 248px; padding-left: 34px; }
+  .topbar .brand img { height: 31px; }
+  .topbar .search { margin-left: 10px; width: 758px; height: 36px; border-radius: 9px; font-size: 14.5px; gap: 14px; padding: 0 18px; background: #fff; }
+  .topbar .search svg { width: 20px; height: 20px; }
+  .topbar .right { padding-right: 38px; }
+  .topbar .loc { font-size: 13.2px; font-weight: 600; gap: 7px; padding-right: 22px; }
+  .topbar .loc svg { width: 18px; height: 18px; }
+  .topbar .sep { height: 30px; }
+  .topbar .bell { padding: 0 25px 0 34px; }
+  .topbar .bell svg { width: 22px; height: 22px; }
+  .topbar .bell::after { content: "1"; top: -7px; right: 23px; width: 13px; height: 13px; font-size: 9px; font-weight: 700; color: #fff; display: grid; place-items: center; }
+  .topbar .me { gap: 13px; padding-left: 20px; }
+  .topbar .me img { width: 45px; height: 45px; }
+  .topbar .me b { font-size: 13.5px; }
+  .topbar .me span { font-size: 13.5px; margin-top: 1px; }
+  .topbar .me svg { width: 17px; height: 17px; margin-left: 53px; stroke-width: 2.6; }
+
+  .rail { background: #f8fbfe; border-right-color: #edf2f9; padding: 20px 17px 21px 18px; }
+  .rail .biz { gap: 12px; padding: 0 0 13px 1px; }
+  .rail .biz img { width: 52px; height: 52px; }
+  .rail .biz b { font-size: 14.5px; }
+  .rail .biz span { font-size: 13px; margin-top: 1px; }
+  .rail .biz svg { width: 17px; height: 17px; margin-right: 6px; stroke-width: 2.6; }
+  .nav { gap: 0; flex-shrink: 0; }
+  .nav a { height: 42.3px; padding: 0 17px; gap: 22px; font-size: 14px; }
+  .nav a svg { width: 21px; height: 21px; }
+  .nav a.on { height: 43px; }
+  .nav a .count { width: 22px; height: 22px; font-size: 12px; margin-right: -5px; }
+  .nudge { margin: 21px 0 0; padding: 12px 22px 12px; background: #f0f6fe; }
+  .nudge .crown { width: 25px; height: 22px; display: block; margin-left: 2px; }
+  .nudge b { font-size: 15.5px; line-height: 19px; margin-top: 7px; }
+  .nudge p { font-size: 14.5px; line-height: 18px; margin: 4px 0 11px; }
+  .nudge a { font-size: 15px; line-height: 20px; }
+  .nudge a svg { width: 18px; height: 18px; }
+
+  /* Page layout */
+  .main { letter-spacing: -0.015em; padding: 0 22px 0 20px; display: grid; grid-template-columns: 1065px 302px; column-gap: 15px; align-content: start; }
+  .left, .right-col { min-width: 0; }
+  .title-block { padding: 13px 0 0 2px; height: 79px; }
+  .page-title { font-size: 31.5px; line-height: 38px; margin-top: -2px; letter-spacing: -0.015em; }
+  .page-sub { font-size: 15.5px; margin-top: -1px; }
+  .box { background: #fff; border: 1px solid #e9eff7; border-radius: 12px; }
+
+  /* Header card */
+  .hero { height: 140px; display: grid; grid-template-columns: 531px 294px 1fr; align-items: stretch; }
+  .hero .id { display: flex; gap: 23px; padding: 12px 0 0 16px; }
+  .hero .id img { width: 105px; height: 108px; }
+  .hero .id .t { padding-top: 5px; }
+  .hero h2 { margin: 0; font-size: 17.3px; font-weight: 800; display: flex; align-items: center; gap: 6px; line-height: 24px; }
+  .hero h2 .ok { width: 22px; height: 22px; color: #fff; fill: var(--blue); stroke: #fff; }
+  .hero .meta { font-size: 12.8px; color: var(--muted); margin-top: 4px; display: flex; gap: 12px; }
+  .hero .desc { font-size: 12.8px; line-height: 18px; color: var(--muted); margin: 9px 0 0; }
+  .hero .prog { border-left: 1px solid #e9eff7; margin: 9px 0 15px; padding: 10px 0 0 19px; }
+  .hero .prog b, .hero .quick b { display: block; font-size: 14px; font-weight: 700; line-height: 18px; }
+  .bar { display: flex; align-items: center; gap: 17px; margin-top: 3px; }
+  .bar .track { width: 198px; height: 6px; border-radius: 3px; background: #e6edf7; overflow: hidden; }
+  .bar .track i { display: block; width: 81%; height: 100%; background: #05b473; border-radius: 3px; }
+  .bar strong { font-size: 13.5px; }
+  .hero .prog p { margin: 8px 0 0; font-size: 12.5px; line-height: 16.5px; color: var(--muted); }
+  .hero .prog .link { margin-top: 10px; font-size: 13px; font-weight: 500; gap: 7px; }
+  .hero .prog .link svg { width: 14px; height: 14px; }
+  .hero .side { border-left: 1px solid #e9eff7; margin: 9px 0 15px; padding: 3px 14px 0 9px; }
+  .hero .quick { background: #f5fafe; border-radius: 10px; height: 112px; padding: 8px 13px 0 14px; }
+  .qbtn { margin-top: 8px; height: 32px; border-radius: 8px; background: #edf6fe; border: 1px solid #dfeafa; display: flex; align-items: center; gap: 15px; padding-left: 15px; font-size: 13px; color: var(--ink); }
+  .qbtn svg { width: 18px; height: 18px; color: var(--blue); }
+
+  /* Second row */
+  .grid2 { margin-top: 8px; display: grid; grid-template-columns: 213px 845px; column-gap: 7px; align-items: start; }
+  .secnav { height: 296px; padding: 6px 9px 0 9px; position: relative; overflow: hidden; }
+  .secnav a { display: flex; gap: 17px; height: 60px; padding: 9px 0 0 10px; border-radius: 9px; }
+  .secnav a + a { margin-top: 0; }
+  .secnav a svg { width: 21px; height: 21px; margin-top: 7px; color: var(--ink); }
+  .secnav a b { display: block; font-size: 13.5px; font-weight: 500; line-height: 18px; }
+  .secnav a span { display: block; font-size: 12.3px; white-space: nowrap; color: var(--muted); line-height: 17px; margin-top: 1px; }
+  .secnav a.on { background: #ebf4fe; height: 50px; margin-bottom: 7px; }
+  .secnav a.on b, .secnav a.on svg { color: var(--blue); }
+  .secnav::before { content: ""; position: absolute; left: 0; top: 9px; width: 3px; height: 42px; background: var(--blue); border-radius: 0 2px 2px 0; }
+
+  .sec { display: grid; grid-template-columns: 57px 1fr; padding: 7.5px 16px 0 13px; }
+  .sec + .sec { margin-top: 10px; }
+  .sec .tile { width: 38px; height: 38px; border-radius: 10px; background: #edf5fe; display: grid; place-items: center; color: var(--blue); }
+  .sec .tile svg { width: 20px; height: 20px; }
+  .sec h3 { margin: 0; font-size: 15px; font-weight: 700; line-height: 19px; }
+  .sec .sub { margin: 0; font-size: 12.5px; line-height: 16px; color: var(--muted); }
+  .brand-body { display: flex; margin-top: 15px; }
+  .logo-drop { width: 147px; height: 105px; border: 1px dashed #cdd9ec; border-radius: 8px; text-align: center; padding-top: 11px; }
+  .logo-drop .ic { width: 30px; height: 30px; margin: 0 auto; border-radius: 7px; background: #eef5fe; display: grid; place-items: center; color: var(--blue); }
+  .logo-drop .ic svg { width: 20px; height: 20px; }
+  .logo-drop b { display: block; font-size: 11.5px; font-weight: 700; margin-top: 7px; }
+  .logo-drop span { display: block; font-size: 10.5px; line-height: 13px; color: var(--muted); margin-top: 3px; }
+  .photos { margin-left: 23px; }
+  .photos > b { display: block; font-size: 12px; font-weight: 500; line-height: 15px; margin-top: 0; }
+  .photos .row { display: flex; gap: 7px; margin-top: 7px; }
+  .photos img { width: 82px; height: 84px; border-radius: 6px; display: block; }
+  .photos .add { width: 83px; height: 84px; margin-left: 1px; border: 1px dashed #bcd2f3; border-radius: 6px; background: #f8fbff; text-align: center; padding-top: 24px; font-size: 10.5px; line-height: 13px; color: var(--ink-2); }
+  .photos .add i { width: 22px; height: 22px; line-height: 22px; margin: 0 auto 5px; border-radius: 50%; background: #e4eefc; display: grid; place-items: center; color: var(--blue); font-style: normal; font-size: 16px; font-weight: 600; line-height: 20px; }
+  .tip { position: absolute; right: 14px; top: 10px; width: 215px; height: 90px; background: #eef6fe; border-radius: 9px; padding: 13px 10px 0 45px; }
+  .tip svg { position: absolute; left: 14px; top: 13px; width: 20px; height: 20px; color: var(--blue); }
+  .tip b { display: block; font-size: 12px; font-weight: 700; color: #1a4fd0; line-height: 15px; }
+  .tip p { margin: 3px 0 0; font-size: 10px; white-space: nowrap; line-height: 14.5px; color: var(--muted); }
+
+  .form { display: grid; column-gap: 21px; }
+  .form label { display: block; font-size: 12px; color: var(--ink); line-height: 15px; }
+  .inp { margin-top: 0.5px; height: 30px; border: 1px solid #dfe6f1; border-radius: 6px; display: flex; align-items: center; padding: 0 11px; font-size: 12.5px; letter-spacing: -0.015em; color: var(--ink); background: #fff; gap: 8px; }
+  .inp .chev { margin-left: auto; width: 16px; height: 16px; stroke-width: 2.4; }
+  .ctr { text-align: right; font-size: 9.5px; color: var(--muted); margin-top: 3px; line-height: 10px; }
+  .ta { height: 48px; align-items: flex-start; padding: 7px 13px; line-height: 16px; position: relative; font-size: 12px; letter-spacing: -0.02em; }
+  .ta .ctr { position: absolute; right: 5px; bottom: 4px; }
+  .flag { width: 15px; height: 11px; display: block; margin-left: -3px; margin-right: -3px; }
+
+  .docs { display: grid; grid-template-columns: 189px 181px 171px 190px; gap: 8px; margin-top: 4px; }
+  .doc { height: 62px; border: 1px solid #e3eaf4; border-radius: 8px; display: grid; grid-template-columns: 44px 1fr 14px; overflow: hidden; align-items: center; padding: 0 6px 0 8px; }
+  .doc .di { width: 34px; height: 34px; border-radius: 8px; background: #dcf6ed; display: grid; place-items: center; color: #10a36a; }
+  .doc .di.grey { background: #eef2f7; color: var(--ink-2); }
+  .doc .di svg { width: 19px; height: 19px; }
+  .doc b { display: block; font-size: 10.2px; letter-spacing: -0.02em; font-weight: 700; line-height: 14px; white-space: nowrap; }
+  .doc span { display: block; font-size: 10.2px; letter-spacing: -0.02em; line-height: 15px; color: var(--muted); white-space: nowrap; }
+  .doc span.g { color: #13923a; }
+  .doc > svg { width: 14px; height: 14px; stroke-width: 2.4; }
+
+  /* Right column */
+  .right-col { padding-top: 79px; }
+  .status { height: 401px; padding: 15px 14px 0 15px; }
+  .status h3, .tips h3, .help h3 { margin: 0; font-size: 16px; font-weight: 700; line-height: 20px; }
+  .ring-row { display: flex; gap: 14px; margin-top: 10px; }
+  .ring { width: 80px; height: 80px; position: relative; flex-shrink: 0; margin-left: 1px; }
+  .ring svg { width: 80px; height: 80px; transform: rotate(-90deg); }
+  .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 18px; font-weight: 700; }
+  .ring-row .t { padding-top: 10px; }
+  .ring-row .t b { display: block; font-size: 13.5px; font-weight: 700; line-height: 17px; }
+  .ring-row .t p { margin: 4px 0 0; font-size: 11.5px; white-space: nowrap; line-height: 16.5px; color: var(--muted); }
+  .steps { margin-top: 11px; border: 1px solid #e6edf6; border-radius: 9px; overflow: hidden; }
+  .steps ul { list-style: none; margin: 0; padding: 2px 0 10.5px 12px; }
+  .steps li { display: flex; gap: 17px; height: 41px; align-items: flex-start; padding-top: 2px; }
+  .steps li .c { width: 21px; height: 21px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .steps li .c.done { background: #0eaa61; color: #fff; display: grid; place-items: center; }
+  .steps li .c.done svg { width: 13px; height: 13px; stroke-width: 3.2; }
+  .steps li .c.todo { border: 1.6px solid #4a5785; }
+  .steps li b { display: block; font-size: 12px; font-weight: 500; line-height: 16px; }
+  .steps li span { display: block; font-size: 11.5px; line-height: 16px; color: var(--muted); }
+  .steps .foot { height: 30px; background: #eef6fe; display: flex; align-items: center; justify-content: center; gap: 7px; color: var(--blue); font-size: 12.5px; font-weight: 500; }
+  .steps .foot svg { width: 14px; height: 14px; }
+
+  .tips { margin-top: 12px; height: 230px; padding: 13px 14px 0 16px; }
+  .tips h3 { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .tips h3 svg { width: 19px; height: 19px; color: #f59e0b; }
+  .tips .tipr { display: grid; grid-template-columns: 46px 1fr; column-gap: 14px; margin-top: 8px; }
+  .tips .tipr + .tipr { margin-top: 12.5px; }
+  .tips .ti { width: 46px; height: 45px; border-radius: 9px; background: #edf5fe; display: grid; place-items: center; color: var(--blue); }
+  .tips .ti svg { width: 20px; height: 20px; }
+  .tips .tipr b { display: block; font-size: 12px; font-weight: 700; line-height: 15px; margin-top: 2px; }
+  .tips .tipr p { margin: 1px 0 0; font-size: 11.2px; white-space: nowrap; line-height: 16px; color: var(--muted); }
+
+  .help { margin-top: 13px; height: 112px; padding: 7px 14px 0 16px; display: grid; grid-template-columns: 30px 1fr; column-gap: 12px; }
+  .help .hi { width: 30px; height: 30px; border-radius: 8px; background: #edf5fe; display: grid; place-items: center; color: var(--blue); margin-top: 6px; }
+  .help .hi svg { width: 19px; height: 19px; }
+  .help h3 { font-size: 14px; line-height: 18px; margin-top: 2px; }
+  .help p { margin: 1px 0 0; font-size: 12.2px; white-space: nowrap; line-height: 16px; color: var(--muted); }
+  .help .outline { margin-top: 5px; width: 180px; height: 32px; border: 1px solid #c9dcfb; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 9px; color: var(--blue); font-size: 14px; font-weight: 500; }
+  .help .outline svg { width: 15px; height: 15px; }
+
+  .save { margin-top: 8px; display: flex; gap: 11px; }
+  .save a { height: 46px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 11px; font-size: 14.5px; font-weight: 600; }
+  .save .discard { width: 107px; background: #fff; border: 1px solid #dce5f2; color: var(--ink-2); }
+  .save .keep { width: 175px; background: #0060fd; color: #fff; }
+  .save .keep svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:16px;height:16px;stroke-width:2.6"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/definicoes-me.png" alt=""><div><b>Joaquim Cuna</b><span>Prestador verificado</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <div class="biz"><img src="../assets/definicoes-biz.png" alt=""><div><b>Joaquim Serviços</b><span>Canalização • Maputo</span></div><i data-lucide="chevron-down"></i></div>
+      <nav class="nav">
+        <a href="home.html"><i data-lucide="house"></i>Visão geral</a>
+        <a href="servicos.html"><i data-lucide="layout-grid"></i>Serviços</a>
+        <a href="#"><i data-lucide="calendar"></i>Disponibilidade</a>
+        <a href="reservas.html"><i data-lucide="calendar-plus"></i>Reservas</a>
+        <a href="orcamentos.html"><i data-lucide="file-text"></i>Orçamentos</a>
+        <a href="mensagens.html"><i data-lucide="message-square-text"></i>Mensagens<span class="count">3</span></a>
+        <a href="carteira.html"><i data-lucide="wallet"></i>Carteira</a>
+        <a href="#"><i data-lucide="star"></i>Avaliações</a>
+        <a href="notificacoes.html"><i data-lucide="bell"></i>Notificações</a>
+        <a class="on" href="definicoes.html"><i data-lucide="settings"></i>Definições</a>
+      </nav>
+      <div class="nudge">
+        <i data-lucide="crown" class="crown"></i>
+        <b>Seja um prestador<br>de referência</b>
+        <p>Complete o seu perfil e<br>receba mais reservas.</p>
+        <a href="#">Ver dicas <i data-lucide="arrow-right"></i></a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="left">
+        <div class="title-block">
+          <h1 class="page-title">Definições</h1>
+          <p class="page-sub">Gerir a sua conta, identidade, documentos e preferências.</p>
+        </div>
+
+        <section class="box hero">
+          <div class="id">
+            <img src="../assets/definicoes-perfil.jpg" alt="">
+            <div class="t">
+              <h2>Joaquim Serviços <i data-lucide="badge-check" class="ok"></i></h2>
+              <div class="meta"><span>Canalização</span><span>•</span><span>Maputo</span></div>
+              <p class="desc">Serviços profissionais de canalização, manutenção e<br>instalação para residências e empresas em Maputo.</p>
+            </div>
+          </div>
+          <div class="prog">
+            <b>Perfil completo</b>
+            <div class="bar"><div class="track"><i></i></div><strong>80%</strong></div>
+            <p>Complete todas as secções para ganhar mais<br>visibilidade e confiança.</p>
+            <a class="link" href="#">Ver o meu perfil público <i data-lucide="arrow-up-right"></i></a>
+          </div>
+          <div class="side">
+            <div class="quick">
+              <b>Ações rápidas</b>
+              <a class="qbtn" href="#"><i data-lucide="eye"></i>Ver perfil público</a>
+              <a class="qbtn" href="#"><i data-lucide="share-2"></i>Partilhar perfil</a>
+            </div>
+          </div>
+        </section>
+
+        <div class="grid2">
+          <nav class="box secnav">
+            <a class="on" href="#"><i data-lucide="camera"></i><div><b>Marca e fotografia</b><span>Apresente o seu negócio</span></div></a>
+            <a href="#"><i data-lucide="user-round"></i><div><b>Identidade</b><span>Dados e descrição</span></div></a>
+            <a href="#"><i data-lucide="map-pin"></i><div><b>Onde trabalha</b><span>Localização e áreas</span></div></a>
+            <a href="#"><i data-lucide="shield-check"></i><div><b>Verificação</b><span>Documentos e credenciais</span></div></a>
+            <a href="#"><i data-lucide="settings"></i><div><b>Preferências</b><span>Notificações e conta</span></div></a>
+          </nav>
+
+          <div>
+            <section class="box sec" style="height:179px; position:relative">
+              <div class="tile"><i data-lucide="camera"></i></div>
+              <div>
+                <h3>Marca e fotografia</h3>
+                <p class="sub">Adicione o logótipo e fotografias que representam o seu negócio.</p>
+                <div class="brand-body">
+                  <div class="logo-drop">
+                    <div class="ic"><i data-lucide="image"></i></div>
+                    <b>Adicionar logótipo</b>
+                    <span>PNG, JPG ou WEBP<br>até 2 MB</span>
+                  </div>
+                  <div class="photos">
+                    <b>Fotografias do seu negócio</b>
+                    <div class="row">
+                      <img src="../assets/definicoes-foto1.jpg" alt="">
+                      <img src="../assets/definicoes-foto2.jpg" alt="">
+                      <img src="../assets/definicoes-foto3.jpg" alt="">
+                      <div class="add"><i>+</i>Adicionar<br>fotografia</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tip"><i data-lucide="info"></i><b>Dica</b><p>Use fotografias reais do seu trabalho.<br>Imagens de qualidade aumentam a<br>confiança dos clientes.</p></div>
+            </section>
+
+            <section class="box sec" style="height:189px">
+              <div class="tile"><i data-lucide="user-round"></i></div>
+              <div>
+                <h3>Identidade do prestador</h3>
+                <p class="sub">Ajude os clientes a conhecer melhor o seu negócio.</p>
+                <div class="form" style="grid-template-columns: 376px 360px; margin-top: 11px">
+                  <div><label>Nome do prestador</label><div class="inp">Joaquim Serviços</div><div class="ctr">17/100</div></div>
+                  <div><label>Tipo</label><div class="inp">Empresa<i data-lucide="chevron-down" class="chev"></i></div></div>
+                  <div style="grid-column: 1 / -1; margin-top: -4px"><label>Descrição</label><div class="inp ta">Serviços profissionais de canalização, manutenção e instalação de sistemas de água para<br>residências e empresas. Qualidade, pontualidade e soluções duradouras.<span class="ctr">142/500</span></div></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="box sec" style="height:140px; padding-top:3.5px">
+              <div class="tile"><i data-lucide="map-pin"></i></div>
+              <div>
+                <h3>Onde trabalha</h3>
+                <p class="sub">Defina a sua área de atuação para que os clientes o encontrem facilmente.</p>
+                <div class="form" style="grid-template-columns: 227px 208px 281px; margin-top: 4px; row-gap: 5px">
+                  <div><label>País</label><div class="inp" style="height:26px"><svg class="flag" viewBox="0 0 18 12"><rect width="18" height="4" fill="#009a49"/><rect y="4" width="18" height="4" fill="#111"/><rect y="8" width="18" height="4" fill="#fce100"/><rect y="3.6" width="18" height="0.8" fill="#fff"/><rect y="7.6" width="18" height="0.8" fill="#fff"/><path d="M0 0 L8 6 L0 12 Z" fill="#d21034"/></svg>Moçambique<i data-lucide="chevron-down" class="chev"></i></div></div>
+                  <div><label>Cidade</label><div class="inp" style="height:26px">Maputo<i data-lucide="chevron-down" class="chev"></i></div></div>
+                  <div><label>Bairro</label><div class="inp" style="height:26px">Liberdade</div></div>
+                  <div></div>
+                  <div><label>Código postal</label><div class="inp" style="height:26px">0123</div></div>
+                  <div><label>Morada</label><div class="inp" style="height:26px">Av. Julius Nyerere, nº 123, 2º andar</div></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="box sec" style="height:130px; margin-top:7px; padding-top:4.5px">
+              <div class="tile"><i data-lucide="shield-check"></i></div>
+              <div>
+                <h3>Verificação de documentos</h3>
+                <p class="sub">Documentos necessários para validar o seu perfil e aumentar a confiança dos clientes.</p>
+                <div class="docs">
+                  <div class="doc"><span class="di"><i data-lucide="shield-check"></i></span><div><b>Documento de identidade</b><span class="g">Carregado e verificado</span><span>Válido até 12/2028</span></div><i data-lucide="chevron-right"></i></div>
+                  <div class="doc"><span class="di"><i data-lucide="shield-check"></i></span><div><b>NUIT</b><span class="g">Carregado e verificado</span><span>Válido até 12/2028</span></div><i data-lucide="chevron-right"></i></div>
+                  <div class="doc"><span class="di grey"><i data-lucide="file-text"></i></span><div><b>Alvará</b><span>Não carregado</span><span>Carregue o seu alvará</span></div><i data-lucide="chevron-right"></i></div>
+                  <div class="doc"><span class="di grey"><i data-lucide="file-text"></i></span><div><b>Certidão de registo comercial</b><span>• Não carregado</span><span>Carregue o documento</span></div><i data-lucide="chevron-right"></i></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <section class="box status">
+          <h3>Estado do perfil</h3>
+          <div class="ring-row">
+            <div class="ring">
+              <svg viewBox="0 0 80 80">
+                <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0bb37a"/><stop offset="1" stop-color="#10a37f"/></linearGradient></defs>
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#e3edf9" stroke-width="7"/>
+                <circle cx="40" cy="40" r="34" fill="none" stroke="url(#rg)" stroke-width="7" stroke-linecap="round" stroke-dasharray="171 214"/>
+              </svg>
+              <b>80%</b>
+            </div>
+            <div class="t"><b>Perfil quase completo!</b><p>Complete as secções em falta para<br>ganhar mais visibilidade.</p></div>
+          </div>
+          <div class="steps">
+            <ul>
+              <li><span class="c done"><i data-lucide="check"></i></span><div><b>Marca e fotografia</b><span>Concluído</span></div></li>
+              <li><span class="c done"><i data-lucide="check"></i></span><div><b>Identidade</b><span>Concluído</span></div></li>
+              <li><span class="c done"><i data-lucide="check"></i></span><div><b>Onde trabalha</b><span>Concluído</span></div></li>
+              <li><span class="c todo"></span><div><b>Verificação</b><span>2 de 4 documentos</span></div></li>
+              <li><span class="c todo"></span><div><b>Preferências</b><span>Configure as suas preferências</span></div></li>
+            </ul>
+            <a class="foot" href="#">Ver o meu perfil público <i data-lucide="arrow-up-right"></i></a>
+          </div>
+        </section>
+
+        <section class="box tips">
+          <h3><i data-lucide="lightbulb"></i>Dicas para ter mais clientes</h3>
+          <div class="tipr"><span class="ti"><i data-lucide="image"></i></span><div><b>Use fotografias reais</b><p>Mostre os seus trabalhos para ganhar<br>confiança.</p></div></div>
+          <div class="tipr"><span class="ti"><i data-lucide="file-badge"></i></span><div><b>Complete todos os documentos</b><p>Perfis verificados aparecem primeiro<br>nas pesquisas.</p></div></div>
+          <div class="tipr"><span class="ti"><i data-lucide="clipboard-pen-line"></i></span><div><b>Mantenha os seus dados atualizados</b><p>Assim os clientes conseguem contactá-lo<br>mais facilmente.</p></div></div>
+        </section>
+
+        <section class="box help">
+          <span class="hi"><i data-lucide="circle-help"></i></span>
+          <div>
+            <h3>Precisa de ajuda?</h3>
+            <p>Visite o nosso centro de ajuda ou fale com<br>a nossa equipa.</p>
+            <a class="outline" href="#">Abrir centro de ajuda <i data-lucide="arrow-up-right"></i></a>
+          </div>
+        </section>
+
+        <div class="save">
+          <a class="discard" href="#">Descartar</a>
+          <a class="keep" href="#"><i data-lucide="save"></i>Guardar alterações</a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>lucide.createIcons();</script>
+</body>
+</html>

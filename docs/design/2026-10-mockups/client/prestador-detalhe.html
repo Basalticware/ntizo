@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estúdio Mavalane · Prestador</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="public.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* Measured off mockps/Client/Detalhe de Prestador.png, app rect 46,51 → 1403,1086 (1357x1035). */
+  :root {
+    --ph-h: 55px; --ph-pad: 95px; --ph-logo: 34px; --ph-font: 13px; --ph-nav-ink: #2736a2;
+    --p-ink: #0a0c3a; --p-navy: #142777; --p-muted: #56628e; --p-faint: #7a84a6;
+  }
+  body { width: 1357px; color: var(--p-ink); overflow: hidden; }
+  .ph .logo { width: 99px; height: 34px; margin-top: -1px; }
+  .ph nav a, .ph .tools > * { position: absolute; top: 0; height: 100%; display: flex; align-items: center; letter-spacing: -0.1px; }
+  .ph .tools > .cta { top: 6px; height: 42px; }
+  .ph .tool.loc { color: var(--p-ink); }
+  .ph .tool.lang { color: #2b3a6c; }
+  .ph .cta { width: 108px; border-radius: 10px; font-size: 14.5px; }
+
+  .page { position: relative; height: calc(1035px - var(--ph-h)); }
+  .page > * { position: absolute; }
+
+  .crumbs { left: 45px; top: 15px; font-size: 12.6px; gap: 8px; color: #5d6a99; }
+  .crumbs svg { width: 13px; height: 13px; color: #2a3561; stroke-width: 2.4; }
+  .crumbs b { color: var(--p-ink); }
+
+  /* gallery */
+  .gal img { position: absolute; object-fit: cover; border-radius: 8px; display: block; }
+  .gal { left: 0; top: 0; }
+  .g-arrow { position: absolute; width: 36px; height: 36px; border-radius: 50%; background: #fff; display: grid; place-items: center; color: #1557e8; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+  .g-arrow svg { width: 18px; height: 18px; stroke-width: 2.4; }
+  .g-badge { position: absolute; display: grid; place-items: center; color: #fff; font-weight: 600; background: rgba(20,22,30,.62); border: 1px solid rgba(255,255,255,.35); border-radius: 18px; }
+
+  /* identity */
+  .avatar { left: 44px; top: 397px; width: 114px; height: 114px; border-radius: 50%; }
+  .who { left: 186px; top: 417px; }
+  .who h1 { margin: 0; font-size: 33px; font-weight: 800; letter-spacing: -0.025em; line-height: 1; display: flex; align-items: center; gap: 8px; color: var(--p-ink); }
+  .vpill { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 7px 0 3px; gap: 8px; border-radius: 13px; background: #e2f0fe; color: #0244fe; font-size: 14.8px; font-weight: 500; letter-spacing: 0; }
+  .vpill svg { width: 22px; height: 22px; fill: #1060f8; stroke: #fff; stroke-width: 2.4; }
+  .who .rate { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 14.5px; }
+  .who .rate .stars svg { width: 18px; height: 18px; margin-right: 1.5px; }
+  .who .rate b { font-weight: 600; margin-left: 6px; color: var(--p-ink); }
+  .who .rate span { color: var(--p-muted); }
+  .who .loc { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 14.5px; color: #283466; }
+  .who .loc svg { width: 17px; height: 17px; color: #1f2b5a; }
+
+  .rule { height: 1px; background: #edf1f7; left: 44px; width: 888px; }
+  .facts { left: 45px; top: 534px; display: flex; height: 46px; }
+  .fact { display: flex; align-items: center; gap: 15px; white-space: nowrap; }
+  .fact .ic { width: 46px; height: 46px; border-radius: 50%; background: #e9f3fd; display: grid; place-items: center; color: #0552fe; }
+  .fact .ic svg { width: 22px; height: 22px; stroke-width: 2; }
+  .fact small { display: block; font-size: 12.5px; color: var(--p-muted); }
+  .fact b { display: block; font-size: 13.5px; font-weight: 500; color: var(--p-navy); margin-top: 5px; }
+  .vsep { position: absolute; top: 4px; width: 1px; height: 37px; background: #eef2f8; }
+
+  h2.sec { margin: 0; font-size: 21.5px; font-weight: 800; letter-spacing: -0.01em; color: var(--p-ink); }
+  .about { left: 46px; top: 641px; width: 760px; margin: 0; font-size: 15.7px; line-height: 21px; color: #55639a; }
+  .feats { left: 49px; top: 704px; display: flex; gap: 0; font-size: 13.1px; font-weight: 500; color: #4f5fa8; }
+  .feats span { display: flex; align-items: center; gap: 14px; }
+  .feats svg { width: 22px; height: 22px; color: #1a56f0; stroke-width: 1.9; }
+
+  .svc { left: 45px; width: 887px; height: 85px; border: 1px solid #edf1f7; border-radius: 10px; }
+  .svc img { position: absolute; left: 16px; top: 8px; width: 91px; height: 68px; border-radius: 6px; }
+  .svc .t { position: absolute; left: 125px; top: 11px; }
+  .svc b { display: block; font-size: 15px; font-weight: 700; color: var(--p-ink); }
+  .svc p { margin: 4px 0 0; font-size: 13.5px; color: #616c94; }
+  .svc .meta { display: flex; align-items: center; gap: 7px; margin-top: 6px; font-size: 11.8px; color: #4b5781; }
+  .svc .meta svg { width: 14px; height: 14px; color: #1f2b5a; stroke-width: 2.1; }
+  .svc .meta i.dot { width: 3px; height: 3px; border-radius: 50%; background: #4b5781; margin: 0 3px; }
+  .svc .meta .fix { color: #22b25b; }
+  .svc .price { position: absolute; right: 25px; top: 13px; font-size: 16.5px; font-weight: 700; color: var(--p-ink); }
+  .svc .see { position: absolute; right: 19px; top: 33px; width: 159px; height: 41px; border: 1.5px solid #3b7dfb; border-radius: 9px; display: grid; place-items: center; color: #0b5bf7; font-size: 14px; font-weight: 600; background: #fff; }
+
+  /* right column */
+  .rc { left: 964px; width: 360px; border: 1px solid #eef2f8; border-radius: 12px; background: #fff; }
+  .rc .from { position: absolute; left: 15px; top: 17px; font-size: 13.5px; color: #4d6189; }
+  .rc .big { position: absolute; left: 14px; top: 34px; font-size: 46px; font-weight: 800; letter-spacing: -3.9px; word-spacing: 0; color: var(--p-ink); line-height: 1; }
+  .rc .low { position: absolute; left: 15px; top: 82px; font-size: 13.8px; color: #586592; }
+  .rc .send { position: absolute; left: 14px; top: 114px; width: 326px; height: 47px; border-radius: 6px; background: #0061fe; color: #fff; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 15.5px; font-weight: 600; }
+  .rc .send svg { width: 22px; height: 22px; }
+  .rc .ghost { position: absolute; left: 14px; top: 168px; width: 326px; height: 43px; border-radius: 6px; background: #e7f2fe; color: var(--p-ink); display: grid; place-items: center; font-size: 15.5px; font-weight: 700; }
+  .rc ul { list-style: none; margin: 0; padding: 0; position: absolute; left: 18px; top: 223px; font-size: 12.9px; line-height: 19.5px; color: #4f5b87; }
+  .rc li { display: flex; gap: 16px; margin-bottom: 9px; }
+  .rc li svg { width: 19px; height: 19px; color: #13a64a; stroke-width: 2.4; margin-top: 2px; }
+
+  .avail h3 { position: absolute; left: 16px; top: 12px; margin: 0; display: flex; align-items: center; gap: 16px; font-size: 15.3px; font-weight: 800; color: var(--p-ink); }
+  .avail h3 svg { width: 19px; height: 19px; color: #0a5afe; stroke-width: 2; }
+  .avail dl { position: absolute; left: 27px; top: 47px; margin: 0; display: grid; grid-template-columns: 188px auto; row-gap: 9px; font-size: 14.5px; line-height: 18px; color: #152b72; }
+  .avail dd { margin: 0; color: var(--p-ink); font-weight: 500; }
+  .avail p { position: absolute; left: 27px; top: 134px; margin: 0; font-size: 12.5px; line-height: 17px; color: #737ea3; }
+
+  .revs h3 { position: absolute; left: 14px; top: 13px; margin: 0; font-size: 18px; font-weight: 800; color: var(--p-ink); }
+  .revs .all { position: absolute; right: 16px; top: 17px; font-size: 12.3px; color: #0c63f8; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+  .revs .all svg { width: 15px; height: 15px; stroke-width: 2.2; }
+  .revs .score { position: absolute; left: 21px; top: 55px; font-size: 45px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: var(--p-ink); }
+  .revs .s5 { position: absolute; left: 14px; top: 103px; }
+  .revs .s5 svg { width: 17px; height: 17px; margin-right: 0.5px; }
+  .revs .cnt { position: absolute; left: 19px; top: 124px; font-size: 13px; color: #5f6f9e; }
+  .bars { position: absolute; left: 124px; top: 51px; display: grid; row-gap: 4.5px; font-size: 11px; color: #46538b; }
+  .bars div { display: grid; grid-template-columns: 33px 152px 30px; align-items: center; height: 13px; }
+  .bars i { height: 6px; border-radius: 3px; background: #e3e7ef; position: relative; display: block; }
+  .bars i b { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: #0d1a56; }
+  .bars em { font-style: normal; }
+  .bars span { padding-left: 17px; }
+  .revs hr { position: absolute; left: 15px; right: 15px; top: 151px; margin: 0; border: 0; border-top: 1px solid #edf1f7; }
+  .rev { position: absolute; left: 14px; right: 16px; height: 60px; }
+  .rev .ini { position: absolute; left: 0; top: 0; width: 37px; height: 37px; border-radius: 50%; background: #e7f2fe; display: grid; place-items: center; font-size: 12.5px; font-weight: 600; color: #2a3a72; }
+  .rev b { position: absolute; left: 50px; top: 3px; font-size: 11px; font-weight: 700; color: var(--p-ink); }
+  .rev small { position: absolute; left: 50px; top: 18px; font-size: 10.4px; color: #7f89ac; }
+  .rev p { position: absolute; left: 50px; top: 36px; margin: 0; font-size: 11.2px; color: #55618a; white-space: nowrap; }
+  .rev .st { position: absolute; right: 23px; top: 10px; }
+  .rev .st svg { width: 10.5px; height: 10.5px; margin-left: -0.3px; }
+  .rev .st svg.off { color: #dfe2ea; }
+  .rev .v { position: absolute; right: 0; top: 8px; font-size: 12px; font-weight: 700; }
+</style>
+</head>
+<body>
+<header class="ph">
+  <img class="logo" src="../assets/logo.svg" alt="ntizo">
+  <nav>
+    <a href="#" style="left:262px">Explorar</a>
+    <a href="servicos.html" style="left:347px">Serviços</a>
+    <a href="#" style="left:431px">Prestadores</a>
+    <a href="#" style="left:534px">Como funciona</a>
+    <a href="#" style="left:655px">Cidades <i data-lucide="chevron-down"></i></a>
+  </nav>
+  <div class="tools">
+    <span class="tool loc" style="left:919px"><i data-lucide="map-pin" class="fill"></i>Maputo <i data-lucide="chevron-down" class="chev"></i></span>
+    <span class="tool lang" style="left:1032px"><i data-lucide="globe"></i>PT <i data-lucide="chevron-down" class="chev"></i></span>
+    <a class="signin" href="#" style="left:1111px">Entrar</a>
+    <a class="cta" href="#" style="left:1172px">Criar conta</a>
+  </div>
+</header>
+
+<div class="page">
+  <div class="crumbs">Prestadores <i data-lucide="chevron-right"></i> Beleza e cabelo <i data-lucide="chevron-right"></i> <b>Estúdio Mavalane</b></div>
+
+  <div class="gal">
+    <img src="../assets/cli-prestador-main.jpg" alt="" style="left:43px;top:41px;width:530px;height:342px">
+    <img src="../assets/cli-prestador-g1.jpg" alt="" style="left:581px;top:42px;width:231px;height:156px">
+    <img src="../assets/cli-prestador-g2.jpg" alt="" style="left:818px;top:42px;width:115px;height:156px">
+    <img src="../assets/cli-prestador-g3.jpg" alt="" style="left:581px;top:204px;width:165px;height:179px">
+    <img src="../assets/cli-prestador-g4.jpg" alt="" style="left:752px;top:204px;width:181px;height:179px">
+    <span class="g-arrow" style="left:54px;top:195px"><i data-lucide="chevron-left"></i></span>
+    <span class="g-arrow" style="left:526px;top:195px"><i data-lucide="chevron-right"></i></span>
+    <span class="g-badge" style="left:54px;top:334px;width:55px;height:32px;font-size:14px">1 / 6</span>
+    <span class="g-badge" style="left:817px;top:326px;width:98px;height:39px;font-size:15px;border-radius:20px">+ 3 fotos</span>
+  </div>
+
+  <img class="avatar" src="../assets/cli-prestador-avatar.png" alt="">
+  <div class="who">
+    <h1>Estúdio Mavalane <span class="vpill"><i data-lucide="badge-check"></i>Verificado</span></h1>
+    <div class="rate"><span class="stars" id="st-main"></span><b>4,7</b><span>(6)</span></div>
+    <div class="loc"><i data-lucide="map-pin"></i>Polana, Maputo, MZ</div>
+  </div>
+
+  <div class="rule" style="top:521px"></div>
+  <div class="facts">
+    <div class="fact" style="position:absolute;left:0"><span class="ic"><i data-lucide="scissors"></i></span><div><small>Categoria</small><b>Beleza e cabelo</b></div></div>
+    <div class="fact" style="position:absolute;left:236px;gap:20px"><span class="ic"><i data-lucide="map-pin"></i></span><div><small>Onde atende</small><b>No espaço dele</b></div></div>
+    <div class="fact" style="position:absolute;left:479px"><span class="ic"><i data-lucide="list"></i></span><div><small>Serviços</small><b>2 serviços</b></div></div>
+    <div class="fact" style="position:absolute;left:672px"><span class="ic"><i data-lucide="calendar-days"></i></span><div><small>Na Ntizo desde</small><b>Agosto de 2026</b></div></div>
+  </div>
+  <span class="vsep" style="left:263px;top:538px"></span>
+  <span class="vsep" style="left:506px;top:538px"></span>
+  <span class="vsep" style="left:700px;top:538px"></span>
+  <div class="rule" style="top:599px"></div>
+
+  <h2 class="sec" style="left:45px;top:613px">Sobre</h2>
+  <p class="about">Salão de cabelo e barbearia com quatro profissionais. Marcação ao minuto, sem filas. Trabalhamos com<br>produtos de qualidade e focados num atendimento personalizado para cada cliente.</p>
+  <div class="feats">
+    <span style="width:218px"><i data-lucide="shield-check"></i>Profissionais experientes</span>
+    <span style="width:232px"><i data-lucide="sparkle"></i>Ambiente limpo e moderno</span>
+    <span style="width:202px;gap:12px"><i data-lucide="shopping-bag" style="width:24px;height:24px"></i>Produtos de qualidade</span>
+    <span style="gap:17px"><i data-lucide="heart" style="width:24px;height:24px"></i>Atendimento personalizado</span>
+  </div>
+
+  <h2 class="sec" style="left:45px;top:754px">Serviços (2)</h2>
+  <div class="svc" style="top:788px">
+    <img src="../assets/cli-prestador-corte.jpg" alt="">
+    <div class="t"><b>Corte de cabelo</b><p>Corte, lavagem e acabamento.</p>
+      <div class="meta"><i data-lucide="clock"></i>45 min<i class="dot"></i><i data-lucide="map-pin"></i>No espaço dele<i class="dot"></i><span class="fix">Preço fixo</span></div></div>
+    <span class="price">800 MZN</span>
+    <a class="see" href="reserva.html">Ver disponibilidade</a>
+  </div>
+  <div class="svc" style="top:882px">
+    <img src="../assets/cli-prestador-barba.jpg" alt="">
+    <div class="t"><b>Barba completa</b><p>Aparo, toalha quente e óleo.</p>
+      <div class="meta"><i data-lucide="clock"></i>30 min<i class="dot"></i><i data-lucide="map-pin"></i>No espaço dele<i class="dot"></i><span class="fix">Preço fixo</span></div></div>
+    <span class="price">450 MZN</span>
+    <a class="see" href="reserva.html">Ver disponibilidade</a>
+  </div>
+
+  <div class="rc" style="top:37px;height:361px">
+    <span class="from">A partir de</span>
+    <span class="big">450 MZN</span>
+    <span class="low">O preço mais baixo que publica.</span>
+    <a class="send" href="#"><i data-lucide="message-square"></i>Enviar mensagem</a>
+    <a class="ghost" href="#">Ver serviços</a>
+    <ul>
+      <li><i data-lucide="check"></i><span>Documento de identidade e certificação<br>profissional verificados pela Ntizo.</span></li>
+      <li><i data-lucide="check"></i><span>As mensagens ficam guardadas na Ntizo,<br>por isso o seu contacto fica seguro.</span></li>
+      <li><i data-lucide="check"></i><span>Prestador verificado e com avaliações reais.</span></li>
+    </ul>
+  </div>
+
+  <div class="rc avail" style="top:413px;height:186px">
+    <h3><i data-lucide="calendar"></i>Disponibilidade</h3>
+    <dl><dt>Segunda a sexta</dt><dd>08:00 – 17:00</dd><dt>Sábado</dt><dd>08:00 – 13:00</dd><dt>Domingo</dt><dd>Fechado</dd></dl>
+    <p>Horário habitual. As horas livres de cada serviço<br>são as que aparecem no calendário.</p>
+  </div>
+
+  <div class="rc revs" style="top:613px;height:366px">
+    <h3>Avaliações (6)</h3>
+    <a class="all" href="#">Ver todas <i data-lucide="arrow-right"></i></a>
+    <span class="score">4.7</span>
+    <span class="stars s5" id="st-big"></span>
+    <span class="cnt">6 avaliações</span>
+    <div class="bars">
+      <div><em>5 ★</em><i><b style="width:60%"></b></i><span>4</span></div>
+      <div><em>4 ★</em><i><b style="width:33%"></b></i><span>2</span></div>
+      <div><em>3 ★</em><i></i><span>0</span></div>
+      <div><em>2 ★</em><i></i><span>0</span></div>
+      <div><em>1 ★</em><i></i><span>0</span></div>
+    </div>
+    <hr>
+    <div id="revs"></div>
+  </div>
+</div>
+
+<script>
+const star = (cls = "") => `<i data-lucide="star" class="${cls}"></i>`;
+document.getElementById("st-main").innerHTML = star().repeat(4) + `<i data-lucide="star-half"></i>`;
+document.getElementById("st-big").innerHTML = star().repeat(5);
+const revs = [
+  ["TG", "Tomás Guambe", "Trabalho impecável e pontual. Recomendo.", 5, "5,0"],
+  ["CB", "Célia Banze", "Ótimo atendimento e ambiente agradável.", 4, "4,0"],
+  ["JN", "Jorge Nhaca", "Profissionais dedicados. Voltarei.", 5, "5,0"],
+];
+document.getElementById("revs").innerHTML = revs.map(([ini, name, text, n, v], i) => `
+  <div class="rev" style="top:${159 + i * 69}px">
+    <span class="ini">${ini}</span><b>${name}</b><small>14 de agosto de 2026</small><p>${text}</p>
+    <span class="stars st">${star().repeat(n)}${star("off").repeat(5 - n)}</span><span class="v">${v}</span>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

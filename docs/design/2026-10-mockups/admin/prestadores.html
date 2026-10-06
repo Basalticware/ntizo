@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prestadores · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  .adm-tabs .tab:nth-child(1) { width: 178px; }
+  .adm-tabs .tab:nth-child(2) { width: 193px; }
+  .adm-tabs .tab:nth-child(3) { width: 193px; }
+  .adm-tabs .tab:nth-child(4) { width: 185px; }
+  .adm-filters .field { width: 555px; }
+  .adm-filters .s-cat { width: 195px; }
+  .adm-filters .s-estado { width: 178px; }
+  .adm-filters .s-loc { width: 209px; }
+  .adm-filters .btn-outline { width: 134px; }
+  .adm-table .row { grid-template-columns: 333px 233px 239px 155px 168px 159px 1fr; }
+  .adm-table .head > div:first-child { padding-left: 21px; }
+  .adm-table .body-row { height: 59.5px; padding-bottom: 7px; }
+  .adm-table .body-row > :first-child { padding-left: 16px; }
+  .adm-table .pill { width: 113px; padding: 0; margin-left: 3px; }
+  .adm-table .btn-details { width: 135px; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:18px;height:18px"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="painel.html"><i data-lucide="house"></i>Painel</a>
+        <a class="on" href="prestadores.html"><i data-lucide="users"></i>Prestadores</a>
+        <a href="reservas.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="suporte.html"><i data-lucide="headset"></i>Suporte</a>
+        <a href="contactos.html"><i data-lucide="notebook-text"></i>Contactos</a>
+        <a href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a href="utilizadores.html"><i data-lucide="users"></i>Utilizadores</a>
+        <a href="atividade.html"><i data-lucide="chart-no-axes-column"></i>Atividade</a>
+        <a href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <h1 class="page-title">Prestadores</h1>
+      <p class="page-sub">Gerir, rever e acompanhar os prestadores da plataforma.</p>
+
+      <div class="adm-tabs">
+        <button class="tab on">Por rever <span class="chip">23</span></button>
+        <button class="tab">Aprovados <span class="chip ok">84</span></button>
+        <button class="tab">Pendentes <span class="chip warn">12</span></button>
+        <button class="tab">Rejeitados <span class="chip bad">4</span></button>
+      </div>
+
+      <div class="adm-filters">
+        <div class="field"><i data-lucide="search"></i>Pesquisar por nome, serviço ou contacto...</div>
+        <div class="select s-cat">Categoria<i data-lucide="chevron-down"></i></div>
+        <div class="select s-estado">Estado<i data-lucide="chevron-down"></i></div>
+        <div class="select s-loc">Localização<i data-lucide="chevron-down"></i></div>
+        <button class="btn-outline"><i data-lucide="filter"></i>Filtrar</button>
+      </div>
+
+      <div class="adm-table">
+        <div class="row head"><div>Prestador</div><div>Serviço principal</div><div>Localização</div><div>Avaliação</div><div>Estado</div><div>Ações</div><div></div></div>
+        <div id="rows"></div>
+      </div>
+
+      <div class="adm-foot">
+        <span>A mostrar 1–8 de 123 prestadores</span>
+        <div class="pager">
+          <span class="prev"><i data-lucide="chevron-left"></i></span>
+          <span class="on">1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>...</span><span>16</span>
+          <span class="next"><i data-lucide="chevron-right"></i></span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const rows = [
+  ["silvia","Sílvia Nhamopossa","Prestadora verificada","Beleza","Corte de cabelo, manicure","Maputo, Central","4,8","61","ok","Aprovado"],
+  ["tomas","Tomás Guambe","Prestador verificado","Canalização","Reparação, instalação","Maputo, Sommershield","4,6","38","ok","Aprovado"],
+  ["carla","Carla Sitoe","Prestadora verificada","Limpeza","Limpeza residencial","Maputo, Polana","4,9","72","ok","Aprovado"],
+  ["manuel","Manuel Cossa","Prestador verificado","Electricidade","Instalações, reparações","Matola, Fomento","4,4","27","warn","Pendente"],
+  ["ana","Ana Mucaua","Prestadora verificada","Beleza","Corte de cabelo, hidratação","Maputo, Costa do Sol","4,7","49","ok","Aprovado"],
+  ["carlos","Carlos Massango","Prestador verificado","Ar condicionado","Instalação, manutenção","Maputo, Central","4,5","31","bad","Rejeitado"],
+  ["beatriz","Beatriz Langa","Prestadora verificada","Limpeza","Limpeza de apartamentos","Maputo, Polana","4,8","58","ok","Aprovado"],
+  ["antonio","António Matusse","Prestador verificado","Canalização","Torneira, desentupimento","Matola, Matola Gare","4,3","19","warn","Pendente"],
+];
+document.getElementById("rows").innerHTML = rows.map(([img,name,verif,svc,sub,place,rate,count,tone,status]) => `
+  <div class="row body-row">
+    <div class="person"><img src="../assets/adm-prestadores-${img}.png" alt=""><div><b>${name}</b><span class="verified"><i data-lucide="circle-check"></i>${verif}</span></div></div>
+    <div class="two"><b>${svc}</b><span>${sub}</span></div>
+    <div class="place"><i data-lucide="map-pin"></i>${place}</div>
+    <div class="rating"><i data-lucide="star"></i><b>${rate}</b><span>(${count})</span></div>
+    <div><span class="pill ${tone}">${status}</span></div>
+    <div><a class="btn-details" href="#">Ver detalhes</a></div>
+    <div><i data-lucide="ellipsis" class="dots"></i></div>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

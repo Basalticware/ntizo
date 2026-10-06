@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prestador · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* Measured on mockps/admin/detalheprestador.png, viewport 0,44 → 1672x897 */
+  :root { --a-ink: #0c1158; --a-muted: #5a66a6; --a-line: #e8eff9; }
+  body { color: var(--a-ink); }
+  /* this mockup sets the user block a size smaller than admin.css measured */
+  .topbar .me b { font-size: 16px; }
+  .topbar .me span { font-size: 15.5px; margin-top: 3px; }
+  .topbar .me > div { width: 140px; }
+  .topbar .loc { padding-right: 29px; }
+
+  /* children are placed in viewport y, so the main column is lifted by the top bar height */
+  .main { padding: 0; position: relative; top: -86px; overflow: visible; }
+  .crumb { position: absolute; left: 26px; top: 100px; display: flex; align-items: center; gap: 8px; font-size: 15px; color: #5d6da3; }
+  .crumb a { color: #104df8; }
+  .crumb svg { width: 14px; height: 14px; color: #5d6da3; margin: 0 6px; }
+  .hero { position: absolute; left: 27px; top: 143px; width: 1336px; height: 140px; }
+  .hero > img { position: absolute; left: 0; top: 0; width: 136px; height: 136px; border-radius: 50%; }
+  .hero h1 { position: absolute; left: 159px; top: -5px; margin: 0; font-size: 35.5px; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap; display: flex; align-items: center; color: #0a0f55; }
+  .hero h1 .badge { width: 25px; height: 25px; margin-left: 18px; }
+  .hero h1 .pill { margin-left: 24px; height: 29px; padding: 0 17px; font-size: 14.5px; font-weight: 500; background: #ddfce7; color: #17923e; letter-spacing: 0; }
+  .hero .meta { position: absolute; left: 159px; display: flex; align-items: center; font-size: 16.3px; color: #5460a7; white-space: nowrap; }
+  .hero .meta svg { width: 19px; height: 19px; color: #5460a7; margin-right: 11px; }
+  .hero .meta .dot { margin: 0 15px; font-size: 14px; }
+  .hero p { position: absolute; left: 159px; top: 101px; margin: 0; width: 680px; font-size: 15.8px; line-height: 21px; color: #6e7db8; }
+  .kpis { position: absolute; left: 850px; top: 23px; display: flex; }
+  .kpi { position: relative; padding: 4px 0 0 0; display: grid; grid-template-columns: auto auto; column-gap: 13px; row-gap: 6px; align-items: center; }
+  .kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: -9px; width: 1px; background: #edf2fa; }
+  .kpi svg { width: 22px; height: 22px; }
+  .kpi b { font-size: 18.5px; font-weight: 700; color: #0a0f55; white-space: nowrap; }
+  .kpi b small { font-size: 17px; font-weight: 400; color: #7785b8; margin-left: 9px; }
+  .kpi span { grid-column: 2; font-size: 12.5px; color: #7785b8; white-space: nowrap; }
+  .kpi.k1 { padding-left: 18px; width: 158px; }
+  .kpi.k2 { padding-left: 18px; width: 157px; }
+  .kpi.k3 { padding-left: 18px; width: 152px; margin-left: 0; }
+  .kpi.k3 span { font-size: 14px; }
+
+  .ptabs { position: absolute; left: 27px; top: 306px; width: 1336px; height: 50px; border-bottom: 1px solid #e3ecf8; display: flex; }
+  .ptab { position: relative; height: 49px; display: flex; align-items: center; gap: 18px; font-size: 15.5px; font-weight: 500; color: var(--a-ink); padding-left: 13px; }
+  .ptab svg { width: 21px; height: 21px; color: var(--a-ink); }
+  .ptab.on { color: #0a50f0; font-weight: 600; width: 144px; }
+  .ptab.on svg { color: #0a50f0; }
+  .ptab.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 4px; background: #0061fe; border-radius: 2px; }
+  .ptab small { font-size: 16px; font-weight: 400; color: #5a66a6; margin-left: -8px; }
+
+  .c { position: absolute; border: 1px solid var(--a-line); border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(30, 70, 140, .025); }
+  .c h2 { position: absolute; margin: 0; font-size: 17.5px; font-weight: 700; color: #0a0f55; white-space: nowrap; }
+  .c .ver { position: absolute; right: 19px; height: 30px; padding: 0 12px; display: grid; place-items: center; border: 1px solid #6ea2fb; border-radius: 6px; color: #0a50f0; font-size: 14px; font-weight: 500; }
+  .list { position: absolute; left: 0; right: 0; }
+  .li { position: absolute; left: 18px; display: flex; align-items: center; font-size: 15px; color: var(--a-muted); white-space: nowrap; transform: translateY(-50%); }
+  .li svg { width: 21px; height: 21px; margin-right: 24px; color: #0340fb; }
+  .li.k svg { color: var(--a-ink); width: 21px; height: 21px; }
+  .li .lab { width: 125px; font-size: 13.6px; }
+  .li .val { font-size: 14.2px; color: #4e5c9b; }
+
+  .stbl { position: absolute; left: 11px; right: 11px; top: 54px; }
+  .stbl .h { height: 36px; background: #f6f9fd; display: grid; align-items: center; font-size: 13.5px; font-weight: 500; color: #3a467f; border-radius: 2px; }
+  .stbl .r { height: 62.5px; display: grid; align-items: center; border-top: 1px solid #eef3f9; }
+  .stbl .r:first-of-type { border-top: 0; }
+  .stbl .h, .stbl .r { grid-template-columns: 268px 90px 82px 101px 1fr; padding-left: 12px; }
+  .stbl .h { padding-left: 12px; }
+  .stbl .svc { display: flex; align-items: center; gap: 14px; margin-left: -3px; }
+  .stbl .svc img { width: 49px; height: 49px; border-radius: 8px; object-fit: cover; }
+  .stbl .svc b { display: block; font-size: 14px; font-weight: 700; color: #0a0f55; }
+  .stbl .svc span { display: block; font-size: 13.5px; color: #6e7db8; margin-top: 2px; }
+  .stbl .pr { font-size: 14.5px; font-weight: 700; color: #0a0f55; }
+  .stbl .du { font-size: 14px; color: #6e7db8; }
+  .stbl .pill { height: 30px; width: 74px; justify-content: center; padding: 0; background: #dafbe4; color: #17923e; font-size: 14.5px; }
+  .stbl .dots { width: 20px; height: 20px; color: #3a467f; margin-left: 2px; }
+
+  .docs { position: absolute; left: 16px; top: 52px; display: flex; gap: 11px; }
+  .doc { position: relative; height: 147px; border: 1px solid var(--a-line); border-radius: 9px; }
+  .doc img { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); }
+  .doc b { position: absolute; left: 11px; top: 64px; font-size: 13.5px; font-weight: 700; color: #0a0f55; white-space: nowrap; }
+  .doc .pill { position: absolute; left: 11px; top: 84px; height: 24px; padding: 0 12px; font-size: 12.5px; }
+  .doc .pill.ok { background: #dcfbe6; color: #17923e; }
+  .doc .pill.warn { background: #fef2da; color: #f07a0a; }
+  .doc .f { position: absolute; left: 11px; top: 117px; font-size: 12px; color: #7785b8; white-space: nowrap; }
+  .doc .eye { position: absolute; right: 10px; bottom: 10px; width: 22px; height: 22px; border: 1px solid #b9d0f6; border-radius: 5px; display: grid; place-items: center; color: #0a50f0; }
+  .doc .eye svg { width: 13px; height: 13px; }
+
+  .okbox { position: absolute; left: 18px; right: 17px; top: 43px; height: 76px; background: #e8fcf1; border-radius: 9px; }
+  .okbox .tick { position: absolute; left: 13px; top: 10px; width: 27px; height: 27px; border-radius: 50%; background: #22b45a; display: grid; place-items: center; color: #fff; }
+  .okbox .tick svg { width: 16px; height: 16px; stroke-width: 3; }
+  .okbox b { position: absolute; left: 59px; top: 9px; font-size: 15px; font-weight: 600; color: #128a3a; }
+  .okbox p { position: absolute; left: 59px; top: 30px; margin: 0; font-size: 13px; line-height: 18px; color: #2b9a55; width: 236px; }
+  .kv { position: absolute; left: 21px; right: 18px; display: flex; align-items: center; font-size: 13.5px; color: #6e7db8; transform: translateY(-50%); white-space: nowrap; }
+  .kv svg { width: 16px; height: 16px; color: var(--a-ink); margin-right: 18px; }
+  .kv .v { position: absolute; left: 225px; font-size: 14.5px; color: #4e5c9b; }
+  .kv .n { margin-left: auto; font-size: 15px; font-weight: 700; color: #0a0f55; }
+  .act { position: absolute; left: 19px; right: 17px; height: 33px; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 14px; font-weight: 600; }
+  .act svg { width: 18px; height: 18px; }
+  .act.g { background: #24b960; color: #fff; }
+  .act.y { background: #fef6e5; border: 1px solid #f9cf74; color: #f08a10; }
+  .act.r { background: #fef5f6; border: 1px solid #f59ca1; color: #f2232a; }
+  .sel { position: absolute; right: 15px; top: 11px; width: 139px; height: 32px; border: 1px solid #e3ebf6; border-radius: 7px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 13px; font-size: 13px; color: #3a467f; }
+  .sel svg { width: 15px; height: 15px; color: var(--a-ink); }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:17px;height:17px"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="#"><i data-lucide="house"></i>Painel</a>
+        <a class="on" href="#"><i data-lucide="users"></i>Prestadores</a>
+        <a href="reserva-detalhe.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="#"><i data-lucide="headset"></i>Suporte</a>
+        <a href="#"><i data-lucide="list"></i>Contactos</a>
+        <a href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a href="#"><i data-lucide="users"></i>Utilizadores</a>
+        <a href="atividade.html"><i data-lucide="chart-column"></i>Atividade</a>
+        <a href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="crumb"><a href="#">Prestadores</a><i data-lucide="chevron-right"></i>Sílvia Nhamopossa</div>
+
+      <section class="hero">
+        <img src="../assets/adm-prestador-silvia.png" alt="">
+        <h1>Sílvia Nhamopossa<i data-lucide="badge-check" class="badge" style="fill:#1f6bf2;color:#fff"></i><span class="pill">Prestadora verificada</span></h1>
+        <div class="meta" style="top:42px"><i data-lucide="scissors"></i>Beleza<span class="dot">•</span>Corte de cabelo, manicure</div>
+        <div class="meta" style="top:72px"><i data-lucide="map-pin"></i>Maputo, Central</div>
+        <p>Profissional de beleza com mais de 5 anos de experiência, especializada em cortes femininos, manicure e cuidados capilares. Atendimento ao domicílio e no salão.</p>
+        <div class="kpis">
+          <div class="kpi k1"><i data-lucide="star" style="color:#fbb515;fill:#fbb515"></i><b>4,8<small>(61)</small></b><span>Avaliação média</span></div>
+          <div class="kpi k2"><i data-lucide="message-circle" style="color:#16b45a"></i><b>98%</b><span>Taxa de resposta</span></div>
+          <div class="kpi k3"><i data-lucide="calendar" style="color:#1c6cf5"></i><b>12 Jan 2024</b><span>Membro desde</span></div>
+        </div>
+      </section>
+
+      <nav class="ptabs">
+        <a class="ptab on" href="#"><i data-lucide="clock-3"></i>Visão geral</a>
+        <a class="ptab" href="#" style="margin-left:29px"><i data-lucide="layout-grid"></i>Serviços</a>
+        <a class="ptab" href="#" style="margin-left:45px"><i data-lucide="star"></i>Avaliações <small>(61)</small></a>
+        <a class="ptab" href="#" style="margin-left:40px"><i data-lucide="file-text"></i>Documentos</a>
+        <a class="ptab" href="#" style="margin-left:43px"><i data-lucide="chart-column"></i>Atividade</a>
+      </nav>
+
+      <!-- left column -->
+      <section class="c" style="left:26px;top:372px;width:323px;height:209px">
+        <h2 style="left:18px;top:13px">Informações de contacto</h2>
+        <div class="li" style="top:69px"><i data-lucide="phone"></i>+258 84 123 4567</div>
+        <div class="li" style="top:105px"><i data-lucide="mail"></i>silvia.nhamopossa@gmail.com</div>
+        <div class="li" style="top:141px"><i data-lucide="map-pin"></i>Maputo, Central</div>
+        <div class="li" style="top:176px"><i data-lucide="message-circle" style="color:#16b45a"></i>Disponível no WhatsApp</div>
+      </section>
+      <section class="c" style="left:26px;top:597px;width:323px;height:290px">
+        <h2 style="left:18px;top:14px">Dados do prestador</h2>
+        <div class="li k" style="top:69px"><i data-lucide="user"></i><span class="lab">Nome completo</span><span class="val">Sílvia Nhamopossa</span></div>
+        <div class="li k" style="top:105px"><i data-lucide="id-card"></i><span class="lab">BI</span><span class="val">110100123456B</span></div>
+        <div class="li k" style="top:143px"><i data-lucide="file-text"></i><span class="lab">NUIT</span><span class="val">4001234567</span></div>
+        <div class="li k" style="top:182px"><i data-lucide="calendar"></i><span class="lab">Data de nascimento</span><span class="val">12 Mar 1990</span></div>
+        <div class="li k" style="top:220px"><svg class="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="6"/><path d="M14.5 9.5 20 4M15 4h5v5"/></svg><span class="lab">Género</span><span class="val">Feminino</span></div>
+      </section>
+
+      <!-- middle column -->
+      <section class="c" style="left:360px;top:371px;width:605px;height:289px">
+        <h2 style="left:21px;top:14px">Serviços oferecidos (3)</h2>
+        <a class="ver" href="#" style="top:12px">Ver todos</a>
+        <div class="stbl">
+          <div class="h"><div>Serviço</div><div>Preço</div><div>Duração</div><div>Estado</div><div></div></div>
+          <div class="r"><div class="svc"><img src="../assets/adm-prestador-svc1.jpg" alt=""><div><b>Corte de cabelo</b><span>Corte feminino + lavagem</span></div></div><div class="pr">600 MTn</div><div class="du">1h</div><div><span class="pill">Activo</span></div><div><i data-lucide="ellipsis" class="dots"></i></div></div>
+          <div class="r"><div class="svc"><img src="../assets/adm-prestador-svc2.jpg" alt=""><div><b>Manicure</b><span>Manicure completa</span></div></div><div class="pr">500 MTn</div><div class="du">1h</div><div><span class="pill">Activo</span></div><div><i data-lucide="ellipsis" class="dots"></i></div></div>
+          <div class="r"><div class="svc"><img src="../assets/adm-prestador-svc3.jpg" alt=""><div><b>Hidratação capilar</b><span>Tratamento + finalização</span></div></div><div class="pr">800 MTn</div><div class="du">1h 30m</div><div><span class="pill">Activo</span></div><div><i data-lucide="ellipsis" class="dots"></i></div></div>
+        </div>
+      </section>
+      <section class="c" style="left:360px;top:675px;width:605px;height:214px">
+        <h2 style="left:18px;top:15px">Documentos de verificação</h2>
+        <a class="ver" href="#" style="top:12px">Ver todos</a>
+        <div class="docs">
+          <div class="doc" style="width:132px"><img src="../assets/adm-prestador-doc-bi.jpg" alt="" style="width:78px"><b>BI</b><span class="pill ok">Completo</span><span class="f">BI_silvia.pdf</span><span class="eye"><i data-lucide="eye"></i></span></div>
+          <div class="doc" style="width:131px"><img src="../assets/adm-prestador-doc-nuit.jpg" alt="" style="width:78px"><b>NUIT</b><span class="pill ok">Completo</span><span class="f">NUIT_silvia.pdf</span><span class="eye"><i data-lucide="eye"></i></span></div>
+          <div class="doc" style="width:136px"><img src="../assets/adm-prestador-doc-alvara.jpg" alt="" style="width:55px;top:7px"><b>Alvará</b><span class="pill warn">Pendente</span><span class="f">Alvara_silvia.pdf</span><span class="eye"><i data-lucide="eye"></i></span></div>
+          <div class="doc" style="width:137px"><img src="../assets/adm-prestador-fotos.jpg" alt="" style="width:119px;left:9px;transform:none"><b style="top:67px">Fotos do trabalho</b><span class="pill ok" style="top:87px">Completo</span><span class="f" style="top:118px;font-size:12.5px">6 fotos</span><span class="eye"><i data-lucide="eye"></i></span></div>
+        </div>
+      </section>
+
+      <!-- right column -->
+      <section class="c" style="left:976px;top:371px;width:388px;height:338px">
+        <h2 style="left:17px;top:12px;font-size:17px">Estado e aprovação</h2>
+        <div class="okbox"><span class="tick"><i data-lucide="check"></i></span><b>Prestadora verificada</b><p>Este prestador está aprovado e activo na plataforma.</p></div>
+        <div class="kv" style="top:140px"><i data-lucide="calendar"></i>Data de aprovação<span class="v">14 Jan 2024</span></div>
+        <div class="kv" style="top:165px"><i data-lucide="user"></i>Aprovado por<span class="v">Joaquim Cuna</span></div>
+        <div class="kv" style="top:189px"><i data-lucide="clock"></i>Última revisão<span class="v">14 Jan 2024</span></div>
+        <a class="act g" href="#" style="top:214px"><i data-lucide="check"></i>Aprovar prestador</a>
+        <a class="act y" href="#" style="top:254px"><i data-lucide="rotate-cw"></i>Colocar em revisão</a>
+        <a class="act r" href="#" style="top:294px"><i data-lucide="x"></i>Rejeitar prestador</a>
+      </section>
+      <section class="c" style="left:976px;top:725px;width:388px;height:164px">
+        <h2 style="left:21px;top:15px;font-size:17px">Estatísticas</h2>
+        <div class="sel">Últimos 30 dias<i data-lucide="chevron-down"></i></div>
+        <div class="kv" style="top:62px"><i data-lucide="calendar"></i>Reservas realizadas<span class="n">28</span></div>
+        <div class="kv" style="top:88px"><i data-lucide="user"></i>Clientes únicos<span class="n">24</span></div>
+        <div class="kv" style="top:114px"><i data-lucide="star"></i>Avaliação média<span class="n">4,8</span></div>
+        <div class="kv" style="top:140px"><i data-lucide="message-circle" style="color:#16b45a"></i>Taxa de resposta<span class="n">98%</span></div>
+      </section>
+    </main>
+  </div>
+</div>
+<script>lucide.createIcons();</script>
+</body>
+</html>

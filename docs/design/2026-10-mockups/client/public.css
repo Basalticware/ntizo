@@ -1,0 +1,52 @@
+/*
+ * Ntizo — public (client) site, October 2026 mockups.
+ * Tokens come from ../shared.css; nothing here uses the console shell.
+ * The header's sizes vary a little between the PNGs, so each page can
+ * override the --ph-* variables in its own <style>.
+ */
+:root {
+  --ph-h: 54px;          /* header height, border included */
+  --ph-pad: 100px;       /* logo inset */
+  --ph-logo: 30px;       /* logo height */
+  --ph-font: 11.5px;     /* nav links */
+  --ph-nav-ink: #33416b;
+}
+body { background: #fff; }
+
+/* ── Public header ─────────────────────────────────────────────────────── */
+.ph {
+  height: var(--ph-h); display: flex; align-items: center;
+  padding: 0 0 0 var(--ph-pad); border-bottom: 1px solid #eef2f8; background: #fff;
+  position: relative; font-size: var(--ph-font); color: var(--ph-nav-ink); font-weight: 500;
+}
+.ph > * { flex-shrink: 0; }
+.ph .logo { height: var(--ph-logo); width: auto; display: block; }
+.ph nav { display: flex; align-items: center; height: 100%; }
+.ph nav a { position: relative; height: 100%; display: flex; align-items: center; gap: 6px; }
+.ph nav a.on { color: #004bf4; font-weight: 700; }
+.ph nav a.on::after { content: ""; position: absolute; left: -7px; right: -7px; bottom: 4px; height: 3px; border-radius: 2px; background: var(--blue-public); }
+.ph nav svg, .ph .tool svg.chev { width: 1.1em; height: 1.1em; stroke-width: 2.2; }
+.ph .tools { margin-left: auto; display: flex; align-items: center; height: 100%; }
+.ph .tool { display: flex; align-items: center; gap: 7px; }
+.ph .tool svg { width: 1.15em; height: 1.15em; }
+.ph .tool svg.fill { fill: currentColor; stroke: #fff; }
+.ph .signin { color: var(--blue-public); font-weight: 500; }
+.ph .cta {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--blue-public); color: #fff; font-weight: 500; border-radius: 8px;
+}
+/* header search variant (service detail) */
+.ph .hfield {
+  display: flex; align-items: center; gap: 8px; border: 1px solid var(--line);
+  border-radius: 8px; color: var(--faint); background: #fff;
+}
+.ph .hbtn { display: inline-flex; align-items: center; justify-content: center; background: var(--blue-public); color: #fff; border-radius: 8px; font-weight: 500; }
+
+/* ── Shared public bits ────────────────────────────────────────────────── */
+.pcard { border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.crumbs { display: flex; align-items: center; color: var(--muted); }
+.crumbs svg { width: 1em; height: 1em; }
+.crumbs b { color: var(--ink); font-weight: 600; }
+.stars { display: inline-flex; color: var(--star); }
+.stars svg { fill: currentColor; stroke: none; }
+.verified-tick { color: var(--blue-public); }

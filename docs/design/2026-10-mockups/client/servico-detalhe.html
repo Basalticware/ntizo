@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avaria eléctrica urgente · Serviço</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="public.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root { --ph-h: 57px; --ph-pad: 39px; --ph-logo: 30px; --ph-font: 12.5px; --ph-nav-ink: #4f5a92;
+          --sd-ink: #0a1258; --sd-muted: #5b6899; --sd-line: #e9f0f8; --sd-soft: #f1f7fe; }
+  body { color: var(--sd-ink); }
+  .ph .hfield { height: 37px; font-size: 12.5px; }
+  .ph .hfield.q { width: 224px; margin-left: 51px; padding-left: 15px; gap: 10px; }
+  .ph .hfield.q svg { width: 15px; height: 15px; color: var(--sd-ink); }
+  .ph .hfield.loc { width: 134px; margin-left: 9px; padding: 0 13px 0 14px; color: var(--sd-ink); gap: 9px; }
+  .ph .hfield.loc svg { width: 15px; height: 15px; }
+  .ph .hfield.loc svg.chev { margin-left: auto; width: 15px; height: 15px; stroke-width: 2.2; }
+  .ph .hbtn { width: 111px; height: 41px; margin-left: 9px; font-size: 12.5px; }
+  .ph > * { flex-shrink: 0; white-space: nowrap; }
+  .ph .logo { margin-top: -6px; }
+  .ph nav { margin-left: 26px; gap: 0; font-size: 11.5px; }
+  .ph nav a { width: 69px; }
+  .ph nav a:nth-child(3) { width: 87px; }
+  .ph nav a:nth-child(4) { width: 103px; }
+  .ph nav a:nth-child(5) { width: 90px; }
+  .ph .tools { margin-left: 0; font-size: 11.5px; }
+  .ph .tool.lang { width: 79px; gap: 6px; }
+  .ph .signin { width: 52px; }
+  .ph .cta { width: 104px; height: 36px; margin-left: 0; font-size: 13px; }
+
+  .wrap { display: grid; grid-template-columns: 894px 391px; column-gap: 22px; padding-left: 38px; }
+  .left { min-width: 0; }
+  .crumbs { height: 40px; padding-top: 11px; align-items: flex-start; gap: 0; font-size: 12.5px; letter-spacing: -0.3px; color: #7f8ab5; }
+  .crumbs svg { width: 13px; height: 13px; margin: 0 9px 0 8px; color: #7f8ab5; stroke-width: 2; }
+  .crumbs b { color: var(--sd-ink); font-weight: 600; font-size: 12.3px; letter-spacing: -0.5px; }
+
+  .gallery { display: grid; grid-template-columns: 673px 212px; gap: 9px; height: 318px; }
+  .gallery .gm { position: relative; border-radius: 12px; overflow: hidden; }
+  .gallery img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .gallery .side { display: grid; grid-template-rows: 120px 93px 88px; gap: 8px; }
+  .gallery .side > div { position: relative; border-radius: 10px; overflow: hidden; }
+  .badge { position: absolute; left: 15px; top: 19px; height: 34px; padding: 0 19px 0 16px; display: flex; align-items: center; gap: 10px;
+           background: #f3f9fe; border-radius: 17px; color: #0b55d6; font-size: 13px; font-weight: 500; }
+  .badge svg { width: 17px; height: 17px; color: var(--blue-public); fill: var(--blue-public); }
+  .slider { position: absolute; left: 15px; bottom: 9px; width: 113px; height: 33px; border-radius: 17px; background: rgba(40,42,48,.82);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 10px; color: #fff; font-size: 11px; }
+  .slider svg { width: 16px; height: 16px; stroke-width: 2.2; }
+  .more { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 14.5px; font-weight: 500; background: rgba(0,0,0,.0); }
+
+  .head { display: grid; grid-template-columns: 1fr 267px; column-gap: 0; margin-top: 13px; }
+  .head .prov { margin-top: 8px; }
+  .head h1 { margin: 0; font-size: 45px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: #00064f; padding-top: 0; }
+  .meta { display: flex; align-items: center; margin-top: 8px; font-size: 12.5px; color: var(--sd-muted); }
+  .meta .stars svg { width: 17.5px; height: 17.5px; margin-right: 2.5px; }
+  .meta b { color: var(--sd-ink); font-weight: 700; margin: 0 4px 0 7px; }
+  .meta .ver { display: flex; align-items: center; gap: 8px; margin-left: 33px; }
+  .meta .ver svg { width: 19px; height: 19px; color: var(--blue-public); }
+  .meta .loc { display: flex; align-items: center; gap: 9px; margin-left: 33px; }
+  .meta .loc svg { width: 18px; height: 18px; color: var(--blue-public); fill: var(--blue-public); stroke: #fff; }
+  .facts { display: flex; gap: 11px; margin-top: 16px; }
+  .fact { height: 53px; border: 1px solid var(--sd-line); border-radius: 9px; display: flex; align-items: center; padding-left: 11px; gap: 13px; }
+  .fact .ic { width: 32px; height: 32px; border-radius: 50%; background: #e9f4fe; display: grid; place-items: center; color: var(--blue-public); }
+  .fact .ic svg { width: 18px; height: 18px; }
+  .fact b { display: block; font-size: 12.5px; font-weight: 600; color: var(--sd-ink); }
+  .fact span { display: block; font-size: 11px; color: #7d88b4; margin-top: 3px; }
+
+  .prov { position: relative; height: 140px; border: 1px solid var(--sd-line); border-radius: 10px; padding: 9px 7px 0 11px; margin-top: 6px; }
+  .prov .top { display: flex; gap: 10px; }
+  .prov img { width: 76px; height: 78px; border-radius: 50%; }
+  .prov .who { padding-top: 2px; white-space: nowrap; }
+  .prov .who b { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; }
+  .prov .who b svg { width: 14px; height: 14px; fill: var(--blue-public); color: #fff; }
+  .prov .who .sub { font-size: 10px; letter-spacing: -0.15px; color: #7d88b4; margin-top: 11px; display: flex; gap: 6px; }
+  .prov .who .rate { display: flex; align-items: center; margin-top: 8px; font-size: 11px; color: #7d88b4; }
+  .prov .who .rate .stars svg { width: 14px; height: 14px; margin-right: 1px; }
+  .prov .who .rate b { display: inline; color: var(--sd-ink); font-weight: 700; margin: 0 4px 0 8px; font-size: 12px; }
+  .prov .go { position: absolute; left: 7px; top: 92px; height: 35px; border-radius: 7px; background: #e7f3fe; color: #1f6ff0; font-size: 13px; font-weight: 500;
+              display: flex; align-items: center; justify-content: center; gap: 8px; width: 251px; }
+  .prov .go svg { width: 15px; height: 15px; stroke-width: 2.2; }
+
+  .about { display: grid; grid-template-columns: 1fr 236px; margin-top: 11px; }
+  h2 { margin: 0; font-size: 22.5px; font-weight: 800; letter-spacing: -0.01em; line-height: 1; color: #00064f; }
+  .about p { margin: 5px 0 0; font-size: 13.1px; line-height: 18px; color: #5e6ba0; }
+  .facts2 { background: #f1f8fe; border-radius: 9px; height: 196px; padding: 11px 0 0 12px; display: grid; align-content: start; gap: 11px; }
+  .facts2 .r:last-child { margin-top: -3px; }
+  .facts2 .r { display: flex; gap: 14px; align-items: center; position: relative; }
+  .facts2 .ic { width: 31px; height: 31px; border-radius: 50%; background: #e0effe; display: grid; place-items: center; color: var(--blue-public); }
+  .facts2 .ic svg { width: 16px; height: 16px; }
+  .facts2 b { display: block; font-size: 11.5px; font-weight: 500; color: #1a2468; }
+  .facts2 span { display: block; font-size: 11.5px; color: #7d88b4; margin-top: 4px; }
+  .facts2 .info { position: absolute; right: 18px; bottom: 2px; width: 18px; height: 18px; color: var(--blue-public); }
+
+  .reviews-h { margin-top: -19px; }
+  .rating { height: 89px; margin-top: 2px; border: 1px solid var(--sd-line); border-bottom: 0; border-radius: 10px 10px 0 0; display: flex; position: relative; }
+  .rating .big { width: 160px; text-align: center; padding-top: 11px; }
+  .rating .big b { display: block; font-size: 37px; font-weight: 800; line-height: 1; color: #00064f; letter-spacing: -0.02em; }
+  .rating .big .stars svg { width: 17px; height: 17px; margin: 0 .5px; }
+  .rating .big .stars { margin-top: 2px; }
+  .rating .big span { display: block; font-size: 13.5px; color: #6c78ac; margin-top: -1px; }
+  .bars { padding-top: 13px; display: grid; gap: 4px; margin-left: 7px; }
+  .bars .r { display: grid; grid-template-columns: 34px 332px 20px; align-items: center; height: 11px; font-size: 10px; color: #3a4580; }
+  .bars .r i { font-style: normal; font-size: 8px; }
+  .bars .t { height: 8px; border-radius: 4px; background: #eff0f4; overflow: hidden; }
+  .bars .t > div { height: 100%; background: #0b1666; border-radius: 4px; }
+  .bars .n { padding-left: 13px; }
+  .write { position: absolute; right: 9px; top: 20px; width: 184px; height: 49px; border: 1px solid var(--sd-line); border-radius: 8px; display: flex; align-items: center; gap: 18px; padding-left: 20px; color: #1f6ff0; font-size: 12.5px; font-weight: 500; }
+  .write svg { width: 19px; height: 19px; color: var(--blue-public); }
+  .revs { display: grid; grid-template-columns: 217px 218px 218px 208px; gap: 11px; margin-top: 10px; }
+  .rev { height: 133px; border: 1px solid var(--sd-line); border-radius: 9px; padding: 12px 8px 0 11px; }
+  .rev .top { display: flex; gap: 17px; }
+  .rev .av { width: 35px; height: 35px; border-radius: 50%; background: #e8edf9; display: grid; place-items: center; font-size: 10.5px; font-weight: 600; color: #1a2468; margin-top: 4px; flex-shrink: 0; }
+  .rev b { display: block; font-size: 10.5px; font-weight: 600; color: var(--sd-ink); }
+  .rev .d { font-size: 10.5px; color: #7d88b4; margin-top: 1px; }
+  .rev .s { display: flex; align-items: center; margin-top: 4px; font-size: 11.5px; font-weight: 700; color: var(--sd-ink); }
+  .rev .s .stars svg { width: 12px; height: 12px; margin-right: 0.6px; }
+  .rev .s .stars svg.off { color: #dfe3ec; }
+  .rev .s b { display: inline; margin-left: 9px; font-size: 11.5px; }
+  .rev p { margin: 4px 0 0 1px; font-size: 11.5px; line-height: 15px; color: #6c78ac; }
+
+  .right { display: grid; align-content: start; gap: 7px; margin-top: 31px; }
+  .bk { height: 625px; border: 1px solid var(--sd-line); border-radius: 12px; padding: 0 16px 0 19px; }
+  .bk .price { margin: 19px 0 0 5px; font-size: 37px; font-weight: 800; line-height: 1; letter-spacing: -0.065em; color: #00064f; }
+  .bk .what { font-size: 17.5px; color: var(--sd-muted); margin-top: 6px; }
+  .pair { height: 61px; width: 355px; margin-left: -1px; margin-top: 17px; border: 1px solid var(--sd-line); border-radius: 9px; display: grid; grid-template-columns: 170px 1fr; align-items: center; }
+  .pair > div { display: flex; align-items: center; gap: 14px; padding-left: 7px; height: 100%; }
+  .pair > div + div { border-left: 1px solid var(--sd-line); height: 38px; padding-left: 9px; gap: 13px; }
+  .pair .ic { width: 41px; height: 42px; border-radius: 50%; background: #ebf5fe; display: grid; place-items: center; color: var(--blue-public); }
+  .pair .ic svg { width: 20px; height: 20px; }
+  .pair span { display: block; font-size: 12px; color: #6b7bab; margin-top: 3px; }
+  .pair b { display: block; font-size: 12.5px; font-weight: 700; color: #01085f; margin-top: 3px; }
+  .bk h3 { margin: 20px 0 0; font-size: 17px; font-weight: 700; color: #000351; line-height: 1; }
+  .days { display: flex; gap: 8px; margin-top: 8px; }
+  .days + h3 { margin-top: 19px !important; }
+  .day { width: 55px; height: 57px; border-radius: 8px; background: #f0f7fe; display: grid; place-content: center; text-align: center; font-size: 11.5px; line-height: 17px; color: #7380ad; }
+  .day.on { background: var(--blue-public); color: #fff; }
+  .day.cal { width: 38px; color: var(--blue-public); margin-left: 2px; }
+  .day.cal svg { width: 21px; height: 21px; }
+  .slots { display: grid; grid-template-columns: repeat(4, 84px); column-gap: 7px; row-gap: 7px; margin-top: 6px; }
+  .slot { height: 36px; border-radius: 7px; background: #f0f7fe; display: grid; place-items: center; font-size: 12.5px; color: #1a2468; }
+  .slot.on { background: var(--blue-public); color: #fff; }
+  .book { margin-top: 14px; height: 43px; border-radius: 8px; background: var(--blue-public); color: #fff; font-size: 14.5px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 12px; width: 355px; margin-left: -1px; }
+  .book svg { width: 17px; height: 17px; stroke-width: 2.2; }
+  .msg { margin-top: 7px; height: 37px; border-radius: 8px; background: #e9f3fe; color: #1f6ff0; font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 11px; width: 355px; margin-left: -1px; }
+  .msg svg { width: 16px; height: 16px; }
+  .checks { margin: 19px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .checks li { display: flex; gap: 15px; font-size: 12.2px; line-height: 18px; color: #6c78ac; }
+  .checks li svg { width: 19px; height: 19px; color: #1bbf55; stroke-width: 2.4; margin-top: -1px; }
+  .checks li b { font-weight: 500; color: #1a2468; }
+  .mp { height: 83px; border: 1px solid var(--sd-line); border-radius: 12px; display: flex; align-items: flex-start; padding: 11px 17px 0 18px; }
+  .mp .ico { width: 43px; height: 46px; border-radius: 8px; display: block; }
+  .mp .tx { margin-left: 14px; padding-top: 3px; }
+  .mp .tx b { display: block; font-size: 13.5px; font-weight: 700; color: #0e1261; }
+  .mp .tx span { display: block; font-size: 12px; line-height: 17px; color: #6c78ac; margin-top: 2px; }
+  .mp .logo-mp { margin-left: auto; width: 60px; height: 64px; border-radius: 8px; margin-top: -1px; }
+  .faq { height: 202px; border: 1px solid var(--sd-line); border-radius: 12px; padding: 0 16px 0 17px; }
+  .faq .h { display: flex; align-items: center; justify-content: space-between; height: 34px; padding-top: 7px; }
+  .faq .h h3 { margin: 0; font-size: 17.8px; font-weight: 800; letter-spacing: -0.01em; color: #000351; }
+  .faq .h a { color: #2076f8; font-size: 13px; font-weight: 500; display: flex; gap: 8px; align-items: center; }
+  .faq .h a svg { width: 14px; height: 14px; stroke-width: 2.2; }
+  .faq .q { height: 27px; border-top: 1px solid var(--sd-line); display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #5e6ba0; padding: 0 3px 0 3px; }
+  .faq .q svg { width: 14px; height: 14px; color: var(--sd-ink); stroke-width: 2.2; }
+</style>
+</head>
+<body>
+<header class="ph">
+  <img class="logo" src="../assets/logo.svg" alt="ntizo">
+  <div class="hfield q"><i data-lucide="search"></i>O que procura?</div>
+  <div class="hfield loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" class="chev"></i></div>
+  <button class="hbtn">Pesquisar</button>
+  <nav>
+    <a href="#">Explorar</a>
+    <a href="servicos.html">Serviços</a>
+    <a href="#">Prestadores</a>
+    <a href="#">Como funciona</a>
+    <a href="#">Cidades<i data-lucide="chevron-down"></i></a>
+  </nav>
+  <div class="tools">
+    <div class="tool lang"><i data-lucide="globe"></i>PT<i data-lucide="chevron-down" class="chev"></i></div>
+    <a class="signin" href="#">Entrar</a>
+    <a class="cta" href="#">Criar conta</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="left">
+    <div class="crumbs">Início<i data-lucide="chevron-right"></i>Serviços<i data-lucide="chevron-right"></i>Electricidade<i data-lucide="chevron-right"></i><b>Avaria eléctrica urgente</b></div>
+
+    <div class="gallery">
+      <div class="gm">
+        <img src="../assets/cli-servico-main.jpg" alt="">
+        <span class="badge"><i data-lucide="zap"></i>Electricidade</span>
+        <span class="slider"><i data-lucide="chevron-left"></i>1 / 6<i data-lucide="chevron-right"></i></span>
+      </div>
+      <div class="side">
+        <div><img src="../assets/cli-servico-t1.jpg" alt=""></div>
+        <div><img src="../assets/cli-servico-t2.jpg" alt=""></div>
+        <div><img src="../assets/cli-servico-t3.jpg" alt=""><span class="more">+ 3 fotos</span></div>
+      </div>
+    </div>
+
+    <div class="head">
+      <div>
+        <h1>Avaria eléctrica urgente</h1>
+        <div class="meta">
+          <span class="stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span>
+          <b>4,8</b>(4 avaliações)
+          <span class="ver"><i data-lucide="shield-check"></i>Prestador verificado</span>
+          <span class="loc"><i data-lucide="map-pin"></i>Maputo, Sommerscheid</span>
+        </div>
+        <div class="facts">
+          <div class="fact" style="width:144px"><span class="ic"><i data-lucide="timer"></i></span><div><b>60 min</b><span>Duração média</span></div></div>
+          <div class="fact" style="width:144px"><span class="ic"><i data-lucide="house"></i></span><div><b>Em sua casa</b><span>Onde atende</span></div></div>
+          <div class="fact" style="width:146px"><span class="ic"><i data-lucide="database"></i></span><div><b>Preço fixo</b><span>Modo de preço</span></div></div>
+          <div class="fact" style="width:147px"><span class="ic"><i data-lucide="zap"></i></span><div><b>Electricidade</b><span>Categoria</span></div></div>
+        </div>
+      </div>
+      <div class="prov">
+        <div class="top">
+          <img src="../assets/cli-servico-helder.png" alt="">
+          <div class="who">
+            <b>Hélder Cossa <i data-lucide="badge-check"></i></b>
+            <div class="sub">Individual <span>•</span> Maputo, Sommerscheid</div>
+            <div class="rate"><span class="stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></span><b>4,8</b>(4 avaliações)</div>
+          </div>
+        </div>
+        <a class="go" href="prestador-detalhe.html">Ver perfil do prestador <i data-lucide="arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="about">
+      <div>
+        <h2>Sobre este serviço</h2>
+        <p>Diagnóstico e reparação de avarias eléctricas no próprio dia.&nbsp; O nosso profissional identifica<br>o problema, resolve falhas de energia, substitui componentes danificados e garante o funcionamento<br>seguro da sua instalação. Serviço rápido, seguro e com peças adequadas.</p>
+      </div>
+      <div class="facts2">
+        <div class="r"><span class="ic"><i data-lucide="map-pin"></i></span><div><b>Área de cobertura</b><span>Maputo e zonas próximas</span></div></div>
+        <div class="r"><span class="ic"><i data-lucide="calendar"></i></span><div><b>Disponibilidade</b><span>Segunda a Sábado, 08h às 18h</span></div></div>
+        <div class="r"><span class="ic"><i data-lucide="house"></i></span><div><b>Tipo de serviço</b><span>Em sua casa</span></div></div>
+        <div class="r"><span class="ic"><i data-lucide="zap"></i></span><div><b>Tempo de resposta</b><span>Chega em 30–60 min</span></div><i data-lucide="info" class="info"></i></div>
+      </div>
+    </div>
+
+    <h2 class="reviews-h">Avaliações (4)</h2>
+    <div class="rating">
+      <div class="big">
+        <b>4,8</b>
+        <div class="stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+        <span>4 avaliações</span>
+      </div>
+      <div class="bars" id="bars"></div>
+      <a class="write" href="#"><i data-lucide="pencil"></i>Escrever avaliação</a>
+    </div>
+    <div class="revs" id="revs"></div>
+  </div>
+
+  <aside class="right">
+    <div class="bk">
+      <div class="price">1 200,00 MZN</div>
+      <div class="what">Avaria eléctrica urgente</div>
+      <div class="pair">
+        <div><span class="ic"><i data-lucide="timer"></i></span><div><span>Duração</span><b>60 min</b></div></div>
+        <div><span class="ic"><i data-lucide="tag"></i></span><div><span>Preço</span><b>Preço fixo</b></div></div>
+      </div>
+      <h3>Escolha a data</h3>
+      <div class="days">
+        <div class="day">Seg<br>24 Mar</div>
+        <div class="day on">Ter<br>25 Mar</div>
+        <div class="day">Qua<br>26 Mar</div>
+        <div class="day">Qui<br>27 Mar</div>
+        <div class="day">Sex<br>28 Mar</div>
+        <div class="day cal"><i data-lucide="calendar"></i></div>
+      </div>
+      <h3>Horário disponível</h3>
+      <div class="slots">
+        <div class="slot on">08:00</div><div class="slot">10:00</div><div class="slot">12:00</div><div class="slot">14:00</div>
+        <div class="slot">16:00</div><div class="slot">18:00</div>
+      </div>
+      <a class="book" href="reserva.html">Reservar este serviço <i data-lucide="arrow-right"></i></a>
+      <a class="msg" href="#"><i data-lucide="message-square"></i>Enviar mensagem</a>
+      <ul class="checks">
+        <li><i data-lucide="check"></i><span><b>Documento de identidade e certificação</b><br>profissional verificados pela Ntizo.</span></li>
+        <li><i data-lucide="check"></i><span>Este é o preço final. Não há custos acrescentados<br>depois.</span></li>
+        <li><i data-lucide="check"></i><span>Pagamento seguro por M-Pesa.</span></li>
+      </ul>
+    </div>
+    <div class="mp">
+      <img class="ico" src="../assets/cli-servico-mpesa-icon.png" alt="">
+      <div class="tx"><b>Pagamento por M-Pesa</b><span>Seguro, prático e 100% moçambicano.<br>Só paga após a confirmação.</span></div>
+      <img class="logo-mp" src="../assets/cli-servico-mpesa.png" alt="M-Pesa">
+    </div>
+    <div class="faq">
+      <div class="h"><h3>Perguntas frequentes</h3><a href="#">Ver todas <i data-lucide="arrow-right"></i></a></div>
+      <div id="faq"></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const star = '<i data-lucide="star"></i>';
+document.getElementById("bars").innerHTML = [[5,79,3],[4,25,1],[3,0,0],[2,0,0],[1,0,0]].map(([s,w,n]) =>
+  `<div class="r"><span>${s} <i>★</i></span><div class="t"><div style="width:${w}%"></div></div><span class="n">${n}</span></div>`).join("");
+const revs = [
+  ["JN","Jorge Nhaca","5,0",5,"Chegou no horário, identificou rapidamente o problema e resolveu. Muito profissional e educado. Recomendo!"],
+  ["PS","Paula Sitole","5,0",5,"Serviço de qualidade. Explicou o problema, trocou a peça e ficou tudo a funcionar no mesmo dia."],
+  ["RC","Rui Chihando","4,0",4,"Bom trabalho e atendimento. Apenas demorou um pouco mais do que o previsto."],
+  ["IM","Inês Mulanga","5,0",5,"Trabalho impecável e pontual. Recomendo."],
+];
+document.getElementById("revs").innerHTML = revs.map(([i,n,r,k,t]) => `<div class="rev"><div class="top"><span class="av">${i}</span><div><b>${n}</b><div class="d">14 de agosto de 2026</div>
+  <div class="s"><span class="stars">${star.repeat(k)}${'<i data-lucide="star" class="off"></i>'.repeat(5-k)}</span><b>${r}</b></div></div></div><p>${t}</p></div>`).join("");
+document.getElementById("faq").innerHTML = ["Quanto custa o serviço?","O valor inclui peças e materiais?","Em quanto tempo o profissional chega?","Posso reagendar a minha reserva?","Como funciona o pagamento?","Que áreas são cobertas?"]
+  .map(q => `<div class="q">${q}<i data-lucide="chevron-down"></i></div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carteira · Prestador</title>
+<link rel="stylesheet" href="../shared.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* This mockup's window is drawn a size smaller than Reservas: the shell is re-measured here. */
+  body { background: #fcfdfe; }
+  .console { grid-template-rows: 77px 1fr; }
+  .topbar .brand { width: 289px; padding-left: 36px; }
+  .topbar .brand img { height: 33.5px; }
+  .topbar .search { margin-left: 16px; width: 727px; height: 44px; padding: 0 16px; gap: 15px; font-size: 15px; color: #6c7796; }
+  .topbar .search svg { width: 21px; height: 21px; }
+  .topbar .right { padding-right: 40px; }
+  .topbar .loc { font-size: 15px; gap: 8px; padding-right: 29px; }
+  .topbar .loc svg { width: 20px; height: 20px; }
+  .topbar .sep { height: 38px; }
+  .topbar .bell { padding: 0 32px; }
+  .topbar .right svg.lucide { stroke-width: 2.1; }
+  .topbar .loc svg.lucide:last-child, .topbar .me svg.lucide { stroke-width: 2.6; }
+  .topbar .bell svg { width: 24px; height: 24px; }
+  .topbar .bell::after { top: -8px; right: 26px; width: 13px; height: 13px; }
+  .topbar .me { gap: 16px; padding-left: 25px; }
+  .topbar .me img { width: 51px; height: 51px; }
+  .topbar .me b { font-size: 15px; }
+  .topbar .me span { font-size: 14.6px; margin-top: 2px; }
+  .topbar .me > div { width: 141px; }
+  .topbar .me svg { width: 18px; height: 18px; margin-left: 0; }
+
+  .body { grid-template-columns: 289px 1fr; }
+  .rail { padding: 24px 21px 22px 21px; background: #f8fbfe; }
+  .rail .biz { gap: 14px; padding: 0 0 22px 0; }
+  .rail .biz img { width: 57px; height: 57px; }
+  .rail .biz b { font-size: 16px; }
+  .rail .biz span { font-size: 14px; margin-top: 2px; }
+  .rail .biz svg { width: 18px; height: 18px; margin-right: 6px; }
+  .nav { gap: 1.5px; }
+  .nav a { height: 44px; gap: 22px; padding: 0 19px; font-size: 15.7px; }
+  .nav a svg { width: 21px; height: 21px; }
+  .nav a.on { height: 48px; margin: 2px 0; }
+  .nav a .count { width: 24px; height: 24px; font-size: 13px; margin-right: -1px; }
+  .nudge { margin-top: auto; padding: 18px 23px 22px; background: #f1f8fe; }
+  .nudge .crown-tile { width: 32px; height: 32px; border-radius: 8px; background: #fff; display: grid; place-items: center; }
+  .nudge .crown { width: 24px; height: 24px; }
+  .nudge b { font-size: 16.6px; margin-top: 10px; line-height: 21px; }
+  .nudge p { font-size: 15.4px; margin: 5px 0 19px; line-height: 19px; }
+  .nudge a { font-size: 15.5px; }
+
+  .main { padding: 0 23px 0 28px; position: relative; }
+
+  /* ── Hero: title left, promise banner right ── */
+  .hero { height: 199px; position: relative; }
+  .hero .eyebrow { position: absolute; top: 37px; left: 0; font-size: 13.5px; color: #4f5d82; letter-spacing: .07em; }
+  .hero .page-title { position: absolute; top: 61px; left: -2px; font-size: 48px; color: #00003d; }
+  .hero .page-sub { position: absolute; top: 119px; left: 0; width: 527px; margin: 0; font-size: 18.7px; line-height: 25px; color: #66729a; }
+  .promo { position: absolute; left: 692px; top: 22px; width: 592px; height: 161px; background: #e1f2fe; border-radius: 14px; }
+  .promo img { position: absolute; left: 65px; top: 16px; width: 150px; height: 135px; }
+  .promo h2 { position: absolute; left: 250px; top: 30px; margin: 0; font-size: 22.5px; font-weight: 700; line-height: 28px; color: #00003b; letter-spacing: -0.01em; }
+  .promo p { position: absolute; left: 250px; top: 92px; margin: 0; font-size: 17.5px; line-height: 22px; color: #5e6f92; }
+  .sq { position: absolute; border-radius: 9px; background: #d1e9fd; }
+  .sq.ring { box-shadow: 0 0 0 3px #fcfdfe; }
+
+  /* ── Balance cards ── */
+  .balances { display: grid; grid-template-columns: 632px 1fr; gap: 16px; }
+  .balance { height: 117px; position: relative; border: 1px solid #edf2f8; border-radius: 14px; background: #fff; }
+  .balance .ico { position: absolute; left: 22px; top: 21px; width: 59px; height: 58px; border-radius: 12px; background: #e5f3fe; display: grid; place-items: center; color: #0051fe; }
+  .balance .ico svg { width: 28px; height: 28px; }
+  .balance .lbl { position: absolute; left: 116px; top: 20px; font-size: 13.5px; font-weight: 600; letter-spacing: .08em; color: #485375; }
+  .balance .amt { position: absolute; left: 115px; top: 39px; font-size: 33px; font-weight: 800; letter-spacing: -0.01em; color: #00003e; }
+  .balance .note { position: absolute; left: 116px; top: 79px; font-size: 15px; color: #4d5a7c; }
+  .balance + .balance .amt { font-size: 30px; top: 40px; }
+  .balance + .balance .note { font-size: 14.6px; }
+  .balance .btn { position: absolute; left: 440px; top: 36px; height: 43px; width: 168px; padding: 0; font-size: 15px; background: #176afe; border-radius: 8px; gap: 9px; }
+  .balance .btn svg { width: 19px; height: 19px; }
+
+  /* ── Movimentos ── */
+  .ledger { margin-top: 17px; height: 465px; border: 1px solid #edf2f8; border-radius: 14px; background: #fff; overflow: hidden; }
+  .ledger .top { height: 89px; position: relative; }
+  .ledger h2 { position: absolute; left: 22px; top: 22px; margin: 0; font-size: 23.5px; font-weight: 700; color: #00003f; letter-spacing: -0.01em; }
+  .ledger .top p { position: absolute; left: 22px; top: 49px; margin: 0; font-size: 17.7px; color: #64708f; }
+  .ledger .field { position: absolute; left: 816px; top: 22px; width: 324px; height: 44px; font-size: 14.3px; color: #6c7796; gap: 14px; }
+  .ledger .field svg { color: #3b4566; width: 20px; height: 20px; }
+  .ledger .filt { position: absolute; left: 1155px; top: 22px; width: 105px; height: 44px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; font-weight: 600; color: #00002a; }
+  .ledger .filt svg { width: 19px; height: 19px; }
+  .lrow { display: grid; grid-template-columns: 187px 73px 419px 206px 200px 1fr 27px; align-items: center; border-top: 1px solid #eef3f9; }
+  .lrow > * { min-width: 0; }
+  .lrow.head { height: 36px; background: #f9fcfe; font-size: 12px; font-weight: 600; letter-spacing: .05em; color: #535c80; }
+  .lrow.head > :first-child, .lrow .d { padding-left: 28px; }
+  .lrow.head > :nth-child(3) { margin-left: -6px; }
+  .lrow .d b { display: block; font-size: 14px; font-weight: 500; color: #00003c; }
+  .lrow .d span { display: block; font-size: 14px; color: #4f5e80; margin-top: 3px; }
+  .lrow .k { width: 43px; height: 43px; border-radius: 10px; display: grid; place-items: center; }
+  .lrow .k svg { width: 20px; height: 20px; stroke-width: 2.6; }
+  .k.in { background: #defbe4; color: #02a91a; }
+  .k.fee { background: #e3f2fe; color: #0058fd; }
+  .k.out { background: #fef0ce; color: #fcab00; }
+  .lrow .t { padding-left: 2px; }
+  .lrow .t b { display: block; font-size: 14.4px; font-weight: 700; color: #00002f; }
+  .lrow .t span { display: block; font-size: 13px; line-height: 19px; color: #626c8d; }
+  .lrow .ref { font-size: 13.6px; color: #66718f; }
+  .lrow .amt { text-align: right; font-size: 18px; font-weight: 700; white-space: nowrap; }
+  .amt.plus { color: #069f12; }
+  .amt.minus { color: #f80a0a; }
+  .lrow .pill { height: 29px; width: 89px; padding: 0; justify-content: center; font-size: 13px; font-weight: 600; }
+  .lrow .pill.ok { background: #dcfbe3; color: #038310; }
+  .lrow .pill.warn { background: #fef0ce; color: #fe8000; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:17px;height:17px"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/joaquim-cuna.png" alt=""><div><b>Joaquim Cuna</b><span>Prestador verificado</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <div class="biz"><img src="../assets/joaquim-servicos.png" alt=""><div><b>Joaquim Serviços</b><span>Canalização · Maputo</span></div><i data-lucide="chevron-down"></i></div>
+      <nav class="nav">
+        <a href="home.html"><i data-lucide="house"></i>Visão geral</a>
+        <a href="servicos.html"><i data-lucide="layout-grid"></i>Serviços</a>
+        <a href="#"><i data-lucide="calendar"></i>Disponibilidade</a>
+        <a href="reservas.html"><i data-lucide="calendar-plus"></i>Reservas</a>
+        <a href="orcamentos.html"><i data-lucide="file-text"></i>Orçamentos</a>
+        <a href="mensagens.html"><i data-lucide="message-square-text"></i>Mensagens<span class="count">3</span></a>
+        <a class="on" href="carteira.html"><i data-lucide="wallet"></i>Carteira</a>
+        <a href="#"><i data-lucide="star"></i>Avaliações</a>
+        <a href="notificacoes.html"><i data-lucide="bell"></i>Notificações</a>
+        <a href="definicoes.html"><i data-lucide="settings"></i>Definições</a>
+      </nav>
+      <div class="nudge">
+        <span class="crown-tile"><i data-lucide="crown" class="crown"></i></span>
+        <b>Seja um prestador<br>de referência</b>
+        <p>Complete o seu perfil e<br>receba mais reservas.</p>
+        <a href="#">Ver dicas <i data-lucide="arrow-right"></i></a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <div class="eyebrow">Carteira</div>
+        <h1 class="page-title">Carteira</h1>
+        <p class="page-sub">Acompanhe os seus ganhos, levantamentos e todo o histórico de movimentos na Ntizo.</p>
+        <span class="sq" style="left:643px;top:61px;width:48px;height:47px"></span>
+        <div class="promo">
+          <img src="../assets/carteira-wallet.png" alt="">
+          <h2>Os seus serviços,<br>os seus ganhos.</h2>
+          <p>Trabalhe com confiança.<br>Nós tratamos dos pagamentos.</p>
+        </div>
+        <span class="sq ring" style="left:692px;top:109px;width:47px;height:48px"></span>
+        <span class="sq ring" style="left:1249px;top:145px;width:36px;height:35px"></span>
+      </section>
+
+      <section class="balances">
+        <div class="balance">
+          <span class="ico"><i data-lucide="coins"></i></span>
+          <div class="lbl">DISPONÍVEL</div>
+          <div class="amt">18 600 MTn</div>
+          <div class="note">O que pode levantar hoje.</div>
+          <a class="btn" href="#">Levantar fundos <i data-lucide="arrow-right"></i></a>
+        </div>
+        <div class="balance">
+          <span class="ico"><i data-lucide="lock-keyhole"></i></span>
+          <div class="lbl">RETIDO</div>
+          <div class="amt">5 200 MTn</div>
+          <div class="note">Já ganhou, ainda em espera até a reserva ser libertada.</div>
+        </div>
+      </section>
+
+      <section class="ledger">
+        <div class="top">
+          <h2>Movimentos</h2>
+          <p>Tudo o que entrou e saiu, do mais recente para o mais antigo.</p>
+          <div class="field"><i data-lucide="search"></i>Pesquisar movimento...</div>
+          <button class="filt"><i data-lucide="list-filter"></i>Filtrar</button>
+        </div>
+        <div class="lrow head"><div>DATA</div><div></div><div>DESCRIÇÃO</div><div>REFERÊNCIA</div><div>ESTADO</div><div style="text-align:right">MONTANTE</div><div></div></div>
+        <div id="rows"></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const rows = [
+  ["4 Out 2026","14:32","in","Pagamento recebido",["Serviço de manutenção de canalização","Cliente: Carla Sitoe"],"RES-2026-0843","ok","Concluído","plus","+ 3 500 MTn",68],
+  ["2 Out 2026","10:15","fee","Comissão Ntizo",["Serviço de manutenção de canalização","15% sobre 3 500 MTn"],"RES-2026-0843","ok","Concluído","minus","- 525 MTn",69],
+  ["30 Set 2026","18:20","in","Pagamento recebido",["Instalação de ar condicionado","Cliente: Tomás Guambe"],"RES-2026-0821","ok","Concluído","plus","+ 4 000 MTn",70],
+  ["28 Set 2026","09:10","fee","Comissão Ntizo",["Serviço de instalação de ar condicionado","15% sobre 4 000 MTn"],"RES-2026-0821","ok","Concluído","minus","- 600 MTn",69],
+  ["25 Set 2026","16:45","out","Levantamento de fundos",["Transferência para conta bancária"],"LVT-2026-0042","warn","Pendente","minus","- 8 000 MTn",63],
+];
+const glyph = { in: "arrow-down", fee: "percent", out: "arrow-up" };
+document.getElementById("rows").innerHTML = rows.map(([day,time,kind,title,lines,ref,tone,status,sign,amount,h]) => `
+  <div class="lrow" style="height:${h}px">
+    <div class="d"><b>${day}</b><span>${time}</span></div>
+    <div><span class="k ${kind}"><i data-lucide="${glyph[kind]}"></i></span></div>
+    <div class="t"><b>${title}</b>${lines.map(l => `<span>${l}</span>`).join("")}</div>
+    <div class="ref">${ref}</div>
+    <div><span class="pill ${tone}">${status}</span></div>
+    <div class="amt ${sign}">${amount}</div>
+    <div></div>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

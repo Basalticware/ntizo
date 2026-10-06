@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atividade · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* Measured on mockps/admin/atividade.png, no browser chrome: viewport 0,0 → 1672x941.
+     This mockup draws the shell with an 86px bar and a 262px rail. */
+  .console { grid-template-rows: 87px 1fr; }
+  .topbar { border-bottom-color: #f4f8fd; }
+  .topbar .brand { width: 276px; padding-left: 30px; padding-top: 16px; }
+  .topbar .brand img { width: 116px; height: auto; }
+  .topbar .brand .zone { font-size: 16.5px; color: #1a56f0; margin-top: 1px; }
+  .topbar .search { margin-left: 0; width: 799px; height: 47px; padding: 0 19px; gap: 16px; font-size: 15px; }
+  .topbar .search svg { width: 21px; height: 21px; }
+  .topbar .right { padding-right: 38px; }
+  .topbar .loc { gap: 15px; padding-right: 16px; font-size: 15.5px; letter-spacing: -0.03em; }
+  .topbar .loc svg { width: 20px; height: 20px; }
+  .topbar .loc svg:last-child { margin-left: -1px; width: 17px; height: 17px; }
+  .topbar .bell { padding: 0 32px 0 33px; }
+  .topbar .bell svg { width: 25px; height: 25px; }
+  .topbar .bell::after { top: -7px; right: 26px; width: 13px; height: 13px; }
+  .topbar .me { gap: 14px; padding-left: 26px; }
+  .topbar .me img { width: 53px; height: 53px; }
+  .topbar .me b { font-size: 16.5px; }
+  .topbar .me span { font-size: 15px; margin-top: 3px; }
+  .topbar .me > div { width: 147px; }
+  .topbar .search, .topbar .right { margin-bottom: 13px; }
+  .topbar .me svg { margin-left: 0; width: 18px; height: 18px; }
+
+  .body { grid-template-columns: 262px 1fr; }
+  .rail { background: #f8fbfe; border-right-color: #eff6fe; border-right-width: 2px; padding: 11px 10px 0 15px; }
+  .nav { gap: 2.7px; }
+  .nav a { height: 47px; padding: 0 0 0 22px; gap: 29px; font-size: 16.5px; }
+  .nav a svg { width: 23px; height: 23px; }
+  .nav a.on { background: #0a5cfe; }
+
+  /* children are placed in viewport coordinates */
+  .main { padding: 0; position: relative; top: -87px; left: -262px; overflow: visible; }
+  .main > * { position: absolute; }
+  .main * { white-space: nowrap; }
+  .title { left: 290px; top: 86px; margin: 0; font-size: 36px; font-weight: 800; letter-spacing: -0.01em; color: #080735; }
+  .sub { left: 291px; top: 129px; margin: 0; font-size: 18.8px; color: #6371af; }
+
+  .stat { top: 164px; height: 95px; border: 1px solid #edf3fb; border-radius: 10px; background: #fff; }
+  .stat > * { position: absolute; }
+  .stat .ic { left: 20px; top: 13px; width: 67px; height: 68px; border-radius: 10px; display: grid; place-items: center; }
+  .stat .ic svg { width: 32px; height: 32px; stroke-width: 1.9; }
+  .stat .k { left: 113px; top: 14px; font-size: 14px; color: #5c6aab; }
+  .stat b { left: 113px; top: 33px; font-size: 24px; font-weight: 700; color: #030343; }
+  .stat .s { left: 113px; top: 66px; font-size: 14px; color: #7b84ba; }
+  .stat .d { top: 39px; display: flex; align-items: center; gap: 4px; font-size: 14px; }
+  .stat .d svg { width: 15px; height: 15px; }
+
+  .lbl { top: 274px; font-size: 13px; font-weight: 500; color: #3f4e8b; }
+  .sel { top: 292px; height: 41px; border: 1px solid #e7eef9; border-radius: 7px; background: #fff; display: flex; align-items: center; padding: 0 16px 0 17px; font-size: 14.5px; color: #1d2265; }
+  .sel svg:first-child { width: 18px; height: 18px; color: #1d2265; margin-right: 19px; }
+  .sel svg:last-child { margin-left: auto; width: 16px; height: 16px; color: #1d2265; }
+  .sel.q { color: #7e89b9; font-size: 14px; }
+  .sel.q svg:first-child { width: 20px; height: 20px; color: #0a52fd; margin-right: 16px; }
+
+  .card { border: 1px solid #edf3fb; border-radius: 12px; background: #fff; }
+  .card > * { position: absolute; }
+  .card h2 { margin: 0; font-size: 17.5px; font-weight: 700; color: #000040; }
+  .day { left: 21px; display: flex; align-items: center; font-size: 15px; color: #767fbc; }
+  .day b { font-size: 16px; font-weight: 700; color: #00004b; margin-right: 13px; }
+  .day i { font-style: normal; margin-right: 10px; margin-left: -2px; font-size: 10px; }
+  .ev { left: 21px; right: 21px; height: 47px; display: flex; align-items: center; }
+  .ev::after { content: ""; position: absolute; left: 230px; right: 15px; bottom: -1px; border-bottom: 1px solid #eef2f8; }
+  .ev .bul { position: absolute; left: 6px; top: 20px; width: 7px; height: 7px; border-radius: 50%; background: #b6c0da; }
+  .ev .bul.o { background: #fff; border: 1px solid #c8d0e3; }
+  .ev .t { position: absolute; left: 38px; font-size: 13.5px; color: #8596c5; }
+  .ev .ic { position: absolute; left: 105px; top: 5px; width: 37px; height: 37px; border-radius: 9px; display: grid; place-items: center; }
+  .ev .ic svg { width: 20px; height: 20px; }
+  .ev .av { position: absolute; left: 168px; top: 5px; width: 38px; height: 38px; border-radius: 50%; }
+  .ev .nt { position: absolute; left: 168px; top: 5px; width: 38px; height: 38px; border-radius: 50%; background: #e8f2fe; display: grid; place-items: center; font-size: 13px; font-weight: 600; color: #1240b8; }
+  .ev .tx { position: absolute; left: 231px; top: 1px; letter-spacing: -0.025em; }
+  .sel.q svg:first-child { margin-left: 0; }
+  .ev .tx div { font-size: 13.8px; color: #050765; }
+  .ev .tx div b { font-weight: 600; }
+  .ev .tx span { display: block; margin-top: 2px; font-size: 13.2px; color: #7e89b9; }
+  .ev .pl { position: absolute; left: 701px; top: 12px; width: 82px; height: 24px; border-radius: 12px; display: grid; place-items: center; font-size: 11.5px; font-weight: 500; }
+  .pl.g { background: #ddfdea; color: #279740; }
+  .pl.b { background: #e8f3fe; color: #1a56db; }
+  .pl.r { background: #fee9ea; color: #e5262c; }
+  .ev .dt { position: absolute; left: 836px; width: 18px; height: 18px; color: #3f4e8b; }
+
+  .ov { left: 17px; right: 17px; height: 37.5px; display: flex; align-items: center; }
+  .ov::after { content: ""; position: absolute; left: 50px; right: 4px; bottom: 0; border-bottom: 1px solid #eef2f8; }
+  .ov:last-of-type::after { display: none; }
+  .ov .ic { position: absolute; left: 5px; width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; }
+  .ov .ic svg { width: 20px; height: 20px; }
+  .ov .n { position: absolute; left: 59px; font-size: 15.5px; color: #1a1a7e; }
+  .ov .v { position: absolute; left: 275px; font-size: 14.5px; font-weight: 700; color: #000050; }
+  .ov .p { position: absolute; right: 3px; display: flex; align-items: center; gap: 4px; font-size: 14.5px; }
+  .ov .p svg { width: 15px; height: 15px; }
+  .up { color: #1dc381; }
+  .dn { color: #f42430; }
+  .lg { left: 230px; right: 20px; height: 21px; display: flex; align-items: center; font-size: 14.5px; color: #1d1980; }
+  .lg i { width: 11px; height: 11px; border-radius: 50%; margin-right: 11px; }
+  .lg b { margin-left: auto; font-weight: 500; color: #110e68; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="painel.html"><i data-lucide="house"></i>Painel</a>
+        <a href="prestadores.html"><i data-lucide="users"></i>Prestadores</a>
+        <a href="reservas.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="suporte.html"><i data-lucide="message-square"></i>Suporte</a>
+        <a href="contactos.html"><i data-lucide="square-activity"></i>Contactos</a>
+        <a href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a href="utilizadores.html"><i data-lucide="users"></i>Utilizadores</a>
+        <a class="on" href="atividade.html"><i data-lucide="activity"></i>Atividade</a>
+        <a href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <h1 class="title">Atividade</h1>
+      <p class="sub">Linha temporal de eventos, ações da equipa e mudanças importantes da plataforma.</p>
+
+      <div class="stat" style="left:289px;width:336px"><span class="ic" style="background:#eef6fe;color:#0a52fd"><i data-lucide="activity"></i></span><span class="k">Hoje</span><b>24</b><span class="s">eventos registados</span><span class="d up" style="left:269px;color:#1ba233"><i data-lucide="arrow-up"></i>26%</span></div>
+      <div class="stat" style="left:634px;width:328px"><span class="ic" style="left:16px;background:#eef6fe;color:#0a52fd"><i data-lucide="calendar"></i></span><span class="k">Últimos 7 dias</span><b>182</b><span class="s">eventos registados</span><span class="d" style="left:262px;color:#1ba233"><i data-lucide="arrow-up"></i>14%</span></div>
+      <div class="stat" style="left:971px;width:331px"><span class="ic" style="left:16px;background:#eef6fe;color:#0a52fd"><i data-lucide="users"></i></span><span class="k" style="left:106px">Ações da equipa</span><b style="left:106px">96</b><span class="s" style="left:106px">ações realizadas</span><span class="d" style="left:266px;color:#1ba233"><i data-lucide="arrow-down-up"></i>12%</span></div>
+      <div class="stat" style="left:1312px;width:340px"><span class="ic" style="left:16px;background:#fef6f6;color:#f20f1d"><i data-lucide="triangle-alert"></i></span><span class="k" style="left:107px">Eventos críticos</span><b style="left:107px">6</b><span class="s" style="left:107px">requereram atenção</span><span class="d" style="left:272px;color:#f42430"><i data-lucide="arrow-up"></i>50%</span></div>
+
+      <span class="lbl" style="left:290px">Tipo de atividade</span>
+      <span class="lbl" style="left:565px">Utilizador</span>
+      <span class="lbl" style="left:856px">Data</span>
+      <div class="sel" style="left:289px;width:258px"><i data-lucide="arrow-right-left"></i>Todas as atividades<i data-lucide="chevron-down"></i></div>
+      <div class="sel" style="left:564px;width:274px"><i data-lucide="user"></i>Todos os utilizadores<i data-lucide="chevron-down"></i></div>
+      <div class="sel" style="left:855px;width:293px"><i data-lucide="calendar"></i>Todos os períodos<i data-lucide="chevron-down"></i></div>
+      <div class="sel q" style="left:1165px;width:487px"><i data-lucide="search"></i>Pesquisar por palavra-chave, utilizador, serviço...</div>
+
+      <section class="card" style="left:289px;top:351px;width:905px;height:620px">
+        <h2 style="left:21px;top:13px">Linha temporal</h2>
+        <div id="tl"></div>
+      </section>
+
+      <section class="card" style="left:1208px;top:351px;width:444px;height:356px">
+        <h2 style="left:17px;top:15px">Visão geral da atividade</h2>
+        <div style="left:292px;top:11px;width:137px;height:31px;border:1px solid #e3eaf6;border-radius:7px;display:flex;align-items:center;gap:8px;padding-left:12px;font-size:12px;font-weight:500;color:#1d2265"><i data-lucide="calendar" style="width:15px;height:15px;color:#0a52fd"></i>Últimos 7 dias<i data-lucide="chevron-down" style="width:14px;height:14px;margin-left:6px"></i></div>
+        <div id="ov"></div>
+      </section>
+
+      <section class="card" style="left:1208px;top:718px;width:444px;height:240px">
+        <h2 style="left:17px;top:13px">Distribuição por tipo</h2>
+        <svg style="left:22px;top:47px" width="149" height="149" viewBox="-74.5 -74.5 149 149" id="donut"></svg>
+        <div style="left:59px;top:98px;width:75px;text-align:center"><b style="display:block;font-size:22.5px;font-weight:700;color:#00004c">182</b><span style="display:block;font-size:13px;color:#434698;margin-top:1px">eventos</span></div>
+        <div id="lg"></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const ic = {
+  cal: ["calendar", "#ebfdf3", "#16b45a"],
+  msg: ["message-square", "#ecf5ff", "#0a52fd"],
+  coin: ["database", "#fef8e7", "#f0b400"],
+  add: ["user-plus", "#f3f0fe", "#7c3aed"],
+  star: ["star", "#feeeed", "#f20f1d"],
+  pen: ["pencil", "#eef6fe", "#0a52fd"],
+  grid: ["layout-grid", "#f2edfe", "#7c3aed"],
+  warn: ["triangle-alert", "#feedee", "#f20f1d"],
+};
+const days = [
+  ["Hoje", "11 de Out de 2024", 44],
+  ["Ontem", "10 de Out de 2024", 314],
+  ["Esta semana", "07 – 09 de Out de 2024", 484],
+];
+const evs = [
+  [65.5, "10:24", "cal", "silvia", "<b>Sílvia Nhamopssa</b> confirmou uma reserva", "Corte de cabelo • Maputo, Central", "g", "Confirmada"],
+  [109.5, "09:17", "msg", "tomas", "<b>Tomás Guambe</b> respondeu a um pedido de suporte", "#SUP-4582 • Problema no agendamento", "b", "Respondido"],
+  [157.5, "08:45", "coin", "", "Pagamento processado para <b>Carla Sitoe</b>", "Valor: 1 200,00 MZN • Comissão: 120,00 MZN", "g", "Concluído"],
+  [206.5, "08:12", "add", "manuel", "<b>Manuel Cossa</b> adicionou um novo prestador", "Brilho &amp; Limpeza • Limpeza residencial"],
+  [253.5, "07:56", "star", "ana", "<b>Ana Mucaua</b> analisou uma avaliação", "Avaliação de <b style='color:#050765'>5★</b> • Limpeza de apartamento"],
+  [336.5, "16:30", "pen", "carlos", "<b>Carlos Massango</b> actualizou um serviço", "Instalação de termoacumulador • Preço alterado", "", "", "o"],
+  [382.5, "14:20", "cal", "beatriz", "<b>Beatriz Langa</b> concluiu uma reserva", "Limpeza geral da casa • Maputo, Polana", "b", "Concluída"],
+  [428.5, "11:08", "grid", "", "<b>Categoria actualizada</b>", "“Beleza e Estética” • Descrição alterada"],
+  [505.5, "09 Out", "warn", "antonio", "<b>António Matusse</b> reportou um problema crítico", "Erro no processamento de pagamento • #SUP-4571", "r", "Crítico"],
+  [549.5, "08 Out", "add", "", "<b>Novo utilizador registado</b>", "Nelson Mandlate • Prestador verificado"],
+];
+document.getElementById("tl").outerHTML =
+  days.map(([d, date, y]) => `<div class="day" style="top:${y}px"><b>${d}</b><i>•</i>${date}</div>`).join("") +
+  evs.map(([y, t, k, av, title, sub, tone, pill, bul]) => `
+  <div class="ev" style="top:${y}px">
+    <span class="bul${bul ? " o" : ""}"></span><span class="t">${t}</span>
+    <span class="ic" style="background:${ic[k][1]};color:${ic[k][2]}"><i data-lucide="${ic[k][0]}"></i></span>
+    ${av ? `<img class="av" src="../assets/adm-atividade-${av}.png" alt="">` : `<span class="nt">NT</span>`}
+    <div class="tx"><div>${title}</div><span>${sub}</span></div>
+    ${pill ? `<span class="pl ${tone}">${pill}</span>` : ""}
+    <i data-lucide="ellipsis" class="dt"></i>
+  </div>`).join("");
+
+const ov = [
+  ["calendar", "#f0fdf7", "#16b45a", "Reservas", 68, "up", "18%"],
+  ["message-square", "#f1f6fe", "#0a52fd", "Suporte", 34, "up", "6%"],
+  ["users", "#f3f0fe", "#7c3aed", "Utilizadores", 22, "up", "47%"],
+  ["database", "#fef9ea", "#f0b400", "Pagamentos", 18, "up", "12%"],
+  ["pencil", "#eef6fe", "#0a52fd", "Serviços", 16, "up", "7%"],
+  ["layout-grid", "#f8f6fe", "#7c3aed", "Categorias", 12, "up", "33%"],
+  ["star", "#fef6f6", "#f20f1d", "Avaliações", 8, "dn", "11%"],
+  ["triangle-alert", "#fef2f2", "#f20f1d", "Eventos críticos", 6, "dn-up", "50%"],
+];
+document.getElementById("ov").outerHTML = ov.map(([i, bg, fg, n, v, dir, p], k) => `
+  <div class="ov" style="top:${50 + k * 37.5}px">
+    <span class="ic" style="background:${bg};color:${fg}"><i data-lucide="${i}"></i></span>
+    <span class="n">${n}</span><span class="v">${v}</span>
+    <span class="p ${dir === "up" ? "up" : "dn"}"><i data-lucide="${dir === "dn" ? "arrow-down" : "arrow-up"}"></i>${p}</span>
+  </div>`).join("");
+
+// Donut: shares in order, clockwise from 12 o'clock, with a white gap between slices.
+const parts = [
+  ["Reservas", 37, "#51e796", "#0cc05c"],
+  ["Suporte", 19, "#429aff", "#0a65fd"],
+  ["Utilizadores", 12, "#a67dfc", "#a374fc"],
+  ["Pagamentos", 10, "#fdde70", "#fed321"],
+  ["Serviços", 9, "#9ac8fd", "#90c2fd"],
+  ["Categorias", 7, "#c5a7fd", "#af7ffd"],
+  ["Avaliações", 4, "#fd8c91", "#ff6875"],
+  ["Críticos", 3, "#fea8ab", "#fe7e81"],
+];
+const R = 62, W = 23, C = 2 * Math.PI * R;
+let at = 0;
+document.getElementById("donut").innerHTML = parts.map(([, pct, col]) => {
+  const len = (pct / 101) * C, gap = 2.2;
+  const seg = `<circle r="${R}" fill="none" stroke="${col}" stroke-width="${W}" stroke-dasharray="${len - gap} ${C}" stroke-dashoffset="${-at}" transform="rotate(-90)"/>`;
+  at += len;
+  return seg;
+}).join("");
+document.getElementById("lg").outerHTML = parts.map(([n, pct, , dot], k) => `
+  <div class="lg" style="top:${41 + k * 21}px"><i style="background:${dot}"></i>${n}<b>${pct}%</b></div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

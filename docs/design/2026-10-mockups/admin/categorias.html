@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Categorias · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* Measured on mockps/admin/criarcategoria.png, no browser chrome: viewport 0,0 → 1672x941.
+     This mockup draws the shell with a 76px bar and a 259px rail. */
+  .console { grid-template-rows: 77px 1fr; }
+  .topbar { border-bottom-color: #eff3fc; }
+  .topbar .brand { width: 274px; padding-left: 33px; padding-top: 14px; }
+  .topbar .brand img { width: 104px; height: auto; }
+  .topbar .brand .zone { font-size: 15.5px; color: #1a56f0; margin-top: 1px; }
+  .topbar .search { margin-left: 0; width: 802px; height: 47px; padding: 0 18px; gap: 16px; font-size: 15.5px; }
+  .topbar .search svg { width: 21px; height: 21px; }
+  .topbar .right { padding-right: 38px; }
+  .topbar .loc { gap: 13px; padding-right: 13px; font-size: 15.5px; letter-spacing: -0.04em; }
+  .topbar .loc svg { width: 20px; height: 20px; }
+  .topbar .loc svg:last-child { margin-left: 0; width: 17px; height: 17px; }
+  .topbar .bell { padding: 0 32px 0 33px; }
+  .topbar .bell svg { width: 25px; height: 25px; }
+  .topbar .bell::after { top: -7px; right: 26px; width: 13px; height: 13px; }
+  .topbar .me { gap: 15px; padding-left: 27px; }
+  .topbar .me img { width: 52px; height: 52px; }
+  .topbar .me b { font-size: 16.5px; }
+  .topbar .me span { font-size: 15.5px; margin-top: 3px; }
+  .topbar .me > div { width: 148px; }
+  .topbar .me svg { margin-left: 0; width: 18px; height: 18px; }
+
+  .body { grid-template-columns: 259px 1fr; }
+  .rail { background: #f8fbfe; border-right-color: #f1f7fd; border-right-width: 2px; padding: 21px 12px 0 13px; }
+  .nav { gap: 2.2px; }
+  .nav a { height: 47px; padding: 0 0 0 20px; gap: 26px; font-size: 16.5px; }
+  .nav a svg { width: 24px; height: 24px; }
+  .nav a.on { background: #0a5cfe; }
+
+  /* children are placed in viewport coordinates */
+  .main { padding: 0; position: relative; top: -77px; left: -259px; overflow: visible; }
+  .main > * { position: absolute; }
+  .main * { white-space: nowrap; }
+  .title { left: 282px; top: 87px; margin: 0; font-size: 36px; font-weight: 800; letter-spacing: -0.01em; color: #010147; }
+  .sub { left: 283px; top: 129px; margin: 0; font-size: 16.5px; color: #677bb3; }
+  .new { left: 1450px; top: 101px; width: 194px; height: 46px; border-radius: 8px; background: #005efd; color: #fff; display: flex; align-items: center; justify-content: center; gap: 15px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 10px rgba(0, 94, 253, .18); }
+  .new svg { width: 23px; height: 23px; }
+
+  .card { border: 1px solid #edf2fa; border-radius: 12px; background: #fff; }
+  .card > * { position: absolute; }
+  .card, .sub { letter-spacing: -0.018em; }
+  .card h2 { margin: 0; font-size: 19px; font-weight: 700; color: #000046; letter-spacing: -0.01em; }
+
+  .fsearch { left: 17px; top: 50px; width: 436px; height: 37px; border: 1px solid #e3ebf7; border-radius: 7px; display: flex; align-items: center; gap: 16px; padding-left: 13px; font-size: 14.5px; color: #8590bf; }
+  .fsearch svg { width: 18px; height: 18px; color: #0a52fd; }
+  .fsel { left: 464px; top: 50px; width: 197px; height: 37px; border: 1px solid #e3ebf7; border-radius: 7px; display: flex; align-items: center; padding: 0 16px 0 14px; font-size: 14px; color: #1d2265; }
+  .fsel svg:first-child { width: 18px; height: 18px; color: #0a52fd; margin-right: 12px; }
+  .fsel svg:last-child { width: 15px; height: 15px; margin-left: auto; }
+
+  .tb { left: 17px; top: 104px; width: 645px; }
+  .tb .r { display: grid; grid-template-columns: 286px 72px 100px 99px 63px 1fr; align-items: center; border-top: 1px solid #edf2fa; }
+  .tb .h { height: 37px; border-top: 0; background: #f6fafe; border-radius: 6px 6px 0 0; font-size: 12.5px; font-weight: 500; color: #23307a; }
+  .tb .h > :first-child { padding-left: 9px; }
+  .tb .h > :nth-child(2) { padding-left: 3px; }
+  .tb .h > :nth-child(3) { padding-left: 27px; }
+  .tb .h > :nth-child(4) { padding-left: 20px; }
+  .tb .h > :nth-child(5) { padding-left: 12px; }
+  .cat { display: flex; align-items: center; gap: 18px; padding-left: 4px; }
+  .cat .ic { width: 50px; height: 50px; border-radius: 10px; display: grid; place-items: center; }
+  .cat .ic svg { width: 26px; height: 26px; stroke-width: 2; }
+  .cat b { display: block; font-size: 13.5px; font-weight: 700; color: #000350; letter-spacing: -0.01em; }
+  .cat span { display: block; margin-top: 5px; font-size: 12.5px; color: #7c8ac1; letter-spacing: -0.01em; }
+  .num { font-size: 13.5px; color: #051070; text-align: center; }
+  .tb .pill { height: 27px; width: 65px; justify-content: center; padding: 0; font-size: 12.5px; margin-left: 6px; }
+  .tb .pill.ok { background: #defdeb; color: #1ba14a; }
+  .tb .pill.bad { background: #fee2e3; color: #f2121a; }
+  .ed { margin-left: 6px; width: 40px; height: 40px; border: 1px solid #e3ebf7; border-radius: 8px; display: grid; place-items: center; color: #0a46f0; background: #fff; }
+  .ed svg { width: 18px; height: 18px; stroke-width: 2.3; }
+  .tb .dots { width: 20px; height: 20px; color: #23307a; margin-left: -2px; }
+
+  .lab { font-size: 14px; font-weight: 600; color: #00004d; }
+  .lab em { font-style: normal; color: #fe0318; }
+  .lab small { font-size: 14px; font-weight: 400; color: #7287bd; }
+  .in { height: 40px; border: 1px solid #e3ebf7; border-radius: 7px; background: #fff; display: flex; align-items: center; padding-left: 14px; font-size: 14px; color: #798bb9; }
+  .in svg { width: 17px; height: 17px; color: #0a46f0; margin-right: 15px; }
+  .help { font-size: 12px; line-height: 16px; color: #8690c0; }
+  .sw { top: 327px; width: 33px; height: 33px; border-radius: 50%; display: grid; place-items: center; }
+  .sw.on { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #fd8d97; }
+  .sw svg { width: 16px; height: 16px; color: #fff; stroke-width: 3; }
+  .chipx { display: inline-flex; align-items: center; justify-content: space-between; height: 25px; padding: 0 7px 0 9px; border-radius: 5px; background: #e3effe; font-size: 12px; color: #13227a; }
+  .chipx svg { width: 13px; height: 13px; color: #13227a; }
+  .vbtn { top: 13px; height: 25px; display: flex; align-items: center; gap: 8px; padding: 0 9px; font-size: 12px; color: #13227a; border-radius: 5px; }
+  .vbtn svg { width: 15px; height: 15px; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="painel.html"><i data-lucide="house"></i>Painel</a>
+        <a href="prestadores.html"><i data-lucide="users"></i>Prestadores</a>
+        <a href="reservas.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="suporte.html"><i data-lucide="message-square"></i>Suporte</a>
+        <a href="contactos.html"><i data-lucide="square-activity"></i>Contactos</a>
+        <a href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a href="utilizadores.html"><i data-lucide="users"></i>Utilizadores</a>
+        <a href="atividade.html"><i data-lucide="activity"></i>Atividade</a>
+        <a class="on" href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <h1 class="title">Categorias</h1>
+      <p class="sub">Criar, editar e organizar categorias e subcategorias de serviços.</p>
+      <a class="new" href="#"><i data-lucide="circle-plus"></i>Nova categoria</a>
+
+      <section class="card" style="left:278px;top:170px;width:680px;height:800px">
+        <h2 style="left:18px;top:13px">Lista de categorias</h2>
+        <div class="fsearch"><i data-lucide="search"></i>Pesquisar categorias...</div>
+        <div class="fsel"><i data-lucide="filter"></i>Todos os estados<i data-lucide="chevron-down"></i></div>
+        <div class="tb">
+          <div class="r h"><div>Categoria</div><div>Prestadores</div><div>Serviços</div><div>Estado</div><div>Ações</div><div></div></div>
+          <div id="rows"></div>
+        </div>
+      </section>
+
+      <section class="card" style="left:973px;top:170px;width:675px;height:800px">
+        <h2 style="left:18px;top:14px">Criar categoria</h2>
+        <span style="left:18px;top:40px;font-size:14.5px;color:#7287bd">Preencha os detalhes da nova categoria de serviços.</span>
+
+        <span class="lab" style="left:19px;top:76px">Nome da categoria <em>*</em></span>
+        <div class="in" style="left:19px;top:99px;width:312px">Ex.: Beleza e Estética</div>
+        <span class="lab" style="left:344px;top:76px">Slug <em>*</em></span>
+        <div class="in" style="left:344px;top:99px;width:313px"><i data-lucide="link"></i>ex.: beleza-estetica</div>
+        <span class="help" style="left:344px;top:143px">Usado no link da categoria. Apenas letras minúsculas,<br>números e hífen.</span>
+
+        <span class="lab" style="left:19px;top:182px">Descrição</span>
+        <div class="in" style="left:19px;top:205px;width:312px;height:80px;align-items:flex-start;padding-top:10px">Descreva esta categoria de serviços...</div>
+        <span class="help" style="left:288px;top:265px;color:#5a67a6">0/200</span>
+        <span class="lab" style="left:344px;top:184px">Ícone <em>*</em></span>
+        <span style="left:352px;top:216px;width:57px;height:55px;border-radius:9px;background:#fee8ea;display:grid;place-items:center;color:#fd1a2b"><i data-lucide="scissors" style="width:26px;height:26px;stroke-width:2"></i></span>
+        <a href="#" style="left:428px;top:209px;width:139px;height:38px;border:1px solid #d9e5fb;border-radius:7px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:14px;font-weight:500;color:#0a3fe0"><i data-lucide="circle-plus" style="width:16px;height:16px"></i>Escolher ícone</a>
+        <span class="help" style="left:428px;top:255px;font-size:13px;line-height:17px;color:#7d90c2">Escolha um ícone que represente esta<br>categoria.</span>
+
+        <span class="lab" style="left:19px;top:300px">Cor de destaque <em>*</em></span>
+        <span class="sw on" style="left:21px;background:#fd5c69"><i data-lucide="check"></i></span>
+        <span class="sw" style="left:65px;background:#fdce7a"></span>
+        <span class="sw" style="left:109px;background:#70db98"></span>
+        <span class="sw" style="left:153px;background:#6fb1fe"></span>
+        <span class="sw" style="left:197px;background:#a087fc"></span>
+        <span class="sw" style="left:241px;background:#fda2d5"></span>
+        <span class="sw" style="left:285px;background:#b3c2db"></span>
+        <span class="lab" style="left:344px;top:300px">Ordem</span>
+        <div class="in" style="left:344px;top:324px;width:313px;padding-left:0"><span style="width:44px;align-self:stretch;display:grid;place-items:center;background:#f6f9fd;border-right:1px solid #e3ebf7;border-radius:7px 0 0 7px;color:#7d90c2;font-size:15px">#</span><span style="margin-left:11px;color:#00004d;font-size:14.5px">0</span></div>
+        <span class="help" style="left:344px;top:367px">Define a posição da categoria na listagem.</span>
+
+        <span class="lab" style="left:19px;top:390px">Estado</span>
+        <div class="in" style="left:19px;top:413px;width:638px;color:#090d81;font-size:14.5px"><span style="width:14px;height:14px;border-radius:50%;background:#16a34a;margin-right:12px;margin-left:-2px"></span>Ativo<i data-lucide="chevron-down" style="margin:0 15px 0 auto;color:#1d2265;width:16px;height:16px"></i></div>
+        <span class="help" style="left:19px;top:456px">Categorias inativas não são exibidas para os utilizadores.</span>
+
+        <span class="lab" style="left:19px;top:486px">Subcategorias <small>(opcional)</small></span>
+        <div class="in" style="left:19px;top:506px;width:638px;padding-left:6px;gap:8px">
+          <span class="chipx" style="width:112px">Corte de cabelo<i data-lucide="x"></i></span>
+          <span class="chipx" style="width:66px;margin-left:2px">Unhas<i data-lucide="x"></i></span>
+          <span class="chipx" style="width:133px;margin-left:3px">Tratamentos faciais<i data-lucide="x"></i></span>
+          <span style="margin-left:1px;align-self:stretch;flex:1;border-left:1px solid #e3ebf7;padding-left:10px;display:flex;align-items:center;color:#94a0cc;font-size:13px">Adicionar subcategoria...</span>
+        </div>
+        <span class="help" style="left:19px;top:548px">Pressione Enter para adicionar. Estas subcategorias serão exibidas dentro desta categoria.</span>
+
+        <div style="left:19px;top:577px;width:638px;height:136px;border-radius:10px;background:#f7fbfe">
+          <b style="position:absolute;left:16px;top:10px;font-size:15px;font-weight:700;color:#010154">Pré-visualização</b>
+          <span style="position:absolute;left:16px;top:30px;font-size:13px;color:#758aca">Assim a categoria será exibida para os utilizadores:</span>
+          <span class="vbtn" style="position:absolute;left:409px;background:#edf4ff;border:1px solid #b8d0fb;color:#0a3fdb"><i data-lucide="layout-grid"></i>Vista em grelha</span>
+          <span class="vbtn" style="position:absolute;left:530px;background:#fff"><i data-lucide="list"></i>Vista em lista</span>
+          <div style="position:absolute;left:11px;top:57px;width:616px;height:65px;border:1px solid #e6edf7;border-radius:9px;background:#fff">
+            <span style="position:absolute;left:10px;top:6px;width:52px;height:52px;border-radius:9px;background:#fee8ea;display:grid;place-items:center;color:#fd1a2b"><i data-lucide="scissors" style="width:26px;height:26px;stroke-width:2"></i></span>
+            <b style="position:absolute;left:84px;top:13px;font-size:15px;font-weight:700;color:#000057">Beleza e Estética</b>
+            <span style="position:absolute;left:84px;top:35px;font-size:13.5px;color:#7a88c3">Cabelos, unhas, estética e mais</span>
+            <i data-lucide="chevron-right" style="position:absolute;left:582px;top:23px;width:18px;height:18px;color:#1d2265"></i>
+          </div>
+        </div>
+
+        <a href="#" style="left:19px;top:719px;width:195px;height:42px;border:1px solid #e3ebf7;border-radius:8px;display:grid;place-items:center;font-size:15px;color:#171a79">Cancelar</a>
+        <a href="#" style="left:372px;top:719px;width:285px;height:42px;border-radius:8px;background:#0562fe;display:flex;align-items:center;justify-content:center;gap:14px;font-size:15.5px;font-weight:600;color:#fff"><i data-lucide="save" style="width:20px;height:20px"></i>Guardar categoria</a>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const rows = [
+  ["scissors", "#feebf2", "#fd1a2b", "Beleza e Estética", "Cabelos, unhas, estética e mais", 124, 342, 1],
+  ["wrench", "#eaf2fe", "#004af9", "Reparações", "Reparações e manutenção", 98, 276, 1],
+  ["brush", "#e5fdf0", "#00a52b", "Limpeza", "Limpeza residencial e comercial", 87, 215, 1],
+  ["snowflake", "#eeecfe", "#571cfb", "Ar condicionado", "Instalação e manutenção", 56, 134, 1],
+  ["zap", "#fef6e7", "#fe9500", "Electricidade", "Instalações e reparações eléctricas", 72, 198, 1],
+  ["droplet", "#e9f5fe", "#003ffd", "Canalização", "Reparações e instalações de água", 64, 167, 1],
+  ["paint-roller", "#fee9ef", "#fd1c39", "Pintura", "Pintura residencial e comercial", 51, 123, 1],
+  ["laptop", "#efe7fe", "#640ff4", "Informática", "Suporte e reparação de equipamentos", 38, 96, 1],
+  ["package", "#fef3e0", "#fc8a00", "Mudanças", "Transporte e mudanças", 29, 74, 0],
+  ["paw-print", "#ddfce9", "#02a72f", "Animais de Estimação", "Cuidados e serviços para pets", 23, 58, 1],
+];
+const heights = [61, 62, 62.5, 62.5, 62, 63, 65, 65, 63, 63];
+const fills = { zap: 1, "paw-print": 1 };
+document.getElementById("rows").innerHTML = rows.map(([icon, bg, fg, name, sub, p, s, on], k) => `
+  <div class="r" style="height:${heights[k]}px">
+    <div class="cat"><span class="ic" style="background:${bg};color:${fg}"><i data-lucide="${icon}"${fills[icon] ? ` style="fill:${fg}"` : ""}></i></span><div><b>${name}</b><span>${sub}</span></div></div>
+    <div class="num">${p}</div><div class="num">${s}</div>
+    <div><span class="pill ${on ? "ok" : "bad"}">${on ? "Ativo" : "Inativo"}</span></div>
+    <div><a class="ed" href="#"><i data-lucide="pencil"></i></a></div>
+    <div><i data-lucide="ellipsis" class="dots"></i></div>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

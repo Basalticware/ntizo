@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contactos · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  .main { padding-left: 27px; }
+  .nav { gap: 2.1px; }
+  .rail { padding-left: 14px; padding-right: 14px; }
+  .page-sub { font-size: 18.7px; }
+
+  /* Tabs, search and Filtrar share one row here. */
+  .bar { display: flex; align-items: center; margin-top: 22px; }
+  .adm-tabs { margin-top: 0; gap: 8.7px; }
+  .adm-tabs .tab, .adm-tabs .tab.on { height: 48px; padding: 0 19px 0 18px; font-size: 15.3px; }
+  .adm-tabs .tab.on { padding: 0 20px 0 24px; }
+  .adm-tabs .chip, .adm-tabs .tab.on .chip { height: 26px; padding: 0; border-radius: 13px; font-size: 15px; justify-content: center; display: inline-grid; }
+  .adm-tabs .tab:nth-child(1) { width: 138px; } .adm-tabs .tab:nth-child(1) .chip { width: 40px; background: #226cfe; }
+  .adm-tabs .tab:nth-child(2) { width: 143px; } .adm-tabs .tab:nth-child(2) .chip { width: 34px; }
+  .adm-tabs .tab:nth-child(3) { width: 171px; } .adm-tabs .tab:nth-child(3) .chip { width: 38px; }
+  .adm-tabs .tab:nth-child(4) { width: 153px; } .adm-tabs .tab:nth-child(4) .chip { width: 36px; }
+  .adm-tabs .tab:nth-child(5) { width: 158px; } .adm-tabs .tab:nth-child(5) .chip { width: 33px; }
+  .adm-tabs .chip.bad { background: #fee5e6; color: #f50f18; }
+  .adm-tabs .chip.ok { background: #e9fdef; color: #0f913d; }
+  .adm-tabs .chip.warn { background: #fef4dc; color: #f58a0c; }
+  .adm-tabs .chip.grey { background: #eff4fc; color: var(--ink); }
+  .bar .field { margin-left: 21px; width: 377px; height: 48px; padding: 0 16px; gap: 14px; border-color: #e8f0fb; color: #94a0ce; font-size: 14.2px; white-space: nowrap; overflow: hidden; }
+  .bar .field svg { width: 22px; height: 22px; color: #0a52fd; }
+  .bar .btn-outline { margin-left: 10px; width: 130px; height: 48px; padding: 0 0 0 23px; gap: 15px; border-color: #8fb3fc; font-size: 17px; }
+  .bar .btn-outline svg { width: 22px; height: 22px; }
+
+  /* Two panes: inbox list and the open message. */
+  .panes { display: grid; grid-template-columns: 697px 637px; gap: 1px; margin-top: 18px; }
+  .inbox { border: 1px solid #edf3fc; border-radius: 12px 12px 0 0; border-bottom: 0; overflow: hidden; height: 640px; }
+  .msg-row { display: grid; grid-template-columns: 95px 394px 60px 111.5px 1fr; align-items: center; border-top: 1px solid #edf3fc; }
+  .msg-row:first-child { border-top: 0; }
+  .msg-row.on { background: #eff6fe; }
+  .msg-row .av { width: 62px; height: 62px; border-radius: 50%; margin-left: 10px; display: grid; place-items: center; background: #e3effe; color: #094ffc; font-size: 21px; font-weight: 500; }
+  .msg-row b { display: block; font-size: 16px; font-weight: 700; color: var(--ink); }
+  .msg-row .subj { display: block; font-size: 14.3px; font-weight: 500; color: #0f167a; margin-top: 4px; white-space: nowrap; }
+  .msg-row .prev { display: block; font-size: 13.9px; color: #7f8bbe; margin-top: 4px; white-space: nowrap; }
+  .msg-row .time { font-size: 14.5px; color: #7a88be; line-height: 22px; }
+  .msg-row .pill { height: 28px; width: 93px; padding: 0; justify-content: center; font-size: 13.5px; border-radius: 14px; }
+  .pill.nl { background: #fde4e7; color: #fb3b3f; }
+  .pill.em { background: #fef2d5; color: #fc9722; }
+  .pill.rs { background: #e6fcec; color: #31a459; }
+  .pill.ar { background: #ebeff6; color: #616c94; width: 86px !important; margin-left: 4px; }
+  .msg-row > div:nth-child(2) { transform: translateY(1px); }
+  .msg-row .time { transform: translateY(-9px); }
+  .msg-row .pill { transform: translateY(-3px); }
+  .msg-row .chev { width: 20px; height: 20px; color: #636faf; }
+
+  .detail { border: 1px solid #edf3fc; border-radius: 12px; height: 629px; padding: 0 26px 0 27px; background: #fff; }
+  .detail .top { height: 65px; padding-top: 12px; display: flex; align-items: center; border-bottom: 2px solid #eef4fc; }
+  .detail h2 { margin: 0; font-size: 22.5px; font-weight: 700; color: var(--ink); letter-spacing: -0.005em; }
+  .detail .top .pill { margin-left: auto; height: 28px; width: 79px; padding: 0; justify-content: center; font-size: 13.5px; background: #fee6e7; color: #fb3b3f; }
+  .detail .top .dots { margin-left: 15px; width: 22px; height: 22px; color: #334a99; }
+  .who { display: flex; gap: 22px; padding: 15px 0 0 3px; height: 117px; }
+  .who img { width: 79px; height: 79px; border-radius: 50%; }
+  .who b { display: block; font-size: 18px; font-weight: 700; color: var(--ink); margin-top: 8px; }
+  .who .line { display: flex; align-items: center; gap: 15px; color: #2468f9; font-size: 15.5px; margin-top: 9px; }
+  .who .line svg { width: 19px; height: 19px; color: #0f53fb; }
+  .facts { display: grid; grid-template-columns: 312px 1fr; height: 72px; border-bottom: 2px solid #eef4fc; }
+  .fact { display: flex; gap: 14px; }
+  .fact .tile { width: 45px; height: 46px; border-radius: 9px; background: #eff6fe; display: grid; place-items: center; }
+  .fact .tile svg { width: 21px; height: 21px; color: #0849fc; }
+  .fact small { display: block; font-size: 13.5px; color: #7a84b8; margin-top: 6px; }
+  .fact span { display: block; font-size: 14.5px; color: #6b75af; margin-top: 6px; }
+  .fact:first-child span { color: #5a64a2; }
+  .detail h3 { margin: 18px 0 0; font-size: 15.5px; font-weight: 500; color: #0e1375; }
+  .bubble { margin-top: 10px; height: 203px; border-radius: 10px; background: #f5f9fe; padding: 15px 20px 0 22px; font-size: 14.35px; line-height: 22.6px; color: #545a90; }
+  .bubble p { margin: 0 0 18px; }
+  .actions { display: flex; gap: 10px; margin-top: 25px; padding-top: 22px; border-top: 2px solid #eef4fc; }
+  .actions a { height: 49px; display: inline-flex; align-items: center; justify-content: center; gap: 15px; border-radius: 6px; font-size: 16px; font-weight: 500; }
+  .actions svg { width: 21px; height: 21px; }
+  .actions .reply { width: 167px; background: #1663fe; color: #fff; }
+  .actions .done { width: 231px; font-size: 15px; border: 1.5px solid #7fdca0; color: #2fb15d; }
+  .actions .done svg { width: 24px; height: 24px; }
+  .actions .arch { width: 166px; gap: 17px; padding-left: 4px; border: 1.5px solid #a9afc8; color: #535b89; }
+  .actions .arch svg { color: #404971; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:18px;height:18px"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="painel.html"><i data-lucide="house"></i>Painel</a>
+        <a href="prestadores.html"><i data-lucide="users"></i>Prestadores</a>
+        <a href="reservas.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="suporte.html"><i data-lucide="headset"></i>Suporte</a>
+        <a class="on" href="contactos.html"><i data-lucide="notebook-text"></i>Contactos</a>
+        <a href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a href="utilizadores.html"><i data-lucide="users"></i>Utilizadores</a>
+        <a href="atividade.html"><i data-lucide="chart-no-axes-column"></i>Atividade</a>
+        <a href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <h1 class="page-title">Contactos</h1>
+      <p class="page-sub">Gerir todas as mensagens recebidas através da plataforma.</p>
+
+      <div class="bar">
+        <div class="adm-tabs">
+          <button class="tab on">Todos <span class="chip">24</span></button>
+          <button class="tab">Não lidos <span class="chip bad">6</span></button>
+          <button class="tab">Respondidos <span class="chip ok">12</span></button>
+          <button class="tab">Em análise <span class="chip warn">4</span></button>
+          <button class="tab">Arquivados <span class="chip grey">2</span></button>
+        </div>
+        <div class="field"><i data-lucide="search"></i>Pesquisar por nome, assunto ou mensagem...</div>
+        <button class="btn-outline"><i data-lucide="filter"></i>Filtrar</button>
+      </div>
+
+      <div class="panes">
+        <div class="inbox" id="inbox"></div>
+
+        <section class="detail">
+          <div class="top">
+            <h2>Informações sobre corte de cabelo</h2>
+            <span class="pill">Não lido</span>
+            <i data-lucide="ellipsis" class="dots"></i>
+          </div>
+          <div class="who">
+            <img src="../assets/adm-contactos-silvia.png" alt="">
+            <div>
+              <b>Sílvia Nhamopssa</b>
+              <div class="line"><i data-lucide="mail"></i>silvia.nhamopssa@gmail.com</div>
+              <div class="line"><i data-lucide="phone"></i>+258 84 123 4567</div>
+            </div>
+          </div>
+          <div class="facts">
+            <div class="fact"><div class="tile"><i data-lucide="map-pin"></i></div><div><small>Origem da mensagem</small><span>Formulário de contacto</span></div></div>
+            <div class="fact"><div class="tile"><i data-lucide="calendar"></i></div><div><small>Recebida em</small><span>11 Out 2024 às 10:24</span></div></div>
+          </div>
+          <h3>Mensagem</h3>
+          <div class="bubble">
+            <p>Olá, boa dia!</p>
+            <p>Gostaria de saber se vocês fazem corte de cabelo feminino, e qual é o valor aproximado. Também queria saber se é possível agendar para este fim de semana (sábado ou domingo).</p>
+            <p>Aguardo o vosso retorno.<br>Obrigada!</p>
+          </div>
+          <div class="actions">
+            <a class="reply" href="#"><i data-lucide="reply"></i>Responder</a>
+            <a class="done" href="#"><i data-lucide="check"></i>Marcar como resolvido</a>
+            <a class="arch" href="#"><i data-lucide="archive"></i>Arquivar</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const pills = { nl: "Não lido", em: "Em análise", rs: "Respondido", ar: "Arquivado" };
+const rows = [
+  [84, "silvia", "Sílvia Nhamopssa", "Informações sobre corte de cabelo", "Olá, gostaria de saber se vocês fazem corte de cabelo...", "Hoje", "10:24", "nl"],
+  [82, "tomas", "Tomás Guambe", "Disponibilidade de instalação", "Bom dia! Gostaria de saber se têm disponibilidade...", "Hoje", "09:15", "em"],
+  [84, "carla", "Carla Sitoe", "Dúvida sobre limpeza residencial", "Qual é o valor para uma limpeza completa de um T2?", "Ontem", "16:42", "rs"],
+  [84, "MC", "Manuel Cossa", "Parceria com prestadores", "Tenho interesse em me tornar prestador na plataforma...", "Ontem", "14:20", "rs"],
+  [82, "ana", "Ana Mucaua", "Problema com reserva", "Fiz uma reserva mas o prestador não apareceu...", "12 Out", "11:08", "em"],
+  [77, "carlos", "Carlos Massango", "Cancelamento de serviço", "Gostaria de cancelar a minha reserva de amanhã...", "11 Out", "18:36", "ar"],
+  [78, "beatriz", "Beatriz Langa", "Informações sobre preços", "Podem me enviar a tabela de preços dos serviços...", "11 Out", "15:12", "rs"],
+  [66, "AM", "António Matusse", "Suporte na utilização da plataforma", "Estou com dificuldades em fazer uma reserva...", "10 Out", "09:45", "nl"],
+];
+document.getElementById("inbox").innerHTML = rows.map(([h, img, name, subj, prev, day, time, tone], i) => `
+  <div class="msg-row${i === 0 ? " on" : ""}" style="height:${h}px">
+    ${img.length === 2 ? `<span class="av">${img}</span>` : `<img class="av" src="../assets/adm-contactos-${img}.png" alt="">`}
+    <div><b>${name}</b><span class="subj">${subj}</span><span class="prev">${prev}</span></div>
+    <div class="time">${day}<br>${time}</div>
+    <div><span class="pill ${tone}">${pills[tone]}</span></div>
+    <i data-lucide="chevron-right" class="chev"></i>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

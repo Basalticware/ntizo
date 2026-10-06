@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avaliações · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* Measured on mockps/admin/avaliações.png, no browser chrome: viewport 0,0 → 1672x941.
+     This mockup draws the shell a size smaller than admin.css (78px bar, 253px rail). */
+  .console { grid-template-rows: 79px 1fr; }
+  .topbar { border-bottom-color: #f0f5fd; }
+  .topbar .brand { width: 260px; padding-left: 33px; padding-top: 15px; }
+  .topbar .brand img { width: 104px; height: auto; }
+  .topbar .brand .zone { font-size: 15.5px; color: #1a56f0; margin-top: 3px; }
+  .topbar .search { margin-left: 0; width: 764px; height: 45px; padding: 0 17px; gap: 15px; font-size: 15px; }
+  .topbar .search svg { width: 21px; height: 21px; }
+  .topbar .right { padding-right: 37px; }
+  .topbar .loc { gap: 12px; padding-right: 20px; font-size: 15px; }
+  .topbar .loc svg { width: 20px; height: 20px; }
+  .topbar .loc svg:last-child { margin-left: -1px; width: 17px; height: 17px; }
+  .topbar .bell { padding: 0 31px 0 30px; }
+  .topbar .bell svg { width: 25px; height: 25px; }
+  .topbar .bell::after { top: -7px; right: 26px; width: 13px; height: 13px; }
+  .topbar .me { gap: 15px; padding-left: 26px; }
+  .topbar .me img { width: 52px; height: 52px; }
+  .topbar .me b { font-size: 16px; }
+  .topbar .me span { font-size: 15.5px; margin-top: 3px; }
+  .topbar .me > div { width: 198px; }
+  .topbar .me svg { margin-left: 0; width: 18px; height: 18px; }
+
+  .body { grid-template-columns: 253px 1fr; }
+  .rail { background: #f6fafe; border-right-color: #edf5fd; border-right-width: 2px; padding: 22px 12px 0 13px; }
+  .nav { gap: 2px; }
+  .nav a:nth-child(6) { margin-top: 2px; }
+  .nav a:nth-child(7) { margin-top: 3px; }
+  .nav a:nth-child(8) { margin-top: -1px; }
+  .nav a:nth-child(9) { margin-top: 1px; }
+  .nav a { height: 47px; padding: 0 0 0 20px; gap: 26px; font-size: 16.5px; }
+  .nav a svg { width: 24px; height: 24px; }
+  .nav a.on { background: #0a5cfe; }
+
+  /* children are placed in viewport coordinates */
+  .main { padding: 0; position: relative; top: -79px; left: -253px; overflow: visible; }
+  .main > * { position: absolute; }
+  .main * { white-space: nowrap; }
+  .title { left: 274px; top: 87px; margin: 0; font-size: 37px; font-weight: 800; letter-spacing: -0.01em; color: #03055a; }
+  .sub { left: 274px; top: 133px; margin: 0; font-size: 16.2px; color: #5f6eac; }
+
+  .ftabs { left: 274px; top: 173px; display: flex; }
+  .ftabs .tab { position: absolute; top: 0; height: 50px; border: 1px solid #edf3fc; border-radius: 9px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 16px 0 19px; font-size: 14.5px; color: #1c2270; }
+  .ftabs .tab.on { background: #e9f2fe; border-color: #d7e5fd; color: #0a3dd8; padding: 0 16px 0 20px; }
+  .ftabs .chip { height: 28px; min-width: 0; padding: 0 12px; border-radius: 14px; font-size: 14.5px; font-weight: 600; }
+  .ftabs .on .chip { background: #0a5cfe; color: #fff; padding: 0 13px; }
+  .ftabs .chip.bad { background: #fee2e3; color: #f2121a; padding: 0 14px; }
+  .ftabs .chip.warn { background: #fef3d6; color: #f39400; }
+  .ftabs .chip.ok { background: #dcfbe6; color: #13923a; }
+
+  .fld { top: 244px; height: 45px; border: 1px solid #e8f0fb; border-radius: 9px; background: #fff; display: flex; align-items: center; font-size: 14px; color: #1c2270; }
+  .fld.s { left: 274px; width: 375px; padding-left: 16px; gap: 16px; color: #8e99c4; }
+  .fld.s svg { width: 21px; height: 21px; color: #0a52fd; }
+  .fld.d { justify-content: space-between; padding: 0 16px 0 15px; }
+  .fld.d svg { width: 17px; height: 17px; color: #1c2270; }
+  .filtrar { left: 1106px; top: 243px; width: 115px; height: 47px; border: 1px solid #7ea6fb; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 11px; font-size: 17px; font-weight: 600; color: #0a52fd; background: #fff; }
+  .filtrar svg { width: 21px; height: 21px; }
+
+  .tbl { left: 274px; top: 310px; width: 957px; height: 572px; border: 1px solid #edf3fc; border-radius: 10px; overflow: hidden; background: #fff; }
+  .tbl .r { position: relative; height: 66px; display: grid; grid-template-columns: 192px 151px 108px 122px 150px 102px 97px 1fr; align-items: center; border-top: 1px solid #edf3fc; }
+  .tbl .h { height: 40px; border-top: 0; background: #f6fafe; font-size: 12.5px; font-weight: 500; color: #3c4688; }
+  .tbl .h > :first-child { padding-left: 15px; }
+  .tbl .r.flag { background: #fef4f5; }
+  .tbl .r.flag::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #ef3b45; }
+  .pp { display: flex; align-items: center; gap: 12px; }
+  .pp img { width: 46px; height: 46px; border-radius: 50%; }
+  .pp b { display: block; font-size: 12.8px; font-weight: 700; color: #070a43; letter-spacing: -0.035em; }
+  .pp span { display: block; font-size: 11.8px; color: #7b7fb3; margin-top: 4px; letter-spacing: -0.03em; }
+  .tbl .r > .c1 { padding-left: 12px; }
+  .svc { font-size: 13.5px; line-height: 20px; margin-top: -2px; color: #1e2281; }
+  .stars { display: flex; align-items: center; gap: 1px; font-size: 12.5px; color: #6975b1; }
+  .stars svg { width: 14px; height: 14px; stroke-width: 1; }
+  .stars .f { color: #fbb515; fill: #fbb515; }
+  .stars .e { color: #d5dae8; fill: #d5dae8; }
+  .stars .red { color: #f42430; fill: #f42430; }
+  .stars em { font-style: normal; margin-left: 12px; }
+  .cm { font-size: 13.5px; line-height: 20px; margin-top: -2px; color: #6975b1; }
+  .st { height: 29px; border-radius: 15px; display: inline-grid; place-items: center; font-size: 12.5px; font-weight: 500; }
+  .st.bad { margin-left: -5px; width: 87px; background: #fee5e6; color: #f2121a; }
+  .st.ok { width: 76px; background: #dbfbe6; color: #11872f; margin-left: -1px; }
+  .st.warn { margin-left: -5px; width: 85px; background: #fef5e3; color: #ef8a00; }
+  .vd { width: 86px; height: 36px; border: 1.5px solid #5d94fc; border-radius: 6px; display: grid; place-items: center; font-size: 12.8px; font-weight: 500; color: #1d5cf0; background: #fff; }
+  .dt { width: 20px; height: 20px; color: #3c4688; }
+
+  .foot { left: 274px; top: 907px; font-size: 13.5px; color: #777fbe; }
+  .pgr { left: 938px; top: 899px; display: flex; align-items: center; height: 34px; }
+  .pgr > * { width: 30px; height: 34px; display: grid; place-items: center; font-size: 14px; color: #3c4688; }
+  .pgr .b { width: 34px; border: 1px solid #e3eaf6; border-radius: 6px; background: #fff; color: #1c2270; }
+  .pgr .b svg { width: 17px; height: 17px; }
+  .pgr .on { width: 31px; background: #095cfe; color: #fff; border-radius: 6px; font-weight: 600; margin: 0 2px 0 3px; }
+
+  .pnl { left: 1249px; top: 95px; width: 409px; height: 816px; border: 1px solid #ebf0f8; border-radius: 12px; background: linear-gradient(#fef8f8, #fff 120px); box-shadow: 0 6px 20px rgba(30, 60, 130, .05); }
+  .pnl > * { position: absolute; }
+  .flagtag { left: 19px; top: 13px; width: 186px; height: 34px; border-radius: 6px; background: #fee9ea; display: flex; align-items: center; gap: 13px; padding-left: 13px; font-size: 14px; font-weight: 500; color: #ff051f; }
+  .flagtag svg { width: 21px; height: 21px; }
+  .pnl .x { left: 365px; top: 19px; width: 20px; height: 20px; color: #1c2270; }
+  .pnl hr { left: 19px; right: 17px; margin: 0; border: 0; border-top: 1px solid #edf1f7; }
+  .pk { left: 19px; font-size: 14.3px; color: #6270b0; }
+  .pv { font-size: 14.5px; color: #02004d; }
+  .chev { width: 17px; height: 17px; color: #1c2270; }
+  .quote { left: 19px; top: 388px; width: 372px; height: 105px; border-radius: 9px; background: #f5f9fe; padding: 11px 0 0 19px; font-size: 14.5px; line-height: 21.6px; color: #5a67a6; white-space: normal !important; }
+  .motivo { left: 19px; top: 515px; width: 372px; height: 113px; border-radius: 9px; background: #feedef; border: 1px solid #fde0e3; }
+  .motivo > * { position: absolute; }
+  .motivo svg { left: 18px; top: 13px; width: 22px; height: 22px; color: #f20f1d; }
+  .motivo b { left: 54px; top: 14px; font-size: 14px; font-weight: 600; color: #fa0107; }
+  .motivo i { left: 54px; top: 35px; font-style: normal; font-size: 14px; font-weight: 500; color: #1d1464; }
+  .motivo p { left: 54px; top: 59px; margin: 0; width: 300px; font-size: 13.5px; line-height: 22px; color: #757ca8; white-space: normal !important; }
+  .keep { left: 19px; top: 675px; width: 369px; height: 52px; border-radius: 7px; background: #095dfe; color: #fff; }
+  .keep svg { position: absolute; left: 75px; top: 15px; width: 22px; height: 22px; color: #095dfe; fill: #fff; }
+  .keep b { position: absolute; left: 111px; top: 8px; font-size: 15px; font-weight: 600; }
+  .keep span { position: absolute; left: 111px; top: 28px; font-size: 13.5px; }
+  .two { top: 739px; width: 180px; height: 59px; border-radius: 7px; background: #fff; }
+  .two svg { position: absolute; left: 20px; top: 18px; width: 23px; height: 23px; }
+  .two b { position: absolute; left: 45px; top: 10px; font-size: 14px; font-weight: 600; }
+  .two span { position: absolute; left: 45px; top: 30px; font-size: 12.5px; }
+  .two.r { left: 19px; border: 1px solid #f7888d; color: #f20f1d; }
+  .two.r b { color: #fa0011; }
+  .two.r span { color: #f84449; }
+  .two.b { left: 211px; width: 177px; border: 1px solid #6c9cf9; color: #0a46f0; }
+  .two.b span { color: #2870fc; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="painel.html"><i data-lucide="house"></i>Painel</a>
+        <a href="prestadores.html"><i data-lucide="users"></i>Prestadores</a>
+        <a href="reservas.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="suporte.html"><i data-lucide="message-square"></i>Suporte</a>
+        <a href="contactos.html"><i data-lucide="square-activity"></i>Contactos</a>
+        <a class="on" href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a href="utilizadores.html"><i data-lucide="users"></i>Utilizadores</a>
+        <a href="atividade.html"><i data-lucide="activity"></i>Atividade</a>
+        <a href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <h1 class="title">Avaliações</h1>
+      <p class="sub">Rever feedback dos clientes, denúncias e qualidade dos serviços.</p>
+
+      <div class="ftabs">
+        <button class="tab on" style="left:0;width:139px">Todas <span class="chip">312</span></button>
+        <button class="tab" style="left:149px;width:162px">Denunciadas <span class="chip bad">5</span></button>
+        <button class="tab" style="left:322px;width:143px">À espera <span class="chip warn">11</span></button>
+        <button class="tab" style="left:476px;width:163px">Resolvidas <span class="chip ok">296</span></button>
+      </div>
+
+      <div class="fld s"><i data-lucide="search"></i>Pesquisar por cliente, prestador ou serviço...</div>
+      <div class="fld d" style="left:660px;width:150px">Classificação<i data-lucide="chevron-down"></i></div>
+      <div class="fld d" style="left:821px;width:116px">Estado<i data-lucide="chevron-down"></i></div>
+      <div class="fld d" style="left:949px;width:145px">Cidade<i data-lucide="chevron-down"></i></div>
+      <button class="filtrar"><i data-lucide="filter"></i>Filtrar</button>
+
+      <div class="tbl">
+        <div class="r h"><div>Cliente</div><div>Prestador</div><div>Serviço</div><div>Classificação</div><div>Comentário</div><div>Estado</div><div>Ações</div><div></div></div>
+        <div id="rows"></div>
+      </div>
+
+      <div class="foot">A mostrar 1–8 de 312 avaliações</div>
+      <div class="pgr">
+        <span class="b"><i data-lucide="chevron-left"></i></span>
+        <span class="on">1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>...</span><span style="width:34px">39</span>
+        <span class="b" style="margin-left:2px"><i data-lucide="chevron-right"></i></span>
+      </div>
+
+      <aside class="pnl">
+        <div class="flagtag"><i data-lucide="circle-alert"></i>Avaliação denunciada</div>
+        <i data-lucide="x" class="x"></i>
+        <img src="../assets/adm-avaliacoes-silvia.png" alt="" style="left:19px;top:60px;width:63px;height:63px;border-radius:50%">
+        <b style="left:101px;top:64px;font-size:17px;font-weight:700;color:#03055a">Sílvia Nhamopssa</b>
+        <span style="left:101px;top:91px;display:flex;align-items:center;gap:6px;font-size:13.5px;color:#7880b8"><i data-lucide="map-pin" style="width:14px;height:14px"></i>Maputo, Central</span>
+        <hr style="top:137px">
+        <span class="pk" style="top:163px">Prestador</span>
+        <img src="../assets/adm-avaliacoes-carla.png" alt="" style="left:137px;top:151px;width:45px;height:45px;border-radius:50%">
+        <b style="left:196px;top:156px;font-size:14.5px;font-weight:700;color:#02004d">Carla Sitoe</b>
+        <span style="left:196px;top:178px;font-size:12.5px;color:#7e85bc">Limpeza</span>
+        <i data-lucide="chevron-right" class="chev" style="left:376px;top:164px"></i>
+        <span class="pk" style="top:221px">Serviço</span>
+        <span style="left:136px;top:209px;width:39px;height:39px;border-radius:50%;background:#e4eefe;display:grid;place-items:center;color:#1a5af5"><i data-lucide="calendar-days" style="width:19px;height:19px"></i></span>
+        <b style="left:190px;top:220px;font-size:14px;font-weight:700;color:#02004d">Limpeza de ar condicionado</b>
+        <i data-lucide="chevron-right" class="chev" style="left:376px;top:222px"></i>
+        <span class="pk" style="top:261px">Data da avaliação</span>
+        <i data-lucide="calendar" style="left:144px;top:259px;width:19px;height:19px;color:#1c2270"></i>
+        <span class="pv" style="left:176px;top:259px">12 Out 2024 às 16:30</span>
+        <hr style="top:296px">
+        <span class="pk" style="top:323px">Classificação</span>
+        <span class="stars" style="left:142px;top:320px;gap:4px"><i data-lucide="star" class="red" style="width:19px;height:19px"></i><i data-lucide="star" class="e" style="width:19px;height:19px"></i><i data-lucide="star" class="e" style="width:19px;height:19px"></i><i data-lucide="star" class="e" style="width:19px;height:19px"></i><i data-lucide="star" class="e" style="width:19px;height:19px"></i><em style="margin-left:15px;font-size:14.5px;font-weight:700;color:#02004d">1,0</em></span>
+        <span class="pk" style="top:362px">Comentário completo</span>
+        <div class="quote">“Serviço muito fraco. Chegou atrasada, não trouxe<br>todos os materiais e o resultado final ficou aquém<br>do esperado. Ainda por cima não respondeu<br>às minhas mensagens depois.”</div>
+        <div class="motivo"><i data-lucide="circle-alert"></i><b>Motivo da denúncia</b><i>Comportamento inadequado</i><p>O cliente alega falta de profissionalismo e mau atendimento durante o serviço.</p></div>
+        <b style="left:19px;top:647px;font-size:15px;font-weight:700;color:#03055a">Ações de moderação</b>
+        <a class="keep" href="#"><i data-lucide="circle-check"></i><b>Manter publicada</b><span>A avaliação é legítima</span></a>
+        <a class="two r" href="#"><i data-lucide="eye"></i><b>Ocultar avaliação</b><span>Remover da plataforma</span></a>
+        <a class="two b" href="#"><i data-lucide="message-square-text"></i><b>Pedir mais contexto</b><span>Contactar o cliente</span></a>
+      </aside>
+    </main>
+  </div>
+</div>
+
+<script>
+const rows = [
+  ["Sílvia Nhamopssa","Maputo, Central","Carla Sitoe","Limpeza","Limpeza de<br>ar condicionado",1,"1,0","Serviço muito fraco.<br>Chegou atrasada e ...","bad","Denunciada"],
+  ["Tomás Guambe","Maputo, Sommerschield","Manuel Cossa","Canalização","Manutenção<br>de canalização",5,"5,0","Excelente serviço!<br>Resolveu o problema...","ok","Publicada"],
+  ["Ana Mucaua","Maputo, Costa do Sol","Beatriz Langa","Limpeza","Limpeza geral<br>da casa",4,"4,0","Muito profissional<br>e atenciosa. A casa...","ok","Publicada"],
+  ["Carlos Massango","Maputo, Central","Tomás Guambe","Electricidade","Instalação de<br>termoacumulador",3,"3,0","O serviço foi bom,<br>mas demorou mais...","warn","Em revisão"],
+  ["Débora Machava","Maputo, Polana","António Matusse","Canalização","Reparação de<br>fuga de água",2,"2,0","Resolveu o problema<br>mas o preço foi alto...","ok","Publicada"],
+  ["Nelson Chongo","Matola","Sílvia Nhamopssa","Cabeleireiro","Corte de cabelo<br>masculino",5,"5,0","Óptimo atendimento,<br>recomendo!","ok","Publicada"],
+  ["Fátima Uamusse","Maputo, Malhangalene","Carla Sitoe","Limpeza","Limpeza<br>pós-obra",3.5,"4,0","Trabalho bem feito<br>e dentro do prazo.","ok","Publicada"],
+  ["Isac Nhantumbo","Maputo, Central","Manuel Cossa","Canalização","Instalação de<br>torneira",2,"2,0","Instalou bem, mas não<br>limpou a área depois.","warn","Em revisão"],
+];
+const star = (n, i) => {
+  if (n === 1) return `<i data-lucide="star" class="${i === 0 ? "red" : "e"}"></i>`;
+  if (i < Math.floor(n)) return `<i data-lucide="star" class="f"></i>`;
+  if (i < n) return `<i data-lucide="star-half" class="f"></i>`;
+  return `<i data-lucide="star" class="e"></i>`;
+};
+document.getElementById("rows").innerHTML = rows.map(([cn, cp, pn, pc, svc, n, score, cm, tone, st], k) => `
+  <div class="r${k === 0 ? " flag" : ""}" style="height:${[63,64,66,68,68,68,67,65][k]}px">
+    <div class="c1 pp"><img src="../assets/adm-avaliacoes-c${k + 1}.png" alt=""><div><b>${cn}</b><span>${cp}</span></div></div>
+    <div class="pp" style="gap:9px"><img src="../assets/adm-avaliacoes-p${k + 1}.png" alt=""><div><b>${pn}</b><span>${pc}</span></div></div>
+    <div class="svc">${svc}</div>
+    <div class="stars">${[0, 1, 2, 3, 4].map(i => star(n, i)).join("")}<em>${score}</em></div>
+    <div class="cm">${cm}</div>
+    <div><span class="st ${tone}">${st}</span></div>
+    <div><a class="vd" href="#">Ver detalhe</a></div>
+    <div><i data-lucide="ellipsis" class="dt"></i></div>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

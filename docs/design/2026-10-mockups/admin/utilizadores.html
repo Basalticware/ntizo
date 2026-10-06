@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utilizadores · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  .main { padding-left: 27px; }
+  .page-sub { font-size: 18.9px; }
+  .adm-tabs .tab:nth-child(4) { font-size: 14.6px; }
+  .adm-tabs .tab:nth-child(4) .chip { font-size: 16px; }
+  .adm-table .dots { margin-left: -3px; margin-top: 3px; }
+  .adm-table .btn-details { font-size: 15px; }
+  .adm-tabs { gap: 14px; }
+  .adm-tabs .tab, .adm-tabs .tab.on { padding: 0 24px 0 24px; }
+  .adm-tabs .tab.on { padding-right: 32px; }
+  .adm-tabs .chip, .adm-tabs .tab.on .chip { height: 32px; padding: 0 15px; border-radius: 16px; }
+  .adm-tabs .tab:nth-child(1) { width: 183px; }
+  .adm-tabs .tab:nth-child(2) { width: 180px; }
+  .adm-tabs .tab:nth-child(3) { width: 210px; }
+  .adm-tabs .tab:nth-child(4) { width: 235px; }
+  .adm-filters .field { width: 557px; }
+  .adm-filters .s-tipo { width: 194px; }
+  .adm-filters .s-estado { width: 178px; }
+  .adm-filters .s-loc { width: 209px; }
+  .adm-filters .btn-outline { width: 134px; }
+  .adm-table .row { grid-template-columns: 329px 135px 135px 207px 192px 133px 158px 1fr; }
+  .adm-table .head > div:first-child { padding-left: 22px; }
+  .adm-table .body-row { height: 59.5px; padding-bottom: 7px; }
+  .adm-table .body-row > :first-child { padding-left: 16px; }
+  .adm-table .person img { width: 55px; height: 55px; }
+  .adm-table .person span { color: #7a88bf; font-size: 13.7px; }
+  .adm-table .pill { padding: 0; margin-left: 0; }
+  .pill.t-cliente { width: 93px; background: #e5f3fe; color: #1a5bf0; }
+  .pill.t-prestador { width: 93px; background: #fef4d8; color: #ea8012; }
+  .pill.t-admin { width: 109px; background: #e6e6fe; color: #3b2ef0; }
+  .adm-table .pill.ok, .adm-table .pill.warn, .adm-table .pill.bad { width: 96px; margin-left: -1px; }
+  .adm-table .pill.ok { background: #defdea; color: #1aa244; }
+  .adm-table .pill.bad { background: #fee1e2; color: #f5171c; }
+  .contact { font-size: 15px; font-weight: 500; color: #1c2485; white-space: nowrap; }
+  .adm-table .when { gap: 11px; align-items: flex-start; margin-left: -2px; }
+  .adm-table .when svg { width: 20px; height: 20px; color: #0a50fb; margin-top: 3px; }
+  .adm-table .when b { font-size: 14.5px; font-weight: 500; color: #1c2485; }
+  .adm-table .when span { font-size: 13.75px; color: #7a88bf; margin-top: 3px; }
+  .adm-table .btn-details { width: 137px; height: 38px; }
+  .adm-table .row > .place { margin-left: -2px; }
+  .pager .prev { width: 24px; margin-right: 10px; }
+  .pager .on { width: 36px; height: 35px; }
+  .pager > * { width: 36px !important; }
+  .pager > :nth-child(5) { width: 35px !important; }
+  .pager > :nth-child(8) { width: 53px !important; }
+  .pager .next { width: 33px !important; }
+  .pager .prev { width: 24px !important; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:18px;height:18px"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="painel.html"><i data-lucide="house"></i>Painel</a>
+        <a href="prestadores.html"><i data-lucide="users"></i>Prestadores</a>
+        <a href="reservas.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="suporte.html"><i data-lucide="headset"></i>Suporte</a>
+        <a href="contactos.html"><i data-lucide="notebook-text"></i>Contactos</a>
+        <a href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a class="on" href="utilizadores.html"><i data-lucide="users"></i>Utilizadores</a>
+        <a href="atividade.html"><i data-lucide="chart-no-axes-column"></i>Atividade</a>
+        <a href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <h1 class="page-title">Utilizadores</h1>
+      <p class="page-sub">Gerir contas de utilizadores da plataforma e as respetivas permissões.</p>
+
+      <div class="adm-tabs">
+        <button class="tab on">Total <span class="chip">1 248</span></button>
+        <button class="tab">Clientes <span class="chip ok">892</span></button>
+        <button class="tab">Prestadores <span class="chip warn">312</span></button>
+        <button class="tab">Administradores <span class="chip bad">44</span></button>
+      </div>
+
+      <div class="adm-filters">
+        <div class="field"><i data-lucide="search"></i>Pesquisar por nome, email ou contacto...</div>
+        <div class="select s-tipo">Tipo<i data-lucide="chevron-down"></i></div>
+        <div class="select s-estado">Estado<i data-lucide="chevron-down"></i></div>
+        <div class="select s-loc">Localização<i data-lucide="chevron-down"></i></div>
+        <button class="btn-outline"><i data-lucide="filter"></i>Filtrar</button>
+      </div>
+
+      <div class="adm-table">
+        <div class="row head"><div>Utilizador</div><div>Tipo</div><div>Contacto</div><div>Localização</div><div>Último acesso</div><div>Estado</div><div>Ações</div><div></div></div>
+        <div id="rows"></div>
+      </div>
+
+      <div class="adm-foot">
+        <span>A mostrar 1–8 de 1 248 utilizadores</span>
+        <div class="pager">
+          <span class="prev"><i data-lucide="chevron-left"></i></span>
+          <span class="on">1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>...</span><span>156</span>
+          <span class="next"><i data-lucide="chevron-right"></i></span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const types = { c: ["t-cliente", "Cliente"], p: ["t-prestador", "Prestador"], a: ["t-admin", "Administrador"] };
+const rows = [
+  ["silvia","Sílvia Nhamopssa","silvia.nhamopssa@gmail.com","c","84 123 4567","Maputo, Central","Hoje","11 Out 2024, 09:24","ok","Activo","Ver perfil"],
+  ["tomas","Tomás Guambe","tomas.guambe@outlook.com","p","84 987 6543","Maputo, Sommershield","Hoje","11 Out 2024, 08:15","ok","Activo","Ver perfil"],
+  ["carla","Carla Sitoe","carla.sitoe@gmail.com","c","82 345 6789","Maputo, Polana","Ontem","10 Out 2024, 18:40","ok","Activo","Ver perfil"],
+  ["manuel","Manuel Cossa","manuel.cossa@ntizo.co.mz","a","84 765 4321","Matola, Fomento","Hoje","11 Out 2024, 10:02","ok","Activo","Gerir"],
+  ["ana","Ana Mucaua","ana.mucaua@gmail.com","p","87 654 3210","Maputo, Costa do Sol","Ontem","10 Out 2024, 16:20","warn","Pendente","Ver perfil"],
+  ["carlos","Carlos Massango","carlos.massango@gmail.com","c","84 111 2233","Maputo, Central","09 Out 2024","14:11","ok","Activo","Ver perfil"],
+  ["beatriz","Beatriz Langa","beatriz.langa@outlook.com","p","86 555 6677","Maputo, Polana","08 Out 2024","11:36","bad","Suspenso","Ver perfil"],
+  ["antonio","António Matusse","antonio.matusse@gmail.com","c","84 999 8888","Matola, Matola Gare","Hoje","11 Out 2024, 07:50","ok","Activo","Ver perfil"],
+];
+document.getElementById("rows").innerHTML = rows.map(([img,name,email,t,phone,place,day,time,tone,status,action]) => `
+  <div class="row body-row">
+    <div class="person"><img src="../assets/adm-utilizadores-${img}.png" alt=""><div><b>${name}</b><span>${email}</span></div></div>
+    <div><span class="pill ${types[t][0]}">${types[t][1]}</span></div>
+    <div class="contact">${phone}</div>
+    <div class="place"><i data-lucide="map-pin"></i>${place}</div>
+    <div class="when"><i data-lucide="calendar"></i><div><b>${day}</b><span>${time}</span></div></div>
+    <div><span class="pill ${tone}">${status}</span></div>
+    <div><a class="btn-details" href="#">${action}</a></div>
+    <div><i data-lucide="ellipsis" class="dots"></i></div>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

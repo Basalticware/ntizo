@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reserva · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* Measured on mockps/admin/detalheserviço.png, no browser chrome: viewport 0,0 → 1672x941.
+     This mockup draws the shell a size smaller than admin.css (75px bar, 247px rail). */
+  .console { grid-template-rows: 75px 1fr; }
+  .topbar { border-bottom-color: #eef3fb; }
+  .topbar .brand { width: 258px; padding-left: 33px; padding-top: 14px; }
+  .topbar .brand img { width: 104px; height: auto; }
+  .topbar .brand .zone { font-size: 15px; color: #1a56f0; margin-top: 2px; }
+  .topbar .search { margin-left: 0; width: 818px; height: 45px; padding: 0 17px; gap: 15px; font-size: 15px; }
+  .topbar .search svg { width: 21px; height: 21px; }
+  .topbar .right { padding-right: 34px; }
+  .topbar .loc { gap: 12px; padding-right: 26px; font-size: 15px; }
+  .topbar .loc svg { width: 19px; height: 19px; }
+  .topbar .loc svg:last-child { margin-left: -2px; width: 16px; height: 16px; }
+  .topbar .bell { padding: 0 31px 0 31px; }
+  .topbar .bell svg { width: 25px; height: 25px; }
+  .topbar .bell::after { top: -7px; right: 26px; width: 13px; height: 13px; }
+  .topbar .me { gap: 17px; padding-left: 27px; }
+  .topbar .me img { width: 51px; height: 51px; }
+  .topbar .me b { font-size: 16px; }
+  .topbar .me span { font-size: 15.5px; margin-top: 3px; }
+  .topbar .me > div { width: 152px; }
+  .topbar .me svg { margin-left: 0; width: 18px; height: 18px; }
+
+  .body { grid-template-columns: 247px 1fr; }
+  .rail { background: #f9fbfe; border-right-color: #ebf2fb; padding: 18px 10px 0 10px; }
+  .nav { gap: 1px; }
+  .nav a { height: 49px; padding: 0 0 0 23px; gap: 24px; font-size: 16px; }
+  .nav a svg { width: 24px; height: 24px; }
+  .nav a.on { background: #1762fe; }
+
+  /* children are placed in viewport coordinates */
+  .main { padding: 0; position: relative; top: -75px; left: -247px; overflow: visible; }
+  .main > * { position: absolute; }
+  .main * { white-space: nowrap; }
+  .main p, .main .v { white-space: normal; }
+  .crumb { left: 274px; top: 83px; display: flex; align-items: center; gap: 9px; font-size: 15px; color: #484d95; }
+  .crumb svg { width: 15px; height: 15px; margin: 0 2px; }
+  .crumb b { font-weight: 500; color: #1c2270; }
+  .back { left: 275px; top: 115px; width: 51px; height: 54px; border: 1px solid #e8eef8; border-radius: 10px; display: grid; place-items: center; color: #1c2270; background: #fff; }
+  .back svg { width: 22px; height: 22px; }
+  .title { left: 353px; top: 117px; margin: 0; font-size: 32.3px; font-weight: 800; letter-spacing: -0.01em; color: #03055a; white-space: nowrap; }
+  .tpill { position: absolute; top: 124px; height: 30px; padding: 0 14px 0 13px; border-radius: 15px; display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 500; }
+  .tpill.g { left: 733px; width: 83px; background: #ddfbe9; color: #0f6b33; }
+  .tpill.g svg { width: 18px; height: 18px; color: #fff; fill: #16a34a; stroke-width: 2.6; }
+  .tpill.b { left: 829px; width: 129px; background: #e0edfe; color: #0a35d8; }
+  .tpill .d { width: 9px; height: 9px; border-radius: 50%; background: #0a4cf0; margin-right: 1px; }
+  .more { left: 1505px; top: 121px; width: 139px; height: 43px; border: 1px solid #e3eaf6; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 14.5px; color: #1c2270; background: #fff; }
+  .more svg { width: 20px; height: 20px; }
+  .meta { left: 353px; top: 168px; height: 24px; display: flex; align-items: center; font-size: 14.6px; color: #4c548f; white-space: nowrap; }
+  .meta svg { width: 20px; height: 20px; color: #2c3678; margin-right: 12px; }
+  .meta .s { width: 1px; height: 20px; background: #e2e8f3; margin: 0 19px; }
+
+  .tabbar { left: 276px; top: 215px; width: 844px; height: 47px; border: 1px solid #eef3fb; border-radius: 10px; background: #fbfcfe; display: flex; align-items: center; padding-left: 12px; }
+  .tabbar a { position: absolute; top: 0; height: 45px; display: flex; align-items: center; gap: 15px; font-size: 14.5px; color: #1c2270; }
+  .tabbar a svg { width: 21px; height: 21px; color: #1c2270; }
+  .tabbar a.on { background: #eff6fe; color: #0a3fdb; padding: 0 0 0 20px; width: 141px; }
+  .tabbar a.on svg { color: #0a4cf0; }
+  .tabbar a.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; border-radius: 2px; background: #0a5cfe; }
+  .tabbar .s { position: absolute; top: 12px; width: 1px; height: 22px; background: #e2e8f3; }
+  .tabbar .n { width: 21px; height: 21px; border-radius: 50%; background: #fd2b2c; color: #fff; display: grid; place-items: center; font-size: 12.5px; font-weight: 600; margin-left: -2px; }
+
+  .cd { border: 1px solid #ebf1fa; border-radius: 12px; background: #fff; }
+  .cd h2 { position: absolute; margin: 0; font-size: 18px; font-weight: 700; color: #03055a; white-space: nowrap; display: flex; align-items: center; gap: 16px; }
+  .cd > .chev { position: absolute; width: 18px; height: 18px; color: #2c3678; }
+  .cd .av { position: absolute; border-radius: 50%; }
+  .cd .nm { position: absolute; font-size: 16px; font-weight: 700; color: #03055a; white-space: nowrap; }
+  .cd .sb { position: absolute; font-size: 14.5px; color: #6672b1; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .ln { position: absolute; display: flex; align-items: center; font-size: 15px; color: #374487; white-space: nowrap; transform: translateY(-50%); }
+  .ln svg { width: 19px; height: 19px; color: #2c3678; margin-right: 16px; }
+  .dl { position: absolute; left: 25px; display: flex; font-size: 15px; color: #6871b3; white-space: nowrap; }
+  .dl svg { width: 20px; height: 20px; color: #2c3678; margin-right: 19px; flex-shrink: 0; }
+  .dl .k { width: 198px; }
+  .dl .v { color: #1c2270; line-height: 20px; }
+  .dl .v a { color: #0a4cf0; margin-left: 16px; text-decoration: underline; text-decoration-color: #a9c3f7; text-underline-offset: 3px; }
+  .dl .v a svg { color: #0a4cf0; width: 18px; height: 18px; margin: 0 0 0 10px; vertical-align: -4px; }
+  .mini { position: absolute; top: 47px; height: 70px; border: 1px solid #ebf1fa; border-radius: 10px; }
+  .mini i, .mini .ic { position: absolute; left: 8px; top: 7px; width: 49px; height: 49px; border-radius: 10px; display: grid; place-items: center; }
+  .mini .ic svg { width: 25px; height: 25px; }
+  .mini span { position: absolute; left: 71px; top: 12px; font-size: 12.5px; color: #636ebd; white-space: nowrap; }
+  .mini b { position: absolute; left: 71px; top: 30px; font-size: 18px; font-weight: 800; color: #03053f; white-space: nowrap; }
+
+  .info { left: 20px; top: 56px; width: 449px; height: 92px; background: #f3f8fe; border-radius: 10px; }
+  .info .ic { position: absolute; left: 17px; top: 20px; width: 43px; height: 43px; border-radius: 50%; background: #e3eefe; display: grid; place-items: center; color: #0a3fdb; }
+  .info .ic svg { width: 25px; height: 25px; }
+  .info b { position: absolute; left: 78px; top: 16px; font-size: 14.5px; font-weight: 500; color: #0a35e8; white-space: nowrap; }
+  .info p { position: absolute; left: 78px; top: 37px; margin: 0; font-size: 14px; line-height: 21px; color: #6877c5; width: 330px; }
+  .ab { position: absolute; left: 20px; width: 449px; height: 41px; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 20px; font-size: 15px; font-weight: 500; }
+  .ab svg { width: 22px; height: 22px; }
+  .ab.p { background: #1762fe; color: #fff; padding-right: 10px; }
+  .ab.o { border: 1px solid #2a6af6; color: #0a2fd0; background: #fff; }
+  .ab.o svg { color: #0a2fd0; }
+  .tl { position: absolute; left: 26px; }
+  .tl .dot { position: absolute; left: 0; width: 27px; height: 27px; border-radius: 50%; display: grid; place-items: center; }
+  .tl .dot.ok { background: #13ac4f; color: #fff; }
+  .tl .dot.ok svg { width: 15px; height: 15px; stroke-width: 3; }
+  .tl .dot.now { border: 2px solid #1452f5; background: #fff; }
+  .tl .dot.now::after { content: ""; width: 11px; height: 11px; border-radius: 50%; background: #1452f5; }
+  .tl .dot.todo { border: 2px solid #c7c8cc; background: #fff; }
+  .tl .bar { position: absolute; left: 12px; width: 2px; }
+  .ev { position: absolute; left: 76px; white-space: nowrap; }
+  .ev b { display: block; font-size: 15px; font-weight: 700; color: #03055a; }
+  .ev span { display: block; font-size: 14px; color: #6470b1; margin-top: 3px; line-height: 16px; }
+  .ev span + span { margin-top: 2px; color: #6b7bbf; }
+  .ev.now b { color: #0a2fe8; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="painel.html"><i data-lucide="house"></i>Painel</a>
+        <a href="prestadores.html"><i data-lucide="users"></i>Prestadores</a>
+        <a class="on" href="reservas.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="suporte.html"><i data-lucide="message-square"></i>Suporte</a>
+        <a href="contactos.html"><i data-lucide="square-activity"></i>Contactos</a>
+        <a href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a href="utilizadores.html"><i data-lucide="users"></i>Utilizadores</a>
+        <a href="atividade.html"><i data-lucide="activity"></i>Atividade</a>
+        <a href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="crumb">Reservas<i data-lucide="chevron-right"></i><b>Serviço #NTZ-2048</b></div>
+      <a class="back" href="reservas.html"><i data-lucide="arrow-left"></i></a>
+      <h1 class="title">Avaria eléctrica urgente</h1>
+      <span class="tpill g"><i data-lucide="circle-check"></i>Pago</span>
+      <span class="tpill b"><span class="d"></span>Em execução</span>
+      <button class="more"><i data-lucide="ellipsis"></i>Mais ações</button>
+      <div class="meta">
+        <i data-lucide="wrench"></i>Serviços eléctricos<span class="s"></span>
+        <i data-lucide="map-pin"></i>Maputo, Sommerschield<span class="s"></span>
+        <i data-lucide="calendar"></i>11 Out 2024<span class="s"></span>
+        <i data-lucide="clock"></i>14:00 – 16:00 (2h)<span class="s"></span>
+        #NTZ-2048
+      </div>
+
+      <nav class="tabbar">
+        <a class="on" href="#" style="left:11px"><i data-lucide="file-text"></i>Visão geral</a>
+        <span class="s" style="left:164px"></span>
+        <a href="#" style="left:194px"><i data-lucide="credit-card"></i>Pagamento</a>
+        <span class="s" style="left:317px"></span>
+        <a href="#" style="left:350px"><i data-lucide="clock"></i>Timeline</a>
+        <span class="s" style="left:468px"></span>
+        <a href="#" style="left:498px"><i data-lucide="message-square"></i>Mensagens<span class="n">3</span></a>
+        <span class="s" style="left:668px"></span>
+        <a href="#" style="left:698px"><i data-lucide="file-text"></i>Documentos</a>
+      </nav>
+
+      <section class="cd" style="left:276px;top:279px;width:433px;height:232px">
+        <h2 style="left:19px;top:14px">Dados do cliente</h2><i data-lucide="chevron-right" class="chev" style="left:399px;top:21px"></i>
+        <img class="av" src="../assets/adm-reserva-silvia.png" alt="" style="left:18px;top:48px;width:76px;height:76px">
+        <span class="nm" style="left:110px;top:51px">Sílvia Nhamopssa</span>
+        <span class="sb" style="left:110px;top:78px">Cliente desde Out 2023</span>
+        <div class="ln" style="left:24px;top:146px"><i data-lucide="phone"></i>+258 84 123 4567</div>
+        <div class="ln" style="left:24px;top:173px"><i data-lucide="mail"></i>silvia.nhamopssa@gmail.com</div>
+        <div class="ln" style="left:24px;top:201px"><i data-lucide="map-pin"></i>Maputo, Sommerschield</div>
+      </section>
+      <section class="cd" style="left:721px;top:279px;width:418px;height:232px">
+        <h2 style="left:19px;top:14px">Dados do prestador</h2><i data-lucide="chevron-right" class="chev" style="left:383px;top:21px"></i>
+        <img class="av" src="../assets/adm-reserva-tomas.png" alt="" style="left:18px;top:47px;width:77px;height:77px">
+        <span class="nm" style="left:111px;top:51px">Tomás Guambe</span>
+        <span class="sb" style="left:111px;top:78px"><span style="font-size:10px;color:#2563eb">✓</span>Prestador verificado<i data-lucide="badge-check" style="width:19px;height:19px;color:#fff;fill:#1f6bf2;margin-left:4px"></i></span>
+        <span class="sb" style="left:111px;top:106px"><i data-lucide="star" style="width:18px;height:18px;color:#fbb515;fill:#fbb515"></i><b style="font-weight:500;color:#1c2270;margin-left:2px">4.8</b>(127 avaliações)</span>
+        <div class="ln" style="left:25px;top:151px"><i data-lucide="phone"></i>+258 84 765 4321</div>
+        <div class="ln" style="left:25px;top:179px"><i data-lucide="mail"></i>tomas.guambe@gmail.com</div>
+        <div class="ln" style="left:25px;top:207px"><i data-lucide="map-pin"></i>Maputo, Sommerschield</div>
+      </section>
+
+      <section class="cd" style="left:276px;top:524px;width:863px;height:289px">
+        <h2 style="left:19px;top:13px">Detalhes do serviço</h2><i data-lucide="chevron-right" class="chev" style="left:828px;top:16px"></i>
+        <div class="dl" style="top:48px"><i data-lucide="car-front"></i><span class="k">Serviço</span><span class="v" style="font-weight:600;color:#03055a">Avaria eléctrica urgente</span></div>
+        <div class="dl" style="top:76px"><i data-lucide="file-text"></i><span class="k">Descrição</span><span class="v">Não há corrente na sala e em alguns quartos. Verificar quadro<br>eléctrico e identificar a avaria.</span></div>
+        <div class="dl" style="top:124px"><i data-lucide="calendar"></i><span class="k">Data e hora</span><span class="v">11 Out 2024, 14:00 – 16:00</span></div>
+        <div class="dl" style="top:156px"><i data-lucide="clock"></i><span class="k">Duração estimada</span><span class="v">2 horas</span></div>
+        <div class="dl" style="top:187px"><i data-lucide="map-pin"></i><span class="k">Local</span><span class="v">Maputo, Sommerschield<a href="#">Ver no mapa</a><i data-lucide="arrow-right" style="color:#0a4cf0;width:18px;height:18px;margin:0 0 0 10px"></i></span></div>
+        <div class="dl" style="top:220px"><i data-lucide="message-circle-warning"></i><span class="k">Observações do cliente</span><span class="v">A avaria começou esta manhã. É urgente pois há crianças em casa.</span></div>
+        <div class="dl" style="top:255px"><i data-lucide="mail"></i><span class="k">Valor do serviço</span><span class="v" style="font-size:18px;font-weight:700;color:#03055a">1 200,00 MZN</span></div>
+      </section>
+
+      <section class="cd" style="left:276px;top:830px;width:863px;height:140px">
+        <h2 style="left:19px;top:13px">Histórico de pagamento<span class="tpill g" style="position:static;width:auto;height:29px;padding:0 15px 0 12px;font-size:14px"><span class="d" style="background:#16a34a"></span>Pago</span></h2>
+        <i data-lucide="chevron-right" class="chev" style="left:828px;top:17px"></i>
+        <div class="mini" style="left:18px;width:255px"><span class="ic" style="background:#e2fceb;color:#14a34a"><i data-lucide="database"></i></span><span>Valor total pago</span><b>1 200,00 MZN</b></div>
+        <div class="mini" style="left:287px;width:270px"><span class="ic" style="background:#f2ecfe;color:#7c3aed"><i data-lucide="percent"></i></span><span>Comissão da Ntizo (10%)</span><b>120,00 MZN</b></div>
+        <div class="mini" style="left:572px;width:272px"><span class="ic" style="background:#e4effe;color:#1452f5"><i data-lucide="wallet"></i></span><span style="left:77px">Valor para o prestador</span><b style="left:77px">1 080,00 MZN</b></div>
+      </section>
+
+      <section class="cd" style="left:1155px;top:223px;width:489px;height:322px">
+        <h2 style="left:19px;top:17px">Estado do serviço</h2>
+        <span class="tpill" style="left:341px;top:14px;width:127px;background:#e3fbec;color:#0f6b33;font-size:14px"><span class="d" style="background:#16a34a"></span>Em execução</span>
+        <div class="info" style="position:absolute"><span class="ic"><i data-lucide="wrench"></i></span><b>O prestador está a realizar o serviço.</b><p>Quando o serviço estiver concluído, finalize para libertar o pagamento ao prestador.</p></div>
+        <a class="ab p" href="#" style="top:160px"><i data-lucide="check"></i>Finalizar serviço</a>
+        <a class="ab o" href="#" style="top:210px"><i data-lucide="triangle-alert"></i>Marcar em disputa</a>
+        <a class="ab o" href="#" style="top:260px"><i data-lucide="file-text"></i>Ver recibo</a>
+      </section>
+
+      <section class="cd" style="left:1155px;top:558px;width:489px;height:420px;overflow:hidden">
+        <h2 style="left:19px;top:13px">Timeline do serviço</h2>
+        <a href="#" style="position:absolute;left:327px;top:16px;font-size:13px;color:#054bf8;display:flex;align-items:center;gap:9px">Ver todos os detalhes<i data-lucide="arrow-right" style="width:16px;height:16px"></i></a>
+        <div class="tl" style="top:0">
+          <span class="bar" style="top:76px;height:200px;background:#2ac25f"></span>
+          <span class="bar" style="top:276px;height:90px;background:#c4c5c9"></span>
+          <span class="dot ok" style="top:50px"><i data-lucide="check"></i></span>
+          <span class="dot ok" style="top:122px"><i data-lucide="check"></i></span>
+          <span class="dot ok" style="top:195px"><i data-lucide="check"></i></span>
+          <span class="dot now" style="top:270px"></span>
+          <span class="dot todo" style="top:351px"></span>
+        </div>
+        <div class="ev" style="top:52px"><b>Pedido criado</b><span>11 Out 2024, 13:45</span><span>Cliente fez o pedido de serviço.</span></div>
+        <div class="ev" style="top:124px;left:77px"><b>Prestador aceitou</b><span>11 Out 2024, 13:52</span><span>Tomás Guambe aceitou o pedido.</span></div>
+        <div class="ev" style="top:197px;left:78px"><b>Cliente pagou</b><span>11 Out 2024, 14:05</span><span>Pagamento confirmado via M-Pesa.</span></div>
+        <div class="ev now" style="top:273px;left:79px"><b>Serviço em execução</b><span>11 Out 2024, 14:10</span><span>Prestador está a realizar o serviço no local.</span></div>
+        <div class="ev" style="top:351px;left:79px"><b style="color:#333d82">Serviço finalizado</b><span>Aguardando finalização por parte do admin.</span></div>
+      </section>
+    </main>
+  </div>
+</div>
+<script>lucide.createIcons();</script>
+</body>
+</html>
