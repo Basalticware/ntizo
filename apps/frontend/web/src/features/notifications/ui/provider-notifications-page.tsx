@@ -13,12 +13,15 @@ import { NotificationsPage } from "@/features/notifications/ui/notifications-pag
  * `usePageHeader` call live here rather than in `NotificationsPage` itself,
  * because the customer route renders that component with neither: this
  * wrapper is the zone-specific half, `NotificationsPage` is the shared one.
+ * The shell prints the title and the sentence under it, so the shared page
+ * is asked not to print its own.
  */
 export function ProviderNotificationsPage() {
   const { t } = useTranslation("provider");
+  const { t: tn } = useTranslation("notifications");
   const { activeProvider } = useActiveProvider();
 
-  usePageHeader(t("nav.notifications"), activeProvider?.name);
+  usePageHeader(t("nav.notifications"), tn("providerSubtitle"));
 
   if (!activeProvider) return null;
 
@@ -30,6 +33,7 @@ export function ProviderNotificationsPage() {
         // is its query, which needs its id. Two props because they are two
         // different facts about the same workspace.
         zone={{ kind: "provider", slug: activeProvider.slug }}
+        ownHeading={false}
       />
     </div>
   );

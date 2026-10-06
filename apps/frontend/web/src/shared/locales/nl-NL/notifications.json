@@ -42,5 +42,16 @@
     "bookingDisputed": "Er is een geschil geopend over een boeking",
     "bookingDisputeResolved": "Er is een beslissing genomen over het geschil van je boeking",
     "unknown": "Je hebt een nieuwe melding"
-  }
+  },
+  "providerSubtitle": "Blijf op de hoogte van alles wat er rond uw bedrijf op Ntizo gebeurt.",
+  "tabAll": "Alle",
+  "tabUnread": "Ongelezen",
+  "tabsLabel": "Tonen",
+  "groupCount": "{{count}} melding",
+  "groupCount_other": "{{count}} meldingen",
+  "actionBooking": "Boeking bekijken",
+  "actionThread": "Gesprek openen",
+  "rowActions": "Meer acties",
+  "unreadEmptyTitle": "Niets ongelezen",
+  "unreadEmptyBody": "U hebt al uw meldingen gelezen."
 }

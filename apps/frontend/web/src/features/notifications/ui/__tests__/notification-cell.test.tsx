@@ -96,7 +96,9 @@ describe("NotificationCell", () => {
 
   it("offers to mark an unread row read without opening it", async () => {
     const { onMarkRead, router } = await renderCell(booking());
-    await userEvent.click(screen.getByRole("button", { name: /mark as read/i }));
+    // In the row's "…" menu, as the mockup draws it.
+    await userEvent.click(screen.getByRole("button", { name: /more actions/i }));
+    await userEvent.click(screen.getByRole("menuitem", { name: /mark as read/i }));
     expect(onMarkRead).toHaveBeenCalledWith("n1");
     // The control sits beside the link, not inside it: clearing a row must
     // not also open the booking.
@@ -105,7 +107,7 @@ describe("NotificationCell", () => {
 
   it("offers nothing to mark on a row already read", async () => {
     await renderCell(booking({ read: true }));
-    expect(screen.queryByRole("button", { name: /mark as read/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /more actions/i })).not.toBeInTheDocument();
   });
 
   it("invites the reader to open the conversation a message is about", async () => {
@@ -115,6 +117,13 @@ describe("NotificationCell", () => {
       "/messages?thread=th-1",
     );
     expect(screen.getByText(/open the conversation/i)).toBeInTheDocument();
+  });
+
+  it("draws the row's action as the same destination, out of the tab order", async () => {
+    await renderCell(booking());
+    const action = screen.getByRole("link", { name: /view booking/i });
+    expect(action).toHaveAttribute("href", "/bookings/bk-1");
+    expect(action).toHaveAttribute("tabindex", "-1");
   });
 
   it("shows the clock under today's heading", async () => {

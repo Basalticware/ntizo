@@ -36,7 +36,7 @@ export function AvailabilitySkeleton() {
 
       <div aria-hidden="true" className="grid gap-3">
         {/* Scope strip: three people and the week navigation. */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[var(--radius-card)] border border-[var(--color-border)] px-3 py-2.5">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[14px] border border-[var(--color-border)] px-4 py-3">
           {/* Clipped rather than scrollable: the real strip scrolls sideways
               because there may be more people than fit, but a placeholder that
               can be dragged is a control that does nothing. */}
@@ -61,7 +61,7 @@ export function AvailabilitySkeleton() {
         <Skeleton className="ml-1 h-3 w-56" />
 
         {/* Summary band, at the height the real one lands at. */}
-        <div className="flex flex-wrap items-center gap-x-7 gap-y-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-muted)] px-5 py-4">
+        <div className="flex flex-wrap items-center gap-x-7 gap-y-3 rounded-[14px] border border-[var(--color-blue-soft)] bg-[var(--color-blue-softer)] px-6 py-5">
           <div className="grid gap-1.5">
             <Skeleton className="h-7 w-48 bg-[var(--color-border)]" />
             <Skeleton className="h-3 w-64 bg-[var(--color-border)]" />
@@ -75,7 +75,7 @@ export function AvailabilitySkeleton() {
 
         <div className="grid gap-3 lg:grid-cols-[21rem_minmax(0,1fr)] lg:items-start">
           {/* The week, first on a phone — as it is in the real page. */}
-          <div className="order-first grid gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] p-3 lg:order-last lg:p-4">
+          <div className="order-first grid gap-3 rounded-[14px] border border-[var(--color-border)] p-4 lg:order-last lg:p-5">
             <div className="flex items-center gap-3">
               <Skeleton className="h-3 w-20" />
               <Skeleton className="h-8 w-40 rounded-full" />
@@ -154,8 +154,8 @@ function AgendaBones() {
 
 function PanelBones({ rows }: { rows: number }) {
   return (
-    <div className="grid gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] p-3 lg:p-4">
-      <Skeleton className="h-2.5 w-28" />
+    <div className="grid gap-3.5 rounded-[14px] border border-[var(--color-border)] p-4 lg:p-5">
+      <Skeleton className="h-[21px] w-28" />
       {Array.from({ length: rows }, (_, i) => (
         <div
           key={i}

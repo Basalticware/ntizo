@@ -33,6 +33,7 @@ import {
   useSetProviderTimezone,
   useSetWeeklyPattern,
 } from "../viewmodel/use-availability";
+import { OUTLINE_BUTTON } from "./console-styles";
 import { Segmented } from "./segmented";
 import { AvailabilitySkeleton } from "./availability-skeleton";
 import { PeoplePicker } from "./people-picker";
@@ -69,7 +70,7 @@ export function AvailabilityPage() {
   const query = useAvailabilityConfig(activeProvider?.id);
   const currentUser = useCurrentUser();
 
-  usePageHeader(t("nav.availability"), activeProvider?.name);
+  usePageHeader(t("nav.availability"), t("availabilitySubtitle"));
 
   if (!activeProvider) return null;
 
@@ -273,7 +274,7 @@ function AvailabilityBoard({
       {/* Context and scope. The timezone was a section with a heading, a
           paragraph, a field and a button, for a value that changes once in a
           workspace's life; here it is a line that opens a field when asked. */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2.5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3">
         {/* `min-w-0 flex-1`: the picker scrolls sideways within itself, but a
             flex item defaults to `min-width: auto` and would refuse to shrink
             below its content, pushing the whole strip past the viewport. */}
@@ -318,6 +319,7 @@ function AvailabilityBoard({
             size="sm"
             onClick={() => setMondayIso((d) => addDays(d, -7))}
             aria-label={t("availabilityPreviousWeek")}
+            className={`${OUTLINE_BUTTON} w-10 px-0`}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -330,7 +332,7 @@ function AvailabilityBoard({
             // user with no way to hear which week they are looking at.
             title={t("availabilityToday")}
             onClick={() => setMondayIso(mondayOf(todayIso))}
-            className="min-w-0 flex-1 truncate tabular-nums sm:flex-none"
+            className={`${OUTLINE_BUTTON} min-w-0 flex-1 truncate px-4 tabular-nums sm:flex-none`}
           >
             {weekLabel(mondayIso, locale)}
           </Button>
@@ -340,6 +342,7 @@ function AvailabilityBoard({
             size="sm"
             onClick={() => setMondayIso((d) => addDays(d, 7))}
             aria-label={t("availabilityNextWeek")}
+            className={`${OUTLINE_BUTTON} w-10 px-0`}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -361,9 +364,9 @@ function AvailabilityBoard({
       {/* The answer, before the drawing. "How much work is this" is the question
           people bring to this page, and the old screen answered it only by
           making them count rectangles. */}
-      <div className="flex flex-wrap items-center gap-x-7 gap-y-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-muted)] px-5 py-4">
+      <div className="flex flex-wrap items-center gap-x-7 gap-y-3 rounded-[14px] border border-[var(--color-blue-soft)] bg-[var(--color-blue-softer)] px-6 py-5">
         <div className="grid gap-0.5">
-          <p className="font-rounded text-[1.75rem] leading-none font-semibold tracking-[-0.03em] tabular-nums">
+          <p className="font-display text-[1.75rem] leading-none font-extrabold tracking-[-0.02em] text-[var(--color-headline)] tabular-nums">
             {totals.totalMinutes > 0
               ? t("availabilityWeekTotalLine", {
                   total: formatHours(totals.totalMinutes, locale),
@@ -420,7 +423,7 @@ function AvailabilityBoard({
       <div className="grid gap-3 lg:grid-cols-[21rem_minmax(0,1fr)] lg:items-start">
         {/* The week comes first in the DOM below `lg`: on a phone the answer
             matters more than the controls that produced it. */}
-        <div className="order-first grid gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 lg:order-last lg:p-4">
+        <div className="order-first grid gap-3 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-4 lg:order-last lg:p-5">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             {selectedMember &&
               (publishedServices.length > 0 ? (
@@ -542,7 +545,7 @@ function AvailabilityBoard({
           it — and then to miss the once it mattered. Tinted, so it reads as a
           state the page is in rather than as another row of furniture. */}
       {dirty && (
-        <div className="sticky bottom-0 z-20 -mx-1 flex flex-wrap items-center gap-2 rounded-[var(--radius-card)] border border-[color-mix(in_srgb,var(--color-primary)_22%,var(--color-border))] bg-[color-mix(in_srgb,var(--color-primary)_5%,var(--color-background))] px-4 py-3 shadow-[0_-2px_12px_-6px_rgba(19,23,27,0.25)] backdrop-blur">
+        <div className="sticky bottom-0 z-20 -mx-1 flex flex-wrap items-center gap-2.5 rounded-[14px] border border-[color-mix(in_srgb,var(--color-primary)_22%,var(--color-border))] bg-[color-mix(in_srgb,var(--color-primary)_5%,var(--color-background))] px-4 py-3 shadow-[0_-2px_12px_-6px_rgba(19,23,27,0.25)] backdrop-blur">
           <p
             className={
               saveError
@@ -577,8 +580,8 @@ function AvailabilityBoard({
 /** One titled section of the control rail. */
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="grid gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 lg:p-4">
-      <h2 className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
+    <section className="grid gap-3.5 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-4 lg:p-5">
+      <h2 className="text-base leading-[21px] font-bold text-[var(--color-headline)]">
         {title}
       </h2>
       {children}
@@ -588,7 +591,7 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 
 function Note({ children }: { children: React.ReactNode }) {
   return (
-    <p className="type-caption flex gap-2 rounded-[var(--radius-card-sm)] border border-[color-mix(in_srgb,var(--color-primary)_16%,transparent)] bg-[var(--color-muted)] px-3 py-2.5 text-[var(--color-muted-foreground)]">
+    <p className="type-caption flex gap-2 rounded-[10px] bg-[var(--color-blue-softer)] px-3 py-2.5 text-[var(--color-muted-foreground)]">
       <Info aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--color-primary)]" />
       {children}
     </p>

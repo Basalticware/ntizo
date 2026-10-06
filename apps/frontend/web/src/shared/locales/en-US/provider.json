@@ -740,5 +740,88 @@
     "body": "Complete your profile and get more bookings.",
     "cta": "Complete profile"
   },
-  "verifiedProvider": "Verified provider"
+  "verifiedProvider": "Verified provider",
+  "membersPage": {
+    "eyebrow": "Team",
+    "title": "Members",
+    "subtitle": "Manage your team and invite people to work on your business.",
+    "invite": "Invite member",
+    "inviteLead": "Add a new member to your team. They will get an email invitation to join {{name}} on Ntizo.",
+    "inviteEmail": "Email",
+    "inviteEmailPlaceholder": "e.g. pedro@example.com",
+    "inviteRole": "Role",
+    "roleHint": {
+      "admin": "Manages the team: invites, removes and changes roles.",
+      "staff": "Part of the team; sees the members but does not manage them."
+    },
+    "cancel": "Cancel",
+    "you": "You",
+    "col": {
+      "name": "Name",
+      "contact": "Contact"
+    },
+    "tab": {
+      "all": "All",
+      "active": "Active",
+      "invited": "Pending invitations",
+      "expired": "Expired"
+    },
+    "state": {
+      "active": "Active",
+      "invited": "Invitation pending",
+      "expired": "Invitation expired"
+    }
+  },
+  "settingsPage": {
+    "subtitle": "Manage your account, identity and documents.",
+    "nav": {
+      "brand": "Brand and photos",
+      "brandHint": "Present your business",
+      "identityHint": "Details and description",
+      "addressHint": "Location and address",
+      "documentsHint": "Documents and credentials",
+      "dangerHint": "Deactivate the business"
+    },
+    "identityTitle": "Provider identity",
+    "name": "Provider name",
+    "documentsTitle": "Document verification",
+    "brandBlurb": "Add the logo and photos that represent your business.",
+    "identityBlurb": "Help customers get to know your business better.",
+    "documentsBlurb": "The documents needed to validate your profile and earn customers' trust.",
+    "tipTitle": "Tip",
+    "tipBody": "Use real photos of your work. Good pictures make customers trust you more.",
+    "verified": "Verified",
+    "completeness": "Profile completeness",
+    "completenessHint": "Complete every section to gain visibility and trust.",
+    "viewPublic": "View my public profile",
+    "quick": "Quick actions",
+    "quickView": "View public profile",
+    "quickShare": "Share profile",
+    "quickCopied": "Link copied",
+    "status": "Profile status",
+    "statusDone": "Profile complete!",
+    "statusAlmost": "Profile almost complete!",
+    "statusStart": "Complete your profile",
+    "statusHint": "Finish the missing sections to gain visibility.",
+    "step": {
+      "brand": "Brand and photos",
+      "identity": "Identity",
+      "address": "Where you work",
+      "documents": "Verification"
+    },
+    "stepDone": "Done",
+    "stepTodo": "To do",
+    "stepDocuments": "{{held}} of {{needed}} documents",
+    "help": "Need help?",
+    "helpBody": "Visit our help centre or talk to our team.",
+    "helpLink": "Open help centre",
+    "doc": {
+      "accepted": "Uploaded and verified",
+      "pending": "Uploaded, under review",
+      "rejected": "Refused",
+      "missing": "Not uploaded",
+      "upload": "Upload the document"
+    }
+  },
+  "availabilitySubtitle": "Set when you work and when customers can book."
 }

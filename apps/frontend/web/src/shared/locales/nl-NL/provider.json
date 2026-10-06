@@ -740,5 +740,88 @@
     "body": "Vul uw profiel aan en ontvang meer boekingen.",
     "cta": "Profiel aanvullen"
   },
-  "verifiedProvider": "Geverifieerde aanbieder"
+  "verifiedProvider": "Geverifieerde aanbieder",
+  "membersPage": {
+    "eyebrow": "Team",
+    "title": "Ledenlijst",
+    "subtitle": "Beheer uw team en nodig mensen uit om aan uw bedrijf mee te werken.",
+    "invite": "Lid uitnodigen",
+    "inviteLead": "Voeg een nieuw lid aan uw team toe. Diegene krijgt een uitnodiging per e-mail om lid te worden van {{name}} op Ntizo.",
+    "inviteEmail": "E-mail",
+    "inviteEmailPlaceholder": "Bijv. pedro@voorbeeld.nl",
+    "inviteRole": "Rol",
+    "roleHint": {
+      "admin": "Beheert het team: nodigt uit, verwijdert en wijzigt rollen.",
+      "staff": "Hoort bij het team; ziet de leden, maar beheert ze niet."
+    },
+    "cancel": "Annuleren",
+    "you": "U",
+    "col": {
+      "name": "Naam",
+      "contact": "Contact"
+    },
+    "tab": {
+      "all": "Alle",
+      "active": "Actief",
+      "invited": "Openstaande uitnodigingen",
+      "expired": "Verlopen"
+    },
+    "state": {
+      "active": "Actief",
+      "invited": "Uitnodiging open",
+      "expired": "Uitnodiging verlopen"
+    }
+  },
+  "settingsPage": {
+    "subtitle": "Beheer uw account, identiteit en documenten.",
+    "nav": {
+      "brand": "Merk en foto's",
+      "brandHint": "Presenteer uw bedrijf",
+      "identityHint": "Gegevens en beschrijving",
+      "addressHint": "Locatie en adres",
+      "documentsHint": "Documenten en bewijzen",
+      "dangerHint": "Bedrijf deactiveren"
+    },
+    "identityTitle": "Identiteit van de aanbieder",
+    "name": "Naam van de aanbieder",
+    "documentsTitle": "Documentverificatie",
+    "brandBlurb": "Voeg het logo en de foto's toe die uw bedrijf laten zien.",
+    "identityBlurb": "Help klanten uw bedrijf beter te leren kennen.",
+    "documentsBlurb": "De documenten die nodig zijn om uw profiel te bevestigen en het vertrouwen van klanten te winnen.",
+    "tipTitle": "Tip",
+    "tipBody": "Gebruik echte foto's van uw werk. Goede beelden vergroten het vertrouwen van klanten.",
+    "verified": "Geverifieerd",
+    "completeness": "Profiel compleet",
+    "completenessHint": "Vul alle onderdelen in voor meer zichtbaarheid en vertrouwen.",
+    "viewPublic": "Mijn openbare profiel bekijken",
+    "quick": "Snelle acties",
+    "quickView": "Openbaar profiel bekijken",
+    "quickShare": "Profiel delen",
+    "quickCopied": "Link gekopieerd",
+    "status": "Profielstatus",
+    "statusDone": "Profiel compleet!",
+    "statusAlmost": "Profiel bijna compleet!",
+    "statusStart": "Maak uw profiel compleet",
+    "statusHint": "Vul de ontbrekende onderdelen in voor meer zichtbaarheid.",
+    "step": {
+      "brand": "Merk en foto's",
+      "identity": "Identiteit",
+      "address": "Waar u werkt",
+      "documents": "Verificatie"
+    },
+    "stepDone": "Klaar",
+    "stepTodo": "Nog te doen",
+    "stepDocuments": "{{held}} van {{needed}} documenten",
+    "help": "Hulp nodig?",
+    "helpBody": "Bezoek ons helpcentrum of praat met ons team.",
+    "helpLink": "Helpcentrum openen",
+    "doc": {
+      "accepted": "Geüpload en geverifieerd",
+      "pending": "Geüpload, wordt beoordeeld",
+      "rejected": "Geweigerd",
+      "missing": "Niet geüpload",
+      "upload": "Upload het document"
+    }
+  },
+  "availabilitySubtitle": "Stel in wanneer u werkt en wanneer klanten kunnen boeken."
 }

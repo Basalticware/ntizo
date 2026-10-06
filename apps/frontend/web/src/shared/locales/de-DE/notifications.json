@@ -42,5 +42,16 @@
     "bookingDisputed": "Für eine Buchung wurde eine Reklamation eingereicht",
     "bookingDisputeResolved": "Es gibt eine Entscheidung zur Reklamation Ihrer Buchung",
     "unknown": "Sie haben eine neue Benachrichtigung"
-  }
+  },
+  "providerSubtitle": "Behalten Sie alles im Blick, was rund um Ihr Unternehmen auf Ntizo passiert.",
+  "tabAll": "Alle",
+  "tabUnread": "Ungelesen",
+  "tabsLabel": "Anzeigen",
+  "groupCount": "{{count}} Benachrichtigung",
+  "groupCount_other": "{{count}} Benachrichtigungen",
+  "actionBooking": "Buchung ansehen",
+  "actionThread": "Unterhaltung öffnen",
+  "rowActions": "Weitere Aktionen",
+  "unreadEmptyTitle": "Nichts Ungelesenes",
+  "unreadEmptyBody": "Sie haben alle Benachrichtigungen gelesen."
 }
