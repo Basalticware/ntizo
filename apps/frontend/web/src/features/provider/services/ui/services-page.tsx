@@ -254,14 +254,16 @@ export function ServicesPage() {
             actions: (
               <span className="flex items-center">
                 {/* A draft is still being written, so its way in is the editor's
-                    verb; anything published or archived is looked at first. */}
+                    verb; anything published or archived is looked at first.
+                    On a phone the card's name is that link already, and the
+                    button would squeeze it to a word a line. */}
                 <Link
                   to="/provider/$slug/services/$serviceId"
                   params={{ slug: activeProvider.slug, serviceId: service.id }}
                   tabIndex={-1}
                   className={cn(
                     DETAILS_BUTTON_CLASS,
-                    "h-11 w-[134px] border-[#5b98fc] px-0 text-[14.5px]",
+                    "h-11 w-[134px] border-[#5b98fc] px-0 text-[14.5px] max-md:hidden",
                     kind === "draft" &&
                       "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-deep)]",
                   )}

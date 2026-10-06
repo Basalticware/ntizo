@@ -8,6 +8,11 @@ import { cn } from "@ntizo/frontend-ui";
  *
  * Every count is known — the whole catalogue is one request — so every tab
  * carries one.
+ *
+ * Below `xl` the strip scrolls sideways inside the width it is given, and
+ * `contain: inline-size` is what lets it: without it, its full width is the
+ * toolbar's minimum, and on a phone the whole list card is pushed off the
+ * right edge to make room for tabs the reader could have scrolled.
  */
 export function SegmentedTabs<K extends string>({
   tabs,
@@ -24,7 +29,7 @@ export function SegmentedTabs<K extends string>({
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className="flex h-[54px] w-full max-w-full shrink-0 overflow-x-auto xl:w-auto rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)] [scrollbar-width:none]"
+      className="flex h-[54px] w-full max-w-full shrink-0 overflow-x-auto max-xl:[contain:inline-size] xl:w-auto rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)] [scrollbar-width:none]"
     >
       {tabs.map((tab, i) => {
         const selected = tab.key === value;

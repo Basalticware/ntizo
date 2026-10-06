@@ -208,7 +208,7 @@ function QuoteTabs({
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className="flex h-[49px] w-full max-w-full shrink-0 overflow-x-auto rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)] [scrollbar-width:none] lg:w-[726px]"
+      className="flex h-[49px] w-full max-w-full shrink-0 overflow-x-auto max-lg:[contain:inline-size] rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)] [scrollbar-width:none] lg:w-[726px]"
     >
       {PROVIDER_QUOTE_TABS.map((key, i) => {
         const selected = key === value;
