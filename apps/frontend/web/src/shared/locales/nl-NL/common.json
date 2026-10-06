@@ -34,5 +34,8 @@
   "navProfile": "Profiel",
   "createProvider": "Nieuwe aanbieder maken",
   "activity": "Activiteit",
-  "menu": "Menu"
+  "menu": "Menu",
+  "consoleSearch": "Wat zoekt u?",
+  "viewDetails": "Details bekijken",
+  "colActions": "Acties"
 }

@@ -551,7 +551,7 @@ describe("AdminBookingsPage", () => {
     // else, and jsdom evaluates neither — so the classes are what is held.
     expect(screen.getByRole("table").closest("div")).toHaveClass("lg:block");
     const cards = document.querySelector("ul.list-none")!;
-    expect(cards.closest("div[class*='border-t']")).toHaveClass("lg:hidden");
+    expect(cards.closest("[data-slot='collection-cards']")).toHaveClass("lg:hidden");
   });
 
   /**
@@ -590,7 +590,7 @@ describe("AdminBookingsPage", () => {
     expect(inTable.getByText(body)).toBeInTheDocument();
     // And the card over it is headed by the tab, not by the page: `selector`
     // picks the heading out from the tab button that carries the same word.
-    expect(screen.getByText(label, { selector: "p" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: label })).toBeInTheDocument();
   });
 
   it("counts what is waiting, and pages when there is more than a page", async () => {

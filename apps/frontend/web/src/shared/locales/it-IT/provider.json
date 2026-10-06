@@ -734,5 +734,10 @@
     "services": "Servizi",
     "bookings": "Prenotazioni",
     "quotes": "Preventivi"
+  },
+  "profileNudge": {
+    "title": "Diventi un fornitore di riferimento",
+    "body": "Completi il suo profilo e riceva più prenotazioni.",
+    "cta": "Completa il profilo"
   }
 }

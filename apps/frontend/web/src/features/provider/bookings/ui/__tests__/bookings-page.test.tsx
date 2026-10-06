@@ -258,11 +258,8 @@ async function row(customer: string) {
  * closes the panel again, so the page underneath is reachable by role.
  */
 async function pickTab(label: string) {
-  await userEvent.click(screen.getByRole("button", { name: /^filtrar/i }));
-  const panel = await screen.findByRole("dialog", { name: "Filtrar reservas" });
-  await userEvent.click(within(panel).getByRole("button", { name: "Mostrar" }));
-  await userEvent.click(within(panel).getByRole("option", { name: label }));
-  await userEvent.keyboard("{Escape}");
+  const tabs = screen.getByRole("tablist", { name: "Mostrar" });
+  await userEvent.click(within(tabs).getByRole("tab", { name: new RegExp(`^${label}`) }));
 }
 
 /**
@@ -282,7 +279,8 @@ describe("BookingsPage", () => {
     renderBookings("/provider/estudio/bookings");
 
     const ana = await row("Ana");
-    expect(ana.getByText("Corte de cabelo · Célia")).toBeInTheDocument();
+    expect(ana.getByText("Corte de cabelo")).toBeInTheDocument();
+    expect(ana.getByText(/Célia$/)).toBeInTheDocument();
     expect(ana.getByText("Por responder")).toBeInTheDocument();
     expect(ana.getByText(/1h30/)).toBeInTheDocument();
   });
@@ -291,8 +289,9 @@ describe("BookingsPage", () => {
     const { router } = renderBookings("/provider/estudio/bookings");
     await row("Ana");
 
-    // Nothing loose above the card: no tab row, no member dropdown.
-    expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
+    // The tabs are a row above the list, as the mockups draw it; the member
+    // stays in the filter panel.
+    expect(screen.getByRole("tab", { name: /^Pedidos/ })).toHaveAttribute("aria-selected", "true");
     await pickTab("Histórico");
 
     await waitFor(() =>

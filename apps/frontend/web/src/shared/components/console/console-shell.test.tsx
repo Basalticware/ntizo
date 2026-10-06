@@ -111,20 +111,27 @@ function renderPlatform(initialPath: string) {
 
 const sidebar = () => within(document.querySelector('[data-slot="sidebar"]') as HTMLElement);
 
+/** The business card at the head of the sidebar; its menu opens with the commission rate. */
+async function openWorkspaceCard() {
+  fireEvent.click(document.querySelector('[data-slot="workspace-card"]') as HTMLElement);
+}
+
 afterEach(() => vi.restoreAllMocks());
 
 describe("ConsoleShell · workspace", () => {
   it("shows the workspace's commission rate on a bookmarked deep link that never passes through Overview", async () => {
     renderWorkspace("/provider/bela-vista/services/new");
     expect(await screen.findByText("New service page")).toBeInTheDocument();
-    expect(screen.getByText("12%")).toBeInTheDocument();
+    await openWorkspaceCard();
+    expect(await screen.findByText("12%")).toBeInTheDocument();
     expect(screen.getByText("Platform's share")).toBeInTheDocument();
   });
 
   it("shows the same rate on Overview too — one place to keep true, not two", async () => {
     renderWorkspace("/provider/bela-vista/overview");
     expect(await screen.findByText("Overview page")).toBeInTheDocument();
-    expect(screen.getByText("12%")).toBeInTheDocument();
+    await openWorkspaceCard();
+    expect(await screen.findByText("12%")).toBeInTheDocument();
   });
 
   it("tells a workspace that is not live so, on the same deep link — the sentence is in the shell, not on Overview", async () => {
@@ -154,18 +161,19 @@ describe("ConsoleShell · workspace", () => {
     renderWorkspace("/provider/bela-vista/overview");
     await screen.findByText("Overview page");
     const links = sidebar().getAllByRole("link").map((a) => a.textContent?.trim());
-    expect(links).toEqual(["Overview", "Bookings", "Quotes", "Messages", "Availability", "Services", "Members", "Wallet", "Activity", "Settings"]);
+    // The menu, then the profile card at the sidebar's foot, which leads to Settings.
+    expect(links).toEqual(["Overview", "Services", "Availability", "Bookings", "Quotes", "Messages", "Wallet", "Members", "Notifications", "Activity", "Settings", "Complete profile"]);
     expect(sidebar().getByRole("link", { name: "Messages" })).toHaveAttribute("href", "/provider/bela-vista/messages");
-    expect(sidebar().queryByRole("link", { name: "Notifications" })).not.toBeInTheDocument();
+    expect(sidebar().getByRole("link", { name: "Notifications" })).toHaveAttribute("href", "/provider/bela-vista/notifications");
     expect(sidebar().getByRole("link", { name: "Overview" })).toHaveAttribute("data-active", "true");
   });
 
   it("keeps the bell — a phone's only route to the inbox — at 44px, linked to the workspace inbox", async () => {
     renderWorkspace("/provider/bela-vista/overview");
     await screen.findByText("Overview page");
-    const bell = screen.getByRole("link", { name: "Notifications" });
+    const bell = within(screen.getByRole("banner")).getByRole("link", { name: "Notifications" });
     expect(bell).toHaveAttribute("href", "/provider/bela-vista/notifications");
-    expect(bell).toHaveClass("h-11", "w-11", "md:h-9", "md:w-9");
+    expect(bell).toHaveClass("h-11", "w-11");
   });
 
   it("clears the header when a page that set a title gives way to one that sets none", async () => {
@@ -184,7 +192,7 @@ describe("ConsoleShell · platform", () => {
     expect(await screen.findByText("Dashboard page")).toBeInTheDocument();
     const links = sidebar().getAllByRole("link").map((a) => a.textContent?.trim());
     expect(links).toEqual(["Dashboard", "Providers", "Bookings", "Support", "Contact", "Reviews", "Users", "Activity", "Categories"]);
-    expect(sidebar().getByText("Admin")).toBeInTheDocument();
+    expect(within(screen.getByRole("banner")).getByText("Admin")).toBeInTheDocument();
     expect(screen.queryByText("Platform's share")).not.toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });

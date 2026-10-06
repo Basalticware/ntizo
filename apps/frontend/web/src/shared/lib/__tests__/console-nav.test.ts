@@ -80,9 +80,11 @@ describe("consoleNav: shape", () => {
     }
   });
 
-  it("puts people first in Manage in both zones — the symmetry the spec promises", () => {
-    expect(consoleNav("workspace").manage[0]?.key).toBe("members");
-    expect(consoleNav("platform").manage[0]?.key).toBe("users");
+  it("follows the mockups' order in a workspace — what is offered, when, then the work it brings", () => {
+    expect(allItems(consoleNav("workspace")).map((i) => i.key)).toEqual([
+      "overview", "services", "availability", "bookings", "quotes", "messages",
+      "wallet", "members", "notifications", "activity", "settings",
+    ]);
   });
 
   it("gives every item a unique key and a unique URL within its zone", () => {
@@ -95,9 +97,11 @@ describe("consoleNav: shape", () => {
     }
   });
 
-  it("puts the queue first in Work — Bookings for a workspace, Providers for the platform", () => {
-    expect(consoleNav("workspace").work[0]?.key).toBe("bookings");
-    expect(consoleNav("platform").work[0]?.key).toBe("providers");
+  it("follows the mockups' order on the platform", () => {
+    expect(allItems(consoleNav("platform")).map((i) => i.key)).toEqual([
+      "dashboard", "providers", "bookings", "support", "contact", "reviews",
+      "users", "activity", "categories",
+    ]);
   });
 });
 
@@ -117,8 +121,8 @@ describe("consoleNav: reachability", () => {
     expect(matches[0]?.titleKey).toBe("nav.messages");
   });
 
-  it("does not list notifications — the header bell is that control", () => {
-    expect(allItems(consoleNav("workspace")).some((i) => i.url.endsWith("/notifications"))).toBe(false);
+  it("lists the workspace's notifications once — the mockups put them in the menu as well as behind the bell", () => {
+    expect(allItems(consoleNav("workspace")).filter((i) => i.url.endsWith("/notifications"))).toHaveLength(1);
   });
 });
 

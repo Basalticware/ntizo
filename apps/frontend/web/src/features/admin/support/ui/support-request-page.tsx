@@ -86,7 +86,7 @@ export function AdminSupportRequestPage() {
     useResolveSupportRequest();
   const { markRead } = useMarkSupportRequestRead();
 
-  usePageHeader(request?.subject ?? t("supportTitle"), request?.requesterName);
+  usePageHeader(request?.subject ?? t("supportTitle"), request?.requesterName, { ownHeading: true });
 
   const newestRequesterMessageId = messages.find((message) => message.senderSide !== "platform")?.id;
 

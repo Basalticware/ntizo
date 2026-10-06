@@ -7,11 +7,13 @@ import type {
 } from "@/shared/components/collection-card";
 import { compactSlotWording } from "@/features/checkout/domain/slot-wording";
 import { formatMoney } from "@/features/wallet/domain/money";
+import { DETAILS_BUTTON_CLASS, PersonCell, TwoLineCell, WhenCell } from "@/shared/components/list-cells";
+import { relativeDayLabel } from "@/shared/lib/relative-day";
 import { timeLeftWording } from "../domain/status";
 import { BookingStatusBadge } from "./booking-status-badge";
 
 /**
- * The list's five columns. The dashboard passes a subset — a column the card
+ * The list's columns: the five the dashboard also reads, and the row's way in. The dashboard passes a subset — a column the card
  * does not receive is not drawn, and the cell for it is simply never read.
  */
 export function bookingColumns(t: TFunction<"provider">): CollectionColumn[] {
@@ -22,7 +24,6 @@ export function bookingColumns(t: TFunction<"provider">): CollectionColumn[] {
     {
       key: "price",
       label: t("bookings.col.price"),
-      align: "right",
       skeletonWidth: "w-20",
     },
     {
@@ -30,8 +31,8 @@ export function bookingColumns(t: TFunction<"provider">): CollectionColumn[] {
       label: t("bookings.col.status"),
       skeletonWidth: "w-24",
       skeletonShape: "badge",
-      className: "pr-5",
     },
+    { key: "actions", label: t("common:colActions"), className: "pr-5", hideOnCard: true },
   ];
 }
 
@@ -52,34 +53,47 @@ export function bookingRow(
   const { slug, locale, now, t } = ctx;
   const slot = compactSlotWording(b.startsAt, b.endsAt, locale, b.timezone);
   const left = b.respondBy ? timeLeftWording(b.respondBy, now) : null;
+  const href = { to: "/provider/$slug/bookings/$bookingId", params: { slug, bookingId: b.id } } as const;
+  const place = [b.addressDistrict, b.addressCity].filter(Boolean).join(", ");
   return {
     key: b.id,
-    // The customer's name *is* the way into the booking: the row has no other
-    // link, and a whole-row click handler is not one — it cannot be tabbed
-    // to, opened in a new tab, or read out as a destination.
+    // The customer's name *is* the way into the booking — a whole-row click
+    // handler is not one: it cannot be tabbed to, opened in a new tab, or read
+    // out as a destination. "Ver detalhes" beside it is the same link, drawn
+    // where the mockups put the row's action.
     primary: (
-      <Link
-        to="/provider/$slug/bookings/$bookingId"
-        params={{ slug, bookingId: b.id }}
-        className="type-body-medium block font-semibold hover:underline"
-      >
-        {b.customerFirstName}
-      </Link>
+      <PersonCell
+        name={b.customerFirstName}
+        place={place || null}
+        title={
+          <Link {...href} className="hover:underline">
+            {b.customerFirstName}
+          </Link>
+        }
+      />
     ),
     cells: {
-      service: `${b.serviceName} · ${b.memberFirstName ?? t("bookings.memberAnyone")}`,
+      service: (
+        <TwoLineCell
+          title={b.serviceName}
+          // The option, then who does it — the professional is what a team
+          // workspace scans this column for.
+          sub={[b.optionName, b.memberFirstName ?? t("bookings.memberAnyone")].filter(Boolean).join(" · ")}
+        />
+      ),
       when: (
-        <span className="tabular-nums">
-          {slot.date} · {slot.start}
-        </span>
+        <WhenCell
+          day={relativeDayLabel(b.startsAt, b.timezone, now, locale)}
+          time={`${slot.start} – ${slot.end}`}
+        />
       ),
       price: (
-        <span className="tabular-nums">
+        <span className="text-[15px] font-bold whitespace-nowrap text-[var(--color-headline)] tabular-nums">
           {formatMoney(b.priceMinor, b.currency, locale)}
         </span>
       ),
       status: (
-        <span className="inline-flex items-center gap-2">
+        <span className="inline-flex flex-wrap items-center gap-2">
           <BookingStatusBadge status={b.status} />
           {left && (
             <span className="type-caption text-[var(--color-muted-foreground)]">
@@ -89,5 +103,10 @@ export function bookingRow(
         </span>
       ),
     },
+    actions: (
+      <Link {...href} className={DETAILS_BUTTON_CLASS} tabIndex={-1}>
+        {t("common:viewDetails")}
+      </Link>
+    ),
   };
 }

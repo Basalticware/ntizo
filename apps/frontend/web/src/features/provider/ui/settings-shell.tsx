@@ -22,7 +22,7 @@ export function SettingsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[224px_minmax(0,1fr)] lg:gap-10">
+    <div className="w-full max-w-[1400px] lg:grid lg:grid-cols-[224px_minmax(0,1fr)] lg:gap-10">
       {nav}
       <div className="min-w-0">{children}</div>
     </div>

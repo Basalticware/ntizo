@@ -15,7 +15,7 @@ import { cn } from "../lib/utils";
  * more chances to drift.
  */
 const badgeVariants = cva(
-  "type-caption inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium",
+  "inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] leading-none font-medium whitespace-nowrap",
   {
     variants: {
       tone: {

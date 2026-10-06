@@ -161,7 +161,7 @@ export function AdminBookingsPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-4">
+    <div className="flex w-full max-w-[1400px] flex-col gap-4">
       {query.isError && (
         <p role="alert" className="type-body text-[var(--color-destructive)]">
           {t("bookingsError")}{" "}

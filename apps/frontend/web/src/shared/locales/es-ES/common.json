@@ -34,5 +34,8 @@
   "navProfile": "Perfil",
   "createProvider": "Crear nuevo proveedor",
   "activity": "Actividad",
-  "menu": "Menú"
+  "menu": "Menú",
+  "consoleSearch": "¿Qué busca?",
+  "viewDetails": "Ver detalles",
+  "colActions": "Acciones"
 }

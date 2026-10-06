@@ -19,7 +19,7 @@ export function ProviderWalletPage() {
   if (!activeProvider) return null;
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
+    <div className="flex w-full max-w-[1400px] flex-col gap-4">
       <WalletPanel providerId={activeProvider.id} />
     </div>
   );

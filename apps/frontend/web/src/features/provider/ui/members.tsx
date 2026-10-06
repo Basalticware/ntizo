@@ -156,7 +156,7 @@ export function MembersPage() {
     activeProvider.role === "owner" || activeProvider.role === "admin";
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-4">
+    <div className="flex w-full max-w-[1400px] flex-col gap-4">
       {actionError && (
         <p className="type-body text-[var(--color-destructive)]">
           {actionError}

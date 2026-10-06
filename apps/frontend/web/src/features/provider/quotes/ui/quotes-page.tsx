@@ -162,7 +162,7 @@ export function ProviderQuotesPage() {
     void navigate({ to: "/provider/$slug/quotes", params: { slug }, search: { tab: next } });
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-4">
+    <div className="grid w-full max-w-[1400px] gap-4">
       {query.isError && (
         <p role="alert" className="type-body text-[var(--color-destructive)]">
           {t("provider.loadError")}

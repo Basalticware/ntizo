@@ -24,8 +24,8 @@ export function ConsolePage({
   return (
     <div
       className={cn(
-        "mx-auto flex w-full flex-col gap-4",
-        width === "narrow" ? "max-w-4xl" : "max-w-6xl",
+        "flex w-full flex-col gap-4",
+        width === "narrow" ? "max-w-4xl" : "max-w-[1400px]",
         className,
       )}
     >

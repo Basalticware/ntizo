@@ -1,88 +1,21 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
-import { Check, Plus } from "lucide-react";
+import { Check, ChevronDown, Plus } from "lucide-react";
 import {
+  Avatar,
+  AvatarFallback,
   AvatarImage,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   cn,
 } from "@ntizo/frontend-ui";
 import { useActiveProvider } from "@/features/provider/viewmodel/use-active-provider";
 import { useProviderDetail } from "@/features/provider/viewmodel/use-providers";
 import { workspaceStatusBadgeKey } from "@/features/provider/domain/workspace-status";
-
-/**
- * Switching workspace, as a sub-menu of the account menu.
- *
- * Here rather than in a block of its own under the masthead: the account and
- * its organizations belong together, and the workspace's name is already the
- * page title. Two controls for one thing is one too many.
- */
-export function WorkspaceSwitcher() {
-  const { t } = useTranslation("provider");
-  const { providers, activeProvider, setActive } = useActiveProvider();
-  // Cached alongside the settings page's own read; costs nothing extra here.
-  const { data: detail } = useProviderDetail(activeProvider?.id);
-  const nav = useNavigate();
-  const orgInitials = (activeProvider?.name ?? "?").slice(0, 2).toUpperCase();
-
-  return (
-    <>
-      <DropdownMenuSub>
-        <DropdownMenuSubTrigger className="py-2">
-          {/* Only the active workspace gets a logo — the rows below would
-              each cost a detail fetch to find theirs. */}
-          <div className="mr-2 flex aspect-square h-7 w-7 items-center justify-center overflow-hidden rounded-md bg-primary/15 text-[11px] font-semibold text-primary">
-            {detail?.logo?.url ? <AvatarImage src={detail.logo.url} alt="" /> : orgInitials}
-          </div>
-          <div className="flex flex-1 flex-col leading-tight">
-            <span className="text-sm font-medium">{activeProvider?.name ?? t("noProvider")}</span>
-            <span className="text-[11px] text-muted-foreground">{activeProvider?.role ?? ""}</span>
-          </div>
-        </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent className="w-64">
-          {providers.map((p) => {
-            const isActive = p.id === activeProvider?.id;
-            // Whether the platform has approved it — the thing the slug
-            // cannot say. Two workspaces with one name and two slugs told you
-            // they were different; neither told you only one is live.
-            const badgeKey = workspaceStatusBadgeKey(p.status);
-            return (
-              <DropdownMenuItem key={p.id} onSelect={() => setActive(p.id)} className="py-2">
-                <div className="mr-2 flex aspect-square h-7 w-7 items-center justify-center rounded-md bg-primary/15 text-[11px] font-semibold text-primary">
-                  {p.name.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col leading-tight">
-                  <span className="truncate text-sm font-medium">{p.name}</span>
-                  {/* The slug, not the role: unique by construction, and what
-                      the address bar shows next. */}
-                  <span className="truncate font-mono text-[11px] text-muted-foreground">{p.slug}</span>
-                  {badgeKey && (
-                    <span className="mt-0.5 w-fit rounded-full bg-[color-mix(in_srgb,var(--color-warning)_22%,transparent)] px-1.5 py-px text-[10px] font-medium text-[var(--color-foreground)]">
-                      {t(badgeKey)}
-                    </span>
-                  )}
-                </div>
-                {isActive && <Check className="ml-2 h-4 w-4" />}
-              </DropdownMenuItem>
-            );
-          })}
-          <DropdownMenuSeparator />
-          {/* The wizard, not a dialog: a second workspace needs the same
-              type, address, payout and documents as the first. */}
-          <DropdownMenuItem onSelect={() => nav({ to: "/onboarding" })}>
-            <Plus className="h-4 w-4" />
-            {t("createNew")}
-          </DropdownMenuItem>
-        </DropdownMenuSubContent>
-      </DropdownMenuSub>
-      <DropdownMenuSeparator />
-    </>
-  );
-}
 
 /**
  * The same choice at the head of the phone's menu sheet, as plain rows. A
@@ -125,5 +58,84 @@ export function MobileWorkspaceSwitcher() {
         );
       })}
     </div>
+  );
+}
+
+/**
+ * The business at the head of the sidebar, as the mockups draw it: its logo,
+ * its name, where it works — and, opened, the switch to another workspace.
+ *
+ * The switch used to be a sub-menu of the account menu. The mockups put the
+ * business here and the person in the top bar, which is the same split the
+ * account menu's own comment argued for: a person and the organizations they
+ * work in are different things.
+ *
+ * The commission rate opens the menu. It used to be a strip under the header
+ * on every page; the mockups have no strip, and the rate still has to be
+ * reachable from any page, a bookmark to `/services/new` included.
+ */
+export function WorkspaceCard({ commission }: { commission: string | null }) {
+  const { t } = useTranslation("provider");
+  const { providers, activeProvider, setActive } = useActiveProvider();
+  const { data: detail } = useProviderDetail(activeProvider?.id);
+  const nav = useNavigate();
+  const name = activeProvider?.name ?? t("noProvider");
+  const place = [detail?.address?.district, detail?.address?.city].filter(Boolean).join(" • ");
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <button
+          type="button"
+          data-slot="workspace-card"
+          className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-[var(--color-muted)] group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+        >
+          <Avatar className="h-12 w-12 shrink-0 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
+            {detail?.logo?.url ? <AvatarImage src={detail.logo.url} alt="" /> : null}
+            <AvatarFallback className="bg-[color-mix(in_srgb,var(--color-primary)_14%,transparent)] text-sm font-semibold text-[var(--color-primary)]">
+              {name.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <span className="grid min-w-0 flex-1 leading-tight group-data-[collapsible=icon]:hidden">
+            <span className="line-clamp-2 text-[15px] font-bold text-[var(--color-headline)]">{name}</span>
+            {place && <span className="truncate text-[13px] text-[var(--color-muted-foreground)]">{place}</span>}
+          </span>
+          <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-[var(--color-headline)] group-data-[collapsible=icon]:hidden" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-64">
+        <DropdownMenuLabel className="flex items-center justify-between gap-3 px-3 py-2.5 text-xs font-normal text-[var(--color-muted-foreground)]">
+          <span>{t("commissionRateLabel")}</span>
+          <span className="font-semibold text-[var(--color-foreground)]">{commission ?? "—"}</span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {providers.map((p) => {
+          const isActive = p.id === activeProvider?.id;
+          const badgeKey = workspaceStatusBadgeKey(p.status);
+          return (
+            <DropdownMenuItem key={p.id} onSelect={() => setActive(p.id)} className="py-2">
+              <div className="mr-2 flex aspect-square h-7 w-7 items-center justify-center rounded-md bg-primary/15 text-[11px] font-semibold text-primary">
+                {p.name.slice(0, 2).toUpperCase()}
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col leading-tight">
+                <span className="truncate text-sm font-medium">{p.name}</span>
+                <span className="truncate font-mono text-[11px] text-muted-foreground">{p.slug}</span>
+                {badgeKey && (
+                  <span className="mt-0.5 w-fit rounded-full bg-[color-mix(in_srgb,var(--color-warning)_22%,transparent)] px-1.5 py-px text-[10px] font-medium text-[var(--color-foreground)]">
+                    {t(badgeKey)}
+                  </span>
+                )}
+              </div>
+              {isActive && <Check className="ml-2 h-4 w-4" />}
+            </DropdownMenuItem>
+          );
+        })}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => nav({ to: "/onboarding" })}>
+          <Plus className="h-4 w-4" />
+          {t("createNew")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

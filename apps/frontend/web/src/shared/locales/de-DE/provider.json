@@ -734,5 +734,10 @@
     "services": "Leistungen",
     "bookings": "Buchungen",
     "quotes": "Kostenvoranschläge"
+  },
+  "profileNudge": {
+    "title": "Werden Sie ein Top-Anbieter",
+    "body": "Vervollständigen Sie Ihr Profil und erhalten Sie mehr Buchungen.",
+    "cta": "Profil vervollständigen"
   }
 }

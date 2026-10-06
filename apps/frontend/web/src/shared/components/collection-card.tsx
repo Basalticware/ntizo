@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ComponentType, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { GripVertical, Search, SlidersHorizontal } from "lucide-react";
+import { Filter, GripVertical, Search } from "lucide-react";
 import { Button, Input, Skeleton, cn } from "@ntizo/frontend-ui";
 import { EmptyCard } from "./empty-card";
 
@@ -79,10 +79,16 @@ const TABLE_AT: Record<CollectionBreakpoint, string> = {
   lg: "hidden overflow-x-auto lg:block",
   xl: "hidden overflow-x-auto xl:block",
 };
+/** The table's frame — only where there is a table; the phone's cards are their own boxes. */
+const FRAME_AT: Record<CollectionBreakpoint, string> = {
+  md: "md:overflow-hidden md:rounded-[var(--radius-card)] md:border md:border-[var(--color-border)] md:bg-[var(--color-card)]",
+  lg: "lg:overflow-hidden lg:rounded-[var(--radius-card)] lg:border lg:border-[var(--color-border)] lg:bg-[var(--color-card)]",
+  xl: "xl:overflow-hidden xl:rounded-[var(--radius-card)] xl:border xl:border-[var(--color-border)] xl:bg-[var(--color-card)]",
+};
 const CARDS_BELOW: Record<CollectionBreakpoint, string> = {
-  md: "border-t border-[var(--color-border)] md:hidden",
-  lg: "border-t border-[var(--color-border)] lg:hidden",
-  xl: "border-t border-[var(--color-border)] xl:hidden",
+  md: "md:hidden",
+  lg: "lg:hidden",
+  xl: "xl:hidden",
 };
 
 export interface CollectionRow {
@@ -145,8 +151,16 @@ export function CollectionCard({
   reorder,
   totalUnknown = false,
   tableFrom = "md",
+  tabs,
 }: {
+  /**
+   * The list's name. Drawn as the section's heading when the card is a
+   * section of a page (it has an `action`); otherwise the page's own title
+   * says it, and this only names the region for a screen reader.
+   */
   title: string;
+  /** A `StatusTabs` row, drawn where the heading would be. */
+  tabs?: ReactNode;
   shown: number;
   /**
    * Before filtering. With a filter on, one number is a lie about the whole
@@ -275,46 +289,37 @@ export function CollectionCard({
     reorder.onReorder(keys);
   }
 
+  const countLine = loading ? (
+    <Skeleton className="h-[19px] w-24" />
+  ) : totalUnknown ? (
+    t("peopleShownPartial", { shown })
+  ) : (
+    t("peopleShown", { shown, total })
+  );
+
   return (
-    <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)]">
-      <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-5">
-        <div className="min-w-0">
-          <p className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
-            {title}
-          </p>
-          {/*
-           * `<div>`, not `<p>`: the loading branch renders `Skeleton`, which
-           * is a `<div>` (packages/frontend/src/components/skeleton.tsx) —
-           * a `<p>` cannot contain one. That combination shipped for years
-           * with nobody hitting it because unit tests render this component
-           * pre-resolved (`loading: false`) or don't watch the console, but
-           * a real browser session that reaches this card *while its query
-           * is still in flight* hits it every time: React logs "In HTML,
-           * <div> cannot be a descendant of <p>… This will cause a
-           * hydration error", and the mismatched subtree is discarded and
-           * rebuilt client-side.
-           */}
-          <div className="type-body mt-0.5">
-            {loading ? (
-              <Skeleton className="h-[19px] w-24" />
-            ) : totalUnknown ? (
-              t("peopleShownPartial", { shown })
-            ) : (
-              t("peopleShown", { shown, total })
-            )}
-          </div>
-        </div>
+    <section aria-label={title} className="grid min-w-0 gap-4">
+      {/* The toolbar sits above the frame, not inside it: tabs (or the
+          section's own heading) on the left, search and Filtrar on the right. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* A visible heading only for a section of a larger page — the
+            overview's "Reservas recentes", which comes with its "Ver todas".
+            A list that *is* the page already has the page's own title above
+            it, and a second copy of the word underneath reads as a stutter. */}
+        {tabs ?? (
+          <h2 className={action ? "text-xl font-bold text-[var(--color-headline)]" : "sr-only"}>{title}</h2>
+        )}
 
         <div className="flex flex-1 flex-wrap items-center justify-end gap-2.5">
           {onSearchChange && searchPlaceholder !== undefined && (
-            <div className="relative min-w-[180px] flex-1 sm:max-w-xs">
-              <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]" />
+            <div className="relative min-w-[180px] flex-1 sm:max-w-[300px]">
+              <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]" />
               <Input
                 value={search ?? ""}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
                 aria-label={searchPlaceholder}
-                className="pl-9"
+                className="h-11 rounded-[10px] pl-10"
               />
             </div>
           )}
@@ -324,8 +329,14 @@ export function CollectionCard({
             // `sm`, and a display-hidden span contributes nothing to the
             // accessible name — so on a phone this was an unlabelled button
             // to a screen reader, and unfindable by name to a test.
-            <Button type="button" variant="outline" onClick={onOpenFilters} aria-label={t("peopleFilter")}>
-              <SlidersHorizontal className="h-4 w-4" />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onOpenFilters}
+              aria-label={t("peopleFilter")}
+              className="h-11 rounded-[10px] border-[color-mix(in_srgb,var(--color-primary)_45%,transparent)] px-4 font-semibold text-[var(--color-primary)] hover:bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)]"
+            >
+              <Filter className="h-4 w-4" />
               <span className="hidden sm:inline">{t("peopleFilter")}</span>
               {activeFilterCount > 0 && (
                 <span className="ml-1 grid h-5 min-w-5 place-items-center rounded-full bg-[var(--color-primary)] px-1.5 text-[11px] font-semibold text-[var(--color-primary-foreground)]">
@@ -337,11 +348,12 @@ export function CollectionCard({
         </div>
       </div>
 
+    <div className={FRAME_AT[tableFrom]}>
       {/* ── Wide screens: a table ─────────────────────────────────────────── */}
-      <div className={TABLE_AT[tableFrom]}>
+      <div data-slot="collection-table" className={TABLE_AT[tableFrom]}>
         <table className="w-full border-collapse">
           <thead>
-            <tr className="border-y border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-muted)_35%,transparent)]">
+            <tr className="border-b border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-muted)_70%,transparent)]">
               {/* Deliberately unlabelled: a column header over a drag handle
                   would be read out on every row and names nothing. */}
               {reorder && <th className="w-8" aria-hidden="true" />}
@@ -349,7 +361,7 @@ export function CollectionCard({
                 <th
                   key={column.key}
                   className={cn(
-                    "type-caption py-2.5 pr-4 text-left font-bold tracking-[0.1em] text-[var(--color-muted-foreground)] uppercase",
+                    "py-3.5 pr-4 text-left text-sm font-medium text-[var(--color-muted-foreground)]",
                     column.align === "right" && "text-right",
                     column.className,
                   )}
@@ -414,12 +426,12 @@ export function CollectionCard({
                       </span>
                     </td>
                   )}
-                  <td className="py-3.5 pl-5">{row.primary}</td>
+                  <td className="py-3 pl-5">{row.primary}</td>
                   {restColumns.map((column) => (
                     <td
                       key={column.key}
                       className={cn(
-                        "type-body py-3.5 pr-4",
+                        "type-body py-3 pr-4 align-middle",
                         column.align === "right" && "text-right",
                         column.className,
                       )}
@@ -437,7 +449,7 @@ export function CollectionCard({
       </div>
 
       {/* ── Narrow screens: one card per row ──────────────────────────────── */}
-      <div className={CARDS_BELOW[tableFrom]}>
+      <div data-slot="collection-cards" className={CARDS_BELOW[tableFrom]}>
         {loading ? (
           <CardSkeleton
             restColumns={restColumns}
@@ -447,7 +459,7 @@ export function CollectionCard({
         ) : isEmpty ? (
           emptyCard
         ) : (
-          <ul className="grid list-none gap-3 p-4">
+          <ul className="grid list-none gap-3">
             {rows.map((row) => (
               // `min-w-0` on the grid item, and it is load-bearing: a grid
               // item's automatic minimum is its min-content width, and a
@@ -458,7 +470,7 @@ export function CollectionCard({
               // `min-w-0` flex chain inside it truncates as it was written to.
               <li
                 key={row.key}
-                className="min-w-0 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] p-4"
+                className="min-w-0 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] bg-[var(--color-card)] p-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">{row.primary}</div>
@@ -501,6 +513,10 @@ export function CollectionCard({
         )}
       </div>
     </div>
+
+      {/* The count under the frame, where the mockups put "A mostrar …". */}
+      <div className="type-body text-[var(--color-muted-foreground)]">{countLine}</div>
+    </section>
   );
 }
 
@@ -612,7 +628,7 @@ function CardSkeleton({
   const pairs = restColumns.filter((c) => c.key !== "actions" && !c.hideOnCard);
 
   return (
-    <div className="grid gap-3 p-4">
+    <div className="grid gap-3">
       {Array.from({ length: count }, (_, i) => (
         <div
           key={i}

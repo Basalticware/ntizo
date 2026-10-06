@@ -35,7 +35,7 @@ export function AdminUserDetailPage() {
   const detail = query.data;
   const name = detail ? displayName(detail) : null;
 
-  usePageHeader(name ?? t("userDetailTitle"), detail?.email);
+  usePageHeader(name ?? t("userDetailTitle"), detail?.email, { ownHeading: true });
 
   const notFound = (query.error as { code?: string } | null)?.code === "USER_NOT_FOUND";
   const date = (iso: string) =>

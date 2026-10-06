@@ -8,9 +8,11 @@ import type {
   ProviderBookingPageDTO,
 } from "@ntizo/shared/read-models";
 import { CollectionCard } from "@/shared/components/collection-card";
+import { useConsoleCounts } from "@/shared/components/console/console-counts";
+import { StatusTabs, type StatusTab } from "@/shared/components/status-tabs";
 import { usePageHeader } from "@/shared/lib/page-header";
 import { useActiveProvider } from "@/features/provider/viewmodel/use-active-provider";
-import { PROVIDER_BOOKINGS_PAGE_SIZE, type ProviderTab } from "../domain/status";
+import { PROVIDER_BOOKINGS_PAGE_SIZE, PROVIDER_TABS, type ProviderTab } from "../domain/status";
 import { useProviderBookings } from "../viewmodel/use-provider-bookings";
 import { bookingColumns, bookingRow } from "./booking-row";
 import { BookingsFilterSheet, DEFAULT_PROVIDER_TAB, bookingFilterCount } from "./bookings-filters";
@@ -39,6 +41,7 @@ export function BookingsPage() {
   const tab: ProviderTab = search.tab ?? DEFAULT_PROVIDER_TAB;
   const memberId = search.member ?? null;
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const counts = useConsoleCounts();
 
   usePageHeader(t("bookings.title"), t("bookings.subtitle"));
 
@@ -152,6 +155,23 @@ export function BookingsPage() {
   if (!activeProvider) return null;
   const slug = activeProvider.slug;
 
+  /**
+   * The tabs above the card. Only two numbers are known: the requests waiting
+   * (the sidebar's own count) and the size of the tab on screen. The server
+   * does not count the other tabs, so they show none rather than a guess.
+   */
+  const tabs: StatusTab<ProviderTab>[] = PROVIDER_TABS.map((key) => ({
+    key,
+    label: t(`bookings.tab.${key}`),
+    tone: key === "requests" ? "warning" : "neutral",
+    count:
+      key === tab && answered && !q.trim() && memberId === null
+        ? answered.total
+        : key === "requests"
+          ? (counts.bookingRequests ?? null)
+          : null,
+  }));
+
   const filters = { tab, memberId };
   const setFilters = (next: { tab: ProviderTab; memberId: string | null }) =>
     void navigate({
@@ -161,7 +181,7 @@ export function BookingsPage() {
     });
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-4">
+    <div className="grid w-full max-w-[1400px] gap-4">
       {query.isError && (
         <p role="alert" className="type-body text-[var(--color-destructive)]">
           {t("bookings.loadError")}{" "}
@@ -177,6 +197,14 @@ export function BookingsPage() {
 
       <CollectionCard
         title={t(`bookings.tab.${tab}`)}
+        tabs={
+          <StatusTabs
+            tabs={tabs}
+            value={tab}
+            onChange={(next) => setFilters({ tab: next, memberId })}
+            ariaLabel={t("bookings.showLabel")}
+          />
+        }
         shown={visible.length}
         total={answered?.total ?? 0}
         // Only the first page draws skeletons. A second page's request must

@@ -136,7 +136,7 @@ describe("the menu sheet", () => {
     // the sidebar does, so a link's text is "Messages" plus its count.
     const links = within(sheet).getAllByRole("link").map((a) => a.querySelector("span")?.textContent?.trim());
     expect(within(sheet).getByRole("link", { name: /messages/i })).toHaveTextContent("2");
-    expect(links).toEqual(["Overview", "Bookings", "Quotes", "Messages", "Availability", "Services", "Members", "Wallet", "Activity", "Settings"]);
+    expect(links).toEqual(["Overview", "Services", "Availability", "Bookings", "Quotes", "Messages", "Wallet", "Members", "Notifications", "Activity", "Settings"]);
     expect(document.activeElement).toBe(within(sheet).getByRole("link", { name: "Overview" }));
 
     fireEvent.keyDown(document, { key: "Escape" });

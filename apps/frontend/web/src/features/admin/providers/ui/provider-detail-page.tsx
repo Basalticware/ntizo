@@ -58,7 +58,7 @@ export function AdminProviderDetailPage() {
   const commission = useSetProviderCommission(providerId);
   const detail = query.data;
 
-  usePageHeader(detail?.name ?? t("providerDetailTitle"), detail?.slug);
+  usePageHeader(detail?.name ?? t("providerDetailTitle"), detail?.slug, { ownHeading: true });
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6">
