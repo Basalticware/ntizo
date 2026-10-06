@@ -71,8 +71,8 @@
   "providersError": "Não foi possível carregar a lista de prestadores.",
   "providerStatus": {
     "pending": "Pendente",
-    "active": "Activo",
-    "rejected": "Recusado",
+    "active": "Aprovado",
+    "rejected": "Rejeitado",
     "suspended": "Suspenso",
     "archived": "Arquivado"
   },

@@ -8,7 +8,7 @@
     "myAccount": "A minha conta",
     "providers": "Prestadores",
     "categories": "Categorias",
-    "activity": "Actividade",
+    "activity": "Atividade",
     "reviews": "Avaliações",
     "contact": "Contactos",
     "support": "Suporte",
@@ -71,8 +71,8 @@
   "providersError": "Não foi possível carregar a lista de prestadores.",
   "providerStatus": {
     "pending": "Pendente",
-    "active": "Activo",
-    "rejected": "Recusado",
+    "active": "Aprovado",
+    "rejected": "Rejeitado",
     "suspended": "Suspenso",
     "archived": "Arquivado"
   },

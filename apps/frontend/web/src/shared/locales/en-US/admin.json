@@ -71,7 +71,7 @@
   "providersError": "The provider list could not be loaded.",
   "providerStatus": {
     "pending": "Pending",
-    "active": "Active",
+    "active": "Approved",
     "rejected": "Rejected",
     "suspended": "Suspended",
     "archived": "Archived"

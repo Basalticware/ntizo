@@ -71,7 +71,7 @@
   "providersError": "De aanbiederslijst kon niet worden geladen.",
   "providerStatus": {
     "pending": "In afwachting",
-    "active": "Actief",
+    "active": "Goedgekeurd",
     "rejected": "Afgewezen",
     "suspended": "Geschorst",
     "archived": "Gearchiveerd"

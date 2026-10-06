@@ -71,7 +71,7 @@
   "providersError": "No se pudo cargar la lista de proveedores.",
   "providerStatus": {
     "pending": "Pendiente",
-    "active": "Activo",
+    "active": "Aprobado",
     "rejected": "Rechazado",
     "suspended": "Suspendido",
     "archived": "Archivado"

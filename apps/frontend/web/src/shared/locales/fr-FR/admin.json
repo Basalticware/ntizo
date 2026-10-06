@@ -71,8 +71,8 @@
   "providersError": "La liste des prestataires n’a pas pu être chargée.",
   "providerStatus": {
     "pending": "En attente",
-    "active": "Actif",
-    "rejected": "Refusé",
+    "active": "Approuvé",
+    "rejected": "Rejeté",
     "suspended": "Suspendu",
     "archived": "Archivé"
   },
