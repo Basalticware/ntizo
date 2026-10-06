@@ -52,5 +52,15 @@
     "TOO_MANY_ATTACHMENTS": "Un messaggio può contenere al massimo {{max}} file.",
     "ATTACHMENT_NOT_AVAILABLE": "Uno di questi file non è più disponibile. Rimuovilo e riprova.",
     "GENERIC": "Non è stato possibile inviare il messaggio. Riprova."
-  }
+  },
+  "providerSubtitle": "Parli con i suoi clienti, risponda alle richieste e segua tutte le sue conversazioni.",
+  "providerTab": {
+    "all": "Tutte",
+    "unread": "Non lette",
+    "customers": "Clienti"
+  },
+  "providerTabEmptyTitle": "Niente in questa scheda",
+  "providerTabEmptyBody": "Le conversazioni corrispondenti compariranno qui.",
+  "read": "Letto",
+  "sent": "Inviato"
 }

@@ -52,5 +52,15 @@
     "TOO_MANY_ATTACHMENTS": "Een bericht mag maximaal {{max}} bestanden bevatten.",
     "ATTACHMENT_NOT_AVAILABLE": "Een van deze bestanden is niet meer beschikbaar. Verwijder het en probeer het opnieuw.",
     "GENERIC": "Dit bericht kon niet worden verstuurd. Probeer het opnieuw."
-  }
+  },
+  "providerSubtitle": "Praat met uw klanten, beantwoord aanvragen en volg al uw gesprekken.",
+  "providerTab": {
+    "all": "Alle",
+    "unread": "Ongelezen",
+    "customers": "Klanten"
+  },
+  "providerTabEmptyTitle": "Niets op dit tabblad",
+  "providerTabEmptyBody": "Gesprekken die passen verschijnen hier.",
+  "read": "Gelezen",
+  "sent": "Verzonden"
 }

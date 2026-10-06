@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { Send } from "lucide-react";
 import { Button, cn } from "@ntizo/frontend-ui";
 import { hasContact } from "@ntizo/shared/text";
 import {
@@ -126,16 +127,31 @@ export function MessageComposer({
 
   return (
     <form onSubmit={(event) => void handleSubmit(event)} className="grid gap-2">
-      <textarea
-        value={body}
-        onChange={(event) => setBody(event.target.value)}
-        placeholder={t("composerPlaceholder")}
-        aria-label={t("composerLabel")}
-        disabled={disabled}
-        maxLength={MESSAGE_BODY_MAX_LENGTH}
-        rows={3}
-        className="type-body min-h-[4.5rem] w-full resize-y rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-3.5 py-2.5 placeholder:text-[var(--color-muted-foreground)] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-      />
+      {/* What has been picked, over the row that sends it. */}
+      <AttachmentPicker part="list" files={files} onAdd={add} onRemove={remove} disabled={disabled || busy} />
+
+      {/* One row, as the mockup draws it: the paperclip, the field, Enviar. */}
+      <div className="flex items-start gap-3.5">
+        <AttachmentPicker part="button" files={files} onAdd={add} onRemove={remove} disabled={disabled || busy} />
+        <textarea
+          value={body}
+          onChange={(event) => setBody(event.target.value)}
+          placeholder={t("composerPlaceholder")}
+          aria-label={t("composerLabel")}
+          disabled={disabled}
+          maxLength={MESSAGE_BODY_MAX_LENGTH}
+          rows={1}
+          className="field-sizing-content max-h-40 min-h-[50px] min-w-0 flex-1 resize-none rounded-[10px] border border-[var(--color-border)] bg-[var(--color-background)] px-[18px] py-[13px] text-base leading-[1.4] placeholder:text-[var(--color-faint)] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        />
+        <Button
+          type="submit"
+          disabled={!canSend}
+          className="h-[50px] shrink-0 gap-3 rounded-[10px] px-5 text-[16.5px] font-semibold sm:w-[119px]"
+        >
+          <Send aria-hidden="true" className="h-[22px] w-[22px]" />
+          <span className="sr-only sm:not-sr-only">{busy ? t("sending") : t("send")}</span>
+        </Button>
+      </div>
 
       {bodyHasContact && (
         <p role="alert" className="type-caption text-[var(--color-destructive)]">
@@ -143,21 +159,18 @@ export function MessageComposer({
         </p>
       )}
 
-      <AttachmentPicker files={files} onAdd={add} onRemove={remove} disabled={disabled || busy} />
-
-      <div className="flex items-center justify-between gap-3">
+      {/* The count only once there is something to count — an empty field
+          does not need to be told it has room for 4000 characters. */}
+      {trimmed.length > 0 && (
         <span
           className={cn(
-            "type-caption",
+            "type-caption justify-self-end",
             tooLong ? "text-[var(--color-destructive)]" : "text-[var(--color-muted-foreground)]",
           )}
         >
           {t("charCount", { count: trimmed.length, max: MESSAGE_BODY_MAX_LENGTH })}
         </span>
-        <Button type="submit" disabled={!canSend}>
-          {busy ? t("sending") : t("send")}
-        </Button>
-      </div>
+      )}
 
       {errorCode && (
         <p role="alert" className="type-caption text-[var(--color-destructive)]">

@@ -2,8 +2,15 @@
   "list": {
     "title": "Mijn offertes",
     "blurb": "Wat je hebt aangevraagd, wat al een antwoord heeft, en wat nog loopt.",
-    "tab": { "open": "Open", "history": "Geschiedenis" },
-    "column": { "service": "Dienst", "status": "Status", "price": "Prijs" },
+    "tab": {
+      "open": "Open",
+      "history": "Geschiedenis"
+    },
+    "column": {
+      "service": "Dienst",
+      "status": "Status",
+      "price": "Prijs"
+    },
     "emptyTitle": "Je hebt nog geen offertes aangevraagd",
     "emptyText": "Bij diensten die zijn gemarkeerd als «op offerte» vertel je wat je nodig hebt, en de dienstverlener antwoordt met een prijs en een datum.",
     "emptyAction": "Bekijk diensten op offerte",
@@ -204,10 +211,19 @@
   },
   "provider": {
     "title": "Offertes",
-    "blurb": "{{count}} nog te beantwoorden · de meest urgente verloopt over {{left}}",
-    "blurbNone": "Niets wacht op een antwoord.",
-    "tab": { "toAnswer": "Te beantwoorden", "waiting": "Wacht op klant", "history": "Geschiedenis" },
-    "column": { "customer": "Klant", "service": "Dienst", "status": "Status", "price": "Prijs" },
+    "tab": {
+      "toAnswer": "Te beantwoorden",
+      "waiting": "Wacht op klant",
+      "history": "Geschiedenis"
+    },
+    "column": {
+      "customer": "Klant",
+      "service": "Dienst",
+      "status": "Status",
+      "price": "Voorgestelde prijs",
+      "description": "Korte beschrijving",
+      "deadline": "Termijn"
+    },
     "emptyTitle": "Geen offerteaanvragen",
     "emptyText": "Markeer een dienst als «op offerte» en aanvragen verschijnen hier.",
     "noMatchesTitle": "Niets in deze lijst",
@@ -233,7 +249,14 @@
     "completedBookings_zero": "eerste keer op Ntizo",
     "historyTitle": "Geschiedenis",
     "requestReceived": "Aanvraag ontvangen",
-    "movedOn": "Deze aanvraag is intussen veranderd. We hebben hem opnieuw geladen."
+    "movedOn": "Deze aanvraag is intussen veranderd. We hebben hem opnieuw geladen.",
+    "eyebrow": "Offertes",
+    "heading": "Offerteaanvragen",
+    "subtitle": "Dit zijn offerteaanvragen van klanten die uw diensten nodig hebben.",
+    "answer": "Beantwoorden",
+    "deadlineUntil": "tot {{time}}",
+    "deadlineIn": "over {{left}}",
+    "deadlinePassed": "Verlopen"
   },
   "propose": {
     "title": "Jouw voorstel",

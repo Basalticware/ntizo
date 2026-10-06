@@ -2,8 +2,15 @@
   "list": {
     "title": "My quotes",
     "blurb": "What you asked for, what has an answer, and what is still on the clock.",
-    "tab": { "open": "Open", "history": "History" },
-    "column": { "service": "Service", "status": "Status", "price": "Price" },
+    "tab": {
+      "open": "Open",
+      "history": "History"
+    },
+    "column": {
+      "service": "Service",
+      "status": "Status",
+      "price": "Price"
+    },
     "emptyTitle": "You haven't asked for a quote yet",
     "emptyText": "On services marked \"by quote\", tell the provider what you need and they answer with a price and a date.",
     "emptyAction": "See services by quote",
@@ -204,10 +211,19 @@
   },
   "provider": {
     "title": "Quotes",
-    "blurb": "{{count}} awaiting your answer · the most urgent expires in {{left}}",
-    "blurbNone": "Nothing waiting for an answer.",
-    "tab": { "toAnswer": "To answer", "waiting": "Waiting on the customer", "history": "History" },
-    "column": { "customer": "Customer", "service": "Service", "status": "Status", "price": "Price" },
+    "tab": {
+      "toAnswer": "To answer",
+      "waiting": "Waiting on the customer",
+      "history": "History"
+    },
+    "column": {
+      "customer": "Customer",
+      "service": "Service",
+      "status": "Status",
+      "price": "Proposed price",
+      "description": "Short description",
+      "deadline": "Deadline"
+    },
     "emptyTitle": "No quote requests",
     "emptyText": "Mark a service as \"by quote\" and requests will show up here.",
     "noMatchesTitle": "Nothing in this list",
@@ -233,7 +249,14 @@
     "completedBookings_zero": "first time on Ntizo",
     "historyTitle": "History",
     "requestReceived": "Request received",
-    "movedOn": "This request changed in the meantime. We reloaded it."
+    "movedOn": "This request changed in the meantime. We reloaded it.",
+    "eyebrow": "Quotes",
+    "heading": "Quote requests",
+    "subtitle": "These are quote requests from customers who need your services.",
+    "answer": "Reply",
+    "deadlineUntil": "by {{time}}",
+    "deadlineIn": "in {{left}}",
+    "deadlinePassed": "Expired"
   },
   "propose": {
     "title": "Your proposal",

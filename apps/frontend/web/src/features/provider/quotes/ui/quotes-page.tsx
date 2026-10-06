@@ -8,7 +8,7 @@ import { CollectionCard } from "@/shared/components/collection-card";
 import { usePageHeader } from "@/shared/lib/page-header";
 import { useActiveProvider } from "@/features/provider/viewmodel/use-active-provider";
 import { useProviderDetail } from "@/features/provider/viewmodel/use-providers";
-import { QUOTES_PAGE_SIZE, coarseDuration } from "@/features/quotes/domain/status";
+import { QUOTES_PAGE_SIZE } from "@/features/quotes/domain/status";
 import {
   useProviderQuotes,
   type ProviderQuoteDTO,
@@ -33,12 +33,13 @@ import { quoteColumns, quoteRow } from "./quote-row";
  *    at most a page or two — nothing here to search or filter, so the tabs
  *    are drawn directly, the way the customer's `quotes-page.tsx` draws its
  *    own two.
- * 3. **The header carries a blurb**, `t("provider.blurb", { count, left })`
- *    — how many are owed an answer and how long until the soonest of them
- *    expires. It reads off the "toAnswer" tab's own first page regardless of
- *    which tab is on screen, the same page `useQuoteToAnswerCount` and this
- *    page's own default view share — so the blurb never lags behind a tab
- *    switch to "waiting" or "history".
+ * 3. **The page draws its own heading** — the mockup's eyebrow over the
+ *    title. The urgency the header used to spell out in a sentence is in
+ *    the rows now: every request carries its own "Prazo".
+ *
+ * The mockup's search box and "Filtros" are left out: the server takes no
+ * text to search by, and a filter over one page of a paged queue would say
+ * "nothing found" about rows on the next.
  */
 export function ProviderQuotesPage() {
   const { t, i18n } = useTranslation("quotes");
@@ -113,47 +114,8 @@ export function ProviderQuotesPage() {
   // the one the server has just sent.
   const items = offset === 0 ? (query.data?.items ?? []) : loaded;
 
-  /**
-   * The blurb's own numbers, read off the "toAnswer" tab regardless of which
-   * tab is on screen. Sharing `useProviderQuotes`'s query key with the main
-   * list when `tab === "toAnswer"` means this is the very same cache entry —
-   * not a second request — and on any other tab it is one small, cached page
-   * rather than the whole queue.
-   *
-   * The urgency figure is the *soonest deadline*, not the oldest request.
-   * `quoteForProvider` sorts every live tab by ascending `expiresAt` — see
-   * `orderFor` in the backend's `quote-read.repository.ts` — so the first
-   * item of the "toAnswer" page's first offset is *guaranteed* to be the one
-   * nearest its own deadline, at any page size. "Oldest request" carries no
-   * such guarantee: `expires_at` is `requested_at + response_hours`, and
-   * `response_hours` is configured per service, so a newer request from a
-   * faster-response service can expire before an older one from a slower
-   * one. A reduce over `requestedAt` — this page's first cut — could
-   * therefore read a stale figure off a truncated page and state something
-   * false. Reading `items[0]` instead states the queue's actual urgency,
-   * true by construction regardless of how many pages have loaded.
-   */
-  const toAnswerPeek = useProviderQuotes({ providerId, tab: "toAnswer", offset: 0 });
-  // `counts` is a workspace-wide summary present on every page's answer,
-  // whichever tab was asked for — the existing "counts all three tabs" test
-  // already proves this — so the main query's own answer supplies it as
-  // soon as it is in, and the peek is only a fallback for the instant before
-  // it has.
-  const toAnswerCount = answered?.counts.toAnswer ?? toAnswerPeek.data?.counts.toAnswer ?? 0;
-  const soonest = tab === "toAnswer" ? items[0] : toAnswerPeek.data?.items[0];
-  const soonestSpan = soonest?.expiresAt
-    ? coarseDuration(new Date(soonest.expiresAt).getTime() - now.getTime())
-    : null;
-  const subtitle =
-    toAnswerCount === 0
-      ? t("provider.blurbNone")
-      : soonestSpan
-        ? t("provider.blurb", {
-            count: toAnswerCount,
-            left: t(`unit.${soonestSpan.unit}`, { count: soonestSpan.count }),
-          })
-        : undefined;
-  usePageHeader(t("provider.title"), subtitle);
+  // The page draws its own heading, because the mockup puts an eyebrow over it.
+  usePageHeader(t("provider.title"), t("provider.subtitle"), { ownHeading: true });
 
   if (!activeProvider) return null;
   const slug = activeProvider.slug;
@@ -169,44 +131,29 @@ export function ProviderQuotesPage() {
         </p>
       )}
 
-      <div
-        role="tablist"
-        aria-label={t("provider.title")}
-        className="inline-flex rounded-full bg-[var(--color-muted)] p-1"
-      >
-        {PROVIDER_QUOTE_TABS.map((key) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={tab === key}
-            onClick={() => setTab(key)}
-            className={cn(
-              "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-              tab === key
-                ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]",
-            )}
-          >
-            {t(`provider.tab.${key}`)}
-            {answered && (
-              <span
-                className={cn(
-                  "ml-1.5 inline-block rounded-full px-1.5 py-0.5 text-xs font-semibold",
-                  tab === key
-                    ? "bg-white/25"
-                    : "bg-[var(--color-background)] text-[var(--color-muted-foreground)]",
-                )}
-              >
-                {answered.counts[key]}
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="mb-6">
+        <p className="text-[13px] font-semibold tracking-[0.09em] text-[var(--color-muted-foreground)] uppercase">
+          {t("provider.eyebrow")}
+        </p>
+        <h1 className="font-display mt-[9px] text-[34px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[47.6px]">
+          {t("provider.heading")}
+        </h1>
+        <p className="mt-2.5 text-base text-[var(--color-muted-foreground)] md:text-[17.9px]">
+          {t("provider.subtitle")}
+        </p>
       </div>
 
       <CollectionCard
         title={t(`provider.tab.${tab}`)}
+        tabs={
+          <QuoteTabs
+            ariaLabel={t("provider.title")}
+            value={tab}
+            onChange={setTab}
+            counts={answered?.counts ?? null}
+            label={(key) => t(`provider.tab.${key}`)}
+          />
+        }
         shown={items.length}
         total={total}
         loading={query.isLoading && offset === 0}
@@ -235,6 +182,71 @@ export function ProviderQuotesPage() {
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * The queue's three tabs as the mockup draws them: one bordered strip, the
+ * chosen tab filled soft blue with its count on white. Every count is the
+ * server's — `quoteForProvider` answers all three on every page.
+ */
+function QuoteTabs({
+  value,
+  onChange,
+  counts,
+  label,
+  ariaLabel,
+}: {
+  value: ProviderQuoteTab;
+  onChange: (key: ProviderQuoteTab) => void;
+  counts: Record<ProviderQuoteTab, number> | null;
+  label: (key: ProviderQuoteTab) => string;
+  ariaLabel: string;
+}) {
+  return (
+    <div
+      role="tablist"
+      aria-label={ariaLabel}
+      className="flex h-[49px] w-full max-w-full shrink-0 overflow-x-auto rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)] [scrollbar-width:none] lg:w-[726px]"
+    >
+      {PROVIDER_QUOTE_TABS.map((key, i) => {
+        const selected = key === value;
+        return (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            onClick={() => onChange(key)}
+            className={cn(
+              "relative flex shrink-0 items-center justify-center gap-[11px] px-6 text-base whitespace-nowrap lg:flex-1",
+              selected
+                ? "-my-px -ml-px rounded-[9px] bg-[#d9eafd] pl-10 font-semibold text-[var(--color-primary)] dark:bg-[var(--color-blue-soft)]"
+                : "font-medium text-[var(--color-headline)] hover:text-[var(--color-primary)]",
+              // A hairline between the two plain tabs; the chosen one is its own edge.
+              !selected &&
+                i > 0 &&
+                PROVIDER_QUOTE_TABS[i - 1] !== value &&
+                "before:absolute before:top-3 before:left-0 before:h-[26px] before:w-px before:bg-[var(--color-border)]",
+            )}
+          >
+            {label(key)}
+            {counts && (
+              <span
+                className={cn(
+                  "grid h-[29px] min-w-[29px] place-items-center rounded-full px-1.5 text-[15px] font-semibold tabular-nums",
+                  selected
+                    ? "bg-[var(--color-card)] text-[var(--color-primary)]"
+                    : "bg-[#eaf2fb] text-[var(--color-ink-2)] dark:bg-[var(--color-muted)]",
+                )}
+              >
+                {counts[key]}
+              </span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -1,33 +1,30 @@
-import { useMemo } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
-import { CollectionCard } from "@/shared/components/collection-card";
-import { usePageAction, usePageHeader } from "@/shared/lib/page-header";
-import { useProviderThreads } from "@/features/messaging/viewmodel/use-provider-threads";
-import { useServices } from "@/features/provider/services/viewmodel/use-services";
-import { formatMoney } from "@/features/wallet/domain/money";
-import { bookingColumns, bookingRow } from "../bookings/ui/booking-row";
-import {
-  useProviderStats,
-  useRecentBookings,
-} from "../bookings/viewmodel/use-provider-bookings";
-import type { ProviderBookingStatsDayDTO } from "@ntizo/shared/read-models";
-import { ActivityChart } from "@/shared/components/activity-chart";
-import { CARD_LINK as LINK, StatCard } from "@/shared/components/stat-card";
-import { greetingKey } from "@/shared/domain/greeting";
+import { ArrowRight, Calendar, ChevronUp, Coins, MessageSquare, Star } from "lucide-react";
+import { Skeleton } from "@ntizo/frontend-ui";
+import { usePageHeader } from "@/shared/lib/page-header";
+import { useCurrentUser } from "@/features/user/viewmodel/use-current-user";
+import { formatMoneyShort } from "@/features/wallet/domain/money";
+import { useProviderStats } from "../bookings/viewmodel/use-provider-bookings";
 import { useActiveProvider } from "../viewmodel/use-active-provider";
 import { useProviderRating } from "../viewmodel/use-provider-rating";
+import { UpcomingBookings } from "./overview-upcoming";
+import { AvailabilityTodayCard, MessagesCard, WalletCard } from "./overview-side";
+import { MORE_LINK } from "./overview-link";
 
 /**
- * The workspace at a glance: what needs an answer, what is coming, what the
- * month earned, and what people think. Four readings, one of which is a task
- * — so exactly one card carries a verb. The week and the revenue are things
- * to know, not things to do, and an action on either would leave the reader
- * with four calls to action and no way to tell which one is the work.
+ * The workspace at a glance, as the October mockup draws it: the greeting
+ * beside the brand photo, four readings, the next bookings on the calendar,
+ * and three side cards — today's hours, the latest conversations and the
+ * money that can be taken out.
  *
- * Every number here is read, never derived: the counts, the money and the
- * thirty days all come from one `bookingStatsForProvider` call, so the
- * sidebar's badge and this page's first card cannot disagree.
+ * Every number here is read, never derived: the counts and the money come
+ * from one `bookingStatsForProvider` call, so the sidebar's badge and the
+ * "por responder" card cannot disagree. The mockup's month-over-month deltas
+ * are not drawn — nothing on the read side compares one month with the last,
+ * and an arrow over a figure nobody computed is a claim, not a reading. The
+ * line under each value says what the server does know instead.
  */
 export function OverviewPage() {
   const { t, i18n } = useTranslation("provider");
@@ -35,228 +32,213 @@ export function OverviewPage() {
   const { activeProvider } = useActiveProvider();
   const providerId = activeProvider?.id ?? "";
   const slug = activeProvider?.slug ?? "";
+  const { data: me } = useCurrentUser();
 
   const stats = useProviderStats(providerId);
-  const recent = useRecentBookings(providerId);
-  const services = useServices(providerId);
   const rating = useProviderRating(providerId);
-  const threads = useProviderThreads(providerId);
 
-  /**
-   * The moment the numbers were answered, not whenever React last rendered.
-   * Every countdown in the recent list then measures from one instant, and a
-   * re-render for an unrelated reason cannot move the clock a minute while
-   * nothing about the data changed — the same bargain the bookings list makes.
-   */
-  const now = useMemo(
-    () => new Date(stats.dataUpdatedAt || Date.now()),
-    [stats.dataUpdatedAt],
-  );
-
-  usePageHeader(
-    t(`overview.greeting.${greetingKey(now)}`, { name: activeProvider?.name ?? "" }),
-    t("overview.subtitle"),
-  );
-  usePageAction(
-    slug ? (
-      // A styled `Link`, not a `Button asChild`: the kit's Button is a plain
-      // forwardRef over `buttonVariants` with no Slot, so `asChild` would
-      // render a button with a link inside it.
-      <Link
-        to="/provider/$slug/bookings"
-        params={{ slug }}
-        className="type-body-medium inline-flex h-10 items-center rounded-[var(--radius-field)] border border-[var(--color-input)] px-4 font-semibold hover:bg-[var(--color-muted)]"
-      >
-        {t("overview.seeBookings")}
-      </Link>
-    ) : null,
-    [slug, t],
-  );
+  // The person, not the workspace: the mockup greets "Joaquim", and a team's
+  // workspace name is not who is reading. The workspace stands in only until
+  // the session's own name has loaded.
+  const name = me?.firstName?.trim() || activeProvider?.name || "";
+  const title = t("overview.hello", { name });
+  // The page draws its own heading — the eyebrow and the photo beside it — so
+  // the shell keeps the title for the document and the menu only.
+  usePageHeader(title, t("overview.subtitle"), { ownHeading: true });
 
   // A person with no workspace gets the message, not a grid of zeros.
   if (!activeProvider) return <p className="type-body">{t("noActiveProvider")}</p>;
 
   const s = stats.data;
-  const published = (services.data ?? []).filter((x) => x.status === "published").length;
-  const drafts = (services.data ?? []).filter((x) => x.status === "draft").length;
-  const unread = threads.threads.reduce((n, thread) => n + thread.unreadCount, 0);
-  const items = recent.data?.items ?? [];
-  const money = (minor: number) => formatMoney(minor, s?.currency ?? "MZN", locale);
+  const money = (minor: number) => formatMoneyShort(minor, s?.currency ?? "MZN", locale);
 
   return (
-    <div className="grid w-full max-w-[1400px] gap-4">
+    <div className="grid w-full max-w-[1400px]">
+      <section className="grid items-start gap-6 lg:grid-cols-[minmax(360px,1fr)_minmax(0,708px)] lg:gap-4">
+        <div className="lg:pt-9">
+          <p className="text-[13px] font-medium tracking-[0.08em] text-[var(--color-muted-foreground)] uppercase">
+            {t("overview.eyebrow")}
+          </p>
+          <h1 className="font-display mt-2 text-[34px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[44px]">
+            {title}
+          </h1>
+          <p className="mt-2 text-base leading-[1.45] text-[var(--color-muted-foreground)] md:text-[16.5px]">
+            {t("overview.subtitle")}
+          </p>
+          {/* The activity log left the menu; this is where it is reached from now. */}
+          <Link to="/provider/$slug/activity" params={{ slug }} className={`${MORE_LINK} mt-4`}>
+            {t("overview.activityLink")}
+            <ArrowRight aria-hidden="true" className="h-4 w-4" strokeWidth={2.2} />
+          </Link>
+        </div>
+        <HeroArt quote={t("overview.heroQuote")} />
+      </section>
+
       {stats.isError && (
-        <p role="alert" className="type-body text-[var(--color-destructive)]">
+        <p role="alert" className="type-body mt-4 text-[var(--color-destructive)]">
           {t("overview.loadError")}{" "}
-          <button
-            type="button"
-            className="underline"
-            onClick={() => void stats.refetch()}
-          >
+          <button type="button" className="underline" onClick={() => void stats.refetch()}>
             {t("overview.retry")}
           </button>
         </p>
       )}
 
-      {/* `xl:`, not `lg:`. Four columns at 1024px is where this grid was at
-          its narrowest of all: the sidebar is showing by then, so each card
-          gets a 134px content box — tighter than a 390px phone — while the
-          revenue card is drawing its money at the full 28px. Holding two
-          columns until 1280px gives those cards 318px there instead, and the
-          four-up step lands where the track is 198px. */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        <StatCard
-          label={t("overview.awaitingTitle")}
-          value={s?.awaitingResponse ?? 0}
-          loading={stats.isLoading}
-          hint={s && s.awaitingResponse === 0 ? t("overview.awaitingNone") : undefined}
-          action={
-            s && s.awaitingResponse > 0 ? (
-              <Link
-                to="/provider/$slug/bookings"
-                params={{ slug }}
-                search={{ tab: "requests" }}
-                className={LINK}
-              >
-                {t("overview.awaitingAction")}
-              </Link>
-            ) : undefined
-          }
-        />
-        <StatCard
+      {/* Two up until `xl`: four cards beside a 297px sidebar at 1024px would
+          each get a box narrower than a phone, with the money at 31px. */}
+      <section className="mt-4 grid grid-cols-1 gap-[23px] sm:grid-cols-2 xl:grid-cols-[239fr_262fr_266fr_283fr]">
+        <StatTile
+          icon={Calendar}
           label={t("overview.weekTitle")}
           value={s?.upcomingWeek ?? 0}
           loading={stats.isLoading}
-          hint={t("overview.todayCount", { count: s?.upcomingToday ?? 0 })}
+          foot={s ? t("overview.todayCount", { count: s.upcomingToday }) : null}
         />
-        <StatCard
+        <StatTile
+          icon={Coins}
           label={t("overview.revenueTitle")}
           value={money(s?.revenueLast30Minor ?? 0)}
           loading={stats.isLoading}
-          hint={
-            <>
-              {t("overview.pipeline", { amount: money(s?.pipelineMinor ?? 0) })}
-              {/* The figure above is the payout, not the listed price. Saying
-                  so is the difference between a number the provider can plan
-                  against and one they will query.
-
-                  Except when nothing has been completed: the revenue sums only
-                  `COMPLETED` bookings, nothing writes that status yet, and a
-                  commission note over a zero explains a deduction that has not
-                  happened. Controller ruling R10 — the number stays what it
-                  is, the sentence under it says why it is zero. The pipeline
-                  line above is unchanged either way; it is the one figure a
-                  provider with a full week still has. */}
-              <span className="block">
-                {s && s.completedLast30 === 0
-                  ? t("overview.nothingCompleted")
-                  : t("overview.revenueHint")}
+          foot={
+            s ? (
+              <span className="grid gap-1">
+                {s.pipelineMinor > 0 && (
+                  <span className="flex items-center whitespace-nowrap">
+                    <FootFigure>{t("overview.pipelineAmount", { amount: money(s.pipelineMinor) })}</FootFigure>
+                    {t("overview.pipelineLabel")}
+                  </span>
+                )}
+                {/* The figure above is the payout, not the listed price — and
+                    when nothing has been completed (nothing writes COMPLETED
+                    yet) the sentence says why it is zero instead (ruling R10). */}
+                <span>
+                  {s.completedLast30 === 0 ? t("overview.nothingCompleted") : t("overview.revenueHint")}
+                </span>
               </span>
-            </>
+            ) : null
           }
         />
-        <StatCard
+        <StatTile
+          icon={Star}
           label={t("overview.ratingTitle")}
           value={
             rating.data?.average != null
-              ? new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(
-                  rating.data.average,
-                )
+              ? new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(rating.data.average)
               : "—"
           }
           loading={rating.isLoading}
-          hint={
-            rating.data?.count
-              ? t("overview.ratingCount", { count: rating.data.count })
-              : t("overview.ratingNone")
-          }
-          action={
+          foot={
             rating.data?.count ? (
-              // The public page, because that is where the words are — this
-              // is where they are read, not a second thing to answer.
-              <Link to="/providers/$slug" params={{ slug }} className={LINK}>
-                {t("overview.seeReviews")}
-              </Link>
-            ) : undefined
-          }
-        />
-      </div>
-
-      <ActivityChart
-        days={s?.perDay ?? []}
-        locale={locale}
-        labels={{
-          title: t("overview.chartTitle"),
-          range: t("overview.chartRange"),
-          requests: t("overview.chartRequests"),
-          confirmed: t("overview.chartConfirmed"),
-          empty: t("overview.chartEmpty"),
-          day: t("overview.chartTableDay"),
-        }}
-        dayLabel={(date, d: ProviderBookingStatsDayDTO) =>
-          t("overview.chartDayLabel", { date, requests: d.requests, confirmed: d.confirmed })
-        }
-      />
-
-      <CollectionCard
-        title={t("overview.recentTitle")}
-        shown={items.length}
-        total={recent.data?.total ?? items.length}
-        loading={recent.isLoading}
-        // The list's columns without the price: eight rows here are "who is
-        // coming", and the money has its own card two rows above.
-        columns={bookingColumns(t).filter((c) => c.key !== "price")}
-        rows={items.map((b) => bookingRow(b, { slug, locale, now, t }))}
-        emptyTitle={t("overview.recentEmptyTitle")}
-        emptyText={t("overview.recentEmpty")}
-        noMatchesTitle={t("overview.recentEmptyTitle")}
-        noMatchesText={t("overview.recentEmpty")}
-        // Nothing narrows this card — it is the newest eight, always.
-        filtered={false}
-        action={
-          <Link to="/provider/$slug/bookings" params={{ slug }} className={LINK}>
-            {t("overview.recentAll")}
-          </Link>
-        }
-      />
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard
-          label={t("overview.servicesTitle")}
-          value={published}
-          loading={services.isLoading}
-          hint={
-            published + drafts === 0 ? (
-              t("overview.servicesNone")
+              <span className="flex items-center whitespace-nowrap">
+                <FootFigure>{t("overview.ratingCount", { count: rating.data.count })}</FootFigure>
+                {/* The public page, because that is where the words are. */}
+                <Link
+                  to="/providers/$slug"
+                  params={{ slug }}
+                  className="font-semibold text-[var(--color-primary)] hover:underline"
+                >
+                  {t("overview.seeReviews")}
+                </Link>
+              </span>
             ) : (
-              <>
-                <span>{t("overview.servicesPublished", { count: published })}</span>
-                {" · "}
-                <span>{t("overview.servicesDraft", { count: drafts })}</span>
-              </>
+              t("overview.ratingNone")
             )
           }
-          action={
-            <Link to="/provider/$slug/services" params={{ slug }} className={LINK}>
-              {t("overview.servicesAction")}
-            </Link>
+        />
+        <StatTile
+          icon={MessageSquare}
+          label={t("overview.awaitingTitle")}
+          value={s?.awaitingResponse ?? 0}
+          loading={stats.isLoading}
+          // The one reading that is a task, so the one card with a verb.
+          foot={
+            s ? (
+              s.awaitingResponse > 0 ? (
+                <Link
+                  to="/provider/$slug/bookings"
+                  params={{ slug }}
+                  search={{ tab: "requests" }}
+                  className="inline-flex items-center gap-1.5 font-semibold text-[var(--color-primary)] hover:underline"
+                >
+                  {t("overview.awaitingAction")}
+                  <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
+                </Link>
+              ) : (
+                t("overview.awaitingNone")
+              )
+            ) : null
           }
         />
-        <StatCard
-          label={t("overview.messagesTitle")}
-          value={unread}
-          loading={threads.loading}
-          hint={
-            unread === 0
-              ? t("overview.messagesNone")
-              : t("overview.messagesUnread", { count: unread })
-          }
-          action={
-            <Link to="/provider/$slug/messages" params={{ slug }} className={LINK}>
-              {t("overview.messagesAction")}
-            </Link>
-          }
-        />
+      </section>
+
+      <section className="mt-10 grid items-start gap-[27px] xl:grid-cols-[minmax(0,1fr)_346px]">
+        <UpcomingBookings providerId={providerId} slug={slug} locale={locale} />
+        <div className="grid gap-[22px] sm:grid-cols-2 xl:grid-cols-1">
+          <AvailabilityTodayCard providerId={providerId} slug={slug} locale={locale} />
+          <MessagesCard providerId={providerId} slug={slug} locale={locale} />
+          <WalletCard providerId={providerId} slug={slug} locale={locale} />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/**
+ * The brand photo with the promise written over its right edge. Positions
+ * are the mockup's, as fractions of the 708 × 189 artwork, so the panel
+ * stays on the photo's blank strip at any width the column gives it — and
+ * the type is sized in the same fractions (container units), so the four
+ * lines fit the panel however wide the column is.
+ */
+function HeroArt({ quote }: { quote: string }) {
+  return (
+    <div className="@container relative hidden aspect-[708/189] w-full sm:block">
+      <img src="/console/provider-hero.jpg" alt="" className="block h-full w-full" />
+      <p className="absolute top-[19.6%] left-[74.3%] m-0 h-[61.4%] w-[24.3%] overflow-hidden bg-[#d7edfe] pt-[0.85cqw] pl-[1.84cqw] text-[2.61cqw] leading-[3.39cqw] whitespace-pre-line text-[#142a66]">
+        {quote}
+      </p>
+    </div>
+  );
+}
+
+/** A reading's strong part in the card's foot — where the mockup draws its green delta. */
+function FootFigure({ children }: { children: ReactNode }) {
+  return (
+    <b className="mr-2.5 flex h-5 shrink-0 items-center gap-1.5 border-r whitespace-nowrap border-[var(--color-border)] pr-2.5 text-[14.5px] font-bold text-[var(--color-ok-fg)]">
+      <ChevronUp aria-hidden="true" className="h-4 w-4" strokeWidth={2.6} />
+      {children}
+    </b>
+  );
+}
+
+function StatTile({
+  icon: Icon,
+  label,
+  value,
+  loading,
+  foot,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  value: ReactNode;
+  loading: boolean;
+  foot: ReactNode;
+}) {
+  return (
+    <div className="min-w-0 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] px-[25px] pt-5 pb-[22px]">
+      <span className="grid h-12 w-[50px] place-items-center rounded-[10px] bg-[var(--color-info-bg)] text-[var(--color-primary)]">
+        <Icon className="h-[22px] w-[22px]" />
+      </span>
+      {loading ? (
+        <Skeleton className="mt-3 h-[37px] w-28" />
+      ) : (
+        <p className="mt-3 text-[31px] leading-[1.2] font-extrabold tracking-[-0.01em] whitespace-nowrap text-[var(--color-headline)] tabular-nums">
+          {value}
+        </p>
+      )}
+      {/* The label is the card's name, so it paints before the number does. */}
+      <p className="mt-1.5 text-[15px] text-[var(--color-ink-2)]">{label}</p>
+      <div className="mt-[22px] flex min-h-5 items-center text-[13px] text-[var(--color-muted-foreground)]">
+        {foot}
       </div>
     </div>
   );

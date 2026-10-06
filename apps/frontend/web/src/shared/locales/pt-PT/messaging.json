@@ -52,5 +52,15 @@
     "TOO_MANY_ATTACHMENTS": "Uma mensagem pode ter no máximo {{max}} ficheiros.",
     "ATTACHMENT_NOT_AVAILABLE": "Um destes ficheiros já não está disponível. Remova-o e tente novamente.",
     "GENERIC": "Não foi possível enviar a mensagem. Tente novamente."
-  }
+  },
+  "providerSubtitle": "Converse com os seus clientes, responda a pedidos e acompanhe todas as suas conversas.",
+  "providerTab": {
+    "all": "Todas",
+    "unread": "Não lidas",
+    "customers": "Clientes"
+  },
+  "providerTabEmptyTitle": "Nada neste separador",
+  "providerTabEmptyBody": "As conversas correspondentes aparecem aqui.",
+  "read": "Lida",
+  "sent": "Enviada"
 }
