@@ -8,9 +8,9 @@
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <style>
   /* Home.png is drawn in a smaller floating window (viewport 1385x999), so the
-     shell is re-measured here; positions below are viewport pixels. */
+     shell is re-measured here. Spacing pass: the main column is normal flow. */
   :root { --blue: #0066fd; }
-  .console { position: relative; grid-template-rows: 81px 1fr; min-height: 999px; }
+  .console { grid-template-rows: 81px 1fr; }
   .topbar { position: relative; }
   .topbar > *, .topbar .right > * { position: absolute; }
   .topbar .brand { left: 35px; top: 0; height: 81px; width: auto; padding: 0; }
@@ -30,97 +30,107 @@
   .topbar .me span { font-size: 13px; margin-top: 1px; }
   .topbar .me svg { width: 17px; height: 17px; margin-left: 4px; }
 
-  .body { grid-template-columns: 251px 1fr; }
-  .rail { position: relative; padding: 32px 14px 0 14px; border-right-color: #ebf1f8; }
+  .body { grid-template-columns: 251px 1fr; align-items: start; }
+  /* the rail fills the window under the 81px bar and keeps the nudge at its foot */
+  .rail { position: sticky; top: 0; height: calc(100vh - 81px); min-height: 880px; padding: 32px 14px 22px 14px; border-right-color: #ebf1f8; }
+  .body { background: linear-gradient(to right, var(--rail) 250px, #ebf1f8 250px, #ebf1f8 251px, #fff 251px); }
   .rail .biz { gap: 12px; padding: 0 0 28px 2px; }
   .rail .biz img { width: 56px; height: 56px; }
   .rail .biz b { font-size: 15px; }
-  .rail .biz span { font-size: 12.5px; margin-top: 2px; }
+  .rail .biz span { font-size: 13px; margin-top: 2px; }
   .rail .biz svg { width: 17px; height: 17px; margin-left: 14px; }
-  .nav { gap: 5.7px; }
+  .nav { gap: 4px; }
   .nav a { height: 46px; padding: 0 20px; gap: 21px; font-size: 15px; flex-shrink: 0; }
   .nav a svg { width: 21px; height: 21px; }
-  /* the mockup's nav pitch is uneven: 50 49 51 51 52 55 53 52 53 */
-  .nav { gap: 0; }
-  .nav a + a { margin-top: 4px; }
-  .nav a:nth-child(3) { margin-top: 3px; }
-  .nav a:nth-child(6) { margin-top: 6px; }
-  .nav a:nth-child(7) { margin-top: 9px; }
-  .nav a:nth-child(8) { margin-top: 7px; }
-  .nav a:nth-child(9) { margin-top: 6px; }
-  .nav a:nth-child(10) { margin-top: 7px; }
-  .nav a .count { width: 22px; height: 22px; font-size: 12px; margin-right: -8px; }
-  .rail .nudge { position: absolute; left: 20px; top: 694px; width: 210px; height: 202px; margin: 0; padding: 17px 19px 0; background: #f3f9fe; }
+  .nav a .count { width: 22px; height: 22px; font-size: 13px; margin-right: -8px; }
+  .rail .nudge { margin: auto 6px 0; padding: 21px 23px 22px; background: #f3f9fe; }
   .nudge .tile { width: 30px; height: 30px; border-radius: 7px; background: #fff; display: grid; place-items: center; }
   .nudge .crown { width: 22px; height: 22px; }
-  .nudge b { font-size: 15.5px; line-height: 22px; margin-top: 7px; }
-  .nudge p { font-size: 14.5px; line-height: 20px; margin: 6px 0 0; }
-  .nudge a { font-size: 14px; position: absolute; left: 19px; top: 164px; }
+  .nudge b { font-size: 15.5px; line-height: 1.45; margin-top: 9px; }
+  .nudge p { font-size: 14.5px; line-height: 1.45; margin: 8px 0 14px; }
+  .nudge a { font-size: 14px; }
   .nudge a svg { width: 16px; height: 16px; }
 
-  /* Main stage, absolutely laid out on viewport coordinates */
-  .main { padding: 0; }
-  .st { position: absolute; }
-  .eyebrow.st { left: 278px; top: 133px; font-size: 12px; font-weight: 500; letter-spacing: .08em; }
-  .page-title.st { left: 278px; top: 162px; font-size: 44px; letter-spacing: -0.025em; }
-  .page-sub.st { left: 278px; top: 219px; font-size: 16.5px; margin: 0; }
-  .hero { left: 664px; top: 97px; width: 708px; height: 189px; display: block; }
-  .quote { left: 1190px; top: 134px; width: 172px; height: 116px; background: var(--sky); padding: 6px 0 0 13px;
+  /* Main: normal flow */
+  .main { padding: 16px 22px 40px 26px; }
+  .intro { display: grid; grid-template-columns: 1fr 708px; }
+  .intro .text { padding-top: 36px; }
+  .intro .eyebrow { font-size: 13px; font-weight: 500; letter-spacing: .08em; }
+  .intro .page-title { font-size: 44px; letter-spacing: -0.02em; margin-top: 8px; }
+  .intro .page-sub { font-size: 16.5px; line-height: 1.45; margin-top: 8px; }
+  .art { position: relative; width: 708px; height: 189px; }
+  .art img { display: block; width: 708px; height: 189px; }
+  .quote { position: absolute; left: 526px; top: 37px; width: 172px; height: 116px; background: var(--sky); padding: 6px 0 0 13px;
     font-size: 18.5px; line-height: 24px; color: #142a66; }
 
-  .stat { top: 294px; height: 187px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
-  .stat .ic { position: absolute; left: 21px; top: 16px; width: 50px; height: 48px; border-radius: 10px; background: #e1f1fe;
-    display: grid; place-items: center; color: var(--blue); }
+  .stats { display: grid; grid-template-columns: 239fr 262fr 266fr 283fr; gap: 23px; margin-top: 16px; }
+  .stat { border: 1px solid var(--line); border-radius: 14px; background: #fff; padding: 20px 25px 22px; }
+  .stat .ic { width: 50px; height: 48px; border-radius: 10px; background: #e1f1fe; display: grid; place-items: center; color: var(--blue); }
   .stat .ic svg { width: 22px; height: 22px; }
-  .stat .v { position: absolute; left: 21px; top: 71px; font-size: 31px; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); }
-  .stat .l { position: absolute; left: 22px; top: 112px; font-size: 15px; color: var(--ink-2); }
-  .stat .d { position: absolute; left: 21px; top: 150px; display: flex; align-items: center; height: 20px; font-size: 12.5px; color: var(--muted); }
+  .stat .v { margin-top: 12px; font-size: 31px; line-height: 1.2; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; }
+  .stat .l { margin-top: 6px; font-size: 15px; color: var(--ink-2); }
+  .stat .d { margin-top: 22px; display: flex; align-items: center; min-height: 20px; font-size: 13px; color: var(--muted); white-space: nowrap; }
   .stat .d b { color: #16a34a; font-size: 14.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; padding-right: 10px; margin-right: 10px; border-right: 1px solid var(--line); height: 20px; }
   .stat .d b svg { width: 16px; height: 16px; stroke-width: 2.6; }
 
-  .h2 { font-size: 21.5px; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); line-height: 1; }
+  .lower { display: grid; grid-template-columns: 1fr 346px; gap: 27px; margin-top: 40px; align-items: start; }
+  .sec-head { display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 2px; }
+  .h2 { font-size: 21.5px; font-weight: 800; color: var(--ink); line-height: 1.1; margin: 0; }
   .more { font-size: 13.5px; font-weight: 600; color: var(--blue); display: flex; align-items: center; gap: 10px; line-height: 1; }
   .more svg { width: 16px; height: 16px; stroke-width: 2.2; }
 
-  .list { left: 275px; top: 555px; width: 727px; height: 421px; border: 1px solid #edf2f8; border-radius: 12px; background: #fff; }
-  .list .hr { position: absolute; left: 0; right: 0; height: 1px; background: #f0f4f9; }
-  .bk { position: absolute; left: 0; right: 0; height: 80px; }
-  .bk .dt { position: absolute; left: 0; width: 60px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1; }
+  .list { margin-top: 20px; border: 1px solid #edf2f8; border-radius: 12px; background: #fff; }
+  .bk { display: grid; grid-template-columns: 60px 92px 1fr 150px 109px; column-gap: 0; align-items: center; padding: 19px 19px 19px 0; }
+  .bk + .bk { border-top: 1px solid #f0f4f9; }
+  .bk .dt { text-align: center; color: var(--muted); font-size: 13px; line-height: 1; }
   .bk .dt b { display: block; font-size: 18px; font-weight: 700; color: var(--ink); margin: 6px 0 5px; }
-  .bk img { position: absolute; left: 70px; top: 0; width: 92px; height: 75px; border-radius: 6px; }
-  .bk .t { position: absolute; left: 179px; top: 4px; font-size: 14.5px; letter-spacing: -0.01em; font-weight: 700; color: var(--ink); }
-  .bk .m { position: absolute; left: 179px; display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+  .bk img { width: 92px; height: 75px; border-radius: 6px; margin-left: 10px; display: block; }
+  .bk .info { padding: 0 12px 0 27px; min-width: 0; }
+  .bk .t { font-size: 15.5px; font-weight: 700; color: var(--ink); }
+  .bk .m { display: flex; align-items: center; gap: 6px; margin-top: 7px; font-size: 13px; line-height: 1.45; color: var(--muted); white-space: nowrap; }
+  /* the place gives way (ellipsis); the bullet and time never wrap */
+  .bk .m .place { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .bk .m .time { flex-shrink: 0; }
   .bk .m svg { width: 13px; height: 13px; color: var(--ink-2); }
-  .bk .m i.sep { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); margin: 0 3px; }
-  .bk .pill { position: absolute; left: 428px; top: 1px; height: 27px; padding: 0 0; width: 85px; justify-content: center; font-size: 12px; border-radius: 14px; }
+  .bk .m i.sep { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); margin: 0 3px; flex-shrink: 0; }
+  .bk .pp { align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; padding-right: 0; }
+  .bk .pill { height: 27px; padding: 0 14px; font-size: 13px; border-radius: 14px; }
   .bk .pill.ok { color: #13923a; }
-  .bk .price { position: absolute; right: 146px; top: 39px; font-size: 16px; font-weight: 700; color: var(--ink); }
-  .bk .btn-details { position: absolute; left: 602px; top: 16px; width: 109px; height: 39px; padding: 0; font-size: 13.5px; border-color: #9fc2fc; }
+  .bk .price { align-self: flex-end; font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .bk .btn-details { width: 109px; height: 39px; padding: 0; font-size: 14px; border-color: #9fc2fc; margin-left: 22px; }
+  .bk { grid-template-columns: 60px 102px 1fr 118px 131px; }
 
-  .side { left: 1021px; width: 346px; border: 1px solid #edf2f8; border-radius: 12px; background: #fff; }
-  .side .h2 { position: absolute; left: 20px; top: 18px; font-size: 17px; }
-  .side .more { position: absolute; right: 13px; top: 19px; font-size: 13.5px; gap: 9px; }
-  .side .tile { position: absolute; left: 20px; width: 45px; height: 45px; border-radius: 10px; background: #eff7fe; display: grid; place-items: center; color: var(--blue); }
+  .side-col { display: grid; gap: 22px; }
+  .side { border: 1px solid #edf2f8; border-radius: 12px; background: #fff; padding: 22px 17px 24px 24px; }
+  .side .sec-head { padding: 0; }
+  .side .h2 { font-size: 17px; }
+  .side .tile { width: 45px; height: 45px; border-radius: 10px; background: #eff7fe; display: grid; place-items: center; color: var(--blue); flex-shrink: 0; }
   .side .tile svg { width: 22px; height: 22px; }
-  .av-date { position: absolute; left: 79px; top: 54px; font-size: 13px; font-weight: 600; color: var(--ink); }
-  .av-st { position: absolute; left: 79px; top: 74px; display: flex; align-items: center; font-size: 13.5px; }
-  .av-st .ok { color: #22a447; display: flex; align-items: center; gap: 6px; padding-right: 17px; border-right: 1px solid var(--line); height: 18px; }
+  .avail { display: flex; gap: 14px; align-items: center; margin-top: 16px; }
+  .av-date { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .av-st { display: flex; align-items: center; font-size: 14px; margin-top: 6px; }
+  .av-st .ok { color: #22a447; display: flex; align-items: center; gap: 6px; padding-right: 14px; border-right: 1px solid var(--line); height: 18px; }
   .av-st .ok::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #22b14c; }
-  .av-st .hrs { color: var(--ink-2); padding-left: 12px; }
-  .block { position: absolute; left: 20px; top: 108px; width: 311px; height: 36px; border-radius: 7px; background: #006afd; color: #fff;
-    display: flex; align-items: center; justify-content: center; gap: 11px; font-size: 13.5px; font-weight: 600; }
+  .av-st .hrs { color: var(--ink-2); padding-left: 14px; }
+  .block { margin-top: 16px; height: 40px; border-radius: 7px; background: #006afd; color: #fff;
+    display: flex; align-items: center; justify-content: center; gap: 11px; font-size: 14px; font-weight: 600; }
   .block svg { width: 18px; height: 18px; }
-  .msg { position: absolute; left: 20px; right: 15px; height: 44px; }
-  .msg img { position: absolute; left: 0; top: 0; width: 44px; height: 44px; border-radius: 50%; }
-  .msg b { position: absolute; left: 61px; top: 5px; font-size: 12.5px; font-weight: 700; color: var(--ink); }
-  .msg span { position: absolute; left: 61px; top: 24px; font-size: 11.5px; color: var(--muted); }
-  .msg time { position: absolute; right: 0; top: 7px; font-size: 12px; color: var(--muted); }
-  .msg .unread { position: absolute; right: -4px; top: 21px; width: 10px; height: 10px; border-radius: 50%; background: var(--blue); }
-  .wal-amt { position: absolute; left: 70px; top: 49px; font-size: 18.5px; font-weight: 800; color: var(--ink); }
-  .wal-sub { position: absolute; left: 70px; top: 72px; font-size: 12px; color: var(--muted); }
-  .wal-vr { position: absolute; left: 181px; top: 44px; width: 1px; height: 41px; background: var(--line); }
-  .levantar { position: absolute; left: 196px; top: 44px; width: 135px; height: 41px; border-radius: 7px; background: #e3f2fe; color: #1957d8;
-    display: grid; place-items: center; font-size: 12.5px; font-weight: 600; }
+  .msgs { display: grid; gap: 12px; margin-top: 14px; }
+  .msg { display: grid; grid-template-columns: 44px 1fr auto; column-gap: 15px; align-items: center; position: relative; }
+  .msg img { width: 44px; height: 44px; border-radius: 50%; }
+  .msg > div { min-width: 0; }
+  .msg b { display: block; font-size: 14px; font-weight: 700; color: var(--ink); }
+  .msg span { display: block; font-size: 13px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msg time { align-self: start; margin-top: 3px; font-size: 13px; color: var(--muted); }
+  .msg .unread { position: absolute; right: -4px; top: 22px; width: 10px; height: 10px; border-radius: 50%; background: var(--blue); }
+  .msg.has-dot time { margin-right: 14px; }
+  .wallet { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+  .wallet .tile { width: 41px; height: 41px; }
+  .wal-amt { font-size: 18.5px; font-weight: 800; color: var(--ink); white-space: nowrap; }
+  .wal-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .wal-vr { width: 1px; align-self: stretch; background: var(--line); }
+  .levantar { flex: 1; height: 44px; border-radius: 7px; background: #e3f2fe; color: #1957d8;
+    display: grid; place-items: center; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -159,71 +169,85 @@
         <a href="#">Ver dicas <i data-lucide="arrow-right"></i></a>
       </div>
     </aside>
-    <main class="main"></main>
-  </div>
 
-  <div class="eyebrow st">Visão geral</div>
-  <h1 class="page-title st">Olá, Joaquim!</h1>
-  <p class="page-sub st">Aqui está um resumo da sua actividade na Ntizo.</p>
-  <img class="hero st" src="../assets/home-hero.jpg" alt="">
-  <div class="quote st">Serviços locais.<br>Pessoas reais.<br>Uma Moçambique<br>que avança.</div>
+    <main class="main">
+      <section class="intro">
+        <div class="text">
+          <div class="eyebrow">Visão geral</div>
+          <h1 class="page-title">Olá, Joaquim!</h1>
+          <p class="page-sub">Aqui está um resumo da sua actividade na Ntizo.</p>
+        </div>
+        <div class="art">
+          <img src="../assets/home-hero.jpg" alt="">
+          <div class="quote">Serviços locais.<br>Pessoas reais.<br>Uma Moçambique<br>que avança.</div>
+        </div>
+      </section>
 
-  <div class="stat st" style="left:274px;width:239px"><div class="ic"><i data-lucide="calendar"></i></div><div class="v">24</div><div class="l">Reservas este mês</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 33%</b>vs. mês anterior</div></div>
-  <div class="stat st" style="left:527px;width:262px"><div class="ic"><i data-lucide="coins"></i></div><div class="v">18 600 MTn</div><div class="l">Receita este mês</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 21%</b>vs. mês anterior</div></div>
-  <div class="stat st" style="left:803px;width:266px"><div class="ic"><i data-lucide="star"></i></div><div class="v">4,8</div><div class="l">Avaliação média</div><div class="d" style="font-size:11.5px"><b style="font-size:14px;gap:4px"><i data-lucide="chevron-up"></i>+ 0,2</b>desde o mês passado</div></div>
-  <div class="stat st" style="left:1084px;width:283px"><div class="ic"><i data-lucide="message-square"></i></div><div class="v">95%</div><div class="l">Taxa de resposta</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 5%</b>últimos 30 dias</div></div>
+      <section class="stats">
+        <div class="stat"><div class="ic"><i data-lucide="calendar"></i></div><div class="v">24</div><div class="l">Reservas este mês</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 33%</b>vs. mês anterior</div></div>
+        <div class="stat"><div class="ic"><i data-lucide="coins"></i></div><div class="v">18 600 MTn</div><div class="l">Receita este mês</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 21%</b>vs. mês anterior</div></div>
+        <div class="stat"><div class="ic"><i data-lucide="star"></i></div><div class="v">4,8</div><div class="l">Avaliação média</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 0,2</b>desde o mês passado</div></div>
+        <div class="stat"><div class="ic"><i data-lucide="message-square"></i></div><div class="v">95%</div><div class="l">Taxa de resposta</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 5%</b>últimos 30 dias</div></div>
+      </section>
 
-  <div class="h2 st" style="left:277px;top:517px">Próximas reservas</div>
-  <a class="more st" href="reservas.html" style="right:calc(100% - 990px);top:520px">Ver todas <i data-lucide="arrow-right"></i></a>
-  <div class="list st" id="list"></div>
+      <section class="lower">
+        <div>
+          <div class="sec-head"><h2 class="h2">Próximas reservas</h2><a class="more" href="reservas.html">Ver todas <i data-lucide="arrow-right"></i></a></div>
+          <div class="list" id="list"></div>
+        </div>
 
-  <div class="side st" style="top:499px;height:159px">
-    <div class="h2">Disponibilidade de hoje</div>
-    <a class="more" href="#">Editar <i data-lucide="arrow-right"></i></a>
-    <div class="tile" style="top:50px"><i data-lucide="calendar"></i></div>
-    <div class="av-date">Sábado, 11 de Outubro</div>
-    <div class="av-st"><span class="ok">Disponível</span><span class="hrs">08:00 – 18:00</span></div>
-    <div class="block"><i data-lucide="circle-plus"></i>Bloquear período</div>
-  </div>
+        <div class="side-col">
+          <div class="side">
+            <div class="sec-head"><h2 class="h2">Disponibilidade de hoje</h2><a class="more" href="#">Editar <i data-lucide="arrow-right"></i></a></div>
+            <div class="avail">
+              <div class="tile"><i data-lucide="calendar"></i></div>
+              <div><div class="av-date">Sábado, 11 de Outubro</div><div class="av-st"><span class="ok">Disponível</span><span class="hrs">08:00 – 18:00</span></div></div>
+            </div>
+            <div class="block"><i data-lucide="circle-plus"></i>Bloquear período</div>
+          </div>
 
-  <div class="side st" style="top:672px;height:198px">
-    <div class="h2" style="top:14px">Mensagens</div>
-    <a class="more" style="top:15px" href="mensagens.html">Ver todas <i data-lucide="arrow-right"></i></a>
-    <div class="msg" style="top:42px"><img src="../assets/home-silvia.png" alt=""><b>Sílvia Nhampossa</b><span>Olá! O serviço ainda está disponível...</span><time style="right:16px">10:24</time><i class="unread"></i></div>
-    <div class="msg" style="top:92px"><img src="../assets/home-tomas.png" alt=""><b>Tomás Guambe</b><span>Obrigado pelo serviço!</span><time>Ontem</time></div>
-    <div class="msg" style="top:144px"><img src="../assets/home-carla.png" alt=""><b>Carla Sitoe</b><span>Podemos remarcar para amanhã?</span><time>Ontem</time></div>
-  </div>
+          <div class="side">
+            <div class="sec-head"><h2 class="h2">Mensagens</h2><a class="more" href="mensagens.html">Ver todas <i data-lucide="arrow-right"></i></a></div>
+            <div class="msgs">
+              <div class="msg has-dot"><img src="../assets/home-silvia.png" alt=""><div><b>Sílvia Nhampossa</b><span>Olá! O serviço ainda está disponível...</span></div><time>10:24</time><i class="unread"></i></div>
+              <div class="msg"><img src="../assets/home-tomas.png" alt=""><div><b>Tomás Guambe</b><span>Obrigado pelo serviço!</span></div><time>Ontem</time></div>
+              <div class="msg"><img src="../assets/home-carla.png" alt=""><div><b>Carla Sitoe</b><span>Podemos remarcar para amanhã?</span></div><time>Ontem</time></div>
+            </div>
+          </div>
 
-  <div class="side st" style="top:887px;height:100px">
-    <div class="h2" style="top:14px">Saldo na carteira</div>
-    <a class="more" style="top:15px" href="carteira.html">Ver carteira <i data-lucide="arrow-right"></i></a>
-    <div class="tile" style="top:44px;width:41px;height:41px"><i data-lucide="wallet"></i></div>
-    <div class="wal-amt">18 600 MTn</div>
-    <div class="wal-sub">Saldo disponível</div>
-    <div class="wal-vr"></div>
-    <div class="levantar">Levantar fundos</div>
+          <div class="side">
+            <div class="sec-head"><h2 class="h2">Saldo na carteira</h2><a class="more" href="carteira.html">Ver carteira <i data-lucide="arrow-right"></i></a></div>
+            <div class="wallet">
+              <div class="tile"><i data-lucide="wallet"></i></div>
+              <div><div class="wal-amt">18 600 MTn</div><div class="wal-sub">Saldo disponível</div></div>
+              <div class="wal-vr"></div>
+              <div class="levantar">Levantar fundos</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 </div>
 
 <script>
-// [thumb top inside the list card, day, date, title, place, time, client, tone, status, price]
+// [day, date, title, place, time, client, tone, status, price]
 const rows = [
-  [11, "Sáb", "11", "Corte de cabelo", "Maputo, Polana", "10:00 – 11:00", "João Muciacua", "ok", "Confirmada", "600 MTn"],
-  [116, "Sáb", "11", "Avaria eléctrica urgente", "Maputo, Sommerschield", "14:00 – 16:00", "Carla Sitoe", "info", "Em curso", "1 200 MTn"],
-  [222, "Dom", "12", "Manutenção de canalização", "Maputo, Alto-Maé", "09:00 – 11:00", "Tomás Guambe", "warn", "Pendente", "800 MTn"],
-  [329, "Seg", "13", "Limpeza de ar condicionado", "Maputo, Central", "15:00 – 17:00", "Sílvia Nhampossa", "ok", "Confirmada", "1 500 MTn"],
+  ["Sáb", "11", "Corte de cabelo", "Maputo, Polana", "10:00 – 11:00", "João Muciacua", "ok", "Confirmada", "600 MTn"],
+  ["Sáb", "11", "Avaria eléctrica urgente", "Maputo, Sommerschield", "14:00 – 16:00", "Carla Sitoe", "info", "Em curso", "1 200 MTn"],
+  ["Dom", "12", "Manutenção de canalização", "Maputo, Alto-Maé", "09:00 – 11:00", "Tomás Guambe", "warn", "Pendente", "800 MTn"],
+  ["Seg", "13", "Limpeza de ar condicionado", "Maputo, Central", "15:00 – 17:00", "Sílvia Nhampossa", "ok", "Confirmada", "1 500 MTn"],
 ];
-document.getElementById("list").innerHTML =
-  [102, 208, 315].map(y => `<div class="hr" style="top:${y}px"></div>`).join("") +
-  rows.map(([y, day, n, title, place, time, who, tone, status, price], i) => `
-  <div class="bk" style="top:${y}px">
-    <div class="dt" style="top:10px">${day}<b>${n}</b>Out</div>
+document.getElementById("list").innerHTML = rows.map(([day, n, title, place, time, who, tone, status, price], i) => `
+  <div class="bk">
+    <div class="dt">${day}<b>${n}</b>Out</div>
     <img src="../assets/home-r${i + 1}.jpg" alt="">
-    <div class="t">${title}</div>
-    <div class="m" style="top:30px;font-size:11.5px"><i data-lucide="map-pin"></i>${place}<i class="sep"></i>${time}</div>
-    <div class="m" style="top:52px"><i data-lucide="user"></i>${who}</div>
-    <span class="pill ${tone}">${status}</span>
-    <div class="price">${price}</div>
+    <div class="info">
+      <div class="t">${title}</div>
+      <div class="m"><i data-lucide="map-pin"></i><span class="place">${place}</span><i class="sep"></i><span class="time">${time}</span></div>
+      <div class="m"><i data-lucide="user"></i>${who}</div>
+    </div>
+    <div class="pp"><span class="pill ${tone}">${status}</span><div class="price">${price}</div></div>
     <a class="btn-details" href="#">Ver detalhes</a>
   </div>`).join("");
 lucide.createIcons();

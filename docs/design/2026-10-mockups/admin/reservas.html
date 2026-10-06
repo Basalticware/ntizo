@@ -11,6 +11,7 @@
   /* This mockup (listadereserbas.png) has no browser frame and draws the
      shell a size smaller: 80px bar, 265px rail, 47px nav items. */
   .console { grid-template-rows: 80px 1fr; }
+  .rail { min-height: calc(100vh - 80px); }
   .topbar .brand { width: 265px; padding-left: 33px; padding-top: 18px; }
   .topbar .brand img { height: 36px; }
   .topbar .brand .zone { font-size: 16.5px; margin-top: 4px; }
@@ -35,10 +36,10 @@
 
   .main { padding: 12px 26px 0 27px; }
   .page-title { font-size: 42px; }
-  .page-sub { font-size: 18px; margin-top: 3px; }
+  .page-sub { font-size: 18px; margin-top: 6px; }
 
-  .adm-tabs { gap: 18px; margin-top: 13px; }
-  .adm-tabs .tab, .adm-tabs .tab.on { height: 56px; padding: 3px 22px 0 24px; font-size: 15.4px; }
+  .adm-tabs { gap: 21px; margin-top: 19px; }
+  .adm-tabs .tab, .adm-tabs .tab.on { height: 56px; padding: 3px 22px 0 24px; font-size: 16px; }
   .adm-tabs .tab.on { padding-right: 26px; }
   .adm-tabs .chip { margin-top: -2px; }
   .adm-tabs .chip, .adm-tabs .tab.on .chip { height: 32px; padding: 0 12px; border-radius: 16px; font-size: 16px; }
@@ -50,8 +51,8 @@
   .adm-tabs .tab:nth-child(5) { width: 192px; }
   .adm-tabs .chip.info { background: #e3effe; color: #1a56db; }
 
-  .adm-filters { gap: 19px; margin-top: 19px; }
-  .adm-filters .field { width: 452px; height: 55px; padding: 0 21px; gap: 13px; font-size: 14.7px; }
+  .adm-filters { gap: 21px; margin-top: 25px; }
+  .adm-filters .field { width: 452px; height: 55px; padding: 0 21px; gap: 13px; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .adm-filters .select { width: 226px; height: 55px; padding: 0 17px 0 16px; justify-content: flex-start; gap: 0; }
   .select .lead { width: 22px; height: 22px; color: #0d1466; margin-right: 18px; }
   .select .two-line { display: grid; gap: 3px; }
@@ -60,37 +61,37 @@
   .select > svg:last-child { margin-left: auto; }
   .adm-filters .btn-outline { width: 153px; height: 55px; justify-content: center; font-size: 18px; gap: 16px; }
 
-  .adm-table { margin-top: 18px; }
-  .adm-table .head { height: 40px; }
+  .adm-table { margin-top: 26px; }
+  .adm-table .head { height: 44px; }
   .adm-table .row { grid-template-columns: 277px 220px 236px 179px 125px 133px 133px 1fr; }
   .adm-table .head > div { padding-left: 2px; }
   .adm-table .head > div:first-child { padding-left: 18px; }
-  .adm-table .body-row { height: 64.6px; padding-top: 1px; }
+  .adm-table .body-row { padding-top: 1px; }
   .adm-table .body-row > :first-child { padding-left: 15px; }
   .adm-table .person { gap: 22px; }
   .adm-table .person.pro { gap: 15px; }
   .adm-table .person img { width: 53px; height: 53px; }
-  .adm-table .person b, .adm-table .two b { font-size: 13.6px; }
-  .adm-table .person span, .adm-table .two span { font-size: 12.4px; margin-top: 6px; }
+  .adm-table .person b, .adm-table .two b { font-size: 15px; }
+  .adm-table .person span, .adm-table .two span { font-size: 13.5px; margin-top: 6px; }
   .adm-table .person span svg { width: 15px; height: 15px; color: #4d5fa4; }
   .adm-table .person span .star { color: #ffb61e; fill: #ffb61e; stroke-width: 1; width: 17px; height: 17px; }
-  .adm-table .person.pro span { font-size: 13.6px; gap: 7px; }
+  .adm-table .person.pro span { font-size: 14px; gap: 7px; }
   .adm-table .two { padding-left: 2px; }
-  .adm-table .two b { font-size: 13.9px; }
-  .adm-table .two span { font-size: 13.1px; }
+  .adm-table .two b { font-size: 15px; }
+  .adm-table .two span { font-size: 13.5px; }
   .adm-table .when { gap: 16px; align-items: center; padding-left: 0; margin-top: 4px; }
   .adm-table .when svg { width: 22px; height: 22px; color: #0a50fb; margin: 0; transform: translateY(-4px); }
-  .adm-table .when b { font-size: 14.5px; font-weight: 500; color: var(--ink); }
-  .adm-table .when span { font-size: 14.5px; color: #5d6aa7; margin-top: 5px; }
-  .adm-table .money { font-size: 15px; padding-left: 1px; }
+  .adm-table .when b { font-size: 15px; font-weight: 500; color: var(--ink); }
+  .adm-table .when span { font-size: 14px; color: #5d6aa7; margin-top: 5px; }
+  .adm-table .money { font-size: 15.5px; padding-left: 1px; }
   .adm-table .pill { width: 103px; padding: 0; margin-left: 1px; font-size: 14px; }
   .adm-table .pill.warn { background: #fef4df; color: #f08a10; }
   .adm-table .pill.ok { background: #dcfbe8; color: #18a046; }
   .adm-table .pill.info { background: #e6f2fe; color: #1f5fe0; }
   .adm-table .pill.bad { background: #feecec; color: #f2121a; }
-  .adm-table .btn-details { width: 118px; height: 39px; font-size: 13.2px; font-weight: 500; margin-left: 1px; }
+  .adm-table .btn-details { width: 118px; height: 39px; font-size: 14.5px; font-weight: 500; margin-left: 1px; }
 
-  .adm-foot { height: 48px; margin-top: 3px; font-size: 15px; }
+  .adm-foot { height: 48px; margin-top: 12px; font-size: 15px; }
   .pager { gap: 0; }
   .pager > * { width: 44px !important; }
   .pager .prev, .pager .next { width: 39px !important; height: 38px; border: 1px solid #e3ecfb; border-radius: 9px; color: #4d6fd8; margin: 0; }
@@ -178,7 +179,7 @@ const rows = [
   ["carlaj","Carla Jossias","Maputo, Central","tania","Tânia Mabjaia","4.9 (154)","Corte e hidratação","Beleza e Estética","16 Out 2024","10:00 – 11:30","700 MZN","info","Concluída"],
   ["ivandro","Ivandro Chissano","Maputo, Costa do Sol","paulo","Paulo Dlhovo","4.7 (91)","Reparação de eletrodoméstico","Eletrodomésticos","17 Out 2024","14:00 – 16:00","1 100 MZN","warn","Por rever"],
 ];
-const heights = [65, 62, 64, 65, 65, 65, 66, 66];
+const heights = [73, 70, 72, 73, 73, 73, 74, 74];
 document.getElementById("rows").innerHTML = rows.map(([ci,cn,cp,pi,pn,pr,svc,cat,day,time,price,tone,status], i) => `
   <div class="row body-row" style="height:${heights[i]}px">
     <div class="person"><img src="../assets/adm-reservas-${ci}.png" alt=""><div><b>${cn}</b><span><i data-lucide="map-pin"></i>${cp}</span></div></div>

@@ -8,8 +8,26 @@
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <style>
   .table .row { grid-template-columns: 277px 289px 242px 142px 149px 160px 1fr; }
-  .table .body-row { height: 69.5px; }
-  .toolbar .field { margin-left: auto; width: 293px; }
+  .toolbar .field { margin-left: auto; width: 293px; flex: 0 1 293px; min-width: 0; white-space: nowrap; overflow: hidden; }
+
+  /* Spacing pass: a little more room than the mockup (see spacing-spec). */
+  .rail { position: sticky; top: 0; height: calc(100vh - 91px); align-self: start; }
+  .nav { gap: 4px; flex-shrink: 0; }              /* 46px items on a 50px pitch */
+  .nudge { padding: 22px 24px 24px; }              /* 18/20 → 22/24 */
+  .nudge p { line-height: 1.45; margin: 6px 0 10px; }
+  .main { padding: 26px 32px 40px 30px; }          /* 22/26 → 26/30, room below the table */
+  .page-sub { margin-top: 7px; }                   /* title → subtitle 3 → 7 */
+  .toolbar { margin-top: 36px; gap: 15px; }        /* 30 → 36, 12 → 15 */
+  .tabs { gap: 15px; }                             /* 12 → 15 */
+  .tabs, .tab, .toolbar .btn-outline { flex-shrink: 0; white-space: nowrap; }
+  .table { margin-top: 28px; }                     /* 20 → 28 */
+  .table .head { height: 50px; }                   /* 46 → 50 */
+  .table .body-row { height: 78px; }               /* 69.5 → 78 */
+  .table .row > * { padding-left: 24px; }          /* 20 → 24 */
+
+  /* The sidebar is sticky at window height; its colour and edge are painted
+     down the whole page behind it, so a long page does not end in white. */
+  .body { background: linear-gradient(to right, var(--rail) 0 296px, var(--line) 296px 297px, #fff 297px); }
 </style>
 </head>
 <body>

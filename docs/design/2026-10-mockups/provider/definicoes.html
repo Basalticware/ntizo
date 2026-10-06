@@ -7,178 +7,183 @@
 <link rel="stylesheet" href="../shared.css">
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <style>
-  /* definiçoes.png is drawn at a smaller scale than reservas.png (no browser chrome,
-     1672x941 viewport): the shell is re-measured and pinned here. */
+  /* definiçoes.png is drawn at a smaller scale than reservas.png: the shell is
+     re-measured and pinned here. Spacing pass (Oct 2026): the page content is given
+     more room than the mockup and scrolls; the top bar and the rail stay put. */
   body { background: #f7fbfe; }
-  .console { grid-template-rows: 62px 1fr; height: 100vh; overflow: hidden; }
-  .body { grid-template-columns: 248px 1fr; min-height: 0; }
-  .body > * { min-height: 0; overflow: hidden; }
-  .topbar { background: #fcfefe; border-bottom-color: #edf2f9; }
+  .console { grid-template-rows: 62px 1fr; }
+  .body { grid-template-columns: 248px 1fr; }
+  .topbar { position: sticky; top: 0; z-index: 5; background: #fcfefe; border-bottom-color: #edf2f9; }
   .topbar .brand { width: 248px; padding-left: 34px; }
   .topbar .brand img { height: 31px; }
   .topbar .search { margin-left: 10px; width: 758px; height: 36px; border-radius: 9px; font-size: 14.5px; gap: 14px; padding: 0 18px; background: #fff; }
   .topbar .search svg { width: 20px; height: 20px; }
   .topbar .right { padding-right: 38px; }
-  .topbar .loc { font-size: 13.2px; font-weight: 600; gap: 7px; padding-right: 22px; }
+  .topbar .loc { font-size: 14px; font-weight: 600; gap: 7px; padding-right: 22px; }
   .topbar .loc svg { width: 18px; height: 18px; }
   .topbar .sep { height: 30px; }
   .topbar .bell { padding: 0 25px 0 34px; }
   .topbar .bell svg { width: 22px; height: 22px; }
-  .topbar .bell::after { content: "1"; top: -7px; right: 23px; width: 13px; height: 13px; font-size: 9px; font-weight: 700; color: #fff; display: grid; place-items: center; }
+  .topbar .bell::after { content: "1"; top: -9px; right: 20px; width: 18px; height: 18px; font-size: 13px; font-weight: 700; color: #fff; display: grid; place-items: center; }
   .topbar .me { gap: 13px; padding-left: 20px; }
   .topbar .me img { width: 45px; height: 45px; }
-  .topbar .me b { font-size: 13.5px; }
+  .topbar .me b { font-size: 14px; }
   .topbar .me span { font-size: 13.5px; margin-top: 1px; }
   .topbar .me svg { width: 17px; height: 17px; margin-left: 53px; stroke-width: 2.6; }
 
-  .rail { background: #f8fbfe; border-right-color: #edf2f9; padding: 20px 17px 21px 18px; }
-  .rail .biz { gap: 12px; padding: 0 0 13px 1px; }
+  .rail { position: sticky; top: 62px; height: calc(100vh - 62px); align-self: start; overflow: hidden;
+    background: #f8fbfe; border-right-color: #edf2f9; padding: 20px 17px 21px 18px; }
+  .rail .biz { gap: 12px; padding: 0 0 15px 1px; }
   .rail .biz img { width: 52px; height: 52px; }
-  .rail .biz b { font-size: 14.5px; }
-  .rail .biz span { font-size: 13px; margin-top: 1px; }
+  .rail .biz b { font-size: 15px; }
+  .rail .biz span { font-size: 13px; margin-top: 2px; }
   .rail .biz svg { width: 17px; height: 17px; margin-right: 6px; stroke-width: 2.6; }
-  .nav { gap: 0; flex-shrink: 0; }
-  .nav a { height: 42.3px; padding: 0 17px; gap: 22px; font-size: 14px; }
+  .nav { gap: 2px; flex-shrink: 0; }
+  .nav a { height: 44px; padding: 0 17px; gap: 22px; font-size: 15px; }
   .nav a svg { width: 21px; height: 21px; }
-  .nav a.on { height: 43px; }
-  .nav a .count { width: 22px; height: 22px; font-size: 12px; margin-right: -5px; }
-  .nudge { margin: 21px 0 0; padding: 12px 22px 12px; background: #f0f6fe; }
+  .nav a .count { width: 22px; height: 22px; font-size: 13px; margin-right: -5px; }
+  .nudge { margin: 21px 0 0; padding: 16px 22px 16px; background: #f0f6fe; }
   .nudge .crown { width: 25px; height: 22px; display: block; margin-left: 2px; }
-  .nudge b { font-size: 15.5px; line-height: 19px; margin-top: 7px; }
-  .nudge p { font-size: 14.5px; line-height: 18px; margin: 4px 0 11px; }
+  .nudge b { font-size: 15.5px; line-height: 21px; margin-top: 8px; }
+  .nudge p { font-size: 14.5px; line-height: 1.45; margin: 6px 0 12px; }
   .nudge a { font-size: 15px; line-height: 20px; }
   .nudge a svg { width: 18px; height: 18px; }
 
   /* Page layout */
-  .main { letter-spacing: -0.015em; padding: 0 22px 0 20px; display: grid; grid-template-columns: 1065px 302px; column-gap: 15px; align-content: start; }
+  .main { padding: 0 22px 40px 20px; display: grid; grid-template-columns: minmax(0, 1fr) 302px; column-gap: 20px; align-content: start; }
   .left, .right-col { min-width: 0; }
-  .title-block { padding: 13px 0 0 2px; height: 79px; }
-  .page-title { font-size: 31.5px; line-height: 38px; margin-top: -2px; letter-spacing: -0.015em; }
-  .page-sub { font-size: 15.5px; margin-top: -1px; }
+  .title-block { padding: 18px 0 22px 2px; }
+  .page-title { font-size: 31.5px; line-height: 38px; letter-spacing: -0.015em; }
+  .page-sub { font-size: 16px; margin-top: 4px; }
   .box { background: #fff; border: 1px solid #e9eff7; border-radius: 12px; }
 
   /* Header card */
-  .hero { height: 140px; display: grid; grid-template-columns: 531px 294px 1fr; align-items: stretch; }
-  .hero .id { display: flex; gap: 23px; padding: 12px 0 0 16px; }
-  .hero .id img { width: 105px; height: 108px; }
-  .hero .id .t { padding-top: 5px; }
-  .hero h2 { margin: 0; font-size: 17.3px; font-weight: 800; display: flex; align-items: center; gap: 6px; line-height: 24px; }
+  .hero { display: grid; grid-template-columns: 531fr 294fr 240fr; align-items: stretch; padding: 4px 0; }
+  .hero .id { display: flex; gap: 24px; padding: 16px 12px 16px 20px; }
+  .hero .id img { width: 105px; height: 108px; flex-shrink: 0; }
+  .hero .id .t { padding-top: 6px; }
+  .hero h2 { margin: 0; font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 7px; line-height: 24px; }
   .hero h2 .ok { width: 22px; height: 22px; color: #fff; fill: var(--blue); stroke: #fff; }
-  .hero .meta { font-size: 12.8px; color: var(--muted); margin-top: 4px; display: flex; gap: 12px; }
-  .hero .desc { font-size: 12.8px; line-height: 18px; color: var(--muted); margin: 9px 0 0; }
-  .hero .prog { border-left: 1px solid #e9eff7; margin: 9px 0 15px; padding: 10px 0 0 19px; }
-  .hero .prog b, .hero .quick b { display: block; font-size: 14px; font-weight: 700; line-height: 18px; }
-  .bar { display: flex; align-items: center; gap: 17px; margin-top: 3px; }
-  .bar .track { width: 198px; height: 6px; border-radius: 3px; background: #e6edf7; overflow: hidden; }
+  .hero .meta { font-size: 14px; color: var(--muted); margin-top: 6px; display: flex; gap: 12px; }
+  .hero .desc { font-size: 14px; line-height: 1.5; color: var(--muted); margin: 10px 0 0; }
+  .hero .prog { border-left: 1px solid #e9eff7; margin: 12px 0; padding: 10px 20px 4px 22px; }
+  .hero .prog b, .hero .quick b { display: block; font-size: 15px; font-weight: 700; line-height: 20px; }
+  .bar { display: flex; align-items: center; gap: 17px; margin-top: 10px; }
+  .bar .track { flex: 1; max-width: 198px; height: 6px; border-radius: 3px; background: #e6edf7; overflow: hidden; }
   .bar .track i { display: block; width: 81%; height: 100%; background: #05b473; border-radius: 3px; }
-  .bar strong { font-size: 13.5px; }
-  .hero .prog p { margin: 8px 0 0; font-size: 12.5px; line-height: 16.5px; color: var(--muted); }
-  .hero .prog .link { margin-top: 10px; font-size: 13px; font-weight: 500; gap: 7px; }
-  .hero .prog .link svg { width: 14px; height: 14px; }
-  .hero .side { border-left: 1px solid #e9eff7; margin: 9px 0 15px; padding: 3px 14px 0 9px; }
-  .hero .quick { background: #f5fafe; border-radius: 10px; height: 112px; padding: 8px 13px 0 14px; }
-  .qbtn { margin-top: 8px; height: 32px; border-radius: 8px; background: #edf6fe; border: 1px solid #dfeafa; display: flex; align-items: center; gap: 15px; padding-left: 15px; font-size: 13px; color: var(--ink); }
+  .bar strong { font-size: 14px; }
+  .hero .prog p { margin: 10px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+  .hero .prog .link { margin-top: 12px; font-size: 14px; font-weight: 500; gap: 7px; }
+  .hero .prog .link svg { width: 15px; height: 15px; }
+  .hero .side { border-left: 1px solid #e9eff7; margin: 12px 0; padding: 0 16px 0 12px; }
+  .hero .quick { background: #f5fafe; border-radius: 10px; padding: 14px 16px 16px; }
+  .qbtn { margin-top: 10px; height: 38px; border-radius: 8px; background: #edf6fe; border: 1px solid #dfeafa; display: flex; align-items: center; gap: 15px; padding-left: 15px; font-size: 14px; color: var(--ink); }
   .qbtn svg { width: 18px; height: 18px; color: var(--blue); }
 
   /* Second row */
-  .grid2 { margin-top: 8px; display: grid; grid-template-columns: 213px 845px; column-gap: 7px; align-items: start; }
-  .secnav { height: 296px; padding: 6px 9px 0 9px; position: relative; overflow: hidden; }
-  .secnav a { display: flex; gap: 17px; height: 60px; padding: 9px 0 0 10px; border-radius: 9px; }
-  .secnav a + a { margin-top: 0; }
-  .secnav a svg { width: 21px; height: 21px; margin-top: 7px; color: var(--ink); }
-  .secnav a b { display: block; font-size: 13.5px; font-weight: 500; line-height: 18px; }
-  .secnav a span { display: block; font-size: 12.3px; white-space: nowrap; color: var(--muted); line-height: 17px; margin-top: 1px; }
-  .secnav a.on { background: #ebf4fe; height: 50px; margin-bottom: 7px; }
+  .grid2 { margin-top: 16px; display: grid; grid-template-columns: 213px minmax(0, 1fr); column-gap: 15px; align-items: start; }
+  .secnav { padding: 10px 12px 12px; position: relative; overflow: hidden; }
+  .secnav a { display: flex; gap: 16px; padding: 12px 8px 12px 10px; border-radius: 9px; }
+  .secnav a + a { margin-top: 4px; }
+  .secnav a svg { width: 21px; height: 21px; margin-top: 4px; color: var(--ink); }
+  .secnav a b { display: block; font-size: 14.5px; font-weight: 500; line-height: 19px; }
+  .secnav a span { display: block; font-size: 13px; color: var(--muted); line-height: 1.4; margin-top: 2px; }
+  .secnav a.on { background: #ebf4fe; }
   .secnav a.on b, .secnav a.on svg { color: var(--blue); }
-  .secnav::before { content: ""; position: absolute; left: 0; top: 9px; width: 3px; height: 42px; background: var(--blue); border-radius: 0 2px 2px 0; }
+  .secnav::before { content: ""; position: absolute; left: 0; top: 14px; width: 3px; height: 50px; background: var(--blue); border-radius: 0 2px 2px 0; }
 
-  .sec { display: grid; grid-template-columns: 57px 1fr; padding: 7.5px 16px 0 13px; }
-  .sec + .sec { margin-top: 10px; }
+  .sec { display: grid; grid-template-columns: 58px minmax(0, 1fr); padding: 16px 20px 20px 17px; }
+  .sec + .sec { margin-top: 16px; }
   .sec .tile { width: 38px; height: 38px; border-radius: 10px; background: #edf5fe; display: grid; place-items: center; color: var(--blue); }
   .sec .tile svg { width: 20px; height: 20px; }
-  .sec h3 { margin: 0; font-size: 15px; font-weight: 700; line-height: 19px; }
-  .sec .sub { margin: 0; font-size: 12.5px; line-height: 16px; color: var(--muted); }
-  .brand-body { display: flex; margin-top: 15px; }
-  .logo-drop { width: 147px; height: 105px; border: 1px dashed #cdd9ec; border-radius: 8px; text-align: center; padding-top: 11px; }
-  .logo-drop .ic { width: 30px; height: 30px; margin: 0 auto; border-radius: 7px; background: #eef5fe; display: grid; place-items: center; color: var(--blue); }
+  .sec h3 { margin: 0; font-size: 16px; font-weight: 700; line-height: 21px; }
+  .sec .sub { margin: 3px 0 0; font-size: 14px; line-height: 1.45; color: var(--muted); }
+  .sec.brand { grid-template-columns: 58px minmax(0, 1fr) 215px; column-gap: 0; }
+  .brand-body { display: flex; margin-top: 18px; }
+  .logo-drop { width: 150px; flex-shrink: 0; border: 1px dashed #cdd9ec; border-radius: 8px; text-align: center; padding: 14px 8px 12px; }
+  .logo-drop .ic { width: 32px; height: 32px; margin: 0 auto; border-radius: 7px; background: #eef5fe; display: grid; place-items: center; color: var(--blue); }
   .logo-drop .ic svg { width: 20px; height: 20px; }
-  .logo-drop b { display: block; font-size: 11.5px; font-weight: 700; margin-top: 7px; }
-  .logo-drop span { display: block; font-size: 10.5px; line-height: 13px; color: var(--muted); margin-top: 3px; }
-  .photos { margin-left: 23px; }
-  .photos > b { display: block; font-size: 12px; font-weight: 500; line-height: 15px; margin-top: 0; }
-  .photos .row { display: flex; gap: 7px; margin-top: 7px; }
+  .logo-drop b { display: block; font-size: 13px; font-weight: 700; margin-top: 9px; }
+  .logo-drop span { display: block; font-size: 13px; line-height: 1.4; color: var(--muted); margin-top: 4px; }
+  .photos { margin-left: 24px; min-width: 0; }
+  .photos > b { display: block; font-size: 13.5px; font-weight: 500; line-height: 18px; }
+  .photos .row { display: flex; gap: 8px; margin-top: 10px; }
   .photos img { width: 82px; height: 84px; border-radius: 6px; display: block; }
-  .photos .add { width: 83px; height: 84px; margin-left: 1px; border: 1px dashed #bcd2f3; border-radius: 6px; background: #f8fbff; text-align: center; padding-top: 24px; font-size: 10.5px; line-height: 13px; color: var(--ink-2); }
-  .photos .add i { width: 22px; height: 22px; line-height: 22px; margin: 0 auto 5px; border-radius: 50%; background: #e4eefc; display: grid; place-items: center; color: var(--blue); font-style: normal; font-size: 16px; font-weight: 600; line-height: 20px; }
-  .tip { position: absolute; right: 14px; top: 10px; width: 215px; height: 90px; background: #eef6fe; border-radius: 9px; padding: 13px 10px 0 45px; }
-  .tip svg { position: absolute; left: 14px; top: 13px; width: 20px; height: 20px; color: var(--blue); }
-  .tip b { display: block; font-size: 12px; font-weight: 700; color: #1a4fd0; line-height: 15px; }
-  .tip p { margin: 3px 0 0; font-size: 10px; white-space: nowrap; line-height: 14.5px; color: var(--muted); }
+  .photos .add { width: 92px; height: 84px; border: 1px dashed #bcd2f3; border-radius: 6px; background: #f8fbff; text-align: center; padding-top: 14px; font-size: 13px; line-height: 1.3; color: var(--ink-2); }
+  .photos .add i { width: 22px; height: 22px; margin: 0 auto 6px; border-radius: 50%; background: #e4eefc; display: grid; place-items: center; color: var(--blue); font-style: normal; font-size: 16px; font-weight: 600; line-height: 22px; }
+  .tip { align-self: start; position: relative; background: #eef6fe; border-radius: 9px; padding: 14px 14px 16px 46px; }
+  .tip svg { position: absolute; left: 15px; top: 15px; width: 20px; height: 20px; color: var(--blue); }
+  .tip b { display: block; font-size: 13.5px; font-weight: 700; color: #1a4fd0; line-height: 18px; }
+  .tip p { margin: 5px 0 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
 
-  .form { display: grid; column-gap: 21px; }
-  .form label { display: block; font-size: 12px; color: var(--ink); line-height: 15px; }
-  .inp { margin-top: 0.5px; height: 30px; border: 1px solid #dfe6f1; border-radius: 6px; display: flex; align-items: center; padding: 0 11px; font-size: 12.5px; letter-spacing: -0.015em; color: var(--ink); background: #fff; gap: 8px; }
+  .form { display: grid; column-gap: 21px; row-gap: 12px; margin-top: 16px; }
+  .form label { display: block; font-size: 13.5px; color: var(--ink); line-height: 18px; }
+  .inp { margin-top: 5px; height: 38px; border: 1px solid #dfe6f1; border-radius: 7px; display: flex; align-items: center; padding: 0 12px; font-size: 14.5px; color: var(--ink); background: #fff; gap: 9px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .inp .chev { margin-left: auto; width: 16px; height: 16px; stroke-width: 2.4; }
-  .ctr { text-align: right; font-size: 9.5px; color: var(--muted); margin-top: 3px; line-height: 10px; }
-  .ta { height: 48px; align-items: flex-start; padding: 7px 13px; line-height: 16px; position: relative; font-size: 12px; letter-spacing: -0.02em; }
-  .ta .ctr { position: absolute; right: 5px; bottom: 4px; }
-  .flag { width: 15px; height: 11px; display: block; margin-left: -3px; margin-right: -3px; }
+  .ctr { display: block; text-align: right; font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 16px; }
+  .ta { height: auto; display: block; white-space: normal; padding: 10px 14px 8px; line-height: 1.5; font-size: 14.5px; }
+  .ta .ctr { margin-top: 2px; }
+  .flag { width: 18px; height: 12px; display: block; flex-shrink: 0; }
 
-  .docs { display: grid; grid-template-columns: 189px 181px 171px 190px; gap: 8px; margin-top: 4px; }
-  .doc { height: 62px; border: 1px solid #e3eaf4; border-radius: 8px; display: grid; grid-template-columns: 44px 1fr 14px; overflow: hidden; align-items: center; padding: 0 6px 0 8px; }
+  .docs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+  /* Four tiles stay in one row; at 13px the text needs the tile's full width, so the
+     icon and chevron share the top line and the text sits under them. */
+  .doc { border: 1px solid #e3eaf4; border-radius: 8px; display: grid; grid-template-columns: 34px 1fr 14px; grid-template-areas: "ic . go" "tx tx tx"; row-gap: 10px; align-items: center; align-content: start; padding: 12px 12px 14px; }
+  .doc .di { grid-area: ic; }
+  .doc > div { grid-area: tx; }
+  .doc > svg { grid-area: go; }
   .doc .di { width: 34px; height: 34px; border-radius: 8px; background: #dcf6ed; display: grid; place-items: center; color: #10a36a; }
   .doc .di.grey { background: #eef2f7; color: var(--ink-2); }
   .doc .di svg { width: 19px; height: 19px; }
-  .doc b { display: block; font-size: 10.2px; letter-spacing: -0.02em; font-weight: 700; line-height: 14px; white-space: nowrap; }
-  .doc span { display: block; font-size: 10.2px; letter-spacing: -0.02em; line-height: 15px; color: var(--muted); white-space: nowrap; }
+  .doc b { display: block; font-size: 13px; font-weight: 700; line-height: 1.35; }
+  .doc span { display: block; font-size: 13px; line-height: 1.4; color: var(--muted); margin-top: 2px; }
   .doc span.g { color: #13923a; }
   .doc > svg { width: 14px; height: 14px; stroke-width: 2.4; }
 
   /* Right column */
-  .right-col { padding-top: 79px; }
-  .status { height: 401px; padding: 15px 14px 0 15px; }
-  .status h3, .tips h3, .help h3 { margin: 0; font-size: 16px; font-weight: 700; line-height: 20px; }
-  .ring-row { display: flex; gap: 14px; margin-top: 10px; }
+  .right-col { padding-top: 101px; }
+  .status { padding: 19px 18px 18px 19px; }
+  .status h3, .tips h3, .help h3 { margin: 0; font-size: 16px; font-weight: 700; line-height: 21px; }
+  .ring-row { display: flex; gap: 14px; margin-top: 14px; }
   .ring { width: 80px; height: 80px; position: relative; flex-shrink: 0; margin-left: 1px; }
   .ring svg { width: 80px; height: 80px; transform: rotate(-90deg); }
   .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 18px; font-weight: 700; }
-  .ring-row .t { padding-top: 10px; }
-  .ring-row .t b { display: block; font-size: 13.5px; font-weight: 700; line-height: 17px; }
-  .ring-row .t p { margin: 4px 0 0; font-size: 11.5px; white-space: nowrap; line-height: 16.5px; color: var(--muted); }
-  .steps { margin-top: 11px; border: 1px solid #e6edf6; border-radius: 9px; overflow: hidden; }
-  .steps ul { list-style: none; margin: 0; padding: 2px 0 10.5px 12px; }
-  .steps li { display: flex; gap: 17px; height: 41px; align-items: flex-start; padding-top: 2px; }
+  .ring-row .t { padding-top: 6px; }
+  .ring-row .t b { display: block; font-size: 14.5px; font-weight: 700; line-height: 19px; }
+  .ring-row .t p { margin: 4px 0 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
+  .steps { margin-top: 16px; border: 1px solid #e6edf6; border-radius: 9px; overflow: hidden; }
+  .steps ul { list-style: none; margin: 0; padding: 8px 0 8px 14px; }
+  .steps li { display: flex; gap: 16px; min-height: 52px; align-items: flex-start; padding: 6px 0; }
   .steps li .c { width: 21px; height: 21px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
   .steps li .c.done { background: #0eaa61; color: #fff; display: grid; place-items: center; }
   .steps li .c.done svg { width: 13px; height: 13px; stroke-width: 3.2; }
   .steps li .c.todo { border: 1.6px solid #4a5785; }
-  .steps li b { display: block; font-size: 12px; font-weight: 500; line-height: 16px; }
-  .steps li span { display: block; font-size: 11.5px; line-height: 16px; color: var(--muted); }
-  .steps .foot { height: 30px; background: #eef6fe; display: flex; align-items: center; justify-content: center; gap: 7px; color: var(--blue); font-size: 12.5px; font-weight: 500; }
-  .steps .foot svg { width: 14px; height: 14px; }
+  .steps li b { display: block; font-size: 14px; font-weight: 500; line-height: 19px; }
+  .steps li span { display: block; font-size: 13px; line-height: 18px; color: var(--muted); margin-top: 1px; }
+  .steps .foot { height: 40px; background: #eef6fe; display: flex; align-items: center; justify-content: center; gap: 7px; color: var(--blue); font-size: 14px; font-weight: 500; }
+  .steps .foot svg { width: 15px; height: 15px; }
 
-  .tips { margin-top: 12px; height: 230px; padding: 13px 14px 0 16px; }
-  .tips h3 { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .tips { margin-top: 20px; padding: 18px 18px 20px 20px; }
+  .tips h3 { display: flex; align-items: center; gap: 8px; font-size: 15px; }
   .tips h3 svg { width: 19px; height: 19px; color: #f59e0b; }
-  .tips .tipr { display: grid; grid-template-columns: 46px 1fr; column-gap: 14px; margin-top: 8px; }
-  .tips .tipr + .tipr { margin-top: 12.5px; }
+  .tips .tipr { display: grid; grid-template-columns: 46px 1fr; column-gap: 14px; margin-top: 16px; }
   .tips .ti { width: 46px; height: 45px; border-radius: 9px; background: #edf5fe; display: grid; place-items: center; color: var(--blue); }
   .tips .ti svg { width: 20px; height: 20px; }
-  .tips .tipr b { display: block; font-size: 12px; font-weight: 700; line-height: 15px; margin-top: 2px; }
-  .tips .tipr p { margin: 1px 0 0; font-size: 11.2px; white-space: nowrap; line-height: 16px; color: var(--muted); }
+  .tips .tipr b { display: block; font-size: 14px; font-weight: 700; line-height: 19px; }
+  .tips .tipr p { margin: 3px 0 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
 
-  .help { margin-top: 13px; height: 112px; padding: 7px 14px 0 16px; display: grid; grid-template-columns: 30px 1fr; column-gap: 12px; }
-  .help .hi { width: 30px; height: 30px; border-radius: 8px; background: #edf5fe; display: grid; place-items: center; color: var(--blue); margin-top: 6px; }
+  .help { margin-top: 20px; padding: 16px 18px 20px 20px; display: grid; grid-template-columns: 30px 1fr; column-gap: 14px; }
+  .help .hi { width: 30px; height: 30px; border-radius: 8px; background: #edf5fe; display: grid; place-items: center; color: var(--blue); margin-top: 2px; }
   .help .hi svg { width: 19px; height: 19px; }
-  .help h3 { font-size: 14px; line-height: 18px; margin-top: 2px; }
-  .help p { margin: 1px 0 0; font-size: 12.2px; white-space: nowrap; line-height: 16px; color: var(--muted); }
-  .help .outline { margin-top: 5px; width: 180px; height: 32px; border: 1px solid #c9dcfb; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 9px; color: var(--blue); font-size: 14px; font-weight: 500; }
+  .help h3 { font-size: 15px; line-height: 20px; margin-top: 2px; }
+  .help p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+  .help .outline { margin-top: 12px; height: 38px; padding: 0 18px; border: 1px solid #c9dcfb; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; color: var(--blue); font-size: 14.5px; font-weight: 500; }
   .help .outline svg { width: 15px; height: 15px; }
 
-  .save { margin-top: 8px; display: flex; gap: 11px; }
-  .save a { height: 46px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 11px; font-size: 14.5px; font-weight: 600; }
-  .save .discard { width: 107px; background: #fff; border: 1px solid #dce5f2; color: var(--ink-2); }
-  .save .keep { width: 175px; background: #0060fd; color: #fff; }
+  .save { margin-top: 20px; display: flex; gap: 14px; }
+  .save a { height: 46px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 11px; font-size: 15px; font-weight: 600; }
+  .save .discard { width: 112px; background: #fff; border: 1px solid #dce5f2; color: var(--ink-2); }
+  .save .keep { flex: 1; background: #0060fd; color: #fff; }
   .save .keep svg { width: 18px; height: 18px; }
 </style>
 </head>
@@ -232,13 +237,13 @@
             <div class="t">
               <h2>Joaquim Serviços <i data-lucide="badge-check" class="ok"></i></h2>
               <div class="meta"><span>Canalização</span><span>•</span><span>Maputo</span></div>
-              <p class="desc">Serviços profissionais de canalização, manutenção e<br>instalação para residências e empresas em Maputo.</p>
+              <p class="desc">Serviços profissionais de canalização, manutenção e instalação para residências e empresas em Maputo.</p>
             </div>
           </div>
           <div class="prog">
             <b>Perfil completo</b>
             <div class="bar"><div class="track"><i></i></div><strong>80%</strong></div>
-            <p>Complete todas as secções para ganhar mais<br>visibilidade e confiança.</p>
+            <p>Complete todas as secções para ganhar mais visibilidade e confiança.</p>
             <a class="link" href="#">Ver o meu perfil público <i data-lucide="arrow-up-right"></i></a>
           </div>
           <div class="side">
@@ -260,7 +265,7 @@
           </nav>
 
           <div>
-            <section class="box sec" style="height:179px; position:relative">
+            <section class="box sec brand">
               <div class="tile"><i data-lucide="camera"></i></div>
               <div>
                 <h3>Marca e fotografia</h3>
@@ -282,39 +287,39 @@
                   </div>
                 </div>
               </div>
-              <div class="tip"><i data-lucide="info"></i><b>Dica</b><p>Use fotografias reais do seu trabalho.<br>Imagens de qualidade aumentam a<br>confiança dos clientes.</p></div>
+              <div class="tip"><i data-lucide="info"></i><b>Dica</b><p>Use fotografias reais do seu trabalho. Imagens de qualidade aumentam a confiança dos clientes.</p></div>
             </section>
 
-            <section class="box sec" style="height:189px">
+            <section class="box sec">
               <div class="tile"><i data-lucide="user-round"></i></div>
               <div>
                 <h3>Identidade do prestador</h3>
                 <p class="sub">Ajude os clientes a conhecer melhor o seu negócio.</p>
-                <div class="form" style="grid-template-columns: 376px 360px; margin-top: 11px">
+                <div class="form" style="grid-template-columns: 51fr 49fr">
                   <div><label>Nome do prestador</label><div class="inp">Joaquim Serviços</div><div class="ctr">17/100</div></div>
                   <div><label>Tipo</label><div class="inp">Empresa<i data-lucide="chevron-down" class="chev"></i></div></div>
-                  <div style="grid-column: 1 / -1; margin-top: -4px"><label>Descrição</label><div class="inp ta">Serviços profissionais de canalização, manutenção e instalação de sistemas de água para<br>residências e empresas. Qualidade, pontualidade e soluções duradouras.<span class="ctr">142/500</span></div></div>
+                  <div style="grid-column: 1 / -1"><label>Descrição</label><div class="inp ta">Serviços profissionais de canalização, manutenção e instalação de sistemas de água para residências e empresas. Qualidade, pontualidade e soluções duradouras.<span class="ctr">142/500</span></div></div>
                 </div>
               </div>
             </section>
 
-            <section class="box sec" style="height:140px; padding-top:3.5px">
+            <section class="box sec">
               <div class="tile"><i data-lucide="map-pin"></i></div>
               <div>
                 <h3>Onde trabalha</h3>
                 <p class="sub">Defina a sua área de atuação para que os clientes o encontrem facilmente.</p>
-                <div class="form" style="grid-template-columns: 227px 208px 281px; margin-top: 4px; row-gap: 5px">
-                  <div><label>País</label><div class="inp" style="height:26px"><svg class="flag" viewBox="0 0 18 12"><rect width="18" height="4" fill="#009a49"/><rect y="4" width="18" height="4" fill="#111"/><rect y="8" width="18" height="4" fill="#fce100"/><rect y="3.6" width="18" height="0.8" fill="#fff"/><rect y="7.6" width="18" height="0.8" fill="#fff"/><path d="M0 0 L8 6 L0 12 Z" fill="#d21034"/></svg>Moçambique<i data-lucide="chevron-down" class="chev"></i></div></div>
-                  <div><label>Cidade</label><div class="inp" style="height:26px">Maputo<i data-lucide="chevron-down" class="chev"></i></div></div>
-                  <div><label>Bairro</label><div class="inp" style="height:26px">Liberdade</div></div>
+                <div class="form" style="grid-template-columns: 31fr 29fr 40fr">
+                  <div><label>País</label><div class="inp"><svg class="flag" viewBox="0 0 18 12"><rect width="18" height="4" fill="#009a49"/><rect y="4" width="18" height="4" fill="#111"/><rect y="8" width="18" height="4" fill="#fce100"/><rect y="3.6" width="18" height="0.8" fill="#fff"/><rect y="7.6" width="18" height="0.8" fill="#fff"/><path d="M0 0 L8 6 L0 12 Z" fill="#d21034"/></svg>Moçambique<i data-lucide="chevron-down" class="chev"></i></div></div>
+                  <div><label>Cidade</label><div class="inp">Maputo<i data-lucide="chevron-down" class="chev"></i></div></div>
+                  <div><label>Bairro</label><div class="inp">Liberdade</div></div>
                   <div></div>
-                  <div><label>Código postal</label><div class="inp" style="height:26px">0123</div></div>
-                  <div><label>Morada</label><div class="inp" style="height:26px">Av. Julius Nyerere, nº 123, 2º andar</div></div>
+                  <div><label>Código postal</label><div class="inp">0123</div></div>
+                  <div><label>Morada</label><div class="inp">Av. Julius Nyerere, nº 123, 2º andar</div></div>
                 </div>
               </div>
             </section>
 
-            <section class="box sec" style="height:130px; margin-top:7px; padding-top:4.5px">
+            <section class="box sec">
               <div class="tile"><i data-lucide="shield-check"></i></div>
               <div>
                 <h3>Verificação de documentos</h3>
@@ -343,7 +348,7 @@
               </svg>
               <b>80%</b>
             </div>
-            <div class="t"><b>Perfil quase completo!</b><p>Complete as secções em falta para<br>ganhar mais visibilidade.</p></div>
+            <div class="t"><b>Perfil quase completo!</b><p>Complete as secções em falta para ganhar mais visibilidade.</p></div>
           </div>
           <div class="steps">
             <ul>
@@ -359,16 +364,16 @@
 
         <section class="box tips">
           <h3><i data-lucide="lightbulb"></i>Dicas para ter mais clientes</h3>
-          <div class="tipr"><span class="ti"><i data-lucide="image"></i></span><div><b>Use fotografias reais</b><p>Mostre os seus trabalhos para ganhar<br>confiança.</p></div></div>
-          <div class="tipr"><span class="ti"><i data-lucide="file-badge"></i></span><div><b>Complete todos os documentos</b><p>Perfis verificados aparecem primeiro<br>nas pesquisas.</p></div></div>
-          <div class="tipr"><span class="ti"><i data-lucide="clipboard-pen-line"></i></span><div><b>Mantenha os seus dados atualizados</b><p>Assim os clientes conseguem contactá-lo<br>mais facilmente.</p></div></div>
+          <div class="tipr"><span class="ti"><i data-lucide="image"></i></span><div><b>Use fotografias reais</b><p>Mostre os seus trabalhos para ganhar confiança.</p></div></div>
+          <div class="tipr"><span class="ti"><i data-lucide="file-badge"></i></span><div><b>Complete todos os documentos</b><p>Perfis verificados aparecem primeiro nas pesquisas.</p></div></div>
+          <div class="tipr"><span class="ti"><i data-lucide="clipboard-pen-line"></i></span><div><b>Mantenha os seus dados atualizados</b><p>Assim os clientes conseguem contactá-lo mais facilmente.</p></div></div>
         </section>
 
         <section class="box help">
           <span class="hi"><i data-lucide="circle-help"></i></span>
           <div>
             <h3>Precisa de ajuda?</h3>
-            <p>Visite o nosso centro de ajuda ou fale com<br>a nossa equipa.</p>
+            <p>Visite o nosso centro de ajuda ou fale com a nossa equipa.</p>
             <a class="outline" href="#">Abrir centro de ajuda <i data-lucide="arrow-up-right"></i></a>
           </div>
         </section>

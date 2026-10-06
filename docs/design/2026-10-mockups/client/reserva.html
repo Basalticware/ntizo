@@ -8,80 +8,69 @@
 <link rel="stylesheet" href="public.css">
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <style>
-  /* Rendered 1:1 at 1378x969 (mockup rect 35,94,1413,1063). */
-  :root { --blue-public: #0066fe; --ph-h: 75px; --ph-pad: 40px; --ph-logo: 37px; --ph-font: 14.6px; --ph-nav-ink: #2b4172; }
-  .ph { border-bottom-color: #f2f5fb; }
-  .ph .logo { margin-top: -6px; height: 39px; width: 115px; }
-  .ph nav a, .ph .tools > * { position: absolute; top: 0; height: 74px; display: flex; align-items: center; }
-  .ph .tools { margin: 0; }
-  .ph .tool { gap: 9px; font-size: 13.8px; }
-  .ph .tool svg { width: 19px; height: 19px; }
-  .ph .tool svg.chev, .ph nav svg { width: 17px; height: 17px; stroke-width: 2.2; }
-  .ph .signin { font-size: 16.5px; }
-  .ph .cta { top: 13px !important; height: 49px !important; width: 145px; justify-content: center; border-radius: 10px; font-size: 16.5px; }
+  /* Spacing pass: flow layout at 1378 wide (mockup rect 35,94,1413,1063), roomier than the PNG. */
+  :root { --blue-public: #0066fe; --pw-pad: 40px; }
 
-  .page { position: absolute; top: 0; left: 0; width: 100%; height: 969px; }
-  .ph { z-index: 1; }
-  .back { position: absolute; left: 41px; top: 111px; display: flex; align-items: center; gap: 13px; color: var(--blue-public); font-size: 16.5px; font-weight: 500; }
+  .top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-top: 32px; }
+  .back { justify-self: start; display: flex; align-items: center; gap: 13px; color: var(--blue-public); font-size: 16.5px; font-weight: 500; }
   .back svg { width: 21px; height: 21px; stroke-width: 2.2; }
-
-  .steps { position: absolute; top: 105px; left: 0; height: 39px; width: 100%; }
-  .steps > * { position: absolute; top: 0; }
-  .steps .n { width: 39px; height: 39px; border-radius: 50%; display: grid; place-items: center; background: #e9eff7; color: var(--ink-2); font-size: 16px; font-weight: 500; }
+  .steps { display: flex; align-items: center; gap: 14px; }
+  .steps .n { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #e9eff7; color: var(--ink-2); font-size: 16px; font-weight: 500; flex-shrink: 0; }
   .steps .n.on { background: var(--blue-public); color: #fff; }
-  .steps .lbl { height: 39px; display: flex; align-items: center; font-size: 15.5px; font-weight: 500; color: #2f4a7a; }
+  .steps .lbl { font-size: 15.5px; font-weight: 500; color: #2f4a7a; white-space: nowrap; }
   .steps .lbl.on { color: var(--blue-public); }
-  .steps .dash { top: 19px; height: 0; border-top: 2px dotted #dfe6f1; }
+  .steps .dash { width: 126px; border-top: 2px dotted #dfe6f1; margin: 0 6px; }
 
-  h1 { position: absolute; left: 38px; top: 197px; margin: 0; font-size: 62px; font-weight: 800; letter-spacing: -0.051em; line-height: 1; color: #020d3a; }
-  .lede { position: absolute; left: 40px; top: 265px; margin: 0; font-size: 24.1px; color: #3d5884; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 433px; column-gap: 40px; row-gap: 32px; margin-top: 40px; padding-bottom: 40px; }
+  .left { min-width: 0; }
+  h1 { margin: 0; font-size: 62px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; color: #020d3a; }
+  .lede { margin: 12px 0 0; font-size: 22px; line-height: 1.45; color: #3d5884; }
 
-  .cal { position: absolute; left: 40px; top: 325px; width: 842px; height: 515px; border: 1px solid #f0f4f9; border-radius: 14px; }
-  .cal > * { position: absolute; }
-  .cal .arrow { top: 38px; width: 30px; height: 30px; color: var(--ink); stroke-width: 2; }
-  .cal .month { left: 0; width: 480px; top: 36px; text-align: center; font-size: 21.6px; font-weight: 700; color: var(--ink); }
-  .cal .grid { left: 23px; top: 0; width: 441px; display: grid; grid-template-columns: repeat(7, 63px); }
-  .cal .wd { position: absolute; top: 106px; left: 22px; width: 441px; display: grid; grid-template-columns: repeat(7, 63px); font-size: 17px; color: #5c6b98; text-align: center; }
-  .cal .days { position: absolute; top: 142.5px; left: 20.5px; width: 441px; display: grid; grid-template-columns: repeat(7, 63px); grid-auto-rows: 64.5px; font-size: 19.5px; font-weight: 500; color: #1a2758; text-align: center; }
-  .cal .days span { display: grid; place-items: center; height: 59px; }
+  .cal { margin-top: 36px; border: 1px solid #f0f4f9; border-radius: 14px; padding: 40px 32px 40px 22px; display: grid; grid-template-columns: 434px 2px 1fr; column-gap: 30px; }
+  .cal .head { display: flex; align-items: center; justify-content: space-between; padding: 0 22px; }
+  .cal .arrow { width: 30px; height: 30px; color: var(--ink); stroke-width: 2; }
+  .cal .month { font-size: 21.6px; font-weight: 700; color: var(--ink); }
+  .cal .wd, .cal .days { display: grid; grid-template-columns: repeat(7, 62px); text-align: center; }
+  .cal .wd { margin-top: 32px; font-size: 16px; color: #5c6b98; }
+  .cal .days { margin-top: 14px; grid-auto-rows: 70px; font-size: 19px; font-weight: 500; color: #1a2758; }
+  .cal .days span { display: grid; place-items: center; height: 60px; align-self: center; }
   .cal .days .out { color: #b3bacb; font-weight: 400; }
-  .cal .days .sel { width: 59px; margin: 0 auto; border-radius: 50%; background: var(--blue-public); color: #fff; font-weight: 600; }
-  .cal .vr { left: 495px; top: 35px; height: 445px; border-left: 2px solid #f1f5fa; }
-  .cal .day-title { left: 533px; top: 35px; font-size: 19.8px; font-weight: 700; color: var(--ink); }
-  .cal .day-sub { left: 535px; top: 71px; font-size: 16.5px; color: #5068a0; }
-  .cal .slots { left: 535px; top: 117px; display: grid; grid-template-columns: 139px 119px; column-gap: 14px; row-gap: 12px; }
-  .cal .slots span { height: 58px; border: 1px solid #e8edf4; border-radius: 9px; display: grid; place-items: center; font-size: 18.5px; font-weight: 500; color: #0b1440; }
+  .cal .days .sel { width: 60px; margin: 0 auto; border-radius: 50%; background: var(--blue-public); color: #fff; font-weight: 600; }
+  .cal .vr { background: #f1f5fa; }
+  .cal .day-title { white-space: nowrap; font-size: 19.8px; font-weight: 700; color: var(--ink); }
+  .cal .day-sub { margin-top: 10px; font-size: 16px; color: #5068a0; }
+  .cal .slots { margin-top: 28px; display: grid; grid-template-columns: repeat(2, minmax(0, 140px)); column-gap: 16px; row-gap: 16px; }
+  .cal .slots span { height: 58px; border: 1px solid #e8edf4; border-radius: 9px; display: grid; place-items: center; font-size: 18px; font-weight: 500; color: #0b1440; }
   .cal .slots .on { background: var(--blue-public); border-color: var(--blue-public); color: #fff; font-weight: 600; }
 
-  .sum { position: absolute; left: 913px; top: 184px; width: 433px; height: 656px; border: 1px solid #f0f4f9; border-radius: 14px; }
-  .sum > * { position: absolute; }
-  .sum .photo { left: 21px; top: 20px; width: 389px; height: 207px; border-radius: 10px; object-fit: cover; }
-  .sum h2 { left: 21px; top: 241px; margin: 0; font-size: 27.4px; font-weight: 700; letter-spacing: -0.01em; color: #06154a; }
-  .sum .meta { left: 20px; top: 287px; display: flex; align-items: center; gap: 6px; font-size: 15.8px; color: #4a5785; white-space: nowrap; }
+  .sum { border: 1px solid #f0f4f9; border-radius: 14px; padding: 24px; align-self: start; }
+  .sum .photo { display: block; width: 100%; height: 207px; border-radius: 10px; object-fit: cover; }
+  .sum h2 { margin: 20px 0 0; font-size: 27px; font-weight: 700; line-height: 1.2; color: #06154a; }
+  .sum .meta { margin-top: 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 15px; color: #4a5785; }
   .sum .meta b { color: var(--ink); font-weight: 700; }
   .sum .meta .st { width: 19px; height: 19px; color: var(--star); fill: var(--star); stroke: none; margin-right: 1px; }
   .sum .meta .shield { width: 22px; height: 22px; color: var(--blue-public); stroke-width: 2; }
-  .sum .meta .bullet { margin: 0 12px 0 11px; color: #7c87a8; }
-  .sum .hr { left: 21px; width: 389px; border-top: 1px solid #eef2f7; }
-  .sum .rows { left: 21px; top: 344px; width: 386px; }
-  .sum .r { position: absolute; left: 0; width: 100%; display: flex; align-items: center; font-size: 15.8px; color: #4a5785; }
-  .sum .r svg { width: 26px; height: 26px; color: #24365f; stroke-width: 1.6; margin-right: 21px; }
-  .sum .r .v { margin-left: auto; color: #182654; text-align: right; font-size: 16.3px; }
+  .sum .meta .bullet { margin: 0 10px; color: #7c87a8; }
+  .sum .hr { border-top: 1px solid #eef2f7; margin: 22px 0 8px; }
+  .sum .r { display: flex; align-items: center; min-height: 50px; padding: 4px 0; font-size: 15.5px; color: #4a5785; }
+  .sum .r svg { width: 26px; height: 26px; color: #24365f; stroke-width: 1.6; margin-right: 20px; }
+  .sum .r .v { margin-left: auto; color: #182654; text-align: right; font-size: 16px; line-height: 1.45; }
   .sum .r .v b { font-size: 19px; font-weight: 700; }
-  .sum .r .v small { display: block; font-size: 15px; color: #4a5785; margin-top: 5px; }
-  .sum .who { left: 21px; top: 556px; width: 393px; display: flex; align-items: center; }
-  .sum .who img { width: 74px; height: 74px; border-radius: 50%; margin-right: 16px; }
+  .sum .r .v small { display: block; font-size: 14.5px; color: #4a5785; margin-top: 2px; }
+  .sum .r.top { align-items: flex-start; padding-top: 10px; }
+  .sum .who { display: flex; align-items: center; margin-top: 18px; }
+  .sum .who img { width: 74px; height: 74px; border-radius: 50%; margin-right: 18px; }
   .sum .who b { display: flex; align-items: center; gap: 7px; font-size: 17.5px; font-weight: 700; color: #06154a; }
   .sum .who b svg { width: 20px; height: 20px; color: #fff; fill: var(--blue-public); }
-  .sum .who .role { font-size: 15.4px; color: #536c9c; margin-top: 3px; }
-  .sum .who .rate { display: flex; align-items: center; gap: 4px; font-size: 14.2px; color: #4a5785; margin-top: 5px; }
+  .sum .who .role { font-size: 15px; color: #536c9c; margin-top: 4px; }
+  .sum .who .rate { display: flex; align-items: center; gap: 4px; font-size: 14.5px; color: #4a5785; margin-top: 6px; }
   .sum .who .rate b { font-size: 16px; display: inline; }
   .sum .who .rate svg { width: 18px; height: 18px; fill: var(--star); color: var(--star); stroke: none; }
-  .sum .who .go { margin-left: auto; width: 26px; height: 26px; color: var(--blue-public); stroke-width: 2.2; margin-right: -2px; }
+  .sum .who .go { margin-left: auto; width: 26px; height: 26px; color: var(--blue-public); stroke-width: 2.2; }
 
-  .note { position: absolute; left: 40px; top: 869px; width: 841px; height: 70px; border-radius: 12px; background: #ecf6fe; display: flex; align-items: center; padding-left: 28px; gap: 16px; font-size: 14.8px; color: #3a5ba8; }
+  .note { min-height: 74px; border-radius: 12px; background: #ecf6fe; display: flex; align-items: center; padding: 16px 32px; gap: 16px; font-size: 15px; line-height: 1.45; color: #3a5ba8; }
   .note svg { width: 27px; height: 27px; color: #0b48f5; stroke-width: 1.8; }
-  .go-btn { position: absolute; left: 911px; top: 863px; width: 433px; height: 73px; border-radius: 10px; background: var(--blue-public); color: #fff; display: flex; align-items: center; justify-content: center; gap: 17px; font-size: 23px; font-weight: 700; padding-left: 12px; }
+  .go-btn { height: 74px; border-radius: 10px; background: var(--blue-public); color: #fff; display: flex; align-items: center; justify-content: center; gap: 17px; font-size: 23px; font-weight: 700; }
   .go-btn svg { width: 32px; height: 32px; stroke-width: 2.2; }
 </style>
 </head>
@@ -89,77 +78,86 @@
 <header class="ph">
   <img class="logo" src="../assets/logo.svg" alt="ntizo">
   <nav>
-    <a href="#" style="left:206px">Explorar</a>
-    <a href="servicos.html" style="left:292px">Serviços</a>
-    <a href="#" style="left:381px">Prestadores</a>
-    <a href="#" style="left:492px">Como funciona</a>
-    <a href="#" style="left:625px; gap:12px">Cidades <i data-lucide="chevron-down"></i></a>
+    <a href="#">Explorar</a>
+    <a href="servicos.html">Serviços</a>
+    <a href="#">Prestadores</a>
+    <a href="#">Como funciona</a>
+    <a href="#">Cidades <i data-lucide="chevron-down"></i></a>
   </nav>
   <div class="tools">
-    <span class="tool" style="left:897px; gap:8px; font-size:13.4px"><i data-lucide="map-pin" class="fill"></i>Maputo <i data-lucide="chevron-down" class="chev"></i></span>
-    <span class="tool" style="left:1021px"><i data-lucide="globe"></i>PT <i data-lucide="chevron-down" class="chev"></i></span>
-    <a class="signin" href="#" style="left:1117px">Entrar</a>
-    <a class="cta" href="#" style="left:1195px">Criar conta</a>
+    <span class="tool"><i data-lucide="map-pin" class="fill"></i>Maputo <i data-lucide="chevron-down" class="chev"></i></span>
+    <span class="tool"><i data-lucide="globe"></i>PT <i data-lucide="chevron-down" class="chev"></i></span>
+    <a class="signin" href="#">Entrar</a>
+    <a class="cta" href="#">Criar conta</a>
   </div>
 </header>
 
-<main class="page">
-  <a class="back" href="servico-detalhe.html"><i data-lucide="arrow-left"></i>Voltar</a>
-
-  <div class="steps">
-    <span class="n on" style="left:319px">1</span><span class="lbl on" style="left:369px">Data e hora</span>
-    <span class="dash" style="left:466px;width:126px"></span>
-    <span class="n" style="left:610px">2</span><span class="lbl" style="left:664px">Confirmação</span>
-    <span class="dash" style="left:766px;width:126px"></span>
-    <span class="n" style="left:909px">3</span><span class="lbl" style="left:963px">Pagamento</span>
+<main class="pw">
+  <div class="top">
+    <a class="back" href="servico-detalhe.html"><i data-lucide="arrow-left"></i>Voltar</a>
+    <div class="steps">
+      <span class="n on">1</span><span class="lbl on">Data e hora</span>
+      <span class="dash"></span>
+      <span class="n">2</span><span class="lbl">Confirmação</span>
+      <span class="dash"></span>
+      <span class="n">3</span><span class="lbl">Pagamento</span>
+    </div>
   </div>
 
-  <h1>Escolha o dia e a hora</h1>
-  <p class="lede">Selecione a data e o horário mais conveniente para si.</p>
+  <div class="layout">
+    <div class="left">
+      <h1>Escolha o dia e a hora</h1>
+      <p class="lede">Selecione a data e o horário mais conveniente para si.</p>
 
-  <section class="cal">
-    <i data-lucide="chevron-left" class="arrow" style="left:42px"></i>
-    <div class="month">Outubro 2026</div>
-    <i data-lucide="chevron-right" class="arrow" style="left:408px"></i>
-    <div class="wd"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
-    <div class="days" id="days"></div>
-    <div class="vr"></div>
-    <div class="day-title">Terça-feira, 14 de Outubro</div>
-    <div class="day-sub">Horários disponíveis</div>
-    <div class="slots">
-      <span>08:00</span><span>13:00</span>
-      <span class="on">09:00</span><span>14:00</span>
-      <span>10:00</span><span>15:00</span>
-      <span>11:00</span><span>16:00</span>
-      <span>12:00</span><span>17:00</span>
+      <section class="cal">
+        <div>
+          <div class="head">
+            <i data-lucide="chevron-left" class="arrow"></i>
+            <div class="month">Outubro 2026</div>
+            <i data-lucide="chevron-right" class="arrow"></i>
+          </div>
+          <div class="wd"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
+          <div class="days" id="days"></div>
+        </div>
+        <div class="vr"></div>
+        <div>
+          <div class="day-title">Terça-feira, 14 de Outubro</div>
+          <div class="day-sub">Horários disponíveis</div>
+          <div class="slots">
+            <span>08:00</span><span>13:00</span>
+            <span class="on">09:00</span><span>14:00</span>
+            <span>10:00</span><span>15:00</span>
+            <span>11:00</span><span>16:00</span>
+            <span>12:00</span><span>17:00</span>
+          </div>
+        </div>
+      </section>
     </div>
-  </section>
 
-  <aside class="sum">
-    <img class="photo" src="../assets/cli-reserva-photo.jpg" alt="">
-    <h2>Avaria eléctrica urgente</h2>
-    <div class="meta"><i data-lucide="star" class="st"></i><b>4,8</b>(24 avaliações)<span class="bullet">•</span><i data-lucide="shield-check" class="shield"></i>Prestador verificado</div>
-    <div class="hr" style="top:335px"></div>
-    <div class="rows">
-      <div class="r" style="top:7px"><i data-lucide="clock"></i>Duração<span class="v">60 min</span></div>
-      <div class="r" style="top:49px"><i data-lucide="database"></i>Preço<span class="v"><b>1 200 MTn</b></span></div>
-      <div class="r" style="top:93px"><i data-lucide="building-2"></i>Categoria<span class="v">Electricidade</span></div>
-      <div class="r" style="top:135px; align-items:flex-start"><i data-lucide="map-pin" style="margin-top:10px"></i><span style="margin-top:8px">Local</span><span class="v">Em sua casa<small>Maputo, Moçambique</small></span></div>
-    </div>
-    <div class="hr" style="top:542px"></div>
-    <div class="who">
-      <img src="../assets/cli-reserva-helder.png" alt="">
-      <div>
-        <b>Hélder Cossa <i data-lucide="badge-check"></i></b>
-        <div class="role">Prestador profissional</div>
-        <div class="rate"><i data-lucide="star"></i><b>4,8</b>(86 avaliações)</div>
+    <aside class="sum">
+      <img class="photo" src="../assets/cli-reserva-photo.jpg" alt="">
+      <h2>Avaria eléctrica urgente</h2>
+      <div class="meta"><i data-lucide="star" class="st"></i><b>4,8</b>(24 avaliações)<span class="bullet">•</span><i data-lucide="shield-check" class="shield"></i>Prestador verificado</div>
+      <div class="hr"></div>
+      <div class="r"><i data-lucide="clock"></i>Duração<span class="v">60 min</span></div>
+      <div class="r"><i data-lucide="database"></i>Preço<span class="v"><b>1 200 MTn</b></span></div>
+      <div class="r"><i data-lucide="building-2"></i>Categoria<span class="v">Electricidade</span></div>
+      <div class="r top"><i data-lucide="map-pin"></i><span style="margin-top:2px">Local</span><span class="v">Em sua casa<small>Maputo, Moçambique</small></span></div>
+      <div class="hr" style="margin-bottom:0"></div>
+      <div class="who">
+        <img src="../assets/cli-reserva-helder.png" alt="">
+        <div>
+          <b>Hélder Cossa <i data-lucide="badge-check"></i></b>
+          <div class="role">Prestador profissional</div>
+          <div class="rate"><i data-lucide="star"></i><b>4,8</b>(86 avaliações)</div>
+        </div>
+        <i data-lucide="chevron-right" class="go"></i>
       </div>
-      <i data-lucide="chevron-right" class="go"></i>
-    </div>
-  </aside>
+    </aside>
 
-  <div class="note"><i data-lucide="info"></i>O horário escolhido será confirmado na próxima etapa.</div>
-  <a class="go-btn" href="#">Continuar <i data-lucide="arrow-right"></i></a>
+    <div class="note"><i data-lucide="info"></i>O horário escolhido será confirmado na próxima etapa.</div>
+    <a class="go-btn" href="#">Continuar <i data-lucide="arrow-right"></i></a>
+  </div>
 </main>
 
 <script>

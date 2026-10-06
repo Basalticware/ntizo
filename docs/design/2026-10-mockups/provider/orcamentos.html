@@ -22,61 +22,64 @@
   .topbar .me { padding-left: 25px; gap: 16px; }
   .topbar .me > div { width: 160px; }
   .topbar .me img { width: 54px; height: 54px; }
-  .topbar .me b { font-size: 14.5px; }
+  .topbar .me b { font-size: 15px; }
   .topbar .me span { font-size: 15px; margin-top: 1px; }
   .topbar .me > svg { margin-left: 2px; }
 
   .body { grid-template-columns: 270px 1fr; }
-  .rail { padding: 27px 17px 20px 20px; }
+  .rail { padding: 27px 17px 20px 20px; min-height: calc(100vh - 90px); }
+  /* the rail stretches with the page; its nudge card stays in view at the window's bottom */
+  .rail .nudge { position: sticky; bottom: 20px; }
   .rail .biz { gap: 14px; padding: 0 0 12px 0; }
   .rail .biz b { font-size: 16px; }
   .rail .biz span { font-size: 14px; }
   .rail .biz svg { margin-left: 4px; }
-  .nav { gap: 1.6px; }
+  .nav { gap: 2px; }
+  .nav a { flex-shrink: 0; }
   .nav a { height: 48px; padding: 0 19px; gap: 22px; font-size: 16px; }
   .nav a .count { margin-right: -5px; }
-  .nudge { height: 178px; flex-shrink: 0; padding: 13px 22px 0; }
+  .nudge { height: 184px; flex-shrink: 0; padding: 13px 22px 0; }
   .nudge .crown { width: 28px; height: 28px; }
   .nudge b { font-size: 17px; line-height: 23px; margin-top: 0; }
-  .nudge p { font-size: 16px; line-height: 20px; margin: 3px 0 13px; }
+  .nudge p { font-size: 16px; line-height: 23px; margin: 3px 0 13px; }
   .nudge a { font-size: 16px; }
 
   .main { padding: 24px 22px 0 23px; }
   .eyebrow { font-size: 13px; letter-spacing: .09em; }
   .page-title { font-size: 47.6px; margin-top: 9px; }
-  .page-sub { font-size: 17.9px; margin-top: 7px; }
+  .page-sub { font-size: 17.9px; margin-top: 10px; }
 
-  .toolbar { margin-top: 34px; gap: 0; }
+  .toolbar { margin-top: 40px; gap: 0; }
   .seg {
     width: 726px; height: 49px; display: grid; grid-template-columns: 242px 263px 1fr;
     border: 1px solid var(--line); border-radius: 10px; position: relative;
   }
   .seg::after { content: ""; position: absolute; left: 503px; top: 12px; width: 1px; height: 26px; background: var(--line); }
-  .seg button { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 500; color: var(--ink); border-radius: 9px; }
+  .seg button { display: flex; align-items: center; justify-content: center; gap: 11px; font-size: 16px; font-weight: 500; color: var(--ink); border-radius: 9px; }
   .seg button.on { background: #d9eafd; color: var(--blue); font-weight: 600; padding-left: 16px; margin: -1px 0 -1px -1px; }
   .seg .chip { background: #eaf2fb; color: var(--ink-2); min-width: 29px; height: 29px; border-radius: 15px; font-size: 15px; }
   .seg .on .chip { background: #fff; color: var(--blue); }
   .toolbar .field { margin-left: auto; width: 344px; height: 48px; font-size: 14px; gap: 10px; }
   .toolbar .field svg { width: 22px; height: 22px; color: var(--blue); }
-  .toolbar .btn-outline { margin-left: 21px; width: 146px; height: 48px; padding: 0 0 0 21px; gap: 12px; border-color: #b9d3fb; }
+  .toolbar .btn-outline { margin-left: 24px; width: 146px; height: 48px; padding: 0 0 0 21px; gap: 12px; border-color: #b9d3fb; }
   .toolbar .btn-outline svg { width: 22px; height: 22px; }
   .toolbar .btn-outline .chev { width: 16px; height: 16px; margin-left: 1px; }
 
-  .table { margin-top: 22px; }
+  .table { margin-top: 28px; margin-bottom: 32px; }
   .table .row { grid-template-columns: 250px 167px 257px 149px 144px 151px 230px; }
   .table .row > * { padding-left: 19px; }
-  .table .head { height: 52px; background: #f9fcfe; font-size: 14px; }
+  .table .head { height: 56px; background: #f9fcfe; font-size: 14px; }
   .person { gap: 16px; }
   .person img { width: 54px; height: 54px; }
-  .person b { font-size: 14.5px; }
-  .table .row:not(.head) { padding-bottom: 9px; }
-  .person span { font-size: 13px; margin-top: 5px; white-space: nowrap; }
-  .svc { font-size: 14px; font-weight: 600; line-height: 21px; color: var(--ink); }
-  .desc { font-size: 14px; line-height: 20px; color: var(--muted); white-space: nowrap; }
+  .person b { font-size: 16px; }
+  .table .row:not(.head) { padding: 4px 0 13px; }
+  .person span { font-size: 13px; margin-top: 7px; white-space: nowrap; }
+  .svc { font-size: 15px; font-weight: 600; line-height: 22px; color: var(--ink); }
+  .desc { font-size: 14px; line-height: 21px; color: var(--muted); padding-right: 14px; }
   .when { gap: 12px; align-items: flex-start; padding-left: 21px !important; }
   .when svg { width: 21px; height: 21px; margin-top: -1px; }
-  .when b { font-size: 14.5px; font-weight: 600; }
-  .when span { font-size: 13px; margin-top: 4px; }
+  .when b { font-size: 15px; font-weight: 600; }
+  .when span { font-size: 13px; margin-top: 6px; }
   .when span.late { color: var(--bad); }
   .dash { width: 13px; height: 1.6px; background: var(--ink-2); margin-left: 4px; }
   .money { font-size: 18px; position: relative; top: 3px; }
@@ -157,10 +160,10 @@ const rows = [
   [81,"rui","Rui Massango","Maputo, Costa do Sol","Desentupimento<br>de esgoto","O esgoto da cozinha está<br>entupido e a água não está<br>a escoar....","09 Out","Expirou","late","","bad","Expirado",false],
 ];
 document.getElementById("rows").innerHTML = rows.map(([h,img,name,place,svc,desc,day,sub,late,price,tone,status,reply]) => `
-  <div class="row" style="height:${h}px">
+  <div class="row" style="min-height:${h + 8}px">
     <div class="person"><img src="../assets/orcamentos-${img}.png" alt=""><div><b>${name}</b><span><i data-lucide="map-pin"></i>${place}</span></div></div>
     <div class="svc">${svc}</div>
-    <div class="desc">${desc}</div>
+    <div class="desc">${desc.replace(/<br>/g, " ")}</div>
     <div class="when"><i data-lucide="calendar"></i><div><b>${day}</b><span class="${late}">${sub}</span></div></div>
     <div>${price ? `<span class="money">${price}</span>` : `<div class="dash"></div>`}</div>
     <div><span class="pill ${tone}">${status}</span></div>

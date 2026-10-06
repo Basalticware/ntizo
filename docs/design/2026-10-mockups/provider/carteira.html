@@ -30,68 +30,69 @@
   .topbar .me > div { width: 141px; }
   .topbar .me svg { width: 18px; height: 18px; margin-left: 0; }
 
-  .body { grid-template-columns: 289px 1fr; }
-  .rail { padding: 24px 21px 22px 21px; background: #f8fbfe; }
+  .body { grid-template-columns: 289px 1fr; background: linear-gradient(to right, #f8fbfe 288px, var(--line) 288px 289px, transparent 289px); }
+  .rail { align-self: start; }
+  .rail { padding: 24px 21px 22px 21px; background: #f8fbfe; position: sticky; top: 0; height: calc(100vh - 77px); min-height: 800px; }
   .rail .biz { gap: 14px; padding: 0 0 22px 0; }
   .rail .biz img { width: 57px; height: 57px; }
   .rail .biz b { font-size: 16px; }
   .rail .biz span { font-size: 14px; margin-top: 2px; }
   .rail .biz svg { width: 18px; height: 18px; margin-right: 6px; }
-  .nav { gap: 1.5px; }
-  .nav a { height: 44px; gap: 22px; padding: 0 19px; font-size: 15.7px; }
+  .nav { gap: 3px; }
+  .nav a { height: 45px; gap: 22px; padding: 0 19px; font-size: 15.7px; }
   .nav a svg { width: 21px; height: 21px; }
-  .nav a.on { height: 48px; margin: 2px 0; }
+  .nav a.on { height: 48px; margin: -1px 0; }
   .nav a .count { width: 24px; height: 24px; font-size: 13px; margin-right: -1px; }
   .nudge { margin-top: auto; padding: 18px 23px 22px; background: #f1f8fe; }
   .nudge .crown-tile { width: 32px; height: 32px; border-radius: 8px; background: #fff; display: grid; place-items: center; }
   .nudge .crown { width: 24px; height: 24px; }
   .nudge b { font-size: 16.6px; margin-top: 10px; line-height: 21px; }
-  .nudge p { font-size: 15.4px; margin: 5px 0 19px; line-height: 19px; }
+  .nudge p { font-size: 15px; margin: 6px 0 19px; line-height: 1.45; }
   .nudge a { font-size: 15.5px; }
 
   .main { padding: 0 23px 0 28px; position: relative; }
 
   /* ── Hero: title left, promise banner right ── */
-  .hero { height: 199px; position: relative; }
+  .hero { height: 215px; position: relative; }
   .hero .eyebrow { position: absolute; top: 37px; left: 0; font-size: 13.5px; color: #4f5d82; letter-spacing: .07em; }
   .hero .page-title { position: absolute; top: 61px; left: -2px; font-size: 48px; color: #00003d; }
-  .hero .page-sub { position: absolute; top: 119px; left: 0; width: 527px; margin: 0; font-size: 18.7px; line-height: 25px; color: #66729a; }
-  .promo { position: absolute; left: 692px; top: 22px; width: 592px; height: 161px; background: #e1f2fe; border-radius: 14px; }
-  .promo img { position: absolute; left: 65px; top: 16px; width: 150px; height: 135px; }
-  .promo h2 { position: absolute; left: 250px; top: 30px; margin: 0; font-size: 22.5px; font-weight: 700; line-height: 28px; color: #00003b; letter-spacing: -0.01em; }
-  .promo p { position: absolute; left: 250px; top: 92px; margin: 0; font-size: 17.5px; line-height: 22px; color: #5e6f92; }
+  .hero .page-sub { position: absolute; top: 122px; left: 0; width: 540px; margin: 0; font-size: 18px; line-height: 1.45; color: #66729a; }
+  .promo { position: absolute; left: 692px; top: 22px; width: 592px; height: 169px; background: #e1f2fe; border-radius: 14px; }
+  .promo img { position: absolute; left: 69px; top: 20px; width: 150px; height: 135px; }
+  .promo h2 { position: absolute; left: 254px; top: 32px; margin: 0; font-size: 22.5px; font-weight: 700; line-height: 30px; color: #00003b; }
+  .promo p { position: absolute; left: 254px; top: 100px; margin: 0; font-size: 17px; line-height: 1.45; color: #5e6f92; }
   .sq { position: absolute; border-radius: 9px; background: #d1e9fd; }
   .sq.ring { box-shadow: 0 0 0 3px #fcfdfe; }
 
   /* ── Balance cards ── */
-  .balances { display: grid; grid-template-columns: 632px 1fr; gap: 16px; }
-  .balance { height: 117px; position: relative; border: 1px solid #edf2f8; border-radius: 14px; background: #fff; }
-  .balance .ico { position: absolute; left: 22px; top: 21px; width: 59px; height: 58px; border-radius: 12px; background: #e5f3fe; display: grid; place-items: center; color: #0051fe; }
+  .balances { display: grid; grid-template-columns: 632px 1fr; gap: 24px; }
+  .balance { height: 125px; position: relative; border: 1px solid #edf2f8; border-radius: 14px; background: #fff; }
+  .balance .ico { position: absolute; left: 26px; top: 25px; width: 59px; height: 58px; border-radius: 12px; background: #e5f3fe; display: grid; place-items: center; color: #0051fe; }
   .balance .ico svg { width: 28px; height: 28px; }
-  .balance .lbl { position: absolute; left: 116px; top: 20px; font-size: 13.5px; font-weight: 600; letter-spacing: .08em; color: #485375; }
-  .balance .amt { position: absolute; left: 115px; top: 39px; font-size: 33px; font-weight: 800; letter-spacing: -0.01em; color: #00003e; }
-  .balance .note { position: absolute; left: 116px; top: 79px; font-size: 15px; color: #4d5a7c; }
-  .balance + .balance .amt { font-size: 30px; top: 40px; }
-  .balance + .balance .note { font-size: 14.6px; }
-  .balance .btn { position: absolute; left: 440px; top: 36px; height: 43px; width: 168px; padding: 0; font-size: 15px; background: #176afe; border-radius: 8px; gap: 9px; }
+  .balance .lbl { position: absolute; left: 122px; top: 24px; font-size: 13.5px; font-weight: 600; letter-spacing: .08em; color: #485375; }
+  .balance .amt { position: absolute; left: 121px; top: 44px; font-size: 33px; font-weight: 800; letter-spacing: -0.01em; color: #00003e; }
+  .balance .note { position: absolute; left: 122px; top: 86px; right: 24px; font-size: 15px; color: #4d5a7c; }
+  .balance + .balance .amt { font-size: 30px; top: 45px; }
+  .balance + .balance .note { font-size: 14px; }
+  .balance .btn { position: absolute; right: 24px; top: 41px; height: 43px; width: 168px; padding: 0; font-size: 15px; background: #176afe; border-radius: 8px; gap: 9px; }
   .balance .btn svg { width: 19px; height: 19px; }
 
   /* ── Movimentos ── */
-  .ledger { margin-top: 17px; height: 465px; border: 1px solid #edf2f8; border-radius: 14px; background: #fff; overflow: hidden; }
-  .ledger .top { height: 89px; position: relative; }
-  .ledger h2 { position: absolute; left: 22px; top: 22px; margin: 0; font-size: 23.5px; font-weight: 700; color: #00003f; letter-spacing: -0.01em; }
-  .ledger .top p { position: absolute; left: 22px; top: 49px; margin: 0; font-size: 17.7px; color: #64708f; }
-  .ledger .field { position: absolute; left: 816px; top: 22px; width: 324px; height: 44px; font-size: 14.3px; color: #6c7796; gap: 14px; }
+  .ledger { margin-top: 25px; margin-bottom: 28px; border: 1px solid #edf2f8; border-radius: 14px; background: #fff; overflow: hidden; }
+  .ledger .top { height: 99px; position: relative; }
+  .ledger h2 { position: absolute; left: 26px; top: 26px; margin: 0; font-size: 23.5px; font-weight: 700; color: #00003f; }
+  .ledger .top p { position: absolute; left: 26px; top: 57px; margin: 0; font-size: 17.7px; color: #64708f; }
+  .ledger .field { position: absolute; left: 807px; top: 26px; width: 324px; height: 44px; font-size: 14.3px; color: #6c7796; gap: 14px; }
   .ledger .field svg { color: #3b4566; width: 20px; height: 20px; }
-  .ledger .filt { position: absolute; left: 1155px; top: 22px; width: 105px; height: 44px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; font-weight: 600; color: #00002a; }
+  .ledger .filt { position: absolute; left: 1151px; top: 26px; width: 105px; height: 44px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; font-weight: 600; color: #00002a; }
   .ledger .filt svg { width: 19px; height: 19px; }
   .lrow { display: grid; grid-template-columns: 187px 73px 419px 206px 200px 1fr 27px; align-items: center; border-top: 1px solid #eef3f9; }
   .lrow > * { min-width: 0; }
-  .lrow.head { height: 36px; background: #f9fcfe; font-size: 12px; font-weight: 600; letter-spacing: .05em; color: #535c80; }
-  .lrow.head > :first-child, .lrow .d { padding-left: 28px; }
+  .lrow.head { height: 40px; background: #f9fcfe; font-size: 13px; font-weight: 600; letter-spacing: .05em; color: #535c80; }
+  .lrow.head > :first-child, .lrow .d { padding-left: 32px; }
   .lrow.head > :nth-child(3) { margin-left: -6px; }
   .lrow .d b { display: block; font-size: 14px; font-weight: 500; color: #00003c; }
-  .lrow .d span { display: block; font-size: 14px; color: #4f5e80; margin-top: 3px; }
+  .lrow .d span { display: block; font-size: 14px; color: #4f5e80; margin-top: 4px; }
   .lrow .k { width: 43px; height: 43px; border-radius: 10px; display: grid; place-items: center; }
   .lrow .k svg { width: 20px; height: 20px; stroke-width: 2.6; }
   .k.in { background: #defbe4; color: #02a91a; }
@@ -99,7 +100,8 @@
   .k.out { background: #fef0ce; color: #fcab00; }
   .lrow .t { padding-left: 2px; }
   .lrow .t b { display: block; font-size: 14.4px; font-weight: 700; color: #00002f; }
-  .lrow .t span { display: block; font-size: 13px; line-height: 19px; color: #626c8d; }
+  .lrow .t b { margin-bottom: 2px; }
+  .lrow .t span { display: block; font-size: 13px; line-height: 1.45; color: #626c8d; }
   .lrow .ref { font-size: 13.6px; color: #66718f; }
   .lrow .amt { text-align: right; font-size: 18px; font-weight: 700; white-space: nowrap; }
   .amt.plus { color: #069f12; }
@@ -158,7 +160,7 @@
           <p>Trabalhe com confiança.<br>Nós tratamos dos pagamentos.</p>
         </div>
         <span class="sq ring" style="left:692px;top:109px;width:47px;height:48px"></span>
-        <span class="sq ring" style="left:1249px;top:145px;width:36px;height:35px"></span>
+        <span class="sq ring" style="left:1249px;top:153px;width:36px;height:35px"></span>
       </section>
 
       <section class="balances">
@@ -201,7 +203,7 @@ const rows = [
 ];
 const glyph = { in: "arrow-down", fee: "percent", out: "arrow-up" };
 document.getElementById("rows").innerHTML = rows.map(([day,time,kind,title,lines,ref,tone,status,sign,amount,h]) => `
-  <div class="lrow" style="height:${h}px">
+  <div class="lrow" style="height:${h + 8}px">
     <div class="d"><b>${day}</b><span>${time}</span></div>
     <div><span class="k ${kind}"><i data-lucide="${glyph[kind]}"></i></span></div>
     <div class="t"><b>${title}</b>${lines.map(l => `<span>${l}</span>`).join("")}</div>

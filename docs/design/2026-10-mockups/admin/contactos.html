@@ -11,11 +11,11 @@
   .main { padding-left: 27px; }
   .nav { gap: 2.1px; }
   .rail { padding-left: 14px; padding-right: 14px; }
-  .page-sub { font-size: 18.7px; }
+  .page-sub { font-size: 18.7px; margin-top: 7px; }
 
   /* Tabs, search and Filtrar share one row here. */
-  .bar { display: flex; align-items: center; margin-top: 22px; }
-  .adm-tabs { margin-top: 0; gap: 8.7px; }
+  .bar { display: flex; align-items: center; margin-top: 28px; }
+  .adm-tabs { margin-top: 0; gap: 11px; }
   .adm-tabs .tab, .adm-tabs .tab.on { height: 48px; padding: 0 19px 0 18px; font-size: 15.3px; }
   .adm-tabs .tab.on { padding: 0 20px 0 24px; }
   .adm-tabs .chip, .adm-tabs .tab.on .chip { height: 26px; padding: 0; border-radius: 13px; font-size: 15px; justify-content: center; display: inline-grid; }
@@ -28,23 +28,23 @@
   .adm-tabs .chip.ok { background: #e9fdef; color: #0f913d; }
   .adm-tabs .chip.warn { background: #fef4dc; color: #f58a0c; }
   .adm-tabs .chip.grey { background: #eff4fc; color: var(--ink); }
-  .bar .field { margin-left: 21px; width: 377px; height: 48px; padding: 0 16px; gap: 14px; border-color: #e8f0fb; color: #94a0ce; font-size: 14.2px; white-space: nowrap; overflow: hidden; }
+  .bar .field { margin-left: 21px; flex: 1; min-width: 0; height: 48px; padding: 0 16px; gap: 14px; border-color: #e8f0fb; color: #94a0ce; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bar .field svg { width: 22px; height: 22px; color: #0a52fd; }
-  .bar .btn-outline { margin-left: 10px; width: 130px; height: 48px; padding: 0 0 0 23px; gap: 15px; border-color: #8fb3fc; font-size: 17px; }
+  .bar .btn-outline { margin-left: 13px; flex-shrink: 0; width: 130px; height: 48px; padding: 0 0 0 23px; gap: 15px; border-color: #8fb3fc; font-size: 17px; }
   .bar .btn-outline svg { width: 22px; height: 22px; }
 
   /* Two panes: inbox list and the open message. */
-  .panes { display: grid; grid-template-columns: 697px 637px; gap: 1px; margin-top: 18px; }
-  .inbox { border: 1px solid #edf3fc; border-radius: 12px 12px 0 0; border-bottom: 0; overflow: hidden; height: 640px; }
+  .panes { display: grid; grid-template-columns: 697px 1fr; gap: 9px; margin-top: 26px; align-items: start; }
+  .inbox { border: 1px solid #edf3fc; border-radius: 12px; overflow: hidden; }
   .msg-row { display: grid; grid-template-columns: 95px 394px 60px 111.5px 1fr; align-items: center; border-top: 1px solid #edf3fc; }
   .msg-row:first-child { border-top: 0; }
   .msg-row.on { background: #eff6fe; }
   .msg-row .av { width: 62px; height: 62px; border-radius: 50%; margin-left: 10px; display: grid; place-items: center; background: #e3effe; color: #094ffc; font-size: 21px; font-weight: 500; }
   .msg-row b { display: block; font-size: 16px; font-weight: 700; color: var(--ink); }
-  .msg-row .subj { display: block; font-size: 14.3px; font-weight: 500; color: #0f167a; margin-top: 4px; white-space: nowrap; }
-  .msg-row .prev { display: block; font-size: 13.9px; color: #7f8bbe; margin-top: 4px; white-space: nowrap; }
+  .msg-row .subj { display: block; font-size: 15px; font-weight: 500; color: #0f167a; margin-top: 4px; white-space: nowrap; }
+  .msg-row .prev { display: block; font-size: 14px; color: #7f8bbe; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .msg-row .time { font-size: 14.5px; color: #7a88be; line-height: 22px; }
-  .msg-row .pill { height: 28px; width: 93px; padding: 0; justify-content: center; font-size: 13.5px; border-radius: 14px; }
+  .msg-row .pill { height: 28px; width: 97px; padding: 0; justify-content: center; font-size: 14px; border-radius: 14px; }
   .pill.nl { background: #fde4e7; color: #fb3b3f; }
   .pill.em { background: #fef2d5; color: #fc9722; }
   .pill.rs { background: #e6fcec; color: #31a459; }
@@ -54,31 +54,31 @@
   .msg-row .pill { transform: translateY(-3px); }
   .msg-row .chev { width: 20px; height: 20px; color: #636faf; }
 
-  .detail { border: 1px solid #edf3fc; border-radius: 12px; height: 629px; padding: 0 26px 0 27px; background: #fff; }
+  .detail { border: 1px solid #edf3fc; border-radius: 12px; padding: 4px 30px 28px 31px; background: #fff; }
   .detail .top { height: 65px; padding-top: 12px; display: flex; align-items: center; border-bottom: 2px solid #eef4fc; }
-  .detail h2 { margin: 0; font-size: 22.5px; font-weight: 700; color: var(--ink); letter-spacing: -0.005em; }
-  .detail .top .pill { margin-left: auto; height: 28px; width: 79px; padding: 0; justify-content: center; font-size: 13.5px; background: #fee6e7; color: #fb3b3f; }
+  .detail h2 { margin: 0; font-size: 22.5px; font-weight: 700; color: var(--ink); }
+  .detail .top .pill { margin-left: auto; height: 28px; width: 83px; padding: 0; justify-content: center; font-size: 14px; background: #fee6e7; color: #fb3b3f; }
   .detail .top .dots { margin-left: 15px; width: 22px; height: 22px; color: #334a99; }
-  .who { display: flex; gap: 22px; padding: 15px 0 0 3px; height: 117px; }
+  .who { display: flex; gap: 24px; padding: 22px 0 0 3px; height: 132px; }
   .who img { width: 79px; height: 79px; border-radius: 50%; }
   .who b { display: block; font-size: 18px; font-weight: 700; color: var(--ink); margin-top: 8px; }
   .who .line { display: flex; align-items: center; gap: 15px; color: #2468f9; font-size: 15.5px; margin-top: 9px; }
   .who .line svg { width: 19px; height: 19px; color: #0f53fb; }
-  .facts { display: grid; grid-template-columns: 312px 1fr; height: 72px; border-bottom: 2px solid #eef4fc; }
+  .facts { display: grid; grid-template-columns: 312px 1fr; height: 82px; border-bottom: 2px solid #eef4fc; }
   .fact { display: flex; gap: 14px; }
   .fact .tile { width: 45px; height: 46px; border-radius: 9px; background: #eff6fe; display: grid; place-items: center; }
   .fact .tile svg { width: 21px; height: 21px; color: #0849fc; }
-  .fact small { display: block; font-size: 13.5px; color: #7a84b8; margin-top: 6px; }
-  .fact span { display: block; font-size: 14.5px; color: #6b75af; margin-top: 6px; }
+  .fact small { display: block; font-size: 14px; color: #7a84b8; margin-top: 6px; }
+  .fact span { display: block; font-size: 15px; color: #6b75af; margin-top: 6px; }
   .fact:first-child span { color: #5a64a2; }
-  .detail h3 { margin: 18px 0 0; font-size: 15.5px; font-weight: 500; color: #0e1375; }
-  .bubble { margin-top: 10px; height: 203px; border-radius: 10px; background: #f5f9fe; padding: 15px 20px 0 22px; font-size: 14.35px; line-height: 22.6px; color: #545a90; }
+  .detail h3 { margin: 26px 0 0; font-size: 15.5px; font-weight: 500; color: #0e1375; }
+  .bubble { margin-top: 14px; border-radius: 10px; background: #f5f9fe; padding: 19px 24px 3px 26px; font-size: 15px; line-height: 1.5; color: #545a90; }
   .bubble p { margin: 0 0 18px; }
-  .actions { display: flex; gap: 10px; margin-top: 25px; padding-top: 22px; border-top: 2px solid #eef4fc; }
+  .actions { display: flex; gap: 13px; margin-top: 30px; padding-top: 26px; border-top: 2px solid #eef4fc; }
   .actions a { height: 49px; display: inline-flex; align-items: center; justify-content: center; gap: 15px; border-radius: 6px; font-size: 16px; font-weight: 500; }
   .actions svg { width: 21px; height: 21px; }
   .actions .reply { width: 167px; background: #1663fe; color: #fff; }
-  .actions .done { width: 231px; font-size: 15px; border: 1.5px solid #7fdca0; color: #2fb15d; }
+  .actions .done { width: 231px; font-size: 16px; border: 1.5px solid #7fdca0; color: #2fb15d; }
   .actions .done svg { width: 24px; height: 24px; }
   .actions .arch { width: 166px; gap: 17px; padding-left: 4px; border: 1.5px solid #a9afc8; color: #535b89; }
   .actions .arch svg { color: #404971; }
@@ -170,14 +170,14 @@
 <script>
 const pills = { nl: "Não lido", em: "Em análise", rs: "Respondido", ar: "Arquivado" };
 const rows = [
-  [84, "silvia", "Sílvia Nhamopssa", "Informações sobre corte de cabelo", "Olá, gostaria de saber se vocês fazem corte de cabelo...", "Hoje", "10:24", "nl"],
-  [82, "tomas", "Tomás Guambe", "Disponibilidade de instalação", "Bom dia! Gostaria de saber se têm disponibilidade...", "Hoje", "09:15", "em"],
-  [84, "carla", "Carla Sitoe", "Dúvida sobre limpeza residencial", "Qual é o valor para uma limpeza completa de um T2?", "Ontem", "16:42", "rs"],
-  [84, "MC", "Manuel Cossa", "Parceria com prestadores", "Tenho interesse em me tornar prestador na plataforma...", "Ontem", "14:20", "rs"],
-  [82, "ana", "Ana Mucaua", "Problema com reserva", "Fiz uma reserva mas o prestador não apareceu...", "12 Out", "11:08", "em"],
-  [77, "carlos", "Carlos Massango", "Cancelamento de serviço", "Gostaria de cancelar a minha reserva de amanhã...", "11 Out", "18:36", "ar"],
-  [78, "beatriz", "Beatriz Langa", "Informações sobre preços", "Podem me enviar a tabela de preços dos serviços...", "11 Out", "15:12", "rs"],
-  [66, "AM", "António Matusse", "Suporte na utilização da plataforma", "Estou com dificuldades em fazer uma reserva...", "10 Out", "09:45", "nl"],
+  [92, "silvia", "Sílvia Nhamopssa", "Informações sobre corte de cabelo", "Olá, gostaria de saber se vocês fazem corte de cabelo...", "Hoje", "10:24", "nl"],
+  [90, "tomas", "Tomás Guambe", "Disponibilidade de instalação", "Bom dia! Gostaria de saber se têm disponibilidade...", "Hoje", "09:15", "em"],
+  [92, "carla", "Carla Sitoe", "Dúvida sobre limpeza residencial", "Qual é o valor para uma limpeza completa de um T2?", "Ontem", "16:42", "rs"],
+  [92, "MC", "Manuel Cossa", "Parceria com prestadores", "Tenho interesse em me tornar prestador na plataforma...", "Ontem", "14:20", "rs"],
+  [90, "ana", "Ana Mucaua", "Problema com reserva", "Fiz uma reserva mas o prestador não apareceu...", "12 Out", "11:08", "em"],
+  [85, "carlos", "Carlos Massango", "Cancelamento de serviço", "Gostaria de cancelar a minha reserva de amanhã...", "11 Out", "18:36", "ar"],
+  [86, "beatriz", "Beatriz Langa", "Informações sobre preços", "Podem me enviar a tabela de preços dos serviços...", "11 Out", "15:12", "rs"],
+  [74, "AM", "António Matusse", "Suporte na utilização da plataforma", "Estou com dificuldades em fazer uma reserva...", "10 Out", "09:45", "nl"],
 ];
 document.getElementById("inbox").innerHTML = rows.map(([h, img, name, subj, prev, day, time, tone], i) => `
   <div class="msg-row${i === 0 ? " on" : ""}" style="height:${h}px">

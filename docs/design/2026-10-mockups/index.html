@@ -103,11 +103,22 @@ function show() {
     clip.style.cssText = `width:${w * z}px;height:${h * z}px;overflow:hidden;position:relative`;
     img.style.cssText = `position:absolute;left:${-x0 * z}px;top:${-y0 * z}px;width:${img.naturalWidth * z}px`;
     clip.append(img); pm.append(clip);
-    const box = document.createElement("div");
-    box.style.cssText = `width:${w * z}px;height:${h * z}px;overflow:hidden`;
+    // The HTML side shows the whole page: with the extra spacing it is
+    // taller than the mockup, and cutting it at the mockup's height would
+    // hide exactly what changed.
     const f = document.createElement("iframe");
     f.src = page; f.width = w; f.height = h;
     f.style.cssText = `transform:scale(${z});transform-origin:top left`;
+    const box = document.createElement("div");
+    box.style.cssText = `width:${w * z}px;height:${h * z}px;overflow:hidden`;
+    f.onload = () => {
+      // Chrome treats each file:// page as its own origin and refuses the
+      // read; fall back to half again the mockup's height, which covers the
+      // spacing pass on every page.
+      let full = Math.round(h * 1.5);
+      try { full = f.contentDocument.documentElement.scrollHeight; } catch {}
+      f.height = full; box.style.height = `${full * z}px`;
+    };
     box.append(f); ph.append(box);
   };
   img.src = `originals/${orig}.jpg`;

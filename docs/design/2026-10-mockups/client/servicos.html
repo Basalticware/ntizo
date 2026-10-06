@@ -8,169 +8,199 @@
 <link rel="stylesheet" href="public.css">
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <style>
-  /* Laid out 1:1 on the 1371x1039 app area of ListaServiços.png. */
-  .page { position: relative; width: 1371px; height: 1039px; overflow: hidden; }
-  .ph > * { position: absolute; }
-  .ph .logo { left: 100px; top: 10px; }
-  .ph nav { position: static; }
-  .ph nav a { position: absolute; top: 0; height: 54px; padding-top: 4px; font-size: 11px; }
+  /* ListaServiços.png, spaced out: same columns and order, normal flow. */
+  :root { --pw-pad: 100px; --s-ink: #00063a; --s-ink-2: #1f2a5c; }
 
-  /* hero */
-  .eyebrow-b { position: absolute; left: 102px; top: 70px; font-size: 12px; font-weight: 600; color: #1d87fd; letter-spacing: -0.01em; }
-  .hero-t { position: absolute; left: 100px; top: 94px; margin: 0; font-size: 53px; line-height: 48px; font-weight: 800; letter-spacing: -0.035em; color: #061e4c; }
-  .hero-s { position: absolute; left: 102px; top: 197.5px; margin: 0; font-size: 17.1px; line-height: 20.5px; color: #4a5785; }
-  .hero-img { position: absolute; left: 641px; top: 54px; width: 730px; height: 205px; display: block; }
-  .quote { position: absolute; left: 1132px; top: 96px; width: 197px; height: 110px; border-radius: 12px; background: #d7ecfd;
-    padding: 12px 0 0 24px; font-size: 17.4px; line-height: 21.6px; color: #0b2081; }
-
+  /* hero: text left, photo bleeding to the right edge */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) 730px; column-gap: 24px; }
+  .hero-l { padding: 22px 0 16px var(--pw-pad); }
+  .eyebrow-b { font-size: 13px; font-weight: 700; color: #1d87fd; letter-spacing: .04em; }
+  .hero-t { margin: 10px 0 0; font-size: 53px; line-height: 1.02; font-weight: 800; letter-spacing: -0.02em; color: #061e4c; }
+  .hero-s { margin: 14px 0 0; font-size: 17px; line-height: 1.5; color: #4a5785; }
+  .hero-r { position: relative; align-self: start; height: 203px; overflow: hidden; }
+  .hero-img { width: 730px; height: 205px; display: block; } /* bottom 2px (the old search bar's edge) clipped */
+  .quote { position: absolute; left: 488px; top: 38px; width: 216px; border-radius: 12px; background: #d7ecfd;
+    padding: 16px 20px 18px 24px; font-size: 17.4px; line-height: 1.45; color: #0b2081; }
   .sq { position: absolute; border-radius: 4px; background: #93cdfc; }
 
-  /* search */
-  .sbar { position: absolute; left: 102px; top: 258px; width: 818px; height: 54px; border: 1px solid #ebeff5; border-radius: 10px; background: #fff;
-    box-shadow: 0 2px 8px rgba(30, 60, 120, .05); }
-  .sbar > * { position: absolute; }
-  .sbar .q-ic { left: 15px; top: 15px; width: 23px; height: 23px; color: #0068fe; stroke-width: 2.2; }
-  .sbar .q { left: 56px; top: 10px; font-size: 12px; color: #273469; font-weight: 500; }
-  .sbar .hint { left: 56px; top: 28px; font-size: 10.4px; color: #8a94b2; }
-  .sbar .div { left: 437px; top: 0; bottom: 0; width: 1px; background: #ebeff5; }
-  .sbar .pin { left: 452px; top: 13px; width: 24px; height: 26px; color: #0068fe; fill: #0068fe; stroke: #fff; stroke-width: 1.6; }
-  .sbar .city { left: 487px; top: 18px; font-size: 12.5px; color: #273469; font-weight: 500; }
-  .sbar .chev { left: 640px; top: 19px; width: 14px; height: 14px; color: #33416b; stroke-width: 2.4; }
-  .sbar .go { left: 672px; top: 3px; width: 140px; height: 45px; border-radius: 8px; background: var(--blue-public); color: #fff; font-size: 14px; font-weight: 500; display: grid; place-items: center; }
+  /* body: results column + side column */
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 327px; column-gap: 36px; padding: 24px 36px 48px var(--pw-pad); align-items: start; }
 
-  /* filter pills */
-  .pills > * { position: absolute; top: 327px; height: 30px; }
-  .fpill { border: 1px solid #e9eef6; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 10.4px; color: #1f2a5c; font-weight: 500; background: #fff; padding-bottom: 3px; }
-  .fpill svg { width: 12px; height: 12px; stroke-width: 2.4; }
-  .fpill .ic { width: 22px; height: 22px; border-radius: 50%; background: #dbecfe; display: grid; place-items: center; margin-left: -8px; }
-  .fpill .ic svg { width: 13px; height: 13px; color: #0b5cfd; stroke-width: 2; }
-  .clear { display: flex; align-items: center; font-size: 11px; color: #1d7dfc; font-weight: 500; }
+  .sbar { height: 64px; display: flex; align-items: center; border: 1px solid #ebeff5; border-radius: 12px; background: #fff;
+    box-shadow: 0 2px 8px rgba(30, 60, 120, .05); padding: 0 6px 0 18px; }
+  .sbar .q-ic { width: 24px; height: 24px; color: #0068fe; stroke-width: 2.2; }
+  .sbar .what { margin-left: 18px; flex: 1; min-width: 0; }
+  .sbar .q { font-size: 15px; color: #273469; font-weight: 500; }
+  .sbar .hint { margin-top: 4px; font-size: 13px; color: #8a94b2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sbar .div { align-self: stretch; width: 1px; background: #ebeff5; margin: 0 18px; }
+  .sbar .where { width: 190px; display: flex; align-items: center; gap: 12px; font-size: 15px; color: #273469; font-weight: 500; }
+  .sbar .pin { width: 24px; height: 26px; color: #0068fe; fill: #0068fe; stroke: #fff; stroke-width: 1.6; }
+  .sbar .chev { margin-left: auto; width: 16px; height: 16px; color: #33416b; stroke-width: 2.4; }
+  .sbar .go { margin-left: 20px; width: 150px; height: 52px; border-radius: 9px; background: var(--blue-public); color: #fff; font-size: 16px; font-weight: 600; }
 
-  /* results bar */
-  .count { position: absolute; left: 103px; top: 385px; font-size: 18.7px; letter-spacing: -0.02em; color: #00063a; }
+  .pills { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-top: 20px; }
+  .fpill { height: 38px; padding: 0 14px 0 16px; border: 1px solid #e9eef6; border-radius: 19px; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--s-ink-2); font-weight: 500; background: #fff; white-space: nowrap; }
+  .fpill svg { width: 14px; height: 14px; stroke-width: 2.4; }
+  .fpill .ic { width: 26px; height: 26px; border-radius: 50%; background: #dbecfe; display: grid; place-items: center; margin-left: -10px; }
+  .fpill .ic svg { width: 15px; height: 15px; color: #0b5cfd; stroke-width: 2; }
+  .clear { margin-left: 8px; font-size: 14px; color: #1d7dfc; font-weight: 600; white-space: nowrap; }
+
+  .results { display: flex; align-items: center; gap: 12px; margin-top: 30px; }
+  .count { font-size: 20px; color: var(--s-ink); }
   .count b { font-weight: 800; }
-  .count span { font-weight: 400; color: #4a5785; }
-  .sortl { position: absolute; left: 761px; top: 391px; font-size: 12px; color: #1f2a5c; }
-  .sort { position: absolute; left: 836px; top: 382px; width: 145px; height: 35px; border: 1px solid #e9eef6; border-radius: 9px;
-    display: flex; align-items: center; padding: 0 0 0 11px; font-size: 11.5px; color: #1f2a5c; font-weight: 500; }
-  .sort svg { position: absolute; right: 12px; width: 13px; height: 13px; stroke-width: 2.4; }
+  .count span { color: #4a5785; }
+  .sortl { margin-left: auto; font-size: 14px; color: var(--s-ink-2); }
+  .sort { width: 170px; height: 42px; border: 1px solid #e9eef6; border-radius: 10px; display: flex; align-items: center; padding: 0 14px; font-size: 14px; color: var(--s-ink-2); font-weight: 500; }
+  .sort svg { margin-left: auto; width: 15px; height: 15px; stroke-width: 2.4; }
 
-  /* service cards */
-  .svc { position: absolute; width: 283px; border: 1px solid #edf0f6; border-radius: 9px; overflow: hidden; background: #fff; }
-  .svc img { display: block; width: 100%; object-fit: cover; }
-  .svc .fav { position: absolute; right: 11px; top: 10px; width: 26px; height: 26px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-  .svc .fav svg { width: 14px; height: 14px; color: #0b1035; stroke-width: 2.2; }
-  .svc .tx { position: relative; padding: 0 13px; }
-  .svc .by { position: absolute; left: 13px; font-size: 10.4px; color: #4a5785; }
-  .svc .nm { position: absolute; left: 13px; font-size: 13.4px; font-weight: 800; color: #00063a; white-space: nowrap; letter-spacing: -0.012em; }
-  .svc .mt { position: absolute; left: 13px; display: flex; align-items: center; gap: 6px; font-size: 10.4px; color: #4a5785; }
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 20px; }
+  .svc { position: relative; border: 1px solid #edf0f6; border-radius: 10px; overflow: hidden; background: #fff; }
+  .svc img { display: block; width: 100%; height: auto; }
+  .svc .fav { position: absolute; right: 11px; top: 10px; width: 28px; height: 28px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .svc .fav svg { width: 15px; height: 15px; color: #0b1035; stroke-width: 2.2; }
+  .svc .tx { padding: 14px 18px 16px; }
+  .svc .by { font-size: 13px; color: #4a5785; }
+  .svc .nm { margin-top: 4px; font-size: 16px; font-weight: 800; color: var(--s-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .svc .mt { margin-top: 8px; display: flex; align-items: center; gap: 6px; font-size: 13px; color: #4a5785; white-space: nowrap; }
   .svc .mt .sep { margin: 0 3px; }
-  .svc .mt svg { width: 11px; height: 11px; stroke-width: 2; }
-  .svc .rt { position: absolute; left: 12px; display: flex; align-items: center; gap: 5px; font-size: 11.6px; color: #1f2a5c; }
-  .svc .rt svg { width: 13px; height: 13px; color: #fea800; fill: #fea800; stroke: none; }
+  .svc .mt svg { width: 14px; height: 14px; stroke-width: 2; }
+  .svc .ft { margin-top: 12px; display: flex; align-items: center; }
+  .svc .rt { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--s-ink-2); }
+  .svc .rt svg { width: 15px; height: 15px; color: #fea800; fill: #fea800; stroke: none; }
   .svc .rt b { font-weight: 600; }
   .svc .rt span { color: #4a5785; }
-  .svc .pr { position: absolute; right: 14px; font-size: 14.1px; font-weight: 800; color: #000a5c; letter-spacing: -0.01em; }
+  .svc .pr { margin-left: auto; font-size: 16px; font-weight: 800; color: #000a5c; white-space: nowrap; }
 
-  /* right column */
-  .zone { position: absolute; left: 1009px; top: 285px; width: 327px; height: 442px; border: 1px solid #edf1f7; border-radius: 12px; overflow: hidden; background: #fff; }
-  .zone > * { position: absolute; }
-  .zone .map { left: 0; top: 0; width: 326px; height: 253px; display: block; }
-  .zone h3 { left: 11px; top: 269px; margin: 0; font-size: 14.5px; font-weight: 800; color: #00063a; letter-spacing: -0.01em; }
-  .zone .sel { left: 11px; top: 291px; width: 300px; height: 32px; border: 1px solid #e6ecf5; border-radius: 16px; display: flex; align-items: center; padding-left: 11px; font-size: 11px; color: #1f2a5c; font-weight: 500; box-shadow: 0 1px 4px rgba(30,60,120,.04); }
-  .zone .sel svg { position: absolute; right: 13px; width: 12px; height: 12px; stroke-width: 2.6; }
-  .zone .ck { display: flex; align-items: center; gap: 9px; font-size: 11.4px; color: #4a5785; }
-  .zone .ck i { width: 15px; height: 15px; border: 1.2px solid #d6dde8; border-radius: 3px; display: block; }
-  .zone .more { right: 20px; top: 409px; display: flex; align-items: center; gap: 5px; font-size: 11.4px; color: #1d7dfc; font-weight: 500; }
-  .zone .more svg { width: 13px; height: 13px; stroke-width: 2.4; }
-  .cats-h { position: absolute; left: 1011px; top: 744px; margin: 0; font-size: 17.2px; font-weight: 800; color: #00063a; letter-spacing: -0.02em; }
-  .cats-all { position: absolute; left: 1252px; top: 746px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #1d7dfc; font-weight: 500; }
-  .cats-all svg { width: 15px; height: 15px; stroke-width: 2.4; }
-  .tile { position: absolute; height: 63px; border-radius: 8px; background: #f1f8fe; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 10px; gap: 8px; font-size: 9.6px; color: #1f2a5c; white-space: nowrap; }
-  .tile svg { width: 24px; height: 24px; color: #005cfe; stroke-width: 2.4; }
-  .tile .dots3 { width: 22px; height: 22px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+  /* side column */
+  .side { display: flex; flex-direction: column; gap: 28px; }
+  .zone { border: 1px solid #edf1f7; border-radius: 12px; overflow: hidden; background: #fff; }
+  .zone .map { width: 100%; height: auto; display: block; }
+  .zone .in { padding: 18px 20px 20px; }
+  .zone h3 { margin: 0; font-size: 16px; font-weight: 800; color: var(--s-ink); }
+  .zone .sel { position: relative; margin-top: 14px; height: 40px; border: 1px solid #e6ecf5; border-radius: 20px; display: flex; align-items: center; padding-left: 14px; font-size: 14px; color: var(--s-ink-2); font-weight: 500; box-shadow: 0 1px 4px rgba(30,60,120,.04); }
+  .zone .sel svg { position: absolute; right: 14px; width: 14px; height: 14px; stroke-width: 2.6; }
+  .zone .cks { margin-top: 18px; display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px 12px; }
+  .zone .ck { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #4a5785; white-space: nowrap; }
+  .zone .ck i { width: 17px; height: 17px; border: 1.2px solid #d6dde8; border-radius: 4px; display: block; flex-shrink: 0; }
+  .zone .more { margin-top: 18px; display: flex; justify-content: flex-end; align-items: center; gap: 6px; font-size: 14px; color: #1d7dfc; font-weight: 600; }
+  .zone .more svg { width: 15px; height: 15px; stroke-width: 2.4; }
+
+  .cats-top { display: flex; align-items: center; }
+  .cats-h { margin: 0; font-size: 19px; font-weight: 800; color: var(--s-ink); }
+  .cats-all { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 14px; color: #1d7dfc; font-weight: 600; }
+  .cats-all svg { width: 16px; height: 16px; stroke-width: 2.4; }
+  .tiles { margin-top: 16px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .tile { min-height: 88px; border-radius: 10px; background: #f1f8fe; display: flex; flex-direction: column; align-items: center; padding: 14px 4px 12px; gap: 8px; font-size: 13px; line-height: 1.3; color: var(--s-ink-2); text-align: center; }
+  .tile svg { width: 24px; height: 24px; color: #005cfe; stroke-width: 2.4; flex-shrink: 0; }
+  .tile .dots3 { width: 24px; height: 24px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
   .tile .dots3 svg { width: 16px; height: 16px; }
-  .vbanner { position: absolute; left: 1010px; top: 926px; width: 325px; height: 77px; border-radius: 9px; background: #eff7fe; }
-  .vbanner .sh { position: absolute; left: 12px; top: 13px; width: 50px; height: 50px; border-radius: 50%; background: #d6ebfe; display: grid; place-items: center; }
+
+  .vbanner { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 12px; background: #eff7fe; }
+  .vbanner .sh { width: 52px; height: 52px; border-radius: 50%; background: #d6ebfe; display: grid; place-items: center; flex-shrink: 0; }
   .vbanner .sh svg { width: 26px; height: 26px; color: #005cfe; stroke-width: 2; }
-  .vbanner b { position: absolute; left: 76px; top: 14px; font-size: 13px; font-weight: 700; color: #000a5c; }
-  .vbanner p { position: absolute; left: 75px; top: 34px; margin: 0; font-size: 11.6px; line-height: 14.5px; color: #4a5785; }
+  .vbanner b { display: block; font-size: 15px; font-weight: 700; color: #000a5c; }
+  .vbanner p { margin: 4px 0 0; font-size: 13px; line-height: 1.45; color: #4a5785; }
 </style>
 </head>
 <body>
-<div class="page">
-  <header class="ph">
-    <img class="logo" src="../assets/logo.svg" alt="ntizo">
-    <nav>
-      <a href="#" style="left:271px">Explorar</a>
-      <a class="on" href="servicos.html" style="left:342px">Serviços</a>
-      <a href="prestador-detalhe.html" style="left:416px">Prestadores</a>
-      <a href="#" style="left:505px">Como funciona</a>
-      <a href="#" style="left:610px">Cidades <i data-lucide="chevron-down"></i></a>
-    </nav>
-    <div class="tool" style="left:936px;top:21px"><i data-lucide="map-pin" class="fill"></i>Maputo <i data-lucide="chevron-down" class="chev"></i></div>
-    <div class="tool" style="left:1038px;top:21px"><i data-lucide="globe"></i>PT <i data-lucide="chevron-down" class="chev"></i></div>
-    <a class="signin" href="#" style="left:1118px;top:20px">Entrar</a>
-    <a class="cta" href="#" style="left:1175px;top:7px;width:112px;height:38px;font-size:13px">Criar conta</a>
-  </header>
-
-  <div class="eyebrow-b">SERVIÇOS</div>
-  <h1 class="hero-t">Serviços perto de si,<br>ao preço que vê.</h1>
-  <p class="hero-s">Encontre canalizadores, electricistas, limpeza, beleza e muito mais.<br>Profissionais verificados em Moçambique, prontos para o ajudar.</p>
-  <img class="hero-img" src="../assets/cli-servicos-hero.jpg" alt="">
-  <div class="quote">Pessoas reais.<br>Serviços locais.<br>Uma Moçambique<br>que avança.</div>
-  <div class="sq" style="left:1311px;top:192px;width:25px;height:28px"></div>
-  <div class="sq" style="left:1292px;top:216px;width:21px;height:22px;background:#8ccdfd"></div>
-
-  <div class="sbar">
-    <i data-lucide="search" class="q-ic"></i>
-    <div class="q">Que serviço procura?</div>
-    <div class="hint">Ex.: canalizador, electricista, limpeza, manicure...</div>
-    <div class="div"></div>
-    <i data-lucide="map-pin" class="pin"></i>
-    <div class="city">Maputo</div>
-    <i data-lucide="chevron-down" class="chev"></i>
-    <button class="go">Pesquisar</button>
+<header class="ph">
+  <img class="logo" src="../assets/logo.svg" alt="ntizo">
+  <nav>
+    <a href="#">Explorar</a>
+    <a class="on" href="servicos.html">Serviços</a>
+    <a href="prestador-detalhe.html">Prestadores</a>
+    <a href="#">Como funciona</a>
+    <a href="#">Cidades <i data-lucide="chevron-down"></i></a>
+  </nav>
+  <div class="tools">
+    <span class="tool"><i data-lucide="map-pin" class="fill"></i>Maputo <i data-lucide="chevron-down" class="chev"></i></span>
+    <span class="tool"><i data-lucide="globe"></i>PT <i data-lucide="chevron-down" class="chev"></i></span>
+    <a class="signin" href="#">Entrar</a>
+    <a class="cta" href="#">Criar conta</a>
   </div>
+</header>
 
-  <div class="pills">
-    <button class="fpill" style="left:102px;width:109px"><span class="ic"><i data-lucide="shield-check"></i></span>Categoria <i data-lucide="chevron-down"></i></button>
-    <button class="fpill" style="left:219px;width:125px">Intervalo de preço <i data-lucide="chevron-down"></i></button>
-    <button class="fpill" style="left:352px;width:108px">Onde acontece <i data-lucide="chevron-down"></i></button>
-    <button class="fpill" style="left:468px;width:90px">Como paga <i data-lucide="chevron-down"></i></button>
-    <button class="fpill" style="left:566px;width:94px">Quem presta <i data-lucide="chevron-down"></i></button>
-    <button class="fpill" style="left:667px;width:115px">Idioma do anúncio <i data-lucide="chevron-down"></i></button>
-    <button class="fpill" style="left:789px;width:107px">Disponibilidade <i data-lucide="chevron-down"></i></button>
-    <a class="clear" href="#" style="left:918px">Limpar filtros</a>
+<section class="hero">
+  <div class="hero-l">
+    <div class="eyebrow-b">SERVIÇOS</div>
+    <h1 class="hero-t">Serviços perto de si,<br>ao preço que vê.</h1>
+    <p class="hero-s">Encontre canalizadores, electricistas, limpeza, beleza e muito mais.
+      Profissionais verificados em Moçambique, prontos para o ajudar.</p>
   </div>
+  <div class="hero-r">
+    <img class="hero-img" src="../assets/cli-servicos-hero.jpg" alt="">
+    <div class="quote">Pessoas reais.<br>Serviços locais.<br>Uma Moçambique<br>que avança.</div>
+    <div class="sq" style="left:670px;top:150px;width:25px;height:28px"></div>
+    <div class="sq" style="left:651px;top:174px;width:21px;height:22px;background:#8ccdfd"></div>
+  </div>
+</section>
 
-  <div class="count"><b>34 serviços encontrados</b> <span>em Maputo</span></div>
-  <div class="sortl">Ordenar por:</div>
-  <div class="sort">Mais relevantes <i data-lucide="chevron-down"></i></div>
+<div class="grid">
+  <main>
+    <div class="sbar">
+      <i data-lucide="search" class="q-ic"></i>
+      <div class="what">
+        <div class="q">Que serviço procura?</div>
+        <div class="hint">Ex.: canalizador, electricista, limpeza, manicure...</div>
+      </div>
+      <div class="div"></div>
+      <div class="where"><i data-lucide="map-pin" class="pin"></i>Maputo<i data-lucide="chevron-down" class="chev"></i></div>
+      <button class="go">Pesquisar</button>
+    </div>
 
-  <div id="cards"></div>
+    <div class="pills">
+      <button class="fpill"><span class="ic"><i data-lucide="shield-check"></i></span>Categoria <i data-lucide="chevron-down"></i></button>
+      <button class="fpill">Intervalo de preço <i data-lucide="chevron-down"></i></button>
+      <button class="fpill">Onde acontece <i data-lucide="chevron-down"></i></button>
+      <button class="fpill">Como paga <i data-lucide="chevron-down"></i></button>
+      <button class="fpill">Quem presta <i data-lucide="chevron-down"></i></button>
+      <button class="fpill">Idioma do anúncio <i data-lucide="chevron-down"></i></button>
+      <button class="fpill">Disponibilidade <i data-lucide="chevron-down"></i></button>
+      <a class="clear" href="#">Limpar filtros</a>
+    </div>
 
-  <aside class="zone">
-    <img class="map" src="../assets/cli-servicos-map.jpg" alt="Mapa de Maputo">
-    <h3>Filtrar por zona</h3>
-    <div class="sel">Maputo <i data-lucide="chevron-down"></i></div>
-    <label class="ck" style="left:16px;top:335px"><i></i>Polana (12)</label>
-    <label class="ck" style="left:170px;top:335px"><i></i>Matola (4)</label>
-    <label class="ck" style="left:16px;top:361px"><i></i>Sommerschield (8)</label>
-    <label class="ck" style="left:170px;top:361px"><i></i>Magoanine (3)</label>
-    <label class="ck" style="left:16px;top:387px"><i></i>Costa do Sol (6)</label>
-    <a class="more" href="#">Ver mais zonas <i data-lucide="chevron-down"></i></a>
+    <div class="results">
+      <div class="count"><b>34 serviços encontrados</b> <span>em Maputo</span></div>
+      <div class="sortl">Ordenar por:</div>
+      <div class="sort">Mais relevantes <i data-lucide="chevron-down"></i></div>
+    </div>
+
+    <div class="cards" id="cards"></div>
+  </main>
+
+  <aside class="side">
+    <div class="zone">
+      <img class="map" src="../assets/cli-servicos-map.jpg" alt="Mapa de Maputo">
+      <div class="in">
+        <h3>Filtrar por zona</h3>
+        <div class="sel">Maputo <i data-lucide="chevron-down"></i></div>
+        <div class="cks">
+          <label class="ck"><i></i>Polana (12)</label>
+          <label class="ck"><i></i>Matola (4)</label>
+          <label class="ck"><i></i>Sommerschield (8)</label>
+          <label class="ck"><i></i>Magoanine (3)</label>
+          <label class="ck"><i></i>Costa do Sol (6)</label>
+        </div>
+        <a class="more" href="#">Ver mais zonas <i data-lucide="chevron-down"></i></a>
+      </div>
+    </div>
+
+    <div>
+      <div class="cats-top">
+        <h2 class="cats-h">Categorias populares</h2>
+        <a class="cats-all" href="#">Ver todas <i data-lucide="arrow-right"></i></a>
+      </div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+
+    <div class="vbanner">
+      <div class="sh"><i data-lucide="shield-check"></i></div>
+      <div>
+        <b>Prestadores verificados</b>
+        <p>Serviços seguros, com profissionais reais e avaliações de clientes.</p>
+      </div>
+    </div>
   </aside>
-
-  <h2 class="cats-h">Categorias populares</h2>
-  <a class="cats-all" href="#">Ver todas <i data-lucide="arrow-right"></i></a>
-  <div id="tiles"></div>
-
-  <div class="vbanner">
-    <div class="sh"><i data-lucide="shield-check"></i></div>
-    <b>Prestadores verificados</b>
-    <p>Serviços seguros, com profissionais reais<br>e avaliações de clientes.</p>
-  </div>
 </div>
 
 <script>
@@ -186,37 +216,27 @@ const cards = [
   ["c8","Sérgio Matola","Pintura de interiores","480 min","Em sua casa","4,5","2","2 200 MZN"],
   ["c9","Mudanças Maputo","Transporte de móveis","120 min","Em sua casa","4,6","5","1 500 MZN"],
 ];
-// per row: card top, photo height, card height, then text offsets below the photo
-const rows = [
-  { top: 428, photo: 131, h: 218, by: 5, nm: 19, mt: 40, rt: 61, pr: 58 },
-  { top: 660, photo: 128, h: 208, by: 4, nm: 17, mt: 37, rt: 56, pr: 50 },
-  { top: 879, photo: 78, h: 155, by: 5, nm: 18, mt: 35, rt: 53, pr: 49 },
-];
-const cols = [102, 401, 699];
-document.getElementById("cards").innerHTML = cards.map((c, i) => {
-  const r = rows[Math.floor(i / 3)], left = cols[i % 3];
-  return `<article class="svc" style="left:${left}px;top:${r.top}px;height:${r.h}px">
-    <img src="../assets/cli-servicos-${c[0]}.jpg" alt="" style="height:${r.photo}px">
+document.getElementById("cards").innerHTML = cards.map(c => `<article class="svc">
+    <img src="../assets/cli-servicos-${c[0]}.jpg" alt="">
     <button class="fav"><i data-lucide="heart"></i></button>
     <div class="tx">
-      <div class="by" style="top:${r.by}px">${c[1]}</div>
-      <div class="nm" style="top:${r.nm}px">${c[2]}</div>
-      <div class="mt" style="top:${r.mt}px"><i data-lucide="clock-3"></i>${c[3]}<span class="sep">·</span>${c[4]}</div>
-      <div class="rt" style="top:${r.rt}px"><i data-lucide="star"></i><b>${c[5]}</b><span>(${c[6]})</span></div>
-      <div class="pr" style="top:${r.pr}px">${c[7]}</div>
+      <div class="by">${c[1]}</div>
+      <div class="nm">${c[2]}</div>
+      <div class="mt"><i data-lucide="clock-3"></i>${c[3]}<span class="sep">·</span>${c[4]}</div>
+      <div class="ft">
+        <div class="rt"><i data-lucide="star"></i><b>${c[5]}</b><span>(${c[6]})</span></div>
+        <div class="pr">${c[7]}</div>
+      </div>
     </div>
-  </article>`;
-}).join("");
+  </article>`).join("");
 
 const tiles = [
   ["wrench","Canalização"],["zap","Electricidade"],["spray-can","Limpeza"],["user-round","Beleza e Estética"],
   ["car","Mecânico"],["chef-hat","Cozinheiro"],["sprout","Jardinagem"],["more","Mais categorias"],
 ];
-const tx = [[1010, 76], [1091, 76], [1174, 76], [1256, 79]];
-document.getElementById("tiles").innerHTML = tiles.map(([ic, label], i) => {
-  const [left, w] = tx[i % 4], top = i < 4 ? 772 : 845;
+document.getElementById("tiles").innerHTML = tiles.map(([ic, label]) => {
   const icon = ic === "more" ? `<span class="dots3"><i data-lucide="ellipsis"></i></span>` : `<i data-lucide="${ic}"></i>`;
-  return `<a class="tile" href="#" style="left:${left}px;top:${top}px;width:${w}px">${icon}${label}</a>`;
+  return `<a class="tile" href="#">${icon}${label}</a>`;
 }).join("");
 lucide.createIcons();
 </script>

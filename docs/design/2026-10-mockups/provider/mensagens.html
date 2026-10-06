@@ -17,7 +17,8 @@
   .topbar .me > div { margin-left: 4px; }
   .topbar .right { padding-right: 40px; }
   .topbar .loc { padding-right: 32px; }
-  .rail { padding-bottom: 15px; }
+  .body { background: linear-gradient(to right, var(--rail) 296px, var(--line) 296px 297px, #fff 297px); }
+  .rail { padding-bottom: 15px; position: sticky; top: 0; height: calc(100vh - 91px); align-self: start; }
   .rail .biz { padding-top: 3px; padding-bottom: 21px; }
   .rail .biz b { font-size: 18px; }
   .rail .biz span { font-size: 14.5px; }
@@ -28,85 +29,95 @@
   .nav { gap: 2.5px; }
   .main { padding: 17px 22px 0 32px; }
   .page-title { font-size: 38.5px; margin-top: 1px; }
-  .page-sub { font-size: 17px; margin-top: 3px; }
+  .page-sub { font-size: 17px; margin-top: 7px; line-height: 1.45; }
 
   /* Tabs: the active one is boxed, the rest are bare text split by hairlines */
-  .toolbar { margin-top: 22px; gap: 0; }
+  .toolbar { margin-top: 28px; gap: 0; }
   .seg { display: flex; align-items: center; margin-left: -1px; }
-  .seg .tab { height: 44px; border-color: transparent; background: none; padding: 0 27px 0 26px; gap: 9px; font-size: 15.5px; font-weight: 400; color: var(--ink-2); }
-  .seg .tab.on { width: 128px; justify-content: center; padding: 0; gap: 10px; background: #e8f2fe; border-color: #a9cbfc; color: #1f4fd0; }
+  .seg .tab { height: 44px; border-color: transparent; background: none; padding: 0 30px 0 29px; gap: 11px; font-size: 15.5px; font-weight: 400; color: var(--ink-2); }
+  .seg .tab.on { width: 134px; justify-content: center; padding: 0; gap: 12px; background: #e8f2fe; border-color: #a9cbfc; color: #1f4fd0; }
   .seg .tab.on .chip { background: #1a6bfe; min-width: 24px; }
   .seg .chip { min-width: 24px; height: 24px; padding: 0; border-radius: 12px; font-size: 14px; }
   .seg .chip.cl { background: #e2eefc; color: var(--ink-2); }
   .seg .vr { width: 1px; height: 26px; background: var(--line); }
   .toolbar .field { margin-left: auto; width: 280px; height: 46px; margin-top: -4px; gap: 14px; padding: 0 18px; font-size: 15px; }
   .toolbar .field svg { color: var(--ink-2); }
-  .toolbar .btn-outline { margin-left: 13px; width: 117px; height: 46px; margin-top: -4px; padding: 0; justify-content: center; gap: 12px; border-color: #a9c8fc; }
+  .toolbar .btn-outline { margin-left: 16px; width: 117px; height: 46px; margin-top: -4px; padding: 0; justify-content: center; gap: 12px; border-color: #a9c8fc; }
 
   /* Two panes */
-  .panes { display: grid; grid-template-columns: 441px 854px; gap: 9px; margin: 13px 0 0 -5px; }
-  .pane { border: 1px solid var(--line); border-radius: var(--r-card); background: #fff; height: 630px; overflow: hidden; position: relative; }
+  .panes { display: grid; grid-template-columns: 441px 846px; gap: 17px; margin: 21px 0 24px -5px; align-items: stretch; }
+  .pane { border: 1px solid var(--line); border-radius: var(--r-card); background: #fff; min-width: 0; }
+  .pane.chat { display: flex; flex-direction: column; }
 
   /* Conversation list */
-  .threads { padding: 16px 3px 0 3px; }
-  .thread { position: relative; height: 77.1px; display: flex; align-items: flex-start; padding: 0 17px 0 18px; border-radius: 12px; }
+  /* the list pane stretches to the chat pane's height; its rows share that height */
+  .pane.list { display: flex; flex-direction: column; }
+  .threads { flex: 1; display: grid; grid-auto-rows: minmax(85px, 1fr); padding: 20px 7px 20px 7px; }
+  .thread { position: relative; min-height: 85px; display: flex; align-items: center; padding: 0 21px 0 22px; border-radius: 12px; }
   .thread.on { background: #e7f3fe; }
-  .thread + .thread:not(.after-on)::before { content: ""; position: absolute; top: 0; left: 101px; right: 14px; height: 1px; background: var(--line-2); }
-  .thread .av { position: relative; width: 62px; height: 62px; margin-top: 7px; flex-shrink: 0; }
+  .thread + .thread:not(.after-on)::before { content: ""; position: absolute; top: 0; left: 105px; right: 18px; height: 1px; background: var(--line-2); }
+  .thread .av { position: relative; width: 62px; height: 62px; flex-shrink: 0; }
   .thread .av img { width: 62px; height: 62px; border-radius: 50%; display: block; }
   .thread .av i { position: absolute; right: -1px; bottom: 1px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; background: #8f96a6; }
   .thread .av i.on { background: #15cf3b; }
   .thread .av i.blue { background: #1a7bfd; }
-  .thread .txt { flex: 1; min-width: 0; margin-left: 21px; padding-top: 16px; }
+  .thread .txt { flex: 1; min-width: 0; margin-left: 21px; padding-right: 58px; }
   .thread .txt b { display: block; font-size: 17px; font-weight: 700; color: var(--ink); }
-  .thread .txt span { display: block; font-size: 15px; color: var(--muted); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 268px; font-size: 14.5px; }
-  .thread .meta { position: absolute; right: 17px; top: 14px; text-align: right; font-size: 14.5px; color: var(--muted); }
-  .thread .meta .n { position: absolute; right: 0; top: 26px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 13px; font-weight: 600; background: #0050fc; }
+  .thread .txt span { display: block; font-size: 15px; color: var(--muted); margin-top: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
+  .thread .meta { position: absolute; right: 21px; top: 18px; text-align: right; font-size: 14.5px; color: var(--muted); }
+  .thread .meta .n { position: absolute; right: 0; top: 28px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 13px; font-weight: 600; background: #0050fc; }
   .thread .meta .n.red { background: #ff2a2d; }
 
   /* Chat */
-  .chat-head { height: 81px; padding-top: 4px; display: flex; align-items: center; padding: 0 17px 0 26px; }
+  .chat-head { height: 89px; flex-shrink: 0; display: flex; align-items: center; padding: 0 21px 0 30px; }
   .chat-head img { width: 62px; height: 62px; border-radius: 50%; }
   .chat-head .who { margin-left: 14px; }
   .chat-head .who b { display: block; font-size: 18px; font-weight: 700; }
   .chat-head .who span { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--muted); margin-top: 4px; }
   .chat-head .who span::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #15cf3b; }
-  .chat-head .acts { margin-left: auto; display: flex; gap: 15px; }
+  .chat-head .acts { margin-left: auto; display: flex; gap: 18px; }
   .icon-btn { width: 46px; height: 46px; border-radius: 10px; background: #f0f6fe; display: grid; place-items: center; color: var(--blue); }
   .icon-btn svg { width: 21px; height: 21px; }
   .icon-btn.ink { color: var(--ink); }
 
-  .booking { margin: 0 14px; height: 93px; border: 1px solid var(--line-2); border-radius: 12px; display: flex; align-items: center; padding: 0 12px; }
+  .booking { margin: 0 18px; flex-shrink: 0; height: 101px; border: 1px solid var(--line-2); border-radius: 12px; display: flex; align-items: center; padding: 0 16px; }
   .booking img { width: 100px; height: 78px; border-radius: 8px; object-fit: cover; }
-  .booking .info { margin-left: 14px; margin-top: -4px; }
+  .booking .info { margin-left: 18px; }
   .booking .info b { display: block; font-size: 16px; font-weight: 700; }
-  .booking .info span { display: flex; align-items: center; gap: 10px; font-size: 14.5px; color: var(--muted); margin-top: 5px; }
+  .booking .info span { display: flex; align-items: center; gap: 10px; font-size: 14.5px; color: var(--muted); margin-top: 7px; }
   .booking .info span svg { width: 16px; height: 16px; }
-  .booking .price { margin-top: -6px; margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .booking .price { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
   .booking .price .pill { height: 27px; padding: 0 14px; background: #dafae1; color: #13923a; font-size: 14.5px; }
   .booking .price b { font-size: 21px; font-weight: 800; margin-right: 6px; }
-  .booking .vr { width: 1px; height: 52px; background: var(--line-2); margin: 0 19px 0 18px; }
+  .booking .vr { width: 1px; height: 52px; background: var(--line-2); margin: 0 22px; }
   .booking .btn-details { height: 45px; width: 124px; padding: 0; border-color: #8db6fd; }
 
-  .day { position: absolute; left: -14px; right: 0; top: 189px; text-align: center; font-size: 13px; color: var(--muted); margin: 0; line-height: 17px; }
-  .msgs { position: absolute; left: -2px; top: 0; }
-  .msgs > * { position: absolute; }
-  .msgs .face { width: 42px; height: 42px; border-radius: 50%; }
-  .bub { font-size: 14.5px; line-height: 19.5px; color: var(--ink); border-radius: 12px; padding: 7px 15px; white-space: nowrap; }
+  /* Messages run in normal flow, so more space pushes the composer down */
+  .msgs { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 24px 30px 28px 24px; }
+  .day { text-align: center; font-size: 13px; color: var(--muted); margin: 0 0 6px; line-height: 1.45; }
+  .m { display: flex; align-items: flex-start; gap: 12px; }
+  .m.out { justify-content: flex-end; }
+  .m .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .m.in .col { align-items: flex-start; }
+  .m.out .col { align-items: flex-end; }
+  .m .line { display: flex; align-items: flex-end; gap: 12px; }
+  .face { width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; }
+  .m .gap { width: 42px; flex-shrink: 0; }
+  .bub { font-size: 15px; line-height: 1.45; color: var(--ink); border-radius: 12px; padding: 11px 19px; max-width: 560px; }
   .bub.in { background: #f0f3f8; }
   .bub.out { background: #e1effe; }
-  .bub small { font-size: 14px; }
-  .t { font-size: 13px; color: var(--muted); line-height: 16px; }
-  .ticks { display: inline-flex; align-items: center; gap: 6px; position: absolute; }
-  .ticks svg { width: 16px; height: 16px; color: var(--blue); }
   .bub em { font-style: normal; font-weight: 600; }
+  .t { font-size: 13px; color: var(--muted); line-height: 1.45; white-space: nowrap; }
+  .ticks { display: inline-flex; align-items: center; gap: 6px; }
+  .ticks svg { width: 16px; height: 16px; color: var(--blue); }
+  .bub .ticks { float: right; margin: 6px 0 0 16px; }
 
-  .composer { position: absolute; left: 0; right: 0; bottom: 0; height: 75px; border-top: 1px solid var(--line-2); margin: 0 14px; display: flex; gap: 11px; padding-top: 8px; }
+  .composer { flex-shrink: 0; height: 83px; border-top: 1px solid var(--line-2); margin: 0 18px; display: flex; gap: 14px; padding-top: 14px; }
   .composer .clip { width: 52px; height: 50px; border: 1px solid var(--line); border-radius: 10px; display: grid; place-items: center; color: var(--blue); }
   .composer .clip svg { width: 22px; height: 22px; }
-  .composer .input { width: 631px; height: 50px; border: 1px solid var(--line); border-radius: 10px; display: flex; align-items: center; padding: 0 18px; font-size: 16px; color: var(--faint); }
+  .composer .input { flex: 1; min-width: 0; height: 50px; border: 1px solid var(--line); border-radius: 10px; display: flex; align-items: center; padding: 0 18px; font-size: 16px; color: var(--faint); }
   .composer .input svg { margin-left: auto; width: 24px; height: 24px; color: var(--ink-2); }
-  .composer .btn { width: 119px; height: 50px; padding: 0; gap: 12px; background: #1266fe; font-size: 16.5px; margin-left: 2px; }
+  .composer .btn { width: 119px; height: 50px; padding: 0; gap: 12px; background: #1266fe; font-size: 16.5px; }
 </style>
 </head>
 <body>
@@ -165,11 +176,11 @@
       </div>
 
       <div class="panes">
-        <section class="pane">
+        <section class="pane list">
           <div class="threads" id="threads"></div>
         </section>
 
-        <section class="pane">
+        <section class="pane chat">
           <div class="chat-head">
             <img src="../assets/mensagens-silvia-lg.png" alt="">
             <div class="who"><b>Sílvia Nhampossa</b><span>Online</span></div>
@@ -192,22 +203,30 @@
             <a class="btn-details" href="#">Ver detalhes</a>
           </div>
 
-          <p class="day">Hoje, 11 de Outubro</p>
-
           <div class="msgs">
-            <img class="face" style="left:20px; top:212px" src="../assets/mensagens-silvia-sm.png" alt="">
-            <div class="bub in" style="left:73px; top:213px; width:188px">Olá Joaquim! Boa tarde.</div>
-            <span class="t" style="left:272px; top:224px">09:12</span>
-            <div class="bub in" style="left:73px; top:253px; width:416px">Queria confirmar se ainda está mantida a visita de amanhã<br>para o corte de cabelo da canalização. O problema é mesmo<br>o vazamento na cozinha, como tinha explicado.</div>
-            <span class="t" style="left:504px; top:298px">09:13</span>
-            <div class="bub out" style="left:319px; top:343px; width:455px; line-height:21px; font-size:14px">Olá Sílvia! Boa tarde.<br>Sim, a visita está <em>confirm</em>ada para <em>amanhã</em>, às 10:00.<br>Vou levar todo o equipamento necessário para <em>resolver</em> <small>o vazamento.</small></div>
-            <img class="face" style="left:791px; top:342px" src="../assets/mensagens-joaquim-sm.png" alt="">
-            <span class="t ticks" style="left:712px; top:421px">09:15 <i data-lucide="check-check"></i></span>
-            <img class="face" style="left:20px; top:446px" src="../assets/mensagens-silvia-sm.png" alt="">
-            <div class="bub in" style="left:73px; top:444px; width:463px">Ótimo! Muito obrigada. O acesso é fácil e alguém estará em casa<br>para me receber.</div>
-            <span class="t" style="left:549px; top:472px">09:20</span>
-            <div class="bub out" style="left:409px; top:502px; width:365px">Perfeito. Qualquer alteração, pode avisar por aqui.<br>Até amanhã!<span class="t ticks" style="right:10px; top:31px">09:22 <i data-lucide="check-check"></i></span></div>
-            <img class="face" style="left:791px; top:501px" src="../assets/mensagens-joaquim-sm.png" alt="">
+            <p class="day">Hoje, 11 de Outubro</p>
+            <div class="m in">
+              <img class="face" src="../assets/mensagens-silvia-sm.png" alt="">
+              <div class="col">
+                <div class="line"><div class="bub in">Olá Joaquim! Boa tarde.</div><span class="t">09:12</span></div>
+                <div class="line"><div class="bub in">Queria confirmar se ainda está mantida a visita de amanhã<br>para o corte de cabelo da canalização. O problema é mesmo<br>o vazamento na cozinha, como tinha explicado.</div><span class="t">09:13</span></div>
+              </div>
+            </div>
+            <div class="m out">
+              <div class="col">
+                <div class="bub out">Olá Sílvia! Boa tarde.<br>Sim, a visita está <em>confirm</em>ada para <em>amanhã</em>, às 10:00.<br>Vou levar todo o equipamento necessário para <em>resolver</em> o vazamento.</div>
+                <span class="t ticks">09:15 <i data-lucide="check-check"></i></span>
+              </div>
+              <img class="face" src="../assets/mensagens-joaquim-sm.png" alt="">
+            </div>
+            <div class="m in">
+              <img class="face" src="../assets/mensagens-silvia-sm.png" alt="">
+              <div class="line"><div class="bub in">Ótimo! Muito obrigada. O acesso é fácil e alguém estará em casa<br>para me receber.</div><span class="t">09:20</span></div>
+            </div>
+            <div class="m out">
+              <div class="bub out">Perfeito. Qualquer alteração, pode avisar por aqui.<br>Até amanhã!<span class="t ticks">09:22 <i data-lucide="check-check"></i></span></div>
+              <img class="face" src="../assets/mensagens-joaquim-sm.png" alt="">
+            </div>
           </div>
 
           <div class="composer">

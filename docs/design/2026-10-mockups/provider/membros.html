@@ -8,9 +8,12 @@
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <style>
   /* Membro.png is drawn smaller than reservas.png: the shell is re-measured and pinned here. */
-  .console { grid-template-rows: 75px 1fr; height: 100vh; overflow: hidden; }
-  .body { grid-template-columns: 253px 1fr; min-height: 0; }
-  .body > * { min-height: 0; overflow: hidden; }
+  /* Spacing pass (Oct 2026): the page has more room than the mockup and scrolls;
+     the top bar, the rail and the drawer stay put. */
+  .console { grid-template-rows: 75px 1fr; }
+  .body { grid-template-columns: 253px 1fr; }
+  .topbar { position: sticky; top: 0; z-index: 5; }
+  .rail { position: sticky; top: 75px; height: calc(100vh - 75px); align-self: start; overflow: hidden; }
   .topbar .brand { width: 248px; padding-left: 34px; }
   .topbar .brand img { height: 34.5px; }
   .topbar .search { margin-left: 10px; width: 668px; height: 44px; font-size: 15px; gap: 16px; padding: 0 16px; }
@@ -46,84 +49,90 @@
   .nudge a { font-size: 14.5px; line-height: 20px; }
   .nudge a svg { width: 17px; height: 17px; }
 
-  .main { padding: 0 0 0 28px; display: grid; grid-template-columns: 916px 1fr; }
+  .main { padding: 0 0 48px 28px; display: grid; grid-template-columns: 922px 1fr; }
   .content { padding-top: 40px; }
   .eyebrow { font-size: 13px; letter-spacing: .1em; line-height: 16px; }
   .page-title { font-size: 44px; line-height: 50px; margin-top: 12px; }
-  .page-sub { font-size: 16.2px; margin-top: 3px; }
+  .page-sub { font-size: 16.5px; margin-top: 6px; }
   .head { display: flex; justify-content: space-between; align-items: flex-start; }
-  .head .btn { margin-top: 29px; width: 207px; height: 47px; border-radius: 9px; font-size: 15px; gap: 12px; white-space: nowrap; }
+  .head .btn { margin-top: 29px; padding: 0 24px; height: 48px; border-radius: 9px; font-size: 15.5px; gap: 12px; white-space: nowrap; }
   .head .btn svg { width: 24px; height: 24px; }
 
-  .toolbar { margin-top: 37px; justify-content: space-between; }
+  .toolbar { margin-top: 43px; justify-content: space-between; }
   .seg { display: flex; border: 1px solid var(--line); border-radius: var(--r-tab); height: 51px; background: #fff; }
-  .seg .tab { height: 49px; border: 0; border-left: 1px solid var(--line); border-radius: 0; justify-content: center; gap: 14px; padding: 0; font-size: 14.5px; }
+  .seg .tab { height: 49px; border: 0; border-left: 1px solid var(--line); border-radius: 0; justify-content: center; gap: 16px; padding: 0 26px; font-size: 15px; }
   .seg .tab:first-child { border-left: 0; }
   .seg .tab.on { margin: -1px 0 -1px -1px; height: 51px; border: 0; border-radius: var(--r-tab) 0 0 var(--r-tab); background: #e8f2fe; }
   .seg .chip { min-width: 26px; height: 26px; background: #edf2f9; }
   .seg .tab.on .chip { background: var(--blue); min-width: 26px; }
-  .toolbar .btn-outline { width: 126px; height: 41px; padding: 0; justify-content: center; gap: 8px; font-size: 14px; border-color: #b0cdfc; margin-top: 0; }
+  .toolbar .btn-outline { height: 44px; padding: 0 20px; justify-content: center; gap: 10px; font-size: 15px; border-color: #b0cdfc; margin-top: 0; }
   .toolbar .btn-outline svg { width: 19px; height: 19px; }
 
-  .members { margin-top: 21px; border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; background: #fff; }
-  .members .row { display: grid; grid-template-columns: 200px 119px 160px 145px 133px 1fr 60px; align-items: center; border-top: 1px solid var(--line-2); }
-  .members .th { height: 48px; border-top: 0; background: #f6fafd; font-size: 13px; color: var(--ink-2); }
-  .members .th > div:first-child { padding-left: 16px; font-size: 14px; font-weight: 600; }
+  .members { margin-top: 28px; border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; background: #fff; }
+  .members .row { display: grid; grid-template-columns: 212px 118px 158px 138px 160px 1fr 36px; align-items: center; border-top: 1px solid var(--line-2); min-height: 82px; padding: 10px 0; }
+  .members .th { min-height: 52px; padding: 0; border-top: 0; background: #f6fafd; font-size: 14px; color: var(--ink-2); }
+  .members .th > div:first-child { padding-left: 16px; font-size: 14.5px; font-weight: 600; }
   .members .who { display: flex; align-items: center; gap: 15px; padding-left: 12px; }
-  .members .who img { width: 50px; height: 50px; border-radius: 50%; }
-  .members .who b { font-size: 13.5px; font-weight: 700; color: var(--ink); }
-  .members .you { display: inline-flex; margin-top: 5px; height: 19px; padding: 0 8px; align-items: center; border-radius: 6px; background: #e6f1fe; color: var(--blue); font-size: 11.5px; font-weight: 600; }
-  .role { display: inline-flex; align-items: center; height: 29px; padding: 0 11px; border-radius: 15px; font-size: 12px; font-weight: 500; }
+  .members .who img { width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0; }
+  .members .who b { display: block; font-size: 15px; font-weight: 700; color: var(--ink); line-height: 20px; }
+  .members .you { display: inline-flex; margin-top: 6px; height: 22px; padding: 0 9px; align-items: center; border-radius: 6px; background: #e6f1fe; color: var(--blue); font-size: 13px; font-weight: 600; }
+  .role { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 15px; font-size: 13px; font-weight: 500; white-space: nowrap; }
   .role.admin { background: #eceffe; color: #3544d1; }
   .role.att { background: #e6f1fe; color: #1a6af0; }
   .role.pro { background: #dbebfe; color: #1a5fe0; }
   .role.fin { background: #ece4fe; color: #7a3fe0; }
-  .contact { font-size: 14.3px; color: var(--ink); line-height: 19px; }
-  .contact span { display: block; color: var(--muted); font-size: 13.7px; }
-  .svc { font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 5px; align-items: center; }
-  .svc .tag { height: 26px; padding: 0 11px; border-radius: 13px; background: #edf4fe; color: var(--ink-2); font-size: 12.5px; display: inline-flex; align-items: center; }
-  .svc .more { height: 26px; min-width: 32px; padding: 0 8px; border-radius: 13px; border: 1px solid var(--line); color: var(--muted); font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
-  .state { display: inline-flex; align-items: center; gap: 7px; height: 29px; padding: 0 12px; border-radius: 15px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+  .contact { font-size: 15px; color: var(--ink); line-height: 1.45; }
+  .contact span { display: block; color: var(--muted); font-size: 14px; }
+  .svc { font-size: 13.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 5px; align-items: center; }
+  .svc .tag { height: 27px; padding: 0 11px; border-radius: 14px; background: #edf4fe; color: var(--ink-2); font-size: 13px; display: inline-flex; align-items: center; }
+  .svc .more { height: 27px; min-width: 32px; padding: 0 8px; border-radius: 14px; border: 1px solid var(--line); color: var(--muted); font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+  .state { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px; border-radius: 15px; font-size: 13px; font-weight: 500; white-space: nowrap; }
   .state::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
   .state.on { background: #e1f7e8; color: #13923a; }
   .state.on::before { background: #0eaa50; }
-  .state.wait { background: #fef1da; color: #f07a00; font-size: 11.6px; }
-  .access { font-size: 12.7px; color: var(--muted); line-height: 17px; }
-  .members .dots { justify-self: start; margin-left: 17px; stroke-width: 2.6; color: var(--ink-2); }
+  .state.wait { background: #fef1da; color: #f07a00; }
+  .access { font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+  .members .dots { justify-self: start; stroke-width: 2.6; color: var(--ink-2); }
 
-  /* Drawer */
+  /* Drawer: sits on the right from the top bar down and grows with its form, so the
+     page scrolls rather than the drawer clipping. */
   .drawer {
-    position: fixed; left: 1227px; top: 76px; width: 423px; bottom: 0;
+    position: absolute; right: 0; top: 76px; width: 423px; min-height: calc(100vh - 76px); z-index: 4;
     background: #fff; border: 1px solid var(--line); border-radius: 14px;
     box-shadow: -8px 0 24px rgba(16, 40, 90, .05);
     display: flex; flex-direction: column;
   }
-  .drawer .in { padding: 20px 19px 0 22px; flex: 1; }
-  .drawer h2 { margin: 0; font-size: 23.3px; font-weight: 800; letter-spacing: -0.01em; line-height: 30px; display: flex; justify-content: space-between; align-items: center; }
+  .drawer .in { padding: 24px 24px 24px 26px; flex: 1; }
+  .drawer h2 { margin: 0; font-size: 23.5px; font-weight: 800; line-height: 30px; display: flex; justify-content: space-between; align-items: center; }
   .drawer h2 svg { width: 22px; height: 22px; color: var(--ink-2); margin-right: 1px; }
-  .drawer .lead { margin: 13px 0 0 3px; font-size: 14.2px; line-height: 20px; color: var(--muted); }
-  .drawer label { display: block; margin: 19px 0 0 3px; font-size: 14px; font-weight: 700; color: var(--ink); line-height: 20px; }
-  .drawer .input { margin: 4px 0 0 3px; height: 44px; border: 1px solid var(--line); border-radius: 9px; display: flex; align-items: center; padding: 0 16px; font-size: 13.5px; color: var(--faint); }
-  .roles { margin: 5px 0 0 4px; display: grid; grid-template-columns: 184px 184px; gap: 12px 11px; }
-  .roles .opt { border: 1px solid var(--line); border-radius: 10px; padding: 18px 8px 0 15px; position: relative; }
+  .drawer .lead { margin: 14px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+  .drawer label { display: block; margin: 24px 0 0; font-size: 14.5px; font-weight: 700; color: var(--ink); line-height: 20px; }
+  .drawer .input { margin: 8px 0 0; height: 46px; border: 1px solid var(--line); border-radius: 9px; display: flex; align-items: center; padding: 0 16px; font-size: 14.5px; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .roles { margin: 10px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .roles .opt { border: 1px solid var(--line); border-radius: 10px; padding: 16px 12px 16px 15px; position: relative; }
   .roles .opt.on { border: 1.5px solid #5d93fb; background: #eaf3fe; }
-  .roles .opt b { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; }
+  .roles .opt b { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; padding-right: 20px; }
   .roles .opt b svg { width: 22px; height: 22px; color: var(--blue); }
-  .roles .opt p { margin: 7px 0 0; font-size: 13px; white-space: nowrap; line-height: 16.5px; color: var(--muted); }
-  .roles .radio { position: absolute; right: 12px; top: 15px; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #b8c3d6; background: #fff; }
+  .roles .opt p { margin: 8px 0 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
+  .roles .radio { position: absolute; right: 10px; top: 12px; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #b8c3d6; background: #fff; }
   .roles .on .radio { border: 0; background: var(--blue); box-shadow: inset 0 0 0 4px var(--blue), inset 0 0 0 6px #fff; }
-  .perm { display: grid; grid-template-columns: 23px 1fr; column-gap: 20px; align-items: start; margin: 0 0 0 4px; }
-  .perm + .perm { margin-top: 13px; }
-  .perm + .perm + .perm { margin-top: 17px; }
-  .perm .box { width: 23px; height: 23px; border-radius: 5px; background: var(--blue); color: #fff; display: grid; place-items: center; margin-top: 7px; }
+  .perms { margin-top: 12px; }
+  .perm { display: grid; grid-template-columns: 23px 1fr; column-gap: 18px; align-items: start; }
+  .perm + .perm { margin-top: 18px; }
+  .perm .box { width: 23px; height: 23px; border-radius: 5px; background: var(--blue); color: #fff; display: grid; place-items: center; margin-top: 4px; }
   .perm .box svg { width: 16px; height: 16px; stroke-width: 3; }
-  .perm b { display: block; font-size: 14.5px; font-weight: 500; line-height: 19px; }
-  .perm span { display: block; font-size: 13px; color: var(--muted); line-height: 16px; }
-  .drawer .foot { border-top: 1px solid var(--line-2); padding: 18px 18px 15px 21px; display: flex; gap: 15px; }
-  .drawer .foot > * { flex: 1; height: 46px; border-radius: 9px; font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 14px; }
+  .perm b { display: block; font-size: 15px; font-weight: 500; line-height: 20px; }
+  .perm span { display: block; font-size: 13.5px; color: var(--muted); line-height: 1.45; margin-top: 2px; }
+  .drawer .foot { border-top: 1px solid var(--line-2); padding: 20px 24px 20px 26px; display: flex; gap: 16px; }
+  .drawer .foot > * { flex: 1; height: 48px; border-radius: 9px; font-size: 15.5px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 14px; }
   .drawer .cancel { border: 1px solid #b0cdfc; color: var(--blue); background: #fff; }
   .drawer .send { background: var(--blue); color: #fff; }
   .drawer .send svg { width: 22px; height: 22px; }
+
+  /* The sidebar is sticky at window height; its colour and edge are painted
+     down the whole page behind it, so a long page does not end in white. */
+  /* On the page, not on .body: the open drawer is taller than .body. */
+  body { background: linear-gradient(to right, var(--rail) 0 252px, var(--line) 252px 253px, #fff 253px); }
 </style>
 </head>
 <body>
@@ -177,9 +186,9 @@
 
         <div class="toolbar">
           <div class="seg">
-            <button class="tab on" style="width:126px">Todos <span class="chip">6</span></button>
-            <button class="tab" style="width:126px">Ativos <span class="chip">4</span></button>
-            <button class="tab" style="width:212px">Convites pendentes <span class="chip">2</span></button>
+            <button class="tab on">Todos <span class="chip">6</span></button>
+            <button class="tab">Ativos <span class="chip">4</span></button>
+            <button class="tab">Convites pendentes <span class="chip">2</span></button>
           </div>
           <button class="btn-outline"><i data-lucide="filter"></i>Filtrar<i data-lucide="chevron-down" style="width:17px;height:17px;stroke-width:2.4"></i></button>
         </div>
@@ -196,20 +205,20 @@
 <aside class="drawer">
   <div class="in">
     <h2>Convidar membro <i data-lucide="x"></i></h2>
-    <p class="lead">Adicione um novo membro à sua equipa. Ele receberá<br>um convite para se juntar ao seu negócio na Ntizo.</p>
+    <p class="lead">Adicione um novo membro à sua equipa. Ele receberá um convite para se juntar ao seu negócio na Ntizo.</p>
     <label>Nome completo</label>
     <div class="input">Ex.: Pedro Matusse</div>
     <label>E-mail ou WhatsApp</label>
     <div class="input">Ex.: pedro@exemplo.co.mz ou 84 123 4567</div>
-    <label style="margin-top:22px">Função / Tipo</label>
+    <label>Função / Tipo</label>
     <div class="roles">
-      <div class="opt on" style="height:100px"><b><i data-lucide="crown"></i>Administrador</b><span class="radio"></span><p>Acesso total à conta<br>e a todas as funcionalidades.</p></div>
-      <div class="opt" style="height:100px"><b><i data-lucide="wrench"></i>Prestador</b><span class="radio"></span><p style="margin:1px 0 0 32px">Executa os serviços,<br>geri disponibilidade<br>e vê reservas.</p></div>
-      <div class="opt" style="height:94px"><b><i data-lucide="message-square"></i>Atendimento</b><span class="radio"></span><p>Responde a mensagens<br>e gerencia reservas.</p></div>
-      <div class="opt" style="height:94px"><b><i data-lucide="chart-column-increasing"></i>Financeiro</b><span class="radio"></span><p>Acesso a orçamentos,<br>pagamentos e carteira.</p></div>
+      <div class="opt on"><b><i data-lucide="crown"></i>Administrador</b><span class="radio"></span><p>Acesso total à conta e a todas as funcionalidades.</p></div>
+      <div class="opt"><b><i data-lucide="wrench"></i>Prestador</b><span class="radio"></span><p>Executa os serviços, geri disponibilidade e vê reservas.</p></div>
+      <div class="opt"><b><i data-lucide="message-square"></i>Atendimento</b><span class="radio"></span><p>Responde a mensagens e gerencia reservas.</p></div>
+      <div class="opt"><b><i data-lucide="chart-column-increasing"></i>Financeiro</b><span class="radio"></span><p>Acesso a orçamentos, pagamentos e carteira.</p></div>
     </div>
-    <label style="margin-top:22px">Permissões</label>
-    <div style="margin-top:8px">
+    <label>Permissões</label>
+    <div class="perms">
       <div class="perm"><span class="box"><i data-lucide="check"></i></span><div><b>Pode gerir reservas</b><span>Permite ver, aprovar e gerir reservas.</span></div></div>
       <div class="perm"><span class="box"><i data-lucide="check"></i></span><div><b>Pode responder a mensagens</b><span>Permite ver e responder a mensagens de clientes.</span></div></div>
       <div class="perm"><span class="box"><i data-lucide="check"></i></span><div><b>Pode editar disponibilidade</b><span>Permite gerir os horários e a disponibilidade de serviços.</span></div></div>
@@ -222,7 +231,7 @@
 </aside>
 
 <script>
-// [height, avatar, name, you, role class, role, phone, email, services, state, access]
+// [mockup row height (unused since the spacing pass), avatar, name, you, role class, role, phone, email, services, state, access]
 const rows = [
   [72, "joaquim", "Joaquim Cuna", 1, "admin", "Administrador", "84 123 4567", "joaquim@ntizo.co.mz", "Todos os serviços", "on", "Acesso total"],
   [74, "silvia", "Sílvia Nhampossa", 0, "att", "Atendimento", "84 567 8901", "silvia@ntizo.co.mz", "Todos os serviços", "on", "Reservas<br>Mensagens"],
@@ -232,13 +241,13 @@ const rows = [
   [77, "ana", "Ana Munguambe", 0, "att", "Atendimento", "84 222 3344", "ana@ntizo.co.mz", "Todos os serviços", "wait", "Limitado"],
 ];
 document.getElementById("rows").innerHTML = rows.map(([h, img, name, you, rc, role, phone, mail, svc, st, access]) => `
-  <div class="row" style="height:${h}px">
+  <div class="row">
     <div class="who"><img src="../assets/membros-${img}.png" alt=""><div><b>${name}</b>${you ? '<span class="you">Você</span>' : ""}</div></div>
     <div><span class="role ${rc}">${role}</span></div>
     <div class="contact">${phone}<span>${mail}</span></div>
     <div class="svc">${Array.isArray(svc) ? svc.map(s => s.startsWith("+") ? `<span class="more">${s}</span>` : `<span class="tag">${s}</span>`).join("") : svc}</div>
     <div><span class="state ${st}">${st === "on" ? "Ativo" : "Convite pendente"}</span></div>
-    <div class="access"${st === "wait" ? ' style="padding-left:13px"' : ""}>${access}</div>
+    <div class="access">${access}</div>
     <div><i data-lucide="ellipsis" class="dots"></i></div>
   </div>`).join("");
 lucide.createIcons();

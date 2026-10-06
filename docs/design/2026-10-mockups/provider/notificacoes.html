@@ -8,10 +8,12 @@
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <style>
   /* This mockup is drawn a touch smaller than reservas.png: shell re-measured. */
-  /* Shell values are pinned here: shared.css is still being tuned against reservas.png. */
-  .console { grid-template-rows: 85px 1fr; height: 100vh; overflow: hidden; }
-  .body { min-height: 0; }
-  .body > * { min-height: 0; overflow: hidden; }
+  /* Shell values are pinned here: shared.css is still being tuned against reservas.png.
+     Spacing pass (Oct 2026): the list has more room than the mockup and the page scrolls;
+     the top bar and the rail stay put. */
+  .console { grid-template-rows: 85px 1fr; }
+  .topbar { position: sticky; top: 0; z-index: 5; }
+  .rail { position: sticky; top: 85px; height: calc(100vh - 85px); align-self: start; overflow: hidden; }
   .topbar .brand { width: 295px; padding-left: 38px; }
   .topbar .search { width: 733px; height: 45px; }
   .topbar .brand img { height: 38.5px; }
@@ -40,50 +42,51 @@
   .nudge p { font-size: 15.3px; line-height: 21px; margin: 6.5px 0 9.5px; }
   .nudge a { font-size: 15.5px; line-height: 20px; }
 
-  .main { padding: 18px 22px 0 24px; }
+  .main { padding: 22px 22px 48px 24px; }
   .page-title { font-size: 41px; line-height: 1.05; }
-  .page-sub { margin-top: 2px; font-size: 17.5px; }
+  .page-sub { margin-top: 6px; font-size: 17px; }
 
-  .toolbar { margin-top: 15px; gap: 0; }
+  .toolbar { margin-top: 24px; gap: 0; }
   .seg { display: flex; border: 1px solid var(--line); border-radius: var(--r-tab); height: 47px; background: #fff; }
-  .seg .tab { height: 45px; border: 0; border-left: 1px solid var(--line); border-radius: 0; justify-content: center; gap: 12px; padding: 0; }
+  .seg .tab { height: 45px; border: 0; border-left: 1px solid var(--line); border-radius: 0; justify-content: center; gap: 14px; padding: 0; }
   .seg .tab:first-child { border-left: 0; }
   .seg .tab.on { margin: -1px 0 -1px -1px; height: 47px; border: 1px solid var(--blue-line); border-radius: var(--r-tab); padding: 0; }
   .seg .chip:not(.red) { background: #e9eff8; }
   .seg .tab.on .chip { background: var(--blue); }
   .toolbar .field { margin-left: auto; width: 318px; height: 47px; gap: 16px; }
-  .toolbar .btn-outline { margin-left: 15px; width: 120px; padding: 0; justify-content: center; gap: 14px; }
+  .toolbar .btn-outline { margin-left: 18px; width: 120px; padding: 0; justify-content: center; gap: 14px; }
 
   .group-h {
-    height: 35px; margin-top: 12px; padding: 0 20px 0 18px; border-radius: 10px;
+    height: 40px; margin-top: 24px; padding: 0 22px 0 20px; border-radius: 10px;
     background: #eff3f8; display: flex; align-items: center; justify-content: space-between;
     font-size: 16px; font-weight: 700; color: var(--ink);
   }
   .group-h span { font-size: 14.5px; font-weight: 400; color: var(--muted); }
-  .group-h + .list { margin-top: 4px; }
-  .list + .group-h { margin-top: 9px; }
+  .group-h + .list { margin-top: 8px; }
+  .list + .group-h { margin-top: 24px; }
   .list { display: grid; gap: 0; }
   .note {
     display: grid; grid-template-columns: 57px 90px 1fr 140px 145px 90px; column-gap: 0; align-items: center;
     border: 1px solid var(--line); border-top-width: 0; background: #fff;
+    min-height: 66px; padding: 12px 0;
   }
   .note:first-child { border-top-width: 1px; border-radius: 10px 10px 0 0; }
   .note:last-child { border-radius: 0 0 10px 10px; }
   .note:only-child { border-radius: 10px; }
   .note.new { background: var(--blue-soft); border-color: #e2edfb; }
-  .note.new + .note.new { margin-top: 2px; border-top-width: 1px; }
+  .note.new + .note.new { margin-top: 4px; border-top-width: 1px; }
   .note.new.solo { border-radius: 10px; border-top-width: 1px; }
   .note .unread { justify-self: center; margin-left: 2px; width: 11px; height: 11px; border-radius: 50%; background: #0668fe; }
-  .note .ic { width: 52px; height: 44px; border-radius: 50%; display: grid; place-items: center; margin-left: 0; }
+  .note .ic { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; margin-left: 0; }
   .note .ic svg { width: 23px; height: 23px; stroke-width: 2.1; }
-  .note .ic img { width: 52px; height: 52px; border-radius: 50%; }
+  .note .ic img { width: 50px; height: 50px; border-radius: 50%; }
   .ic.blue { background: #e1eefd; color: #1a64f0; }
   .ic.violet { background: #f1eafe; color: #7646e0; }
   .ic.green { background: #dff5e4; color: #0e9a2a; }
   .ic.grey { background: #ebf0f6; color: var(--ink-2); }
   .ic.amber { background: #fef1d6; color: #fb9a00; }
   .note .txt b { display: flex; align-items: center; gap: 18px; font-size: 16px; font-weight: 700; color: var(--ink); line-height: 20px; }
-  .note .txt p { margin: 1px 0 0; font-size: 15.6px; line-height: 17px; color: var(--muted); }
+  .note .txt p { margin: 3px 0 0; font-size: 15px; line-height: 1.45; color: var(--muted); }
   .note .tag { height: 21px; padding: 0 12px; border-radius: 11px; background: #ddf7e3; color: #13923a; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; }
   .note .time { justify-self: end; font-size: 14.5px; color: var(--muted); padding-right: 43px; white-space: nowrap; }
   .note .act {
@@ -91,6 +94,10 @@
     border: 1px solid #5c94fc; border-radius: 7px; background: #fff; color: var(--blue); font-size: 14.5px; font-weight: 700;
   }
   .note .dots { justify-self: start; margin-left: 40px; width: 22px; height: 22px; stroke-width: 3; color: var(--ink); }
+
+  /* The sidebar is sticky at window height; its colour and edge are painted
+     down the whole page behind it, so a long page does not end in white. */
+  .body { background: linear-gradient(to right, var(--rail) 0 286px, var(--line) 286px 287px, #fff 287px); }
 </style>
 </head>
 <body>
@@ -152,11 +159,11 @@
 </div>
 
 <script>
-// [height, unread dot, tinted, icon, tone, title, tag, text, time, action]
+// [mockup row height (unused since the spacing pass), unread dot, tinted, icon, tone, title, tag, text, time, action]
 const groups = [
   ["Hoje", "4 notificações", [
     [57, 1, 1, "calendar", "blue", "Nova reserva confirmada", "Confirmada", "Silvia Nhampossa confirmou a reserva para Corte de cabelo amanhã, 11 Out às 10:00.", "10:24", "Ver reserva"],
-    [65, 1, 1, "img:../assets/notificacoes-silvia.png", "", "Nova mensagem de Silvia Nhampossa", "", "Olá Joaquim! Boa tarde. Queria confirmar se ainda está mantida a visita de amanhã<br>para o corte de cabelo.", "09:12", "Abrir conversa"],
+    [65, 1, 1, "img:../assets/notificacoes-silvia.png", "", "Nova mensagem de Silvia Nhampossa", "", "Olá Joaquim! Boa tarde. Queria confirmar se ainda está mantida a visita de amanhã para o corte de cabelo.", "09:12", "Abrir conversa"],
     [57, 0, 0, "file-spreadsheet", "blue", "Novo pedido de orçamento", "", "Tomás Guambe solicitou um orçamento para Instalação de termoacumulador na Polana.", "08:45", "Ver pedido"],
     [57, 0, 0, "user-plus", "violet", "Novo membro na sua equipa", "", "Rui Massango foi adicionado como técnico à sua equipa.", "07:30", "Ver membros"],
   ]],
@@ -176,9 +183,9 @@ const msgCheck = '<svg class="lucide" width="23" height="23" viewBox="0 0 24 24"
 document.getElementById("groups").innerHTML = groups.map(([label, count, notes]) => `
   <div class="group-h">${label}<span>${count}</span></div>
   <div class="list">${notes.map(([h, dot, tint, icon, tone, title, tag, text, time, action]) => `
-    <div class="note${tint ? " new" : ""}" style="height:${h}px">
+    <div class="note${tint ? " new" : ""}">
       <div>${dot ? '<div class="unread"></div>' : ""}</div>
-      <div class="ic ${tone}" style="height:${Math.min(h - 10, 46)}px">${icon === "msg-check" ? msgCheck : icon.startsWith("img:") ? `<img src="${icon.slice(4)}" alt="">` : `<i data-lucide="${icon}"></i>`}</div>
+      <div class="ic ${tone}">${icon === "msg-check" ? msgCheck : icon.startsWith("img:") ? `<img src="${icon.slice(4)}" alt="">` : `<i data-lucide="${icon}"></i>`}</div>
       <div class="txt"><b>${title}${tag ? `<span class="tag">${tag}</span>` : ""}</b><p>${text}</p></div>
       <div class="time">${time}</div>
       <a class="act" href="#">${action}</a>

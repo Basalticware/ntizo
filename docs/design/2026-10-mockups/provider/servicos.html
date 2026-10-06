@@ -8,7 +8,11 @@
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <style>
   .console { grid-template-rows: 90px 1fr; }
-  .main { padding: 24px 27px 0 26px; }
+  .main { padding: 24px 27px 40px 26px; }
+  /* page scrolls; the rail stays full-height with the nudge at its foot */
+  .topbar { position: sticky; top: 0; z-index: 5; }
+  .rail { position: sticky; top: 90px; align-self: start; min-height: calc(100vh - 90px); }
+  .body { background: linear-gradient(to right, var(--rail) 296px, var(--line) 296px 297px, #fff 297px); }
   .topbar .brand { padding-left: 41px; }
   .topbar .brand img { height: 39px; transform: translateY(-3px); }
   .topbar .right { padding-right: 41px; }
@@ -19,15 +23,15 @@
   .topbar .me span { font-size: 16px; }
   .topbar .me svg { margin-left: 6px; }
   .rail .biz span { margin-top: 6px; }
-  .nav { gap: 2px; margin-top: -2px; flex-shrink: 0; }
+  .nav { gap: 2px; margin: -2px 0 16px; flex-shrink: 0; }
   .nav a { height: 48px; }
-  .nudge { margin: auto 5px 4px 3px; padding: 15px 20px 9px 24px; height: 173px; flex-shrink: 0; overflow: hidden; }
+  .nudge { margin: auto 5px 4px 3px; padding: 19px 24px 13px 28px; flex-shrink: 0; }
   .nudge .crown { width: 30px; height: 30px; }
-  .nudge b { font-size: 17.5px; line-height: 22px; margin-top: 1px; }
-  .nudge p { font-size: 16px; line-height: 20px; margin: 5px 0 9px; }
+  .nudge b { font-size: 17.5px; line-height: 25px; margin-top: 1px; }
+  .nudge p { font-size: 16px; line-height: 23px; margin: 7px 0 11px; }
   .rail .biz > div { transform: translate(-2px, 4px); }
   .page-title { font-size: 39px; }
-  .page-sub { font-size: 18px; margin-top: 6px; }
+  .page-sub { font-size: 18px; margin-top: 9px; }
   .head-row { display: flex; align-items: flex-start; }
   .head-row .page-title { margin-left: 2px; }
   .head-row .page-sub { margin-left: 2px; }
@@ -45,16 +49,16 @@
   .seg > button.on { margin: -1px 0 -1px -1px; background: var(--blue-soft); border: 1px solid var(--blue-line); border-radius: var(--r-tab); color: #1f4fd0; font-size: 15.5px; gap: 20px; padding-left: 8px; }
   .seg .chip { width: 26px; height: 26px; min-width: 26px; border-radius: 50%; padding: 0; font-size: 15px; background: #eef2f9; }
   .seg .on .chip { width: 30px; height: 30px; min-width: 30px; background: var(--blue); color: #fff; font-size: 16px; }
-  .toolbar { margin-top: 27px; gap: 0; }
-  .toolbar .field { margin-left: 80px; width: 308px; height: 54px; font-size: 15px; gap: 14px; padding: 0 16px 0 12px; }
+  .toolbar { margin-top: 33px; gap: 0; }
+  .toolbar .field { margin-left: 72px; width: 308px; height: 54px; font-size: 15px; gap: 14px; padding: 0 16px 0 12px; }
   .toolbar .field svg { width: 24px; height: 24px; color: var(--blue); }
-  .toolbar .btn-outline { margin-left: 18px; width: 125px; height: 54px; font-size: 15.5px; padding: 0 0 0 22px; gap: 16px; }
+  .toolbar .btn-outline { margin-left: 22px; width: 125px; height: 54px; font-size: 15.5px; padding: 0 0 0 22px; gap: 16px; }
   .toolbar .btn-outline svg { width: 24px; height: 24px; }
 
-  .table { margin-top: 20px; }
+  .table { margin-top: 28px; }
   .table .row { grid-template-columns: 320px 150px 100px 108px 124px 156px 143px 154px 1fr; }
   .table .row > * { padding-left: 0; }
-  .table .head { height: 53px; color: #55659f; font-size: 14px; font-weight: 600; }
+  .table .head { height: 57px; color: #55659f; font-size: 14px; font-weight: 600; }
   .table .head > :nth-child(1) { padding-left: 18px; }
   .table .head > :nth-child(2) { padding-left: 4px; }
   .table .head > :nth-child(3) { padding-left: 3px; }
@@ -65,16 +69,15 @@
   .table .head > :nth-child(8) { padding-left: 25px; }
   .svc { display: flex; align-items: center; gap: 21px; padding-left: 14px !important; }
   .svc img { width: 77px; height: 74px; border-radius: 9px; object-fit: cover; flex-shrink: 0; }
-  .svc b { display: block; font-size: 15.5px; font-weight: 700; line-height: 21px; color: var(--ink); }
-  .svc span { display: block; font-size: 14px; line-height: 20px; color: #7a87b0; margin-top: 3px; }
-  .svc span.sm { white-space: nowrap; font-size: 12px; line-height: 17px; }
-  .cat { margin-left: 3px; width: 125px; height: 50px; border-radius: 9px; display: flex; align-items: center; gap: 12px; padding-left: 10px; font-size: 12.5px; line-height: 18px; font-weight: 600; }
+  .svc b { display: block; font-size: 15.5px; font-weight: 700; line-height: 23px; color: var(--ink); }
+  .svc span { display: block; font-size: 14px; line-height: 21px; color: #7a87b0; margin-top: 4px; }
+  .cat { margin-left: 3px; width: 125px; height: 50px; border-radius: 9px; display: flex; align-items: center; gap: 12px; padding-left: 10px; font-size: 13px; line-height: 19px; font-weight: 600; }
   .cat svg { stroke-width: 2.2; }
   .cat svg { width: 22px; height: 22px; }
   .cat.violet { background: #f3f2fe; color: #6d4ee6; }
   .cat.blue { background: #e7f3fd; color: #2f7cfb; }
   .cat.green { background: #e2faf2; color: #2f9e72; }
-  .ico { display: flex; align-items: center; gap: 12px; font-size: 13px; line-height: 18px; color: #7381b2; }
+  .ico { display: flex; align-items: center; gap: 12px; font-size: 13px; line-height: 19px; color: #7381b2; }
   .ico svg { width: 21px; height: 21px; stroke-width: 2; }
   .dur { padding-left: 4px !important; }
   .dur svg { color: #23388f; }
@@ -84,13 +87,13 @@
   .avail svg { color: var(--blue); }
   .money { font-size: 15.5px; padding-left: 3px !important; }
   .st { padding-left: 3px !important; }
-  .st .pill { height: 34px; padding: 0 13px 0 13px; font-size: 12.5px; gap: 8px; }
+  .st .pill { height: 34px; padding: 0 14px; font-size: 13px; gap: 8px; }
   .st .pill .dot { width: 9px; height: 9px; }
   .acts { padding-left: 3px !important; }
   .acts .btn-details { width: 134px; height: 44px; font-size: 14.5px; border-color: #5b98fc; }
   .acts .btn-details.solid { background: var(--blue); }
   .table .dots { color: #1f6fd8; margin-left: 9px; }
-  .count-foot { margin: 18px 0 0 2px; font-size: 15px; color: #6e7eab; }
+  .count-foot { margin: 24px 0 0 2px; font-size: 15px; color: #6e7eab; }
 </style>
 </head>
 <body>
@@ -167,12 +170,12 @@
 const rows = [
   [98, 1, "Corte de cabelo", "Corte moderno e<br>acabamento profissional.", "", "violet", "scissors", "Beleza<br>e Estética", "30 min", "600 MTn", "Online e<br>Presencial", "Todos os dias<br>09:00 – 19:00", "ok", "Ativo", "Ver detalhes"],
   [106, 2, "Instalação de ar<br>condicionado", "Instalação completa com<br>garantia de 6 meses.", "", "blue", "snowflake", "Climatização", "2 horas", "3 500 MTn", "Online e<br>Presencial", "Seg – Sáb<br>08:00 – 18:00", "warn", "Sob orçamento", "Ver detalhes"],
-  [106, 3, "Manutenção de<br>canalização", "Reparação de fugas, desentupimento<br>e substituição de torneiras.", "sm", "blue", "shower-head", "Canalização", "1 hora", "1 800 MTn", "Online e<br>Presencial", "Todos os dias<br>08:00 – 20:00", "ok", "Ativo", "Ver detalhes"],
+  [106, 3, "Manutenção de<br>canalização", "Reparação de fugas, desentupimento e substituição de torneiras.", "sm", "blue", "shower-head", "Canalização", "1 hora", "1 800 MTn", "Online e<br>Presencial", "Todos os dias<br>08:00 – 20:00", "ok", "Ativo", "Ver detalhes"],
   [96, 4, "Aula de piano", "Aulas particulares para<br>iniciantes e intermédios.", "", "violet", "music", "Aulas<br>e Formação", "1 hora", "1 200 MTn", "Online", "Seg – Sex<br>14:00 – 20:00", "bad", "Pausado", "Ver detalhes"],
   [90, 5, "Limpeza profunda", "Limpeza completa de casas<br>e apartamentos.", "", "green", "house", "Limpeza", "3 horas", "2 000 MTn", "Online e<br>Presencial", "Seg – Sáb<br>08:00 –18:00", "violet", "Rascunho", "Editar"],
 ];
 document.getElementById("rows").innerHTML = rows.map(([h,img,name,desc,sm,tone,icon,cat,dur,price,pay,avail,st,stl,act]) => `
-  <div class="row" style="height:${h}px">
+  <div class="row" style="min-height:${h + 8}px; padding: 12px 0">
     <div class="svc"><img src="../assets/servicos-${img}.jpg" alt=""><div><b>${name}</b><span class="${sm}">${desc}</span></div></div>
     <div><div class="cat ${tone}"><i data-lucide="${icon}"></i><div>${cat}</div></div></div>
     <div class="ico dur"><i data-lucide="clock"></i>${dur}</div>
