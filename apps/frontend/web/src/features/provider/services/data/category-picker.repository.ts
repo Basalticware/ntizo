@@ -4,7 +4,7 @@ import { publicGraphql } from "@/shared/lib/graphql/public-graphql";
 const ALL = `
   query CategoryAllForServiceForm($input: CategoryAllInput!) {
     categoryAll(input: $input) {
-      items { id code name }
+      items { id code name icon }
       nextOffset
     }
   }`;
@@ -13,6 +13,8 @@ export interface CategoryPickerOption {
   id: string;
   code: string;
   name: string;
+  /** A Lucide icon name, as the admin set it — null when none was. */
+  icon: string | null;
 }
 
 interface CategoryAllPage {

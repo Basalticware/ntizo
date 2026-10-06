@@ -52,5 +52,15 @@
     "TOO_MANY_ATTACHMENTS": "Eine Nachricht darf höchstens {{max}} Dateien enthalten.",
     "ATTACHMENT_NOT_AVAILABLE": "Eine dieser Dateien ist nicht mehr verfügbar. Entferne sie und versuche es erneut.",
     "GENERIC": "Diese Nachricht konnte nicht gesendet werden. Bitte versuche es erneut."
-  }
+  },
+  "providerSubtitle": "Schreiben Sie mit Ihren Kunden, beantworten Sie Anfragen und behalten Sie alle Unterhaltungen im Blick.",
+  "providerTab": {
+    "all": "Alle",
+    "unread": "Ungelesen",
+    "customers": "Kunden"
+  },
+  "providerTabEmptyTitle": "Nichts in diesem Tab",
+  "providerTabEmptyBody": "Passende Unterhaltungen erscheinen hier.",
+  "read": "Gelesen",
+  "sent": "Gesendet"
 }

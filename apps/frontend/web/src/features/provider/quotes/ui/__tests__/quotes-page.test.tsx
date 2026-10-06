@@ -287,29 +287,44 @@ describe("ProviderQuotesPage", () => {
     expect(within(r).queryByText(/Av\. Julius Nyerere/)).not.toBeInTheDocument();
   });
 
-  it("counts the photos rather than loading them into a list row", async () => {
-    await renderQueue(pageWith({ ...toAnswerQuote, attachmentCount: 3 }));
-    expect(within(await row("Instalação de ar condicionado")).getByText("3 fotos")).toBeInTheDocument();
-  });
-
-  it("says how long is left to answer, and how long ago it was asked", async () => {
+  it("shows the request's own words in the short-description column", async () => {
     await renderQueue(pageWith(toAnswerQuote));
     const r = await row("Instalação de ar condicionado");
-    expect(within(r).getByText(/faltam 22 h/)).toBeInTheDocument();
-    expect(within(r).getByText(/pedido há 26 h/)).toBeInTheDocument();
+    expect(within(r).getByText(toAnswerQuote.descriptionSnippet)).toBeInTheDocument();
+  });
+
+  it("puts the answer deadline under Prazo, as the day and the hour it closes", async () => {
+    // 22 h ahead: today or tomorrow, so the hour is what the row says.
+    await renderQueue(pageWith(toAnswerQuote));
+    const r = await row("Instalação de ar condicionado");
+    expect(within(r).getByText(/^(Hoje|Amanhã)$/)).toBeInTheDocument();
+    expect(within(r).getByText(/^até \d{2}:\d{2}$/)).toBeInTheDocument();
+  });
+
+  it("counts the days left for a deadline further out", async () => {
+    await renderQueue(
+      pageWith({ ...toAnswerQuote, expiresAt: inHours(24 * 5) }, { counts: { toAnswer: 1, waiting: 0, history: 0 } }),
+    );
+    const r = await row("Instalação de ar condicionado");
+    expect(within(r).getByText("daqui a 5 dias")).toBeInTheDocument();
+  });
+
+  it("offers Responder on a request still owed an answer, and Ver detalhes once it is not", async () => {
+    await renderQueue(pageWith(toAnswerQuote));
+    expect(within(await row("Instalação de ar condicionado")).getByRole("link", { name: "Responder" })).toHaveAttribute(
+      "href",
+      `/provider/estudio/quotes/${toAnswerQuote.id}`,
+    );
   });
 
   it("shows what the provider takes home under a sent proposal's price", async () => {
     await renderQueue(pageWith(waitingQuote), { tab: "waiting" });
     const r = await row("Instalação de ar condicionado");
-    // `formatMoney(540_000, "MZN", "pt-MZ")` and `formatMoney(486_000, "MZN",
-    // "pt-MZ")` — printed once with `node -e` against this exact call and
-    // copied here, per the report: ICU suppresses the thousands separator at
-    // exactly four digits and localises the symbol to "MTn" in pt-MZ, so the
-    // real output is "5400,00 MTn"/"4860,00 MTn", not "5.400,00 MZN"/
-    // "4.860,00 MZN".
-    expect(within(r).getByText("5400,00 MTn")).toBeInTheDocument();
-    expect(within(r).getByText("recebe 4860,00 MTn")).toBeInTheDocument();
+    // `formatMoneyShort` — the console's own "5 400 MTn": no cents when there
+    // are none, the thousands always grouped.
+    expect(within(r).getByText(/^5\s400\sMTn$/)).toBeInTheDocument();
+    expect(within(r).getByText(/^recebe 4\s860\sMTn$/)).toBeInTheDocument();
+    expect(within(r).getByRole("link", { name: "Ver detalhes" })).toBeInTheDocument();
   });
 
   it("counts all three tabs on the tabs themselves", async () => {
@@ -325,42 +340,12 @@ describe("ProviderQuotesPage", () => {
     expect(screen.getByRole("tab", { name: /Histórico/ })).toHaveTextContent("11");
   });
 
-  // The three cases below cover the header's own blurb — `usePageHeader`'s
-  // title/subtitle, read back through `HeaderShell`'s probe. Every expected
-  // string is computed through the real `i18n` instance's own interpolation
-  // rather than hand-typed, per the report's own rule for money strings —
-  // the same discipline applies to any translated sentence this test derives
-  // rather than hardcodes.
-  const qt = i18n.getFixedT("pt-MZ", "quotes");
-
-  it("states how many are owed an answer and how soon the most urgent one is due", async () => {
-    const soon = { ...toAnswerQuote, expiresAt: inHours(4) };
-    await renderQueue(pageWith(soon, { counts: { toAnswer: 3, waiting: 0, history: 0 } }));
-    const expected = qt("provider.blurb", { count: 3, left: qt("unit.h", { count: 4 }) });
-    await waitFor(() => expect(screen.getByTestId("subtitle")).toHaveTextContent(expected));
-  });
-
-  it("says nothing is owed when the toAnswer count is zero", async () => {
-    await renderQueue({ items: [], counts: { toAnswer: 0, waiting: 1, history: 2 }, hasMore: false });
-    await waitFor(() =>
-      expect(screen.getByTestId("subtitle")).toHaveTextContent(qt("provider.blurbNone")),
+  it("draws the mockup's heading — the eyebrow over the title — and a static subtitle", async () => {
+    await renderQueue(pageWith(toAnswerQuote));
+    expect(await screen.findByRole("heading", { level: 1, name: "Pedidos de orçamento" })).toBeInTheDocument();
+    expect(screen.getByText("Orçamentos", { selector: "p" })).toBeInTheDocument();
+    expect(screen.getByTestId("subtitle")).toHaveTextContent(
+      "Estes são pedidos de orçamento enviados por clientes que precisam dos seus serviços.",
     );
-  });
-
-  it("keeps the blurb's figure honest about the toAnswer queue while a different tab is on screen", async () => {
-    // The visible "waiting" tab's own soonest deadline (40h, from
-    // `waitingQuote`'s proposal) is deliberately far from the "toAnswer"
-    // tab's (4h) — if the page ever read the active tab's own items for this
-    // figure instead of the dedicated "toAnswer" peek, this test would see
-    // 40h, or 5's count mismatched against 40h's span, rather than the pair
-    // below.
-    const soonToAnswer = { ...toAnswerQuote, expiresAt: inHours(4) };
-    const byTab = (input: { tab: ProviderQuoteTab }): ProviderQuotePageDTO =>
-      input.tab === "toAnswer"
-        ? pageWith(soonToAnswer, { counts: { toAnswer: 5, waiting: 1, history: 0 } })
-        : pageWith(waitingQuote, { counts: { toAnswer: 5, waiting: 1, history: 0 } });
-    await renderQueue(byTab, { tab: "waiting" });
-    const expected = qt("provider.blurb", { count: 5, left: qt("unit.h", { count: 4 }) });
-    await waitFor(() => expect(screen.getByTestId("subtitle")).toHaveTextContent(expected));
   });
 });

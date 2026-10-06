@@ -52,5 +52,15 @@
     "TOO_MANY_ATTACHMENTS": "A message can carry at most {{max}} files.",
     "ATTACHMENT_NOT_AVAILABLE": "One of these files is no longer available. Remove it and try again.",
     "GENERIC": "That message didn't send. Please try again."
-  }
+  },
+  "providerSubtitle": "Talk to your customers, answer requests and keep track of all your conversations.",
+  "providerTab": {
+    "all": "All",
+    "unread": "Unread",
+    "customers": "Customers"
+  },
+  "providerTabEmptyTitle": "Nothing in this tab",
+  "providerTabEmptyBody": "Conversations that match will show up here.",
+  "read": "Read",
+  "sent": "Sent"
 }
