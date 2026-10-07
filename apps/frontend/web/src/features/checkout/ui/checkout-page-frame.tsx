@@ -18,10 +18,10 @@ export const CHECKOUT_GRID =
   "public-inset grid gap-x-10 gap-y-8 pt-8 pb-10 md:pt-10 lg:grid-cols-[minmax(0,1fr)_433px]";
 
 export const CHECKOUT_TITLE =
-  "text-[36px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[62px]";
+  "text-[30px] leading-[1.1] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[40px]";
 
 export const CHECKOUT_LEDE =
-  "mt-3 text-lg leading-[1.45] text-[var(--color-muted-foreground)] md:text-[22px]";
+  "mt-2 text-base leading-[1.5] text-[var(--color-muted-foreground)] md:text-[17px]";
 
 /** One card per question the step asks. */
 export const CHECKOUT_CARD =
@@ -36,11 +36,15 @@ export const CHECKOUT_FIELD_LABEL =
 
 /** The platform explaining itself rather than the customer's own data. */
 export const CHECKOUT_INFO_PANEL =
-  "flex min-h-[74px] items-center gap-4 rounded-[14px] bg-[var(--color-blue-softer)] px-5 py-4 text-[15px] leading-[1.45] text-[var(--color-ink-2)] md:px-8";
+  "flex items-center gap-3.5 rounded-[14px] bg-[var(--color-blue-softer)] px-5 py-3.5 text-[14.5px] leading-[1.45] text-[var(--color-ink-2)]";
 
-/** Step 1's "Continuar": the full width of the rail, 74px tall. */
+/**
+ * Each step's "Continuar": the full width of the rail at the site's own
+ * primary-button size. It was 74px tall with 23px type, the loudest thing on
+ * any page of the site.
+ */
 export const CHECKOUT_BIG_BUTTON =
-  "h-[74px] w-full gap-[17px] rounded-[10px] bg-[var(--color-blue-public)] text-[23px] font-bold [&_svg]:size-8";
+  "h-12 w-full gap-2.5 rounded-[10px] bg-[var(--color-blue-public)] text-base font-semibold [&_svg]:size-5";
 
 /** The quiet text action inside a card — "Alterar morada", "Alterar". */
 export const CHECKOUT_TEXT_ACTION =

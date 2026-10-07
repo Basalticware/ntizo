@@ -32,6 +32,7 @@ import { useCreateBooking } from "@/features/checkout/viewmodel/use-checkout";
 import { compactSlotWording } from "@/features/checkout/domain/slot-wording";
 import { saveDraftDetails } from "@/features/checkout/domain/draft-store";
 import { CheckoutRail } from "@/features/checkout/ui/checkout-rail";
+import { CHECKOUT_BIG_BUTTON, CHECKOUT_TITLE } from "@/features/checkout/ui/checkout-page-frame";
 
 /** What `/book/$serviceId` carries in its URL. */
 interface BookSearch {
@@ -816,7 +817,7 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
 
       <main className="public-inset grid gap-x-10 gap-y-8 pt-8 pb-10 md:pt-10 lg:grid-cols-[minmax(0,1fr)_433px]">
         <div className="min-w-0">
-          <h1 className="text-[36px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[62px]">
+          <h1 className={CHECKOUT_TITLE}>
             {t("chooseWhenTitle")}
           </h1>
           <p className="mt-3 text-lg leading-[1.45] text-[var(--color-muted-foreground)] md:text-[22px]">{t("chooseWhenLede")}</p>
@@ -858,7 +859,7 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
         {/* What pressing Continuar does, said before it is pressed: the time
             is held while the rest is filled in, and the provider confirms it
             after the request is sent. */}
-        <p className="flex min-h-[74px] items-center gap-4 rounded-xl bg-[var(--color-blue-soft)] px-5 py-4 text-[15px] leading-[1.45] text-[var(--color-muted-foreground)] md:px-8">
+        <p className="flex items-center gap-3.5 rounded-xl bg-[var(--color-blue-soft)] px-5 py-3.5 text-[14.5px] leading-[1.45] text-[var(--color-muted-foreground)]">
           <Info className="h-[27px] w-[27px] shrink-0 text-[var(--color-primary)]" strokeWidth={1.8} aria-hidden="true" />
           {t("chooseWhenIntro")}
         </p>
@@ -881,7 +882,7 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
               user who lands on a dead button is told the reason. */}
           <Button
             type="button"
-            className="h-[74px] w-full gap-[17px] rounded-[10px] bg-[var(--color-blue-public)] text-[23px] font-bold"
+            className={CHECKOUT_BIG_BUTTON}
             disabled={!canConfirm}
             {...(isHourly
               ? { "aria-describedby": "checkout-hourly-notice" }

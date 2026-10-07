@@ -416,7 +416,7 @@ describe("ConfirmPage", () => {
     expect(screen.getByText("Prestador verificado")).toBeInTheDocument();
     // The two promises the platform can actually keep. Still no cancellation
     // window: nothing in this product models one.
-    expect(screen.getByText(/pagamento fica retido/i)).toBeInTheDocument();
+    expect(screen.queryByText(/retido/i)).not.toBeInTheDocument();
     expect(screen.getByText(/documentos do prestador verificados/i)).toBeInTheDocument();
     expect(screen.queryByText(/cancelamento/i)).not.toBeInTheDocument();
   });
