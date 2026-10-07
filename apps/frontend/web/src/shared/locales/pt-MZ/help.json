@@ -105,7 +105,7 @@
       },
       "whenPaid": {
         "q": "Quando é que recebo?",
-        "a": "O cliente paga depois de confirmar a hora, e o valor fica retido até o serviço estar concluído. Depois disso passa para a sua carteira, onde fica disponível para levantar após o período de retenção indicado."
+        "a": "O cliente paga por M-Pesa depois de o prestador confirmar a hora."
       },
       "verification": {
         "q": "Como funciona a verificação?",
@@ -136,7 +136,7 @@
       },
       "serviceNotDone": {
         "q": "O que acontece se o serviço não for feito?",
-        "a": "O pagamento fica retido até o serviço estar concluído. Se algo correr mal, fale com o suporte com a data e o nome do prestador. Analisamos o caso com as duas partes."
+        "a": "O cliente paga por M-Pesa depois de o prestador confirmar a hora. Se algo correr mal, fale com o suporte com a data e o nome do prestador. Analisamos o caso com as duas partes."
       },
       "dataHandling": {
         "q": "Como tratam os meus dados?",

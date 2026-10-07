@@ -101,18 +101,22 @@ describe("zoneOwnsChrome", () => {
     }
   });
 
-  it("leaves the customer pages alone, checkout included", () => {
-    // Checkout keeps the bottom bar on purpose — see `OWN_CHROME`. It only
-    // swaps the top of the page for its own header.
+  // The checkout is a focused space on the phone too — see `OWN_CHROME`.
+  it("claims the three checkout steps", () => {
+    for (const path of ["/book/svc-1", "/booking/bk-1/details", "/booking/bk-1/confirm"]) {
+      expect(zoneOwnsChrome(path)).toBe(true);
+    }
+  });
+
+  it("leaves the other customer pages alone", () => {
     for (const path of [
       "/",
       "/account",
+      "/account/bookings",
       "/onboarding",
       "/become-provider",
       "/sign-in",
-      "/book/svc-1",
-      "/booking/bk-1/details",
-      "/booking/bk-1/confirm",
+      "/services/svc-1",
     ]) {
       expect(zoneOwnsChrome(path)).toBe(false);
     }
