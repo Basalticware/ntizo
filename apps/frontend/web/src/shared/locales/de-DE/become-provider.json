@@ -36,8 +36,8 @@
       "body": "Ein Personalausweis, Reisepass oder Führerschein, damit wir bestätigen können, wer du bist."
     },
     "payout": {
-      "title": "Eine Möglichkeit, bezahlt zu werden",
-      "body": "Eine M-Pesa-Nummer, auf die geht, was du verdienst."
+      "title": "M-Pesa-Nummer",
+      "body": "Wir fragen bei der Anmeldung nach deiner M-Pesa-Nummer."
     },
     "terms": {
       "title": "Die Bedingungen akzeptieren",

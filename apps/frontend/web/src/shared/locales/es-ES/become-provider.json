@@ -36,8 +36,8 @@
       "body": "Un documento de identidad, pasaporte o carnet de conducir, para poder confirmar que eres quien dices ser."
     },
     "payout": {
-      "title": "Una forma de cobrar",
-      "body": "Un número de M-Pesa, adonde va lo que ganas."
+      "title": "Número de M-Pesa",
+      "body": "Te pedimos tu número de M-Pesa durante el registro."
     },
     "terms": {
       "title": "Aceptar los términos",

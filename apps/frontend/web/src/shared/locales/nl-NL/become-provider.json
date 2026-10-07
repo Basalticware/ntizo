@@ -36,8 +36,8 @@
       "body": "Een identiteitskaart, paspoort of rijbewijs, zodat we kunnen bevestigen dat je bent wie je zegt te zijn."
     },
     "payout": {
-      "title": "Een manier om betaald te worden",
-      "body": "Een M-Pesa-nummer, waar je verdiensten naartoe gaan."
+      "title": "M-Pesa-nummer",
+      "body": "We vragen je M-Pesa-nummer bij de registratie."
     },
     "terms": {
       "title": "Accepteer de voorwaarden",
