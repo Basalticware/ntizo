@@ -99,8 +99,25 @@ describe("ProviderCard", () => {
     expect(screen.queryByText(/person|establishment/i)).toBeNull();
   });
 
-  it("says how many services it sells", async () => {
+  /**
+   * The grid's card is three lines since October 2026: the name, the trade
+   * and the city, then the rating and the price. The district and the count
+   * of services are the profile's to say; the home's feature card keeps the
+   * count.
+   */
+  it("says the trade and the city under the name, and nothing more", async () => {
     renderCard(provider({ serviceCount: 6 }));
+    await screen.findByRole("link", { name: /Estúdio Mavalane/ });
+    const article = screen.getByRole("article");
+    const heading = within(article).getByRole("heading", { level: 3 });
+    const meta = heading.nextElementSibling!;
+    expect(meta).toHaveTextContent("Hair & beauty·Maputo");
+    expect(article).not.toHaveTextContent("Mavalane, Maputo");
+    expect(screen.queryByText("6 services")).toBeNull();
+  });
+
+  it("says how many services it sells on the home's feature card", async () => {
+    renderCard(provider({ serviceCount: 6 }), "en-US", undefined, "feature");
     await screen.findByRole("link", { name: /Estúdio Mavalane/ });
     expect(screen.getByText("6 services")).toBeInTheDocument();
   });

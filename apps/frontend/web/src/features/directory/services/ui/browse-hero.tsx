@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, MapPin, Search } from "lucide-react";
+import { BrowseHead } from "@/shared/components/browse/browse-head";
 import {
   browseSearch,
   type BrowseSearch,
@@ -9,50 +10,17 @@ import {
 import { useServiceCities } from "@/features/directory/services/viewmodel/use-browse-services";
 
 /**
- * The top of `/services`, from `client/servicos.html`: the eyebrow, the title
- * and the subtitle on the left, and on a wide screen the photograph bleeding
- * to the window's right edge with the sky-blue quote panel over it.
+ * The top of `/services`: the eyebrow, the title and one line under it — see
+ * `BrowseHead`, which `/providers` draws too.
  *
- * The photograph and the quote are the page's own artwork, not data about
- * anybody: the same picture for every reader, like the home page's collage.
- * Below `lg` they go, and the text has the width to itself.
- *
- * `title` is the page's `h1`. Unnarrowed it is the mockup's headline; once the
+ * `title` is the page's `h1`. Unnarrowed it is the page's headline; once the
  * reader asked for something — a term, a category, a city — the page passes
  * what they asked for instead, because a heading that answers a question
  * nobody asked is the bug `browseTitle` exists to prevent.
  */
 export function BrowseHero({ title }: { title: string }) {
   const { t } = useTranslation("directory");
-
-  return (
-    <section className="grid xl:grid-cols-[minmax(0,1fr)_minmax(0,730px)] xl:gap-x-6">
-      <div className="pt-[22px] pb-4 pl-[var(--pw-pad)] pr-[var(--pw-pad)] xl:pr-0">
-        <p className="text-[13px] leading-[1.2] font-bold tracking-[0.04em] text-[var(--color-blue-edge)] uppercase">
-          {t("browseHeroEyebrow")}
-        </p>
-        <h1 className="mt-2.5 text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] whitespace-pre-line text-[var(--color-headline)] xl:text-[53px]">
-          {title}
-        </h1>
-        <p className="mt-3.5 max-w-[540px] text-[17px] leading-normal text-[var(--color-muted-foreground)]">
-          {t("browseHeroSubtitle")}
-        </p>
-      </div>
-
-      <div aria-hidden="true" className="relative hidden h-[203px] self-start overflow-hidden xl:block">
-        <img
-          src="/images/services-hero.jpg"
-          alt=""
-          className="block h-[205px] w-[730px] max-w-none object-cover object-left"
-        />
-        <p className="absolute top-[38px] left-[488px] w-[216px] rounded-xl bg-[var(--color-info-bg)] pt-4 pr-5 pb-[18px] pl-6 text-[17.4px] leading-[1.45] whitespace-pre-line text-[var(--color-ink-2)]">
-          {t("browseHeroQuote")}
-        </p>
-        <span className="absolute top-[150px] left-[670px] h-7 w-[25px] rounded bg-[var(--color-blue-outline)]" />
-        <span className="absolute top-[174px] left-[651px] h-[22px] w-[21px] rounded bg-[var(--color-blue-outline)]" />
-      </div>
-    </section>
-  );
+  return <BrowseHead eyebrow={t("browseHeroEyebrow")} title={title} subtitle={t("browseHeroSubtitle")} />;
 }
 
 /**

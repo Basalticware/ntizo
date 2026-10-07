@@ -1,48 +1,28 @@
 {
   "title": "Ofrece tus servicios.",
   "titleAccent": "Tú fijas el precio.",
-  "subtitle": "Únete a los proveedores que encuentran clientes en Maputo, Matola y Beira. Sin cuota mensual — solo un porcentaje fijo sobre lo que ganas, que se te muestra antes de publicar.",
+  "subtitle": "Encuentra clientes en todo Mozambique. Sin cuota mensual: la plataforma se queda con un porcentaje fijo de cada reserva, y el resto es tuyo.",
   "cta": "Empezar",
   "trustFree": "Inscripción gratuita",
-  "trustPaid": "Pago garantizado",
+  "trustPaid": "Pago por M-Pesa",
   "trustLocal": "Clientes cerca de ti",
-  "pathsTitle": "Dos formas de ofrecer servicios",
-  "pathsBlurb": "Elige una para empezar. Puedes cambiar más adelante — lo que cambia es cómo funcionan el calendario y el equipo.",
-  "path": {
-    "individual": {
-      "title": "Por tu cuenta",
-      "body": "Tú eres el servicio: tu perfil, tus precios, las horas que elijas. Trabaja en casa del cliente, en tu propio espacio o a distancia.",
-      "tag": "Un calendario — el tuyo"
-    },
-    "organization": {
-      "title": "Un negocio con equipo",
-      "body": "Varios miembros del equipo bajo un mismo nombre, con reservas en paralelo según quién esté libre. Invita a tu equipo y define qué puede hacer cada uno.",
-      "tag": "Un calendario por miembro del equipo"
-    }
-  },
-  "pricingTitle": "Un precio, que tú fijas",
-  "pricingBody": "El cliente paga exactamente el precio que fijas. La parte de la plataforma sale de lo que cobras — un porcentaje fijo, que se te muestra antes de publicar un servicio, y nunca una sorpresa al cobrar.",
   "stepsTitle": "Cómo funciona",
   "step": {
     "apply": {
       "title": "Regístrate",
-      "body": "Crea la cuenta y cuéntanos qué haces y dónde. Lleva solo unos minutos.",
-      "tag": "≈ 5 minutos"
+      "body": "Crea la cuenta y cuéntanos qué haces y dónde."
     },
     "review": {
       "title": "Verificación",
-      "body": "Confirmamos quién eres antes de mostrarte a los clientes. Es lo que da valor al distintivo de verificado.",
-      "tag": "1 a 2 días"
+      "body": "Confirmamos quién eres antes de que los clientes te vean."
     },
     "publish": {
       "title": "Publica servicios",
-      "body": "Precios, duración y disponibilidad. Los horarios reservables se generan automáticamente.",
-      "tag": "cuando quieras"
+      "body": "Fija precios, duración y las horas en que estás disponible."
     },
     "earn": {
       "title": "Cobra",
-      "body": "El pago se retiene hasta que el trabajo esté hecho, y luego se libera para ti.",
-      "tag": "al terminar"
+      "body": "El cliente paga por M-Pesa cuando confirmas la hora. La comisión sale del precio."
     }
   },
   "requirementsTitle": "Lo que necesitas",
@@ -54,7 +34,7 @@
     },
     "payout": {
       "title": "Una forma de cobrar",
-      "body": "M-Pesa, e-Mola o una cuenta bancaria. Es adonde va lo que ganas."
+      "body": "Un número de M-Pesa, adonde va lo que ganas."
     },
     "terms": {
       "title": "Aceptar los términos",
@@ -62,8 +42,8 @@
     }
   },
   "ctaSecondary": "Ver proveedores",
-  "stepsEyebrow": "Desde el registro hasta tu primera reserva",
   "closingTitle": "¿Listo para empezar a ganar?",
   "closingBody": "Unirte es gratis, y no hay nada que pagar hasta tu primera reserva.",
-  "closingTalk": "Habla con nosotros"
+  "closingTalk": "Habla con nosotros",
+  "pathsLine": "Trabaja por tu cuenta o como establecimiento con equipo, con una agenda por empleado."
 }

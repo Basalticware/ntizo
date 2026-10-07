@@ -63,21 +63,18 @@ const renderMobile = (current: DirectorySearch, total = 0) =>
 describe("ProviderFilters", () => {
   it("shows an applied filter's option as its pill's label, and its × removes just that filter", async () => {
     const { container } = await renderFilters({
-      providerType: "individual",
+      verified: true,
       minRating: 4,
       q: "mavalane",
     });
-    // The "who provides it" pill fills with the chosen option, in place of
-    // its own name — both on the closed pill's own summary and, unreached
-    // before the reader opens it, on the option row now marked chosen inside.
+    // The rating pill fills with the chosen option, in place of its own name.
     const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).toContain("A person");
-    expect(summaries).not.toContain("Who provides it");
+    expect(summaries).not.toContain("Rating");
 
-    const remove = screen.getByRole("link", { name: "Remove Who provides it" });
+    const remove = screen.getByRole("link", { name: "Remove Rating" });
     const href = remove.getAttribute("href")!;
-    expect(href).not.toContain("providerType");
-    expect(href).toContain("minRating=4");
+    expect(href).not.toContain("minRating");
+    expect(href).toContain("verified=true");
 
     // The clear-all is on because a facet is narrowing the list, and it
     // keeps `q` — the typed term is the search bar's to clear, up under the
@@ -86,13 +83,32 @@ describe("ProviderFilters", () => {
     expect(clearAll.getAttribute("href")).toContain("q=mavalane");
   });
 
+  it("keeps four pills on the bar and the price and kind behind More filters", async () => {
+    const { container } = await renderFilters({});
+    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
+    expect(summaries).toEqual(["Category", "Rating", "City", "Verification", "More filters"]);
+    const more = [...container.querySelectorAll("details")].at(-1)!;
+    expect(more).toHaveTextContent("Price range");
+    expect(more).toHaveTextContent("Who provides it");
+  });
+
+  it("counts what More filters hides, and its × takes off exactly those", async () => {
+    const { container } = await renderFilters({ providerType: "individual", minRating: 4 });
+    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
+    expect(summaries).toContain("More filters · 1");
+
+    const href = screen.getByRole("link", { name: "Remove More filters" }).getAttribute("href")!;
+    expect(href).not.toContain("providerType");
+    expect(href).toContain("minRating=4");
+  });
+
   it("fills no pill and offers no clear-all when nothing is applied", async () => {
     const { container } = await renderFilters({});
     // No group's name has been replaced by a chosen option.
     const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
     expect(summaries).toContain("Rating");
-    expect(summaries).toContain("Who provides it");
     expect(summaries).toContain("Verification");
+    expect(summaries).toContain("More filters");
     // No filter is on, so no pill carries a remove link and there is nothing
     // to clear all of.
     expect(screen.queryByRole("link", { name: /^Remove /i })).toBeNull();

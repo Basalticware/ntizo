@@ -311,7 +311,8 @@ describe("ServicesBrowsePage", () => {
     });
     await screen.findByRole("heading", { level: 1 });
     const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).toContain("Per hour");
+    // How you pay sits behind "More filters", which counts it.
+    expect(summaries).toContain("More filters · 1");
     expect(summaries).toContain("Maputo");
 
     // Removing one keeps the other. A link built by hand at the call site only

@@ -260,16 +260,10 @@
   "sortTrigger": "Ordenar por:",
   "browseHeroEyebrow": "Serviços",
   "browseHeroTitle": "Serviços perto de si,\nao preço que vê.",
-  "browseHeroSubtitle": "Encontre canalizadores, eletricistas, limpeza, beleza e muito mais. Profissionais verificados em Moçambique, prontos para o ajudar.",
-  "browseHeroQuote": "Pessoas reais.\nServiços locais.\nUm Moçambique\nque avança.",
+  "browseHeroSubtitle": "Encontre canalizadores, eletricistas, limpeza, beleza e muito mais.",
   "browseSearchQuestion": "Que serviço procura?",
   "browseSearchHint": "Ex.: canalizador, eletricista, limpeza, manicure...",
   "browseAllCities": "Todas as cidades",
-  "popularCategories": "Categorias populares",
-  "categoriesSeeAll": "Ver todas",
-  "moreCategories": "Mais categorias",
-  "verifiedBannerTitle": "Prestadores verificados",
-  "verifiedBannerBody": "Serviços seguros, com profissionais reais e avaliações de clientes.",
   "galleryPosition": "{{current}} / {{total}}",
   "galleryPrevious": "Fotografia anterior",
   "galleryNext": "Fotografia seguinte",
@@ -299,5 +293,6 @@
   "providersHeroTitle": "Profissionais de confiança,\nperto de si.",
   "providersHeroSubtitle": "Compare negócios e profissionais pelas avaliações dos clientes e pelo preço a partir do qual trabalham.",
   "providerSearchQuestion": "Que prestador procura?",
-  "providerSearchHint": "Ex.: nome do negócio ou do profissional..."
+  "providerSearchHint": "Ex.: nome do negócio ou do profissional...",
+  "filterMore": "Mais filtros"
 }

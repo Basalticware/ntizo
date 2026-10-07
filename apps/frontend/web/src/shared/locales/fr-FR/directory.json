@@ -260,16 +260,10 @@
   "sortTrigger": "Trier par :",
   "browseHeroEyebrow": "Services",
   "browseHeroTitle": "Des services près de chez vous,\nau prix affiché.",
-  "browseHeroSubtitle": "Trouvez plombiers, électriciens, ménage, beauté et bien plus. Des professionnels vérifiés au Mozambique, prêts à vous aider.",
-  "browseHeroQuote": "De vraies personnes.\nDes services locaux.\nUn Mozambique\nqui avance.",
+  "browseHeroSubtitle": "Trouvez plombiers, électriciens, ménage, beauté et bien plus.",
   "browseSearchQuestion": "Quel service cherchez-vous ?",
   "browseSearchHint": "Ex. : plombier, électricien, ménage, manucure...",
   "browseAllCities": "Toutes les villes",
-  "popularCategories": "Catégories populaires",
-  "categoriesSeeAll": "Tout voir",
-  "moreCategories": "Plus de catégories",
-  "verifiedBannerTitle": "Prestataires vérifiés",
-  "verifiedBannerBody": "Des services sûrs, avec de vrais professionnels et des avis clients.",
   "galleryPosition": "{{current}} / {{total}}",
   "galleryPrevious": "Photo précédente",
   "galleryNext": "Photo suivante",
@@ -299,5 +293,6 @@
   "providersHeroTitle": "Des professionnels de confiance,\nprès de chez vous.",
   "providersHeroSubtitle": "Comparez entreprises et professionnels selon les avis de leurs clients et le prix à partir duquel ils travaillent.",
   "providerSearchQuestion": "Quel prestataire cherchez-vous ?",
-  "providerSearchHint": "Ex. : nom de l'entreprise ou du professionnel..."
+  "providerSearchHint": "Ex. : nom de l'entreprise ou du professionnel...",
+  "filterMore": "Plus de filtres"
 }

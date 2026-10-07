@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, MapPin, Search } from "lucide-react";
+import { BrowseHead } from "@/shared/components/browse/browse-head";
 import {
   directorySearch,
   type DirectorySearch,
@@ -9,47 +10,16 @@ import {
 import { useProviderCities } from "@/features/directory/viewmodel/use-directory";
 
 /**
- * The top of `/providers`: `/services`' `BrowseHero`, in the directory's
- * words. The eyebrow, the 53px title and the line under it on the left, and
- * on a wide screen the same photograph bleeding to the window's right edge
- * with the quote over it — the two browse pages are twins, and a reader
+ * The top of `/providers`: `/services`' head in the directory's words — the
+ * same `BrowseHead`, because the two browse pages are twins and a reader
  * moving between them should not see two different openings.
  *
- * The photograph and the quote are the site's artwork, not data about any
- * provider. Below `lg` they go, and the text has the width to itself.
- *
- * `title` is the page's `h1`: the hero's headline until the reader narrows the
+ * `title` is the page's `h1`: the headline until the reader narrows the
  * list, then what they asked for — see `directoryTitle`.
  */
 export function DirectoryHero({ title }: { title: string }) {
   const { t } = useTranslation("directory");
-
-  return (
-    <section className="grid xl:grid-cols-[minmax(0,1fr)_minmax(0,730px)] xl:gap-x-6">
-      <div className="pt-[22px] pr-[var(--pw-pad)] pb-4 pl-[var(--pw-pad)] xl:pr-0">
-        <p className="text-[13px] leading-[1.2] font-bold tracking-[0.04em] text-[var(--color-primary)] uppercase">
-          {t("providersHeroEyebrow")}
-        </p>
-        <h1 className="mt-2.5 text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] whitespace-pre-line text-[var(--color-headline)] xl:text-[53px]">
-          {title}
-        </h1>
-        <p className="mt-3.5 max-w-[540px] text-[17px] leading-normal text-[var(--color-muted-foreground)]">
-          {t("providersHeroSubtitle")}
-        </p>
-      </div>
-
-      <div aria-hidden="true" className="relative hidden h-[203px] self-start overflow-hidden xl:block">
-        <img
-          src="/images/services-hero.jpg"
-          alt=""
-          className="block h-[205px] w-[730px] max-w-none object-cover object-left"
-        />
-        <p className="absolute top-[38px] left-[488px] w-[216px] rounded-xl bg-[var(--color-info-bg)] pt-4 pr-5 pb-[18px] pl-6 text-[17px] leading-[1.45] whitespace-pre-line text-[var(--color-headline)]">
-          {t("browseHeroQuote")}
-        </p>
-      </div>
-    </section>
-  );
+  return <BrowseHead eyebrow={t("providersHeroEyebrow")} title={title} subtitle={t("providersHeroSubtitle")} />;
 }
 
 /**

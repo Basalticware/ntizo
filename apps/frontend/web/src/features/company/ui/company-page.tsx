@@ -58,9 +58,15 @@ export function CompanyPage({
   title,
   lede,
   centred = false,
+  seeAlso = true,
   children,
 }: {
   page: CompanyPageId;
+  /**
+   * Whether to draw the "see also" strip. `/about` turns it off: it ends on
+   * its own two doors, and the footer under them links the same pages.
+   */
+  seeAlso?: boolean;
   title: ReactNode;
   lede: string;
   /** The form pages centre their opening, because the form under it is centred. */
@@ -79,31 +85,33 @@ export function CompanyPage({
 
       {children}
 
-      <section className="public-inset border-t border-[var(--color-border)] pt-12 pb-14">
-        <SectionHead title={t("shared.seeAlso")} />
-        <div className="grid gap-6 md:grid-cols-3">
-          {strip.map((link) => (
-            <Link
-              key={link.id}
-              to={link.to}
-              search={link.id === "feedback" ? { from: pathname } : undefined}
-              className={`group no-underline hover:border-[var(--color-blue-line)] ${PUBLIC_CARD_CLASS}`}
-            >
-              <span className={`flex items-center gap-1.5 ${CARD_TITLE_CLASS}`}>
-                {t(`shared.links.${link.id}.title`)}
-                <ArrowRight
-                  className="h-4 w-4 text-[var(--color-primary)]"
-                  strokeWidth={2.4}
-                  aria-hidden="true"
-                />
-              </span>
-              <span className={`mt-1.5 block ${CARD_BODY_CLASS}`}>
-                {t(`shared.links.${link.id}.body`)}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {seeAlso && (
+        <section className="public-inset border-t border-[var(--color-border)] pt-12 pb-14">
+          <SectionHead title={t("shared.seeAlso")} />
+          <div className="grid gap-6 md:grid-cols-3">
+            {strip.map((link) => (
+              <Link
+                key={link.id}
+                to={link.to}
+                search={link.id === "feedback" ? { from: pathname } : undefined}
+                className={`group no-underline hover:border-[var(--color-blue-line)] ${PUBLIC_CARD_CLASS}`}
+              >
+                <span className={`flex items-center gap-1.5 ${CARD_TITLE_CLASS}`}>
+                  {t(`shared.links.${link.id}.title`)}
+                  <ArrowRight
+                    className="h-4 w-4 text-[var(--color-primary)]"
+                    strokeWidth={2.4}
+                    aria-hidden="true"
+                  />
+                </span>
+                <span className={`mt-1.5 block ${CARD_BODY_CLASS}`}>
+                  {t(`shared.links.${link.id}.body`)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <Footer />
     </main>

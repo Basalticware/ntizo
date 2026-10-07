@@ -47,25 +47,6 @@
         "body": "Solo dopo che il fornitore conferma l'orario ricevi la richiesta di pagamento sul telefono. Prima di allora non viene addebitato nulla."
       }
     },
-    "principlesTitle": "Quattro regole che non cambiano mai, qualunque sia il servizio.",
-    "principles": {
-      "price": {
-        "title": "Il prezzo è il prezzo.",
-        "body": "L'importo che vedi nell'annuncio è l'importo che paghi. La commissione della piattaforma viene trattenuta dalla parte del fornitore, mai dalla tua."
-      },
-      "verification": {
-        "title": "Verifica prima della visibilità.",
-        "body": "Nessun fornitore compare nei risultati senza aver inviato un documento d'identità e senza che una persona di Ntizo lo abbia controllato."
-      },
-      "payAfter": {
-        "title": "Si paga solo dopo il sì.",
-        "body": "La richiesta di pagamento arriva solo dopo che il fornitore conferma l'orario. Se non conferma, o rifiuta, non c'è nulla da addebitare."
-      },
-      "local": {
-        "title": "Pensato per qui, pronto a crescere.",
-        "body": "M-Pesa, il portoghese, le città in cui viviamo. E una piattaforma pensata per servire altri Paesi quando arriverà il momento."
-      }
-    },
     "customersTitle": "Trova, prenota e paga in un unico posto.",
     "customersBody": "Niente telefonate per sapere il prezzo, niente attese per una risposta che non arriva. Ogni prenotazione ha un orario, un importo e uno storico.",
     "customersCta": "Esplora i servizi",

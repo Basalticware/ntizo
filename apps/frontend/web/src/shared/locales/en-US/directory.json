@@ -260,16 +260,10 @@
   "sortTrigger": "Sort by:",
   "browseHeroEyebrow": "Services",
   "browseHeroTitle": "Services near you,\nat the price you see.",
-  "browseHeroSubtitle": "Find plumbers, electricians, cleaning, beauty and much more. Verified professionals in Mozambique, ready to help.",
-  "browseHeroQuote": "Real people.\nLocal services.\nA Mozambique\nmoving forward.",
+  "browseHeroSubtitle": "Find plumbers, electricians, cleaning, beauty and much more.",
   "browseSearchQuestion": "What service are you looking for?",
   "browseSearchHint": "E.g. plumber, electrician, cleaning, manicure...",
   "browseAllCities": "All cities",
-  "popularCategories": "Popular categories",
-  "categoriesSeeAll": "See all",
-  "moreCategories": "More categories",
-  "verifiedBannerTitle": "Verified providers",
-  "verifiedBannerBody": "Safe services, with real professionals and customer reviews.",
   "galleryPosition": "{{current}} / {{total}}",
   "galleryPrevious": "Previous photo",
   "galleryNext": "Next photo",
@@ -299,5 +293,6 @@
   "providersHeroTitle": "Trusted professionals,\nnear you.",
   "providersHeroSubtitle": "Compare businesses and professionals by their customers' reviews and the price they start from.",
   "providerSearchQuestion": "Which provider are you looking for?",
-  "providerSearchHint": "E.g. business or professional name..."
+  "providerSearchHint": "E.g. business or professional name...",
+  "filterMore": "More filters"
 }

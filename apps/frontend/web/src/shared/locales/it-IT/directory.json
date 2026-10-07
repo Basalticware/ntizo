@@ -260,16 +260,10 @@
   "sortTrigger": "Ordina per:",
   "browseHeroEyebrow": "Servizi",
   "browseHeroTitle": "Servizi vicino a te,\nal prezzo che vedi.",
-  "browseHeroSubtitle": "Trova idraulici, elettricisti, pulizie, bellezza e molto altro. Professionisti verificati in Mozambico, pronti ad aiutarti.",
-  "browseHeroQuote": "Persone vere.\nServizi locali.\nUn Mozambico\nche avanza.",
+  "browseHeroSubtitle": "Trova idraulici, elettricisti, pulizie, bellezza e molto altro.",
   "browseSearchQuestion": "Quale servizio cerchi?",
   "browseSearchHint": "Es.: idraulico, elettricista, pulizie, manicure...",
   "browseAllCities": "Tutte le città",
-  "popularCategories": "Categorie popolari",
-  "categoriesSeeAll": "Vedi tutte",
-  "moreCategories": "Altre categorie",
-  "verifiedBannerTitle": "Fornitori verificati",
-  "verifiedBannerBody": "Servizi sicuri, con professionisti reali e recensioni dei clienti.",
   "galleryPosition": "{{current}} / {{total}}",
   "galleryPrevious": "Foto precedente",
   "galleryNext": "Foto successiva",
@@ -299,5 +293,6 @@
   "providersHeroTitle": "Professionisti di fiducia,\nvicino a te.",
   "providersHeroSubtitle": "Confronta attività e professionisti in base alle recensioni dei clienti e al prezzo da cui partono.",
   "providerSearchQuestion": "Quale fornitore cerchi?",
-  "providerSearchHint": "Es.: nome dell'attività o del professionista..."
+  "providerSearchHint": "Es.: nome dell'attività o del professionista...",
+  "filterMore": "Altri filtri"
 }
