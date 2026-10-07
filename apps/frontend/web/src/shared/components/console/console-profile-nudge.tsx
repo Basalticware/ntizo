@@ -12,7 +12,7 @@ export function ConsoleProfileNudge({ slug }: { slug: string | undefined }) {
   if (!slug) return null;
   return (
     <div className="rounded-[14px] bg-[var(--color-blue-softer)] px-6 pt-[18px] pb-5">
-      <Crown aria-hidden="true" className="h-7 w-7 fill-[#f6b500] text-[#f6b500]" />
+      <Crown aria-hidden="true" className="h-7 w-7 fill-[var(--color-star)] text-[var(--color-star)]" />
       <p className="mt-1 max-w-[170px] text-[17.5px] leading-[1.3] font-bold text-[var(--color-headline)]">{t("profileNudge.title")}</p>
       <p className="mt-1.5 max-w-[190px] text-[15.5px] leading-[1.45] text-[var(--color-muted-foreground)]">{t("profileNudge.body")}</p>
       <Link

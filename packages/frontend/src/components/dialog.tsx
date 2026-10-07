@@ -70,7 +70,7 @@ export function DialogContent({
     >
       <div
         className={cn(
-          "w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] p-6 shadow-lg",
+          "w-full max-w-md rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-background)] p-6 shadow-[var(--shadow-float)]",
           className,
         )}
         onClick={(e) => e.stopPropagation()}
@@ -99,7 +99,7 @@ export function DialogTitle({
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2
-      className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+      className={cn("text-xl leading-tight font-bold text-[var(--color-headline)]", className)}
       {...props}
     />
   );

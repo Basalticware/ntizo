@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Check } from "lucide-react";
 import { CARD_SURFACE_CLASS } from "@/shared/components/card-surface";
 import { CONTACT_TOPICS, contactEmailRequired, type ContactRequestKind } from "@ntizo/shared";
-import { Input, Label, Select } from "@ntizo/frontend-ui";
+import { Button, Input, Label, Select, buttonVariants } from "@ntizo/frontend-ui";
 import { useCurrentUser } from "@/features/user/viewmodel/use-current-user";
 import { GraphqlError } from "@/shared/lib/graphql/session-graphql";
 import { CONTACT } from "@/shared/lib/contact";
@@ -91,23 +91,21 @@ export function ContactForm({ kind, messagePlaceholder }: { kind: ContactRequest
   if (submit.data) {
     const replyEmail = email.trim();
     return (
-      <div
-        className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-8 text-center md:p-10"
-      >
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-navy-surface)] text-[var(--color-navy-on)]">
+      <div className={`${CARD_SURFACE_CLASS} p-8 text-center md:p-10`}>
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-ok-bg)] text-[var(--color-ok-fg)]">
           <Check className="h-6 w-6" aria-hidden="true" />
         </span>
-        <h2 className="font-rounded mt-4 text-[clamp(1.4rem,2.4vw,1.8rem)] font-extrabold tracking-[-0.02em]">
+        <h2 className="mt-4 text-[22px] font-extrabold tracking-[-0.01em] text-[var(--color-headline)]">
           {t("form.success.title")}
         </h2>
-        <p className="mx-auto mt-2 max-w-[46ch] leading-relaxed text-[var(--color-muted-foreground)]">
+        <p className="mx-auto mt-2 max-w-[46ch] text-[16px] leading-relaxed text-[var(--color-muted-foreground)]">
           {replyEmail ? t("form.success.replyTo", { email: replyEmail }) : t("form.success.noEmail")}
         </p>
-        <p className="mt-4 inline-block rounded-md px-3 py-1.5 font-mono text-sm" style={{ background: "var(--color-muted)" }}>
+        <p className="mt-4 inline-block rounded-[10px] bg-[var(--color-blue-softer)] px-3 py-1.5 font-mono text-sm text-[var(--color-ink-2)]">
           {t("form.success.reference", { reference: submit.data.reference })}
         </p>
         <div className="mt-6 flex justify-center">
-          <Link to="/" className="font-rounded rounded-full border px-6 py-3 text-[14px] font-bold no-underline" style={{ borderColor: "rgba(19,23,27,.25)", color: "inherit" }}>
+          <Link to="/" className={`no-underline ${buttonVariants({ variant: "outline" })}`}>
             {t("form.success.home")}
           </Link>
         </div>
@@ -128,12 +126,12 @@ export function ContactForm({ kind, messagePlaceholder }: { kind: ContactRequest
       className={`relative ${CARD_SURFACE_CLASS} p-6 md:p-8`}
     >
       {!user && (
-        <p className="m-0 mb-5 text-sm text-[var(--color-muted-foreground)]">
+        <p className="m-0 mb-6 rounded-[10px] bg-[var(--color-blue-softer)] px-4 py-3 text-sm text-[var(--color-ink-2)]">
           {t("form.signInHint")}{" "}
           <Link
             to="/sign-in"
             search={{ next: pathname }}
-            className="font-semibold text-[var(--color-headline)] underline decoration-[var(--color-border-strong)] underline-offset-4"
+            className="font-semibold text-[var(--color-primary)] hover:underline"
           >
             {t("form.signInLink")}
           </Link>{" "}
@@ -199,7 +197,7 @@ export function ContactForm({ kind, messagePlaceholder }: { kind: ContactRequest
             onBlur={() => markTouched("message")}
             aria-invalid={errors.message ? true : undefined}
             aria-describedby={errors.message ? "contact-message-error" : undefined}
-            className="type-body w-full rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-3.5 py-2.5 focus-visible:border-[var(--color-primary)] focus-visible:outline-none"
+            className="block w-full rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-4 py-3 text-[15px] leading-normal text-[var(--color-foreground)] placeholder:text-[var(--color-faint)] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none"
           />
         </Field>
 
@@ -222,25 +220,21 @@ export function ContactForm({ kind, messagePlaceholder }: { kind: ContactRequest
       </div>
 
       {serverError && (
-        <p role="alert" className="mt-5 text-sm text-[var(--color-destructive)]">
+        <p role="alert" className="mt-5 rounded-[10px] bg-[var(--color-bad-bg)] px-4 py-3 text-sm text-[var(--color-bad-fg)]">
           {serverError}
         </p>
       )}
 
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="m-0 max-w-[48ch] text-xs leading-relaxed text-[var(--color-muted-foreground)]">
+        <p className="m-0 max-w-[48ch] text-[13px] leading-relaxed text-[var(--color-muted-foreground)]">
           {t("form.privacyNote")}{" "}
-          <Link to="/privacy" className="underline" style={{ color: "inherit" }}>
+          <Link to="/privacy" className="text-[var(--color-primary)] hover:underline">
             {t("form.privacyLink")}
           </Link>
         </p>
-        <button
-          type="submit"
-          disabled={submit.isPending}
-          className="font-rounded inline-flex shrink-0 items-center justify-center rounded-full bg-[var(--color-navy-surface)] px-7 py-3.5 text-[15px] font-bold text-[var(--color-navy-on)] disabled:opacity-60"
-        >
+        <Button type="submit" disabled={submit.isPending} className="shrink-0">
           {submit.isPending ? t("form.sending") : t("form.submit")}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -254,10 +248,12 @@ function Field({
   const errorId = `${htmlFor}-error`;
   return (
     <div>
-      <Label htmlFor={htmlFor}>{label}</Label>
-      {hint && <p className="mt-1 mb-0 text-xs text-[var(--color-muted-foreground)]">{hint}</p>}
+      <Label htmlFor={htmlFor} className="text-[15px] font-semibold text-[var(--color-headline)]">
+        {label}
+      </Label>
+      {hint && <p className="mt-1 mb-0 text-[13px] text-[var(--color-muted-foreground)]">{hint}</p>}
       <div className="mt-2">{children}</div>
-      {error && <p id={errorId} className="mt-1.5 mb-0 text-xs text-[var(--color-destructive)]">{error}</p>}
+      {error && <p id={errorId} className="mt-1.5 mb-0 text-[13px] text-[var(--color-bad-fg)]">{error}</p>}
     </div>
   );
 }

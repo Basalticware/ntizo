@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SlidersHorizontal, X } from "lucide-react";
+import { ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import {
@@ -34,6 +34,7 @@ import {
   useCategoryPreview,
 } from "@/features/landing/viewmodel/use-categories";
 import { DirectoryPriceFilter } from "@/features/directory/ui/directory-price-filter";
+import { PROVIDER_CATEGORY_PILL_ID } from "@/features/directory/ui/directory-aside";
 
 /**
  * Everything the pill bar can narrow, taken off at once — but not what was
@@ -186,7 +187,7 @@ function ClearAll({ current, onNavigate }: { current: DirectorySearch; onNavigat
       activeOptions={EXACT_MATCH}
       search={clearedDirectorySearch(current)}
       {...(onNavigate ? { onClick: onNavigate } : {})}
-      className="type-caption font-semibold text-[var(--color-headline)] underline underline-offset-[3px] hover:opacity-80"
+      className="ml-2 text-sm font-semibold whitespace-nowrap text-[var(--color-primary)] hover:underline"
     >
       {t("filtersClearAll")}
     </Link>
@@ -252,6 +253,8 @@ export function ProviderFilters({ current }: { current: DirectorySearch }) {
           before everything else. */}
       <FilterPill
         label={categoryLabel}
+        icon={ShieldCheck}
+        id={PROVIDER_CATEGORY_PILL_ID}
         active={categoryName}
         clear={
           current.category ? (

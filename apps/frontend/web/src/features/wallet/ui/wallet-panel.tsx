@@ -182,7 +182,7 @@ function BalanceCard({
 }) {
   return (
     <div className="flex min-h-[125px] items-start gap-[37px] rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] py-6 pr-6 pl-[26px]">
-      <span className="grid h-[58px] w-[59px] shrink-0 place-items-center rounded-xl bg-[#e5f3fe] text-[#0051fe] dark:bg-[var(--color-info-bg)] dark:text-[var(--color-primary)]">
+      <span className="grid h-[58px] w-[59px] shrink-0 place-items-center rounded-xl bg-[var(--color-info-bg)] text-[var(--color-primary)] dark:bg-[var(--color-info-bg)] dark:text-[var(--color-primary)]">
         <Icon className="h-7 w-7" />
       </span>
       <div className="min-w-0">
@@ -208,9 +208,9 @@ function BalanceCard({
 }
 
 const TONE_TILE: Record<"up" | "down" | "flat", string> = {
-  up: "bg-[#defbe4] text-[#02a91a] dark:bg-[var(--color-ok-bg)] dark:text-[var(--color-ok-fg)]",
-  down: "bg-[#fef0ce] text-[#fcab00] dark:bg-[var(--color-warn-bg)] dark:text-[var(--color-warn-fg)]",
-  flat: "bg-[#e3f2fe] text-[#0058fd] dark:bg-[var(--color-info-bg)] dark:text-[var(--color-primary)]",
+  up: "bg-[var(--color-ok-bg)] text-[var(--color-ok-fg)] dark:bg-[var(--color-ok-bg)] dark:text-[var(--color-ok-fg)]",
+  down: "bg-[var(--color-warn-bg)] text-[var(--color-star)] dark:bg-[var(--color-warn-bg)] dark:text-[var(--color-warn-fg)]",
+  flat: "bg-[var(--color-info-bg)] text-[var(--color-primary)] dark:bg-[var(--color-info-bg)] dark:text-[var(--color-primary)]",
 };
 
 /** One line of the ledger: when, which way, what it was, the booking behind it, and what it moved. */
@@ -272,8 +272,8 @@ function EntryRow({
         <span
           className={cn(
             "block text-lg font-bold whitespace-nowrap tabular-nums",
-            tone === "up" && "text-[#069f12] dark:text-[var(--color-ok-fg)]",
-            tone === "down" && "text-[#f80a0a] dark:text-[var(--color-bad-fg)]",
+            tone === "up" && "text-[var(--color-ok-fg)] dark:text-[var(--color-ok-fg)]",
+            tone === "down" && "text-[var(--color-alert)] dark:text-[var(--color-bad-fg)]",
             tone === "flat" && "text-[var(--color-headline)]",
           )}
         >

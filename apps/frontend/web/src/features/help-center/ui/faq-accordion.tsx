@@ -38,16 +38,22 @@ export function FaqAccordion({
               onClick={() => onToggle(entry.id)}
               className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left"
             >
-              <span className="type-body-medium font-semibold text-[var(--color-headline)]">
+              <span className="text-[16px] leading-snug font-semibold text-[var(--color-headline)]">
                 {entry.question}
               </span>
               <ChevronDown
                 aria-hidden="true"
-                className={cn("h-4 w-4 shrink-0 transition-transform", open && "rotate-180")}
+                strokeWidth={2.4}
+                className={cn(
+                  "h-5 w-5 shrink-0 text-[var(--color-primary)] transition-transform",
+                  open && "rotate-180",
+                )}
               />
             </button>
             {open && (
-              <p className="type-body px-5 pb-5 text-[var(--color-foreground)]">{entry.answer}</p>
+              <p className="px-5 pb-5 text-[15px] leading-relaxed text-[var(--color-muted-foreground)]">
+                {entry.answer}
+              </p>
             )}
           </li>
         );

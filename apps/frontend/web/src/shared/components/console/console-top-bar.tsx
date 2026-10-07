@@ -61,7 +61,7 @@ export function ConsoleTopBar({
         </Link>
       </div>
 
-      <SidebarTrigger className="ml-2 hidden md:inline-flex lg:hidden" />
+      <SidebarTrigger className="ml-2 hidden md:inline-flex xl:hidden" />
       <ConsoleSearch city={shownCity} className="hidden min-w-0 flex-1 md:ml-2.5 md:block md:max-w-[731px]" />
       {/* On a phone the search is gone and this pushes the cluster right; from
           `md` the search itself grows to its 731px and the cluster follows it. */}
@@ -128,7 +128,7 @@ function CityPicker({ city, onPick }: { city: string | null; onPick: (city: stri
   const cities = useServiceCities();
   if (cities.length === 0 && !city) return null;
   return (
-    <div className="hidden md:block md:pr-[34px]">
+    <div className="hidden xl:block xl:pr-[34px]">
       <DropdownMenu>
         <DropdownMenuTrigger>
           <button

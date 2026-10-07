@@ -1,32 +1,59 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, CalendarDays, FileText, MapPin, Smartphone } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  FileText,
+  Info,
+  MapPin,
+  Smartphone,
+} from "lucide-react";
 import { toMpesaMsisdn } from "@ntizo/shared";
 import { Button, Skeleton } from "@ntizo/frontend-ui";
 import { CheckoutHeader } from "@/features/checkout/ui/checkout-header";
 import { useMyAddresses } from "@/features/account/viewmodel/use-addresses";
 import { useCurrentUser } from "@/features/user/viewmodel/use-current-user";
 import type { CheckoutBooking } from "@/features/checkout/viewmodel/use-checkout";
-import { useMyBooking, useSendBookingRequest } from "@/features/checkout/viewmodel/use-checkout";
+import {
+  useMyBooking,
+  useSendBookingRequest,
+} from "@/features/checkout/viewmodel/use-checkout";
 import { CheckoutCountdown } from "@/features/checkout/ui/checkout-countdown";
 import { CheckoutRail } from "@/features/checkout/ui/checkout-rail";
 import { readDraftDetails } from "@/features/checkout/domain/draft-store";
 import { checkoutOutcome } from "@/features/checkout/domain/booking-outcome";
-import { compactSlotWording, slotWording } from "@/features/checkout/domain/slot-wording";
+import {
+  compactSlotWording,
+  slotWording,
+} from "@/features/checkout/domain/slot-wording";
 import { toAddressInput } from "@/shared/domain/address-input";
 import {
   BookingOutcomePanel,
   SentPanel,
 } from "@/features/checkout/ui/booking-outcome-panel";
-
+import {
+  BackArrow,
+  CHECKOUT_BACK_LINK,
+  CHECKOUT_BIG_BUTTON,
+  CHECKOUT_CARD,
+  CHECKOUT_GRID,
+  CHECKOUT_INFO_PANEL,
+  CHECKOUT_PAD,
+  CHECKOUT_SECTION_TITLE,
+  CheckoutHeading,
+} from "@/features/checkout/ui/checkout-page-frame";
 
 /** One card per section, the frame step 2 draws around each of its questions. */
-const CARD = "rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 sm:p-5";
+const CARD = CHECKOUT_CARD;
 
 /** The tinted disc an icon sits in — step 2's address pin, here on every row of the record. */
 const ICON_BADGE =
-  "grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[var(--color-muted)] text-[var(--color-primary)]";
+  "grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[var(--color-primary)]";
+
+/** The caption over each fact of the record. */
+const RECORD_LABEL =
+  "flex items-center gap-2 text-[14.5px] text-[var(--color-muted-foreground)]";
 
 /** The order money and commitment happen in, as three keys so each stays greppable. */
 const HOW_IT_WORKS = ["howItWorks1", "howItWorks2", "howItWorks3"] as const;
@@ -97,7 +124,10 @@ export function ConfirmPage({ bookingId }: { bookingId: string }) {
       void navigate({
         to: "/book/$serviceId",
         params: { serviceId: booking.serviceId },
-        search: { expired: true, optionId: booking.serviceOptionId ?? undefined },
+        search: {
+          expired: true,
+          optionId: booking.serviceOptionId ?? undefined,
+        },
         replace: true,
       });
       return;
@@ -107,7 +137,8 @@ export function ConfirmPage({ bookingId }: { bookingId: string }) {
     // booking that is not this customer's, or an id that never named one, and
     // reconstructing step 1 from anything else on the page would be guessing
     // at a booking we are not allowed to read.
-    if (unreadable) void navigate({ to: "/services", search: {}, replace: true });
+    if (unreadable)
+      void navigate({ to: "/services", search: {}, replace: true });
   }, [released, unreadable, booking, navigate]);
 
   // `outcome === "released"` rather than the `released` alias: the alias is a
@@ -151,19 +182,19 @@ export function ConfirmPage({ bookingId }: { bookingId: string }) {
 /** The header and the page frame — everything true before the booking is. */
 function ConfirmShell({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <div className={CHECKOUT_PAD}>
       <CheckoutHeader current="confirm" />
-      <main className="page-shell py-8">{children}</main>
-    </>
+      <main className="public-inset pt-8 pb-10 md:pt-10">{children}</main>
+    </div>
   );
 }
 
 function ConfirmSkeleton() {
   return (
-    <div className="grid gap-3">
-      <Skeleton className="h-8 w-2/3" />
-      <Skeleton className="h-32 w-full" />
-      <Skeleton className="h-24 w-full" />
+    <div className="grid gap-6">
+      <Skeleton className="h-14 w-2/3" />
+      <Skeleton className="h-40 w-full" />
+      <Skeleton className="h-28 w-full" />
     </div>
   );
 }
@@ -173,7 +204,8 @@ function Confirm({ booking }: { booking: CheckoutBooking }) {
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const navigate = useNavigate();
 
-  const { data: addresses = [], isPending: addressesLoading } = useMyAddresses();
+  const { data: addresses = [], isPending: addressesLoading } =
+    useMyAddresses();
   const { data: user, isPending: userLoading } = useCurrentUser();
   const request = useSendBookingRequest();
 
@@ -231,7 +263,12 @@ function Confirm({ booking }: { booking: CheckoutBooking }) {
   // instant is the same everywhere, the hour it is spoken of in is not, and a
   // page that prints the browser's answer tells the customer a different
   // appointment to the one the provider is expecting them for.
-  const when = slotWording(booking.startsAt, booking.endsAt, locale, booking.timezone);
+  const when = slotWording(
+    booking.startsAt,
+    booking.endsAt,
+    locale,
+    booking.timezone,
+  );
   // The rail's own shorter wording of the same instants, from the same zone
   // argument. Two clocks on one page make whichever the customer checks
   // against the other look wrong, so the compact form is a second *format*
@@ -305,38 +342,41 @@ function Confirm({ booking }: { booking: CheckoutBooking }) {
   }
 
   return (
-    <>
-      <CheckoutHeader current="confirm" />
+    <div className={CHECKOUT_PAD}>
+      <CheckoutHeader
+        current="confirm"
+        back={
+          <Link
+            to="/booking/$bookingId/details"
+            params={{ bookingId: booking.id }}
+            className={CHECKOUT_BACK_LINK}
+          >
+            <BackArrow />
+            {t("backToDetails")}
+          </Link>
+        }
+      />
 
-      <main className="page-shell py-8">
-        <Link
-          to="/booking/$bookingId/details"
-          params={{ bookingId: booking.id }}
-          className="type-caption inline-flex items-center gap-1.5 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-          {t("backToDetails")}
-        </Link>
-
+      <main>
         {/* One form around both columns, so the send button in the rail is
             the form's own submit rather than a `form` attribute pointing
             across the layout at it. Kept now that the phone field has moved
             to step 2: this page's one action is still a submission, and
             `type="submit"` is what a keyboard reaches it as. */}
         <form
+          className={CHECKOUT_GRID}
           onSubmit={(e) => {
             e.preventDefault();
             send();
           }}
         >
-          <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-            <div className="min-w-0">
-              <h1 className="type-h1">{t("confirmTitle")}</h1>
-              <p className="type-body mt-2 text-[var(--color-muted-foreground)]">
-                {t("confirmIntro")}
-              </p>
+          <div className="min-w-0">
+            <CheckoutHeading
+              title={t("confirmTitle")}
+              lede={t("confirmIntro")}
+            />
 
-              {/* The record of what is being sent, then how it is paid,
+            {/* The record of what is being sent, then how it is paid,
                   then what happens next — three framed blocks in the shape
                   step 2 already gave its three questions, so the page the
                   customer commits on looks like the one that led there.
@@ -346,84 +386,108 @@ function Confirm({ booking }: { booking: CheckoutBooking }) {
                   the way to everything step 2 owns; a change button on every
                   row here would be a second answer to each of those
                   questions, and the suite pins the rail's as the only one. */}
-              <div className="mt-8 grid gap-4">
-                <dl className={`${CARD} grid gap-5`}>
+            <div className="mt-9 grid gap-6">
+              <dl className={`${CARD} grid gap-6`}>
+                <div>
+                  <dt className={RECORD_LABEL}>
+                    <CalendarDays
+                      className="h-5 w-5 text-[var(--color-primary)]"
+                      aria-hidden="true"
+                    />
+                    {t("summaryWhen")}
+                  </dt>
+                  <dd className="mt-1.5 pl-7 text-[17px] font-bold text-[var(--color-headline)] first-letter:uppercase">
+                    {when.date}
+                  </dd>
+                  <dd className="pl-7 text-[15px] text-[var(--color-ink-2)] tabular-nums">
+                    {t("slotRange", { start: when.start, end: when.end })}
+                  </dd>
+                </div>
+
+                {address && (
                   <div>
-                    <dt className="type-caption flex items-center gap-2 text-[var(--color-muted-foreground)]">
-                      <CalendarDays className="h-4 w-4 text-[var(--color-primary)]" aria-hidden="true" />
-                      {t("summaryWhen")}
+                    <dt className={RECORD_LABEL}>
+                      <MapPin
+                        className="h-5 w-5 text-[var(--color-primary)]"
+                        aria-hidden="true"
+                      />
+                      {t("summaryWhere")}
                     </dt>
-                    <dd className="type-body-medium mt-1 pl-6 font-semibold">{when.date}</dd>
-                    <dd className="type-body pl-6 tabular-nums">
-                      {t("slotRange", { start: when.start, end: when.end })}
+                    <dd className="mt-1.5 pl-7 text-[17px] font-bold text-[var(--color-headline)]">
+                      {address.label}
+                    </dd>
+                    <dd className="pl-7 text-[15px] text-[var(--color-ink-2)]">
+                      {[
+                        address.line1,
+                        address.line2,
+                        address.district,
+                        address.city,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </dd>
+                    {address.directions && (
+                      <dd className="pl-7 text-[14px] text-[var(--color-muted-foreground)]">
+                        {address.directions}
+                      </dd>
+                    )}
+                  </div>
+                )}
+
+                {details?.description.trim() && (
+                  <div>
+                    <dt className={RECORD_LABEL}>
+                      <FileText
+                        className="h-5 w-5 text-[var(--color-primary)]"
+                        aria-hidden="true"
+                      />
+                      {t("summaryNote")}
+                    </dt>
+                    <dd className="mt-1.5 pl-7 text-[15px] whitespace-pre-line text-[var(--color-ink-2)]">
+                      {details.description.trim()}
                     </dd>
                   </div>
+                )}
+              </dl>
 
-                  {address && (
-                    <div>
-                      <dt className="type-caption flex items-center gap-2 text-[var(--color-muted-foreground)]">
-                        <MapPin className="h-4 w-4 text-[var(--color-primary)]" aria-hidden="true" />
-                        {t("summaryWhere")}
-                      </dt>
-                      <dd className="type-body-medium mt-1 pl-6 font-semibold">{address.label}</dd>
-                      <dd className="type-body pl-6">
-                        {[address.line1, address.line2, address.district, address.city]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </dd>
-                      {address.directions && (
-                        <dd className="type-caption pl-6 text-[var(--color-muted-foreground)]">
-                          {address.directions}
-                        </dd>
-                      )}
-                    </div>
-                  )}
-
-                  {details?.description.trim() && (
-                    <div>
-                      <dt className="type-caption flex items-center gap-2 text-[var(--color-muted-foreground)]">
-                        <FileText className="h-4 w-4 text-[var(--color-primary)]" aria-hidden="true" />
-                        {t("summaryNote")}
-                      </dt>
-                      <dd className="type-body mt-1 pl-6 whitespace-pre-line">
-                        {details.description.trim()}
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-
-                {/* One method, stated. Not a radio group with one live option
+              {/* One method, stated. Not a radio group with one live option
                     and two greyed ones: a chooser offering a decision nobody
                     can make invites the customer to want what is not there. */}
-                <section className={CARD}>
-                  <h2 className="type-h3 font-semibold">{t("paymentLegend")}</h2>
-                  <div className="mt-4 flex items-start gap-3">
-                    <span aria-hidden="true" className={ICON_BADGE}>
-                      <Smartphone className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="type-body-medium font-semibold">{t("paymentMpesa")}</p>
-                      {/* **The number, read back rather than asked for again.**
+              <section className={CARD}>
+                <h2 className={CHECKOUT_SECTION_TITLE}>{t("paymentLegend")}</h2>
+                <div className="mt-5 flex items-start gap-4">
+                  <span aria-hidden="true" className={ICON_BADGE}>
+                    <Smartphone className="h-[22px] w-[22px]" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-base font-semibold text-[var(--color-headline)]">
+                      {t("paymentMpesa")}
+                    </p>
+                    {/* **The number, read back rather than asked for again.**
                           This page is the last screen before a commitment, and
                           the handset the prompt lands on is one of the two
                           facts on it a customer can still get wrong. Printed
                           from the store, so a wrong one is visible here and
                           correctable one press back on the step that owns the
                           field. */}
-                      <p className="type-body tabular-nums">{phone}</p>
-                      <p className="type-caption text-[var(--color-muted-foreground)]">
-                        {t("paymentMpesaHint")}
-                      </p>
-                    </div>
+                    <p className="mt-0.5 text-[15px] text-[var(--color-ink-2)] tabular-nums">
+                      {phone}
+                    </p>
+                    <p className="mt-0.5 text-[14px] text-[var(--color-muted-foreground)]">
+                      {t("paymentMpesaHint")}
+                    </p>
                   </div>
-                </section>
+                </div>
+              </section>
 
-                {/* Tinted rather than framed: this block is not the customer's
+              {/* Tinted rather than framed: this block is not the customer's
                     own data, it is the platform explaining itself, and the
                     ground says so before a word is read. */}
-                <section className="rounded-[var(--radius-card)] bg-[var(--color-muted)] p-4 sm:p-5">
-                  <h2 className="type-h3 font-semibold">{t("howItWorksTitle")}</h2>
-                  {/* The order money and commitment actually happen in, which
+              <section className="rounded-[14px] bg-[var(--color-blue-softer)] p-5 sm:p-6">
+                <h2 className={CHECKOUT_SECTION_TITLE}>
+                  {t("howItWorksTitle")}
+                </h2>
+                {/* The order money and commitment actually happen in, which
                       is the whole of what the reversal changed. Written without
                       a number of hours in it: the window is
                       `provider_response_minutes`, a live setting an
@@ -432,112 +496,121 @@ function Confirm({ booking }: { booking: CheckoutBooking }) {
                       Still an `ol`, so it is announced as three ordered steps;
                       the drawn discs replace the browser's own "1." for the
                       eye only. */}
-                  <ol className="mt-3 grid list-none gap-3 p-0">
-                    {HOW_IT_WORKS.map((key, index) => (
-                      <li key={key} className="flex items-start gap-3">
-                        <span
-                          aria-hidden="true"
-                          className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[var(--color-background)] text-xs font-bold text-[var(--color-primary)]"
-                        >
-                          {index + 1}
-                        </span>
-                        <span className="type-body text-[var(--color-muted-foreground)]">
-                          {t(key)}
-                        </span>
-                      </li>
-                    ))}
-                  </ol>
-                </section>
-              </div>
+                <ol className="mt-4 grid list-none gap-3.5 p-0">
+                  {HOW_IT_WORKS.map((key, index) => (
+                    <li key={key} className="flex items-start gap-3">
+                      <span
+                        aria-hidden="true"
+                        className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--color-card)] text-[14px] font-bold text-[var(--color-primary)]"
+                      >
+                        {index + 1}
+                      </span>
+                      <span className="pt-0.5 text-[15px] text-[var(--color-ink-2)]">
+                        {t(key)}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
             </div>
+          </div>
 
-            {/* 80px, not 0: the checkout header is 64px and sticky, so a rail
+          {/* 84px, not 0: the site header is 68px and sticky, so a rail
                 pinned to the top of the viewport would slide under it. */}
-            <aside className="grid gap-4 lg:sticky lg:top-[80px]">
-              {/* **The same rail as steps 1 and 2**, not a fourth card that
+          <aside className="grid gap-4 lg:sticky lg:top-[84px] lg:self-start">
+            {/* **The same rail as steps 1 and 2**, not a fourth card that
                   prints the same booking. This page carried its own until now
                   — provider name, service name, price, and none of the trust
                   line — so the page the customer actually commits on was the
                   one page of three that looked unlike the two that led there,
                   and the score and badge the query already fetches for it were
                   never printed. See follow-up #118, which this closes. */}
-              <CheckoutRail
-                // `bookingReadModel` carries no picture, and the rail draws
-                // its own placeholder rather than being handed a guess.
-                imageUrl={null}
-                serviceName={booking.serviceName}
-                providerName={booking.providerName}
-                providerRatingAverage={booking.providerRatingAverage}
-                providerVerified={booking.providerVerified}
-                optionName={booking.optionName}
-                slot={railSlot}
-                locationType={booking.locationType}
-                durationMinutes={booking.durationMinutes}
-                priceMinor={booking.priceMinor}
-                currency={booking.currency}
-                // Back to step 1, on this booking's own package. The summary
-                // on the left is the record of what is being sent and carries
-                // no control of its own, so this is the page's single way to
-                // change the time — never two "Alterar" buttons for one
-                // appointment, which is what follow-up #117 is about.
-                onChangeSlot={changeSlot}
-                countdown={
-                  // `expiresAt` is nullable because the column is. The service
-                  // and the option are not: they come off the booking, so the
-                  // countdown always has somewhere to send the customer when
-                  // the hold lapses.
-                  //
-                  // `sending` is what stops the last seconds of the hold from
-                  // navigating out from under a request that is landing — see
-                  // the prop's own doc comment. This is the only page that can
-                  // have a write in flight, which is why step 2 passes
-                  // nothing.
-                  booking.expiresAt ? (
-                    <CheckoutCountdown
-                      expiresAt={booking.expiresAt}
-                      serviceId={booking.serviceId}
-                      optionId={booking.serviceOptionId ?? undefined}
-                      sending={request.pending}
-                    />
-                  ) : undefined
-                }
+            <CheckoutRail
+              // `bookingReadModel` carries no picture, and the rail draws
+              // its own placeholder rather than being handed a guess.
+              imageUrl={null}
+              serviceName={booking.serviceName}
+              providerName={booking.providerName}
+              providerRatingAverage={booking.providerRatingAverage}
+              providerVerified={booking.providerVerified}
+              optionName={booking.optionName}
+              slot={railSlot}
+              locationType={booking.locationType}
+              durationMinutes={booking.durationMinutes}
+              priceMinor={booking.priceMinor}
+              currency={booking.currency}
+              // Back to step 1, on this booking's own package. The summary
+              // on the left is the record of what is being sent and carries
+              // no control of its own, so this is the page's single way to
+              // change the time — never two "Alterar" buttons for one
+              // appointment, which is what follow-up #117 is about.
+              onChangeSlot={changeSlot}
+              countdown={
+                // `expiresAt` is nullable because the column is. The service
+                // and the option are not: they come off the booking, so the
+                // countdown always has somewhere to send the customer when
+                // the hold lapses.
+                //
+                // `sending` is what stops the last seconds of the hold from
+                // navigating out from under a request that is landing — see
+                // the prop's own doc comment. This is the only page that can
+                // have a write in flight, which is why step 2 passes
+                // nothing.
+                booking.expiresAt ? (
+                  <CheckoutCountdown
+                    expiresAt={booking.expiresAt}
+                    serviceId={booking.serviceId}
+                    optionId={booking.serviceOptionId ?? undefined}
+                    sending={request.pending}
+                  />
+                ) : undefined
+              }
+            />
+
+            {/* Under the rail, as step 1 draws its "Continuar", and in one
+                  block: a refusal, the button, and the sentence explaining
+                  what the button does are one thought. */}
+            <div className="grid gap-3">
+              {request.failed && (
+                <p
+                  role="alert"
+                  className="rounded-[10px] bg-[var(--color-bad-bg)] px-4 py-3 text-[14.5px] font-medium text-[var(--color-bad-fg)]"
+                >
+                  {request.errorCode
+                    ? t(`submitError.${request.errorCode}`, {
+                        defaultValue: t("submitErrorGeneric"),
+                      })
+                    : t("submitErrorGeneric")}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                className={CHECKOUT_BIG_BUTTON}
+                disabled={request.pending || !address || !msisdn}
               >
-                {/* One block rather than three loose children: the rail lays
-                    its own slots out on a `gap-5` grid, and a refusal, a
-                    button, and the sentence explaining what the button does
-                    are one thought rather than three sections of a card. */}
-                <div className="grid gap-3">
-                  {request.failed && (
-                    <p role="alert" className="text-sm text-[var(--color-destructive)]">
-                      {request.errorCode
-                        ? t(`submitError.${request.errorCode}`, {
-                            defaultValue: t("submitErrorGeneric"),
-                          })
-                        : t("submitErrorGeneric")}
-                    </p>
-                  )}
+                {t("sendAction")}
+                <ArrowRight strokeWidth={2.2} aria-hidden="true" />
+              </Button>
 
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={request.pending || !address || !msisdn}
-                  >
-                    {t("sendAction")}
-                  </Button>
-
-                  {/* The mockup's own promise, and the one sentence on this
+              {/* The mockup's own promise, and the one sentence on this
                       page that would have been a lie under the old ordering.
                       Directly under the button rather than at the foot of the
                       card: it is the answer to what pressing it does. */}
-                  <p className="type-caption text-center text-[var(--color-muted-foreground)]">
-                    {t("nothingChargedNow")}
-                  </p>
-                </div>
-              </CheckoutRail>
-            </aside>
-          </div>
+              <p
+                className={`${CHECKOUT_INFO_PANEL} min-h-0 justify-center md:px-5`}
+              >
+                <Info
+                  className="h-5 w-5 shrink-0 text-[var(--color-primary)]"
+                  strokeWidth={1.8}
+                  aria-hidden="true"
+                />
+                {t("nothingChargedNow")}
+              </p>
+            </div>
+          </aside>
         </form>
       </main>
-    </>
+    </div>
   );
 }

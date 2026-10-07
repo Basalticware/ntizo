@@ -70,26 +70,26 @@ export function StepPerformers({
               aria-label={name}
               onClick={() => toggle(member.memberId, !selected)}
               className={cn(
-                "flex items-center gap-3 rounded-[var(--radius-card)] border p-4 text-left transition-colors",
+                "flex items-center gap-3.5 rounded-[14px] border p-4 text-left transition-colors",
                 selected
-                  ? "border-[var(--color-primary)] bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)]"
-                  : "border-[var(--color-border)] hover:border-[var(--color-muted-foreground)]",
+                  ? "border-[var(--color-blue-line)] bg-[var(--color-blue-softer)]"
+                  : "border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-blue-line)]",
               )}
             >
               <span
                 aria-hidden="true"
                 className={cn(
-                  "grid h-9 w-9 shrink-0 place-items-center rounded-full text-[13px] font-bold",
+                  "grid h-10 w-10 shrink-0 place-items-center rounded-full text-[13px] font-bold",
                   selected
                     ? "bg-[var(--color-primary)] text-white"
-                    : "bg-[var(--color-muted)] text-[var(--color-muted-foreground)]",
+                    : "bg-[var(--color-blue-soft)] text-[var(--color-primary)]",
                 )}
               >
                 {selected ? <Check className="h-4 w-4" /> : initials(name)}
               </span>
               <span className="min-w-0">
-                <span className="type-body-medium block truncate font-semibold">{name}</span>
-                <span className="type-caption block truncate text-[var(--color-muted-foreground)]">
+                <span className="block truncate text-[15px] font-semibold text-[var(--color-headline)]">{name}</span>
+                <span className="text-[13px] leading-[1.45] block truncate text-[var(--color-muted-foreground)]">
                   {t(`peopleRoles.${member.role}`, { defaultValue: member.role })}
                 </span>
               </span>

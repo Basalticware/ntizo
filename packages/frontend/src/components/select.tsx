@@ -216,7 +216,7 @@ export function Select({
         aria-controls={open ? listId : undefined}
         className={
           triggerClassName ??
-          "type-body flex h-11 w-full items-center gap-2.5 rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-3.5 text-left transition-colors hover:border-[var(--color-muted-foreground)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          "flex h-[47px] w-full items-center gap-2.5 rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-4 text-left text-[15px] text-[var(--color-foreground)] transition-colors hover:border-[var(--color-blue-line)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         }
       >
         {selected?.adornment ? (
@@ -227,7 +227,7 @@ export function Select({
         <span
           className={cn(
             "min-w-0 flex-1 truncate",
-            !selected && "text-[var(--color-muted-foreground)]",
+            !selected && "text-[var(--color-faint)]",
           )}
         >
           {selected?.label ?? placeholder ?? ""}

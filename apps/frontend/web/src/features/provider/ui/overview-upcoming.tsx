@@ -153,7 +153,7 @@ function UpcomingRow({
       <Link
         {...href}
         tabIndex={-1}
-        className={`${DETAILS_BUTTON_CLASS} col-start-3 h-[39px] w-[109px] justify-self-start border-[#9fc2fc] px-0 text-sm sm:col-start-auto sm:ml-[22px]`}
+        className={`${DETAILS_BUTTON_CLASS} col-start-3 h-[39px] w-[109px] justify-self-start border-[var(--color-blue-outline)] px-0 text-sm sm:col-start-auto sm:ml-[22px]`}
       >
         {t("common:viewDetails")}
       </Link>

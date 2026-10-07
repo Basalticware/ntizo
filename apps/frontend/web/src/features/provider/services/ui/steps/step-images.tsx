@@ -83,7 +83,7 @@ export function StepImages({
   return (
     <div className="grid gap-4">
       {imageKeys.length === 0 ? (
-        <p className="type-body text-[var(--color-muted-foreground)]">
+        <p className="m-0 rounded-[14px] bg-[var(--color-blue-softer)] px-[18px] py-4 text-[15px] text-[var(--color-ink-2)]">
           {t("serviceImagesEmpty")}
         </p>
       ) : (
@@ -93,15 +93,15 @@ export function StepImages({
             return (
               <li
                 key={key}
-                className="relative overflow-hidden rounded-[var(--radius-card-sm)] border border-[var(--color-border)]"
+                className="relative overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)]"
               >
-                <div className="grid aspect-[4/3] place-items-center bg-[var(--color-muted)]">
+                <div className="grid aspect-[4/3] place-items-center bg-[var(--color-blue-softer)]">
                   {preview ? (
                     <img src={preview} alt="" className="h-full w-full object-cover" />
                   ) : (
                     // Uploaded, but nothing can serve it here. Said plainly
                     // rather than shown as a broken image.
-                    <span className="type-caption px-2 text-center text-[var(--color-muted-foreground)]">
+                    <span className="text-[13px] leading-[1.45] px-2 text-center text-[var(--color-muted-foreground)]">
                       <ImageIcon className="mx-auto mb-1 h-5 w-5" aria-hidden="true" />
                       {t("serviceImagesUnavailable")}
                     </span>
@@ -109,7 +109,7 @@ export function StepImages({
                 </div>
 
                 {i === 0 && (
-                  <span className="type-caption absolute top-1.5 left-1.5 rounded-full bg-[var(--color-primary)] px-2 py-0.5 font-semibold text-white">
+                  <span className="text-[13px] leading-[1.45] absolute top-1.5 left-1.5 rounded-full bg-[var(--color-primary)] px-2 py-0.5 font-semibold text-white">
                     {t("serviceImagesCover")}
                   </span>
                 )}
@@ -146,7 +146,7 @@ export function StepImages({
       )}
 
       {upload.errorKey && (
-        <p className="type-caption text-[var(--color-destructive)]">{t(upload.errorKey)}</p>
+        <p className="text-[13px] leading-[1.45] text-[var(--color-destructive)]">{t(upload.errorKey)}</p>
       )}
 
       <div>

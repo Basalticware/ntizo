@@ -294,5 +294,10 @@
   "servicesCountValue_other": "{{count}} diensten",
   "trustVerifiedReviewed": "Geverifieerde aanbieder, met echte beoordelingen.",
   "availabilityPreviousMonth": "Vorige maand",
-  "availabilityNextMonth": "Volgende maand"
+  "availabilityNextMonth": "Volgende maand",
+  "providersHeroEyebrow": "Aanbieders",
+  "providersHeroTitle": "Betrouwbare vakmensen,\nbij u in de buurt.",
+  "providersHeroSubtitle": "Vergelijk bedrijven en vakmensen op de beoordelingen van hun klanten en de prijs waarvoor ze beginnen.",
+  "providerSearchQuestion": "Welke aanbieder zoekt u?",
+  "providerSearchHint": "Bijv. naam van het bedrijf of de vakman..."
 }

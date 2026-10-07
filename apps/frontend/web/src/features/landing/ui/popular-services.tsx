@@ -36,7 +36,7 @@ export function PopularServices() {
   if (!isLoading && items.length === 0) return null;
 
   return (
-    <section className="page-shell pt-14">
+    <section className="public-inset pt-14">
       <SectionHead
         title={t("home.servicesTitle")}
         blurb={t("home.servicesBlurb")}
@@ -51,7 +51,7 @@ export function PopularServices() {
                     bottom row, so a cold load does not reflow the moment the
                     real card replaces it. */}
                 <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)]">
-                  <Skeleton className="aspect-[4/3] w-full rounded-none" />
+                  <Skeleton className="aspect-[272/127] w-full rounded-none" />
                   <div className="grid gap-2 p-4">
                     <Skeleton className="h-[13px] w-1/3" />
                     <Skeleton className="h-[17px] w-4/5" />

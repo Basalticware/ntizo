@@ -33,8 +33,8 @@ function navLinkClassName(active: boolean, overlay: boolean): string {
   return cn(
     "relative flex h-full items-center gap-1.5 text-sm whitespace-nowrap",
     active
-      ? "font-bold text-[#004bf4] after:absolute after:inset-x-[-8px] after:bottom-0 after:h-[3px] after:rounded-[2px] after:bg-[var(--color-blue-public)]"
-      : "font-medium text-[#2b3a66] hover:text-[var(--color-headline)]",
+      ? "font-bold text-[var(--color-primary)] after:absolute after:inset-x-[-8px] after:bottom-0 after:h-[3px] after:rounded-[2px] after:bg-[var(--color-blue-public)]"
+      : "font-medium text-[var(--color-ink-2)] hover:text-[var(--color-headline)]",
   );
 }
 
@@ -135,7 +135,7 @@ export function SiteHeader({
       className={
         overlay
           ? "absolute inset-x-0 top-0 z-20"
-          : "sticky top-0 z-20 border-b border-[#eef2f8] bg-[var(--color-background)]"
+          : "sticky top-0 z-20 border-b border-[var(--color-line-2)] bg-[var(--color-background)]"
       }
     >
       {/* A wrapping flex below `md`: the logo and the account controls on the
@@ -147,7 +147,7 @@ export function SiteHeader({
       <div
         className={cn(
           "public-inset flex flex-wrap items-center gap-x-2.5 gap-y-3 py-3 text-sm font-medium whitespace-nowrap md:h-[67px] md:flex-nowrap md:py-0",
-          overlay ? "text-white" : "text-[#2b3a66]",
+          overlay ? "text-white" : "text-[var(--color-ink-2)]",
         )}
       >
         {/* `max-w-none` undoes Tailwind's preflight, which caps every `img`

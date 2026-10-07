@@ -50,7 +50,7 @@ export function HelpFaq({
   const matches = searchFaq(entries, query);
 
   return (
-    <div className="grid gap-4 p-4">
+    <div className="grid gap-5 p-5">
       {showSearch && <HelpSearchField />}
       {matches.length === 0 ? (
         <div className="grid gap-3">
@@ -92,7 +92,7 @@ function FaqResults({ matches }: { matches: readonly FaqEntry[] }) {
         if (inCategory.length === 0) return null;
         return (
           <section key={category.id} className="grid gap-2">
-            <h3 className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
+            <h3 className="text-[15px] font-bold text-[var(--color-headline)]">
               {t(`faq.${category.id}.title`)}
             </h3>
             <FaqAccordion

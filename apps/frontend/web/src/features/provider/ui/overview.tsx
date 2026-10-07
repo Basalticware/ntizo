@@ -193,7 +193,7 @@ function HeroArt({ quote }: { quote: string }) {
   return (
     <div className="@container relative hidden aspect-[708/189] w-full sm:block">
       <img src="/console/provider-hero.jpg" alt="" className="block h-full w-full" />
-      <p className="absolute top-[19.6%] left-[74.3%] m-0 h-[61.4%] w-[24.3%] overflow-hidden bg-[#d7edfe] pt-[0.85cqw] pl-[1.84cqw] text-[2.61cqw] leading-[3.39cqw] whitespace-pre-line text-[#142a66]">
+      <p className="absolute top-[19.6%] left-[74.3%] m-0 h-[61.4%] w-[24.3%] overflow-hidden bg-[var(--color-info-bg)] pt-[0.85cqw] pl-[1.84cqw] text-[2.61cqw] leading-[3.39cqw] whitespace-pre-line text-[var(--color-ink-2)]">
         {quote}
       </p>
     </div>

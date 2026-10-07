@@ -109,7 +109,7 @@ export function SortDropdown<Sort extends string>({
             <button
               type="button"
               aria-label={`${sortLabel} ${current?.label ?? ""}`}
-              className="flex h-[42px] w-[170px] items-center rounded-[10px] border border-[#e9eef6] px-3.5 font-medium hover:border-[var(--color-blue-line)]"
+              className="flex h-[42px] w-[170px] items-center rounded-[10px] border border-[var(--color-border)] px-3.5 font-medium hover:border-[var(--color-blue-line)]"
             >
               {current?.label}
               <ChevronDown className="ml-auto h-[15px] w-[15px]" strokeWidth={2.4} aria-hidden="true" />

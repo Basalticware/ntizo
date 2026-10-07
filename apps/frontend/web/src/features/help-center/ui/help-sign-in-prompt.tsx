@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useHelpCenter } from "@/features/help-center/viewmodel/use-help-center";
+import { buttonVariants } from "@ntizo/frontend-ui";
 import { CONTACT } from "@/shared/lib/contact";
 
 /**
@@ -26,16 +27,16 @@ export function HelpSignInPrompt() {
   const help = useHelpCenter();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
-    <div className="grid gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] p-4">
-      <p className="type-body-medium">{t("signedOutTitle")}</p>
-      <p className="type-caption text-[var(--color-muted-foreground)]">
+    <div className="grid gap-2 rounded-[14px] bg-[var(--color-blue-softer)] p-5">
+      <p className="text-[16px] font-semibold text-[var(--color-headline)]">{t("signedOutTitle")}</p>
+      <p className="text-sm leading-relaxed text-[var(--color-muted-foreground)]">
         {t("signedOutBody", { email: CONTACT.support })}
       </p>
       <Link
         to="/sign-in"
         search={{ next: pathname }}
         onClick={() => help.close()}
-        className="type-body-medium text-[var(--color-primary)] hover:underline"
+        className={`mt-2 justify-self-start no-underline ${buttonVariants({ size: "sm" })}`}
       >
         {t("signIn")}
       </Link>

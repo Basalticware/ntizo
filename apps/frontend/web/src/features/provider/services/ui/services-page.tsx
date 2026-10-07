@@ -54,9 +54,9 @@ const KIND_TONE: Record<ServiceKind, "success" | "warning" | "violet" | "danger"
 
 /** The category chip's three grounds, picked by the category so one category always wears the same one. */
 const CHIP_TONES = [
-  "bg-[#f3f2fe] text-[#6d4ee6] dark:bg-[var(--color-violet-bg)]",
-  "bg-[#e7f3fd] text-[#2f7cfb] dark:bg-[var(--color-info-bg)]",
-  "bg-[#e2faf2] text-[#2f9e72] dark:bg-[var(--color-ok-bg)]",
+  "bg-[var(--color-blue-softer)] text-[var(--color-violet-fg)] dark:bg-[var(--color-violet-bg)]",
+  "bg-[var(--color-blue-soft)] text-[var(--color-blue-edge)] dark:bg-[var(--color-info-bg)]",
+  "bg-[var(--color-ok-bg)] text-[var(--color-ok-fg)] dark:bg-[var(--color-ok-bg)]",
 ] as const;
 function chipTone(code: string): string {
   let h = 0;
@@ -216,7 +216,7 @@ export function ServicesPage() {
                 />
               ),
               duration: option?.durationMinutes ? (
-                <IconLine icon={<Clock className="h-[21px] w-[21px] text-[#23388f] dark:text-[var(--color-ink-2)]" />}>
+                <IconLine icon={<Clock className="h-[21px] w-[21px] text-[var(--color-muted-foreground)] dark:text-[var(--color-ink-2)]" />}>
                   {option.durationMinutes < 60
                     ? t("servicesMinutes", { count: option.durationMinutes })
                     : formatHours(option.durationMinutes, locale)}
@@ -263,7 +263,7 @@ export function ServicesPage() {
                   tabIndex={-1}
                   className={cn(
                     DETAILS_BUTTON_CLASS,
-                    "h-11 w-[134px] border-[#5b98fc] px-0 text-[14.5px] max-md:hidden",
+                    "h-11 w-[134px] border-[var(--color-blue-edge)] px-0 text-[14.5px] max-md:hidden",
                     kind === "draft" &&
                       "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-deep)]",
                   )}
@@ -320,7 +320,7 @@ function ServiceCell({
           {name}
         </Link>
         {description && (
-          <p className="mt-1 line-clamp-2 text-sm leading-[21px] text-[#7a87b0] dark:text-[var(--color-muted-foreground)]">
+          <p className="mt-1 line-clamp-2 text-sm leading-[21px] text-[var(--color-faint)] dark:text-[var(--color-muted-foreground)]">
             {description}
           </p>
         )}
@@ -348,7 +348,7 @@ function CategoryChip({ code, name, icon }: { code: string; name: string; icon: 
 /** A small icon and one or two muted lines beside it — duration and hours. */
 function IconLine({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <span className="flex items-center gap-3 text-[13px] leading-[19px] text-[#7381b2] dark:text-[var(--color-muted-foreground)]">
+    <span className="flex items-center gap-3 text-[13px] leading-[19px] text-[var(--color-faint)] dark:text-[var(--color-muted-foreground)]">
       <span aria-hidden="true" className="shrink-0">{icon}</span>
       <span className="min-w-0">{children}</span>
     </span>
@@ -398,7 +398,7 @@ function RowActions({
         <button
           type="button"
           aria-label={t("servicesActions")}
-          className="ml-[9px] grid h-9 w-9 place-items-center rounded-full text-[#1f6fd8] hover:bg-[var(--color-muted)]"
+          className="ml-[9px] grid h-9 w-9 place-items-center rounded-full text-[var(--color-info-fg)] hover:bg-[var(--color-muted)]"
         >
           <MoreHorizontal className="h-[22px] w-[22px]" />
         </button>

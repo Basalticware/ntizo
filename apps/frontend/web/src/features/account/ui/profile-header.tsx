@@ -21,7 +21,7 @@ export function initialsOf(source: string): string {
 /** The initials disc, so reading and editing draw the same face. */
 export function ProfileInitials({ name }: { name: string }) {
   return (
-    <span className="type-h2 flex h-full w-full items-center justify-center bg-[var(--color-navy-surface)] font-semibold text-[var(--color-navy-on)]">
+    <span className="flex h-full w-full items-center justify-center bg-[var(--color-blue-soft)] text-[22px] font-bold text-[var(--color-primary)]">
       {initialsOf(name)}
     </span>
   );
@@ -72,15 +72,19 @@ export function ProfileHeader({
           {user.avatarUrl ? (
             <AvatarImage src={user.avatarUrl} alt={name} />
           ) : null}
-          <AvatarFallback className="type-h2 bg-[var(--color-navy-surface)] font-semibold text-[var(--color-navy-on)]">
+          <AvatarFallback className="bg-[var(--color-blue-soft)] text-[22px] font-bold text-[var(--color-primary)]">
             {initialsOf(name)}
           </AvatarFallback>
         </Avatar>
       )}
 
       <div className="min-w-0 flex-1">
-        <h1 className="type-h1 text-[var(--color-headline)]">{name}</h1>
-        <p className="type-body mt-1 [overflow-wrap:anywhere] text-[var(--color-muted-foreground)]">
+        {/* A card heading, not the page's title: `AccountShell` prints "A
+            minha conta" over the section nav. */}
+        <h2 className="m-0 text-[22px] leading-tight font-bold [overflow-wrap:anywhere] text-[var(--color-headline)]">
+          {name}
+        </h2>
+        <p className="m-0 mt-1.5 text-[15px] [overflow-wrap:anywhere] text-[var(--color-muted-foreground)]">
           {user.phoneNumber ? (
             <>
               {user.phoneNumber}
@@ -92,7 +96,7 @@ export function ProfileHeader({
                   number rather than standing as a verdict on the whole
                   account. */}
               {sessionPending || session?.user?.phoneNumberVerified ? null : (
-                <span className="ml-1.5 text-[var(--color-warning)]">
+                <span className="ml-1.5 font-medium text-[var(--color-warn-fg)]">
                   · {t("phoneUnverified")}
                 </span>
               )}
@@ -101,7 +105,7 @@ export function ProfileHeader({
           ) : null}
           {user.email}
         </p>
-        <p className="type-caption mt-1 text-[var(--color-muted-foreground)]">
+        <p className="m-0 mt-1 text-sm text-[var(--color-muted-foreground)]">
           {t("statMemberSince")} {monthFmt.format(new Date(user.createdAt))}
         </p>
         {note ? <div className="mt-2.5">{note}</div> : null}

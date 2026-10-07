@@ -1,11 +1,17 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Footer } from "@/features/landing/ui/footer";
 import { SectionHead } from "@/features/landing/ui/section-head";
 import { SiteHeader } from "@/shared/components/site-header";
-import { CARD_SURFACE_CLASS } from "@/shared/components/card-surface";
+import {
+  CARD_BODY_CLASS,
+  CARD_TITLE_CLASS,
+  PUBLIC_CARD_CLASS,
+  PUBLIC_PAGE_CLASS,
+  PageIntro,
+} from "@/features/landing/ui/public-page";
 
 export type CompanyPageId = "about" | "contact" | "feedback" | "careers" | "help";
 
@@ -38,6 +44,11 @@ const STRIP: ReadonlyArray<{ id: CompanyPageId; to: string }> = [
  * only thing naming a block, it became that block's heading instead of
  * disappearing.
  *
+ * **On the October 2026 system since.** The title is the 44px heading the
+ * consoles and the listings share (`PageIntro`), the inset is `/services`'
+ * own (`PUBLIC_PAGE_CLASS`), cards carry the system's 24px padding, and the
+ * way on from a card is the brand blue's arrow.
+ *
  * Below the page's own sections, the "see also" strip and the footer, the
  * same on all five — which is how a reader who landed on the wrong page
  * reaches the right one without scrolling for the footer.
@@ -61,29 +72,14 @@ export function CompanyPage({
   const strip = STRIP.filter((link) => link.id !== page).slice(0, 3);
 
   return (
-    <main>
+    <main className={PUBLIC_PAGE_CLASS}>
       <SiteHeader current="none" />
 
-      <section className={`page-shell pt-12 pb-10 ${centred ? "text-center" : ""}`}>
-        <h1
-          className={`font-display max-w-[18ch] text-[clamp(2.2rem,4.6vw,3.2rem)] leading-[1.04] font-extrabold tracking-[-0.032em] text-[var(--color-headline)] ${
-            centred ? "mx-auto" : ""
-          }`}
-        >
-          {title}
-        </h1>
-        <p
-          className={`mt-5 max-w-[54ch] text-[17px] leading-relaxed text-[var(--color-foreground)] ${
-            centred ? "mx-auto" : ""
-          }`}
-        >
-          {lede}
-        </p>
-      </section>
+      <PageIntro title={title} lede={lede} centred={centred} />
 
       {children}
 
-      <section className="page-shell border-t border-[var(--color-border)] pt-12 pb-14">
+      <section className="public-inset border-t border-[var(--color-border)] pt-12 pb-14">
         <SectionHead title={t("shared.seeAlso")} />
         <div className="grid gap-6 md:grid-cols-3">
           {strip.map((link) => (
@@ -91,13 +87,17 @@ export function CompanyPage({
               key={link.id}
               to={link.to}
               search={link.id === "feedback" ? { from: pathname } : undefined}
-              className={`group no-underline ${CARD_SURFACE_CLASS}`}
+              className={`group no-underline hover:border-[var(--color-blue-line)] ${PUBLIC_CARD_CLASS}`}
             >
-              <span className="font-display flex items-center gap-1.5 text-[16.5px] font-bold text-[var(--color-headline)]">
+              <span className={`flex items-center gap-1.5 ${CARD_TITLE_CLASS}`}>
                 {t(`shared.links.${link.id}.title`)}
-                <ChevronRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+                <ArrowRight
+                  className="h-4 w-4 text-[var(--color-primary)]"
+                  strokeWidth={2.4}
+                  aria-hidden="true"
+                />
               </span>
-              <span className="mt-1.5 block text-[14.5px] leading-relaxed text-[var(--color-muted-foreground)]">
+              <span className={`mt-1.5 block ${CARD_BODY_CLASS}`}>
                 {t(`shared.links.${link.id}.body`)}
               </span>
             </Link>

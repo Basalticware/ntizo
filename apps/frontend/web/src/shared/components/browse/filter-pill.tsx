@@ -86,17 +86,17 @@ export function FilterPill({
             // `pagerPageClass` and `facetOptionClass` keep.
             "flex h-[38px] cursor-pointer list-none items-center gap-2 rounded-[19px] border pr-3.5 pl-4 text-[13px] font-medium whitespace-nowrap transition-colors [&::-webkit-details-marker]:hidden",
             on
-              ? "border-[var(--color-blue-line)] bg-[var(--color-blue-soft)] text-[#1f4fd0]"
-              : "border-[#e9eef6] bg-[var(--color-background)] text-[var(--color-ink-2)] hover:border-[var(--color-blue-line)]",
+              ? "border-[var(--color-blue-line)] bg-[var(--color-blue-soft)] text-[var(--color-info-fg)]"
+              : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-ink-2)] hover:border-[var(--color-blue-line)]",
             clear ? "pr-9" : "",
           ].join(" ")}
         >
           {Icon && (
             <span
               aria-hidden="true"
-              className="-ml-2.5 grid h-[26px] w-[26px] place-items-center rounded-full bg-[#dbecfe]"
+              className="-ml-2.5 grid h-[26px] w-[26px] place-items-center rounded-full bg-[var(--color-info-bg)]"
             >
-              <Icon className="h-[15px] w-[15px] text-[#0b5cfd]" strokeWidth={2} />
+              <Icon className="h-[15px] w-[15px] text-[var(--color-primary)]" strokeWidth={2} />
             </span>
           )}
           {active ?? label}
@@ -124,7 +124,7 @@ export function FilterPill({
  * goes back to. See `FilterPill`'s `clear` for why it is outside the summary.
  */
 export const PILL_CLEAR_CLASS =
-  "grid h-[18px] w-[18px] place-items-center rounded-full text-[#1f4fd0] transition-colors hover:bg-[var(--color-blue-line)]";
+  "grid h-[18px] w-[18px] place-items-center rounded-full text-[var(--color-info-fg)] transition-colors hover:bg-[var(--color-blue-line)]";
 
 /**
  * The row the pills sit in, above the results and under the heading.

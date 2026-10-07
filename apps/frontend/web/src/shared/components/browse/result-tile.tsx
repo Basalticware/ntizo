@@ -50,7 +50,7 @@ export function RatingMark({
       aria-label={label}
       className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[var(--color-ink-2)]"
     >
-      <Star className="h-[15px] w-[15px] fill-[#fea800] stroke-none text-[#fea800]" aria-hidden="true" />
+      <Star className="h-[15px] w-[15px] fill-[var(--color-star)] stroke-none text-[var(--color-star)]" aria-hidden="true" />
       <span className="tabular-nums">{formatRating(average, locale)}</span>
       {count != null && (
         <span className="font-normal text-[var(--color-muted-foreground)]">({count})</span>

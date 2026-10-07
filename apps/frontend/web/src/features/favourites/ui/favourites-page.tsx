@@ -2,14 +2,18 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import { Heart } from "lucide-react";
-import { Button, Skeleton, cn } from "@ntizo/frontend-ui";
+import { Button, Skeleton, buttonVariants, cn } from "@ntizo/frontend-ui";
 import { EmptyCard } from "@/shared/components/empty-card";
 import { ServiceCard } from "@/shared/components/browse/service-card";
 import { ProviderCard } from "@/shared/components/browse/provider-card";
 import { listDisplayName } from "@/features/favourites/domain/list-name";
-import type { FavouriteEntry, FavouriteList } from "@/features/favourites/domain/types";
+import type {
+  FavouriteEntry,
+  FavouriteList,
+} from "@/features/favourites/domain/types";
 import { useMyLists } from "@/features/favourites/viewmodel/use-my-lists";
 import { useFavouriteListPage } from "@/features/favourites/viewmodel/use-list-page";
+import { CustomerPageHeading } from "@/features/account/ui/customer-page";
 
 /** How many card-shaped placeholders a cold load draws. */
 const SKELETONS = 8;
@@ -62,16 +66,14 @@ export function FavouritesPage() {
   // chosen id that no longer matches anything (a list deleted in another tab)
   // falls back to it rather than leaving the page with nothing to show.
   const current = lists.find((l) => l.id === chosenId) ?? lists[0];
-  const { entries, loading, hasMore, loadingMore, loadMore } = useFavouriteListPage(
-    current?.id,
-    locale,
-  );
+  const { entries, loading, hasMore, loadingMore, loadMore } =
+    useFavouriteListPage(current?.id, locale);
 
   return (
-    <div>
-      <h1 className="type-h1">{t("favouritesTitle")}</h1>
+    <div className="w-full max-w-[1400px]">
+      <CustomerPageHeading title={t("favouritesTitle")} />
 
-      <div className="mt-8">
+      <div className="mt-[30px]">
         {/* The chips come before any branch below, so choosing a list does not
             make the row disappear while that list loads. */}
         {lists.length > 1 && (
@@ -92,10 +94,14 @@ export function FavouritesPage() {
         {listsLoading || loading ? (
           <CardSkeletons />
         ) : entries.length === 0 ? (
-          <EmptyState hasOtherLists={lists.length > 1} isDefault={current?.isDefault ?? true} t={t} />
+          <EmptyState
+            hasOtherLists={lists.length > 1}
+            isDefault={current?.isDefault ?? true}
+            t={t}
+          />
         ) : (
           <>
-            <ul className="grid list-none grid-cols-1 gap-x-6 gap-y-8 p-0 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <ul className="m-0 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {entries.map((entry) => (
                 <li key={entryKey(entry)}>
                   <EntryCard entry={entry} locale={locale} />
@@ -104,15 +110,19 @@ export function FavouritesPage() {
             </ul>
 
             {hasMore && (
-              <div className="mt-10 flex justify-center">
+              <div className="mt-8 flex justify-center">
                 <Button
                   type="button"
                   variant="outline"
+                  size="sm"
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="px-7"
                 >
-                  {t(loadingMore ? "favouritesLoadingMore" : "favouritesLoadMore")}
+                  {t(
+                    loadingMore
+                      ? "favouritesLoadingMore"
+                      : "favouritesLoadMore",
+                  )}
                 </Button>
               </div>
             )}
@@ -132,7 +142,13 @@ export function FavouritesPage() {
  * third kind added server-side must cost the reader one missing card, not a
  * blank page.
  */
-function EntryCard({ entry, locale }: { entry: FavouriteEntry; locale: string }) {
+function EntryCard({
+  entry,
+  locale,
+}: {
+  entry: FavouriteEntry;
+  locale: string;
+}) {
   if (entry.kind === "service") {
     return <ServiceCard service={entry.service} locale={locale} />;
   }
@@ -166,6 +182,10 @@ function entryKey(entry: FavouriteEntry): string {
  * than links because the choice does not change the URL; that is the cost of
  * keeping this to one route, and it means a reload comes back to the default
  * list rather than the chosen one.
+ *
+ * Drawn as `StatusTabs` draws its boxes — the chosen one on the soft blue
+ * ground with the count in a blue chip — so the row reads as the same
+ * control the bookings and the quotes put over their lists.
  */
 function ListChips({
   lists,
@@ -181,7 +201,11 @@ function ListChips({
   const { t } = useTranslation();
 
   return (
-    <div role="radiogroup" aria-label={label} className="mb-7 flex flex-wrap gap-2.5">
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className="-mx-1 mb-7 flex gap-[15px] overflow-x-auto px-1 py-px [scrollbar-width:none]"
+    >
       {lists.map((list) => {
         const current = list.id === currentId;
         return (
@@ -192,14 +216,23 @@ function ListChips({
             aria-checked={current}
             onClick={() => onChoose(list.id)}
             className={cn(
-              "rounded-full border px-4 py-2 text-[13.5px] font-semibold transition-colors",
+              "inline-flex h-[47px] shrink-0 items-center gap-3.5 rounded-[10px] border px-5 text-base font-medium whitespace-nowrap transition-colors",
               current
-                ? "border-[var(--color-navy-surface)] bg-[var(--color-navy-surface)] text-[var(--color-navy-on)]"
-                : "border-[var(--color-border-strong)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]",
+                ? "border-[var(--color-blue-line)] bg-[var(--color-blue-soft)] text-[color-mix(in_srgb,var(--color-primary)_80%,var(--color-headline))]"
+                : "border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-headline)] hover:border-[var(--color-blue-line)]",
             )}
           >
             {listDisplayName(list, t)}
-            <span className="ml-1.5 font-normal opacity-70 tabular-nums">{list.itemCount}</span>
+            <span
+              className={cn(
+                "grid h-[26px] min-w-[26px] place-items-center rounded-full px-[7px] text-sm font-semibold tabular-nums",
+                current
+                  ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                  : "bg-[var(--color-muted)] text-[var(--color-muted-foreground)]",
+              )}
+            >
+              {list.itemCount}
+            </span>
           </button>
         );
       })}
@@ -230,14 +263,15 @@ function EmptyState({
     <EmptyCard
       framed
       badge={Heart}
-      title={t(nothingAnywhere ? "favouritesEmptyTitle" : "favouritesListEmptyTitle")}
-      body={t(nothingAnywhere ? "favouritesEmptyBody" : "favouritesListEmptyBody")}
+      title={t(
+        nothingAnywhere ? "favouritesEmptyTitle" : "favouritesListEmptyTitle",
+      )}
+      body={t(
+        nothingAnywhere ? "favouritesEmptyBody" : "favouritesListEmptyBody",
+      )}
       action={
         nothingAnywhere ? (
-          <Link
-            to="/services"
-            className="rounded-full bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
-          >
+          <Link to="/services" className={buttonVariants({ size: "sm" })}>
             {t("favouritesEmptyAction")}
           </Link>
         ) : undefined
@@ -257,11 +291,11 @@ function CardSkeletons() {
   return (
     <ul
       aria-hidden="true"
-      className="grid list-none grid-cols-1 gap-x-6 gap-y-8 p-0 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+      className="m-0 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
     >
       {Array.from({ length: SKELETONS }, (_, i) => (
         <li key={i}>
-          <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)]">
+          <div className="overflow-hidden rounded-[10px] border border-[var(--color-border)]">
             <Skeleton className="aspect-[4/3] w-full rounded-none" />
             <div className="grid gap-2 p-4">
               <Skeleton className="h-[13px] w-1/3" />

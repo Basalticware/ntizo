@@ -8,17 +8,29 @@
  */
 import { useTranslation } from "react-i18next";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BORDER, CARD, MUTED, NAVY } from "@/features/landing/ui/palette";
 import { CONTACT } from "@/shared/lib/contact";
 import { useHelpCenter } from "@/features/help-center/viewmodel/use-help-center";
 
 /**
  * The two brands' own colours, kept out of the markup so the pair reads as a
- * set. Instagram has no single colour — the gradient is the mark — and this is
+ * set. With M-Pesa's red they are the only literal colours left in the
+ * footer, on purpose: a brand's mark is its colour, in light mode and dark. Instagram has no single colour — the gradient is the mark — and this is
  * the linear approximation of it that its own brand assets use at small sizes.
  */
 const INSTAGRAM = "linear-gradient(45deg, #F9CE34 0%, #EE2A7B 50%, #6228D7 100%)";
 const LINKEDIN = "#0A66C2";
+/** M-Pesa's own red, for the one payment chip. */
+const MPESA = "#e60000";
+
+/**
+ * A footer row, link or button alike. `text-start` matters on the button: the
+ * browser's own stylesheet centres a button's label and Tailwind's preflight
+ * does not reset it, so without it "Falar com o suporte" sat in the middle of
+ * a column whose every neighbour sits at its left edge. `start` rather than
+ * `left`, so it still means the reading edge in a right-to-left locale.
+ */
+const LINK_CLASS =
+  "text-sm text-[var(--color-muted-foreground)] no-underline hover:text-[var(--color-headline)] hover:underline";
 
 export function Footer() {
   const { t } = useTranslation("landing"); // t:Footer
@@ -26,20 +38,22 @@ export function Footer() {
   const help = useHelpCenter();
   return (
     <>
-      <footer style={footer}>
-        <div className="mx-auto grid max-w-[1320px] grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 lg:grid-cols-[1.6fr_1fr_1fr_1fr] lg:gap-10">
+      {/* White, with a hairline instead of a tint — on tokens, so it turns with
+          dark mode like the page above it. The inset is the page's own
+          `--pw-pad`, so the footer's columns start where the header's logo
+          does. */}
+      <footer className="public-inset mt-[60px] border-t border-[var(--color-border)] bg-[var(--color-card)] pt-[60px] pb-8 text-[var(--color-card-foreground)]">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 lg:grid-cols-[1.6fr_1fr_1fr_1fr] lg:gap-10">
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">
-            <img
-              src="/brand/logo-primary.svg"
-              alt="Ntizo"
-              style={{ height: 28 }}
-            />
+            <img src="/brand/logo-primary.svg" alt="Ntizo" className="h-7 w-auto" />
             {/* Through i18next. It used to be an English sentence written
                 into the markup, so this one paragraph stayed in English on a
                 page whose every other word followed the language switcher —
                 and `footer.blurb`, which says the same thing in all eight,
                 sat in the locale files with nothing reading it. */}
-            <p style={footerDesc}>{t("footer.blurb")}</p>
+            <p className="mt-4 max-w-[300px] text-sm leading-relaxed text-[var(--color-muted-foreground)]">
+              {t("footer.blurb")}
+            </p>
           </div>
 
           <FooterCol title={t("footer.support")}>
@@ -61,7 +75,11 @@ export function Footer() {
             {/* A button, not a link: support is the panel, which opens over
                 whatever page the reader is on. `#132`'s "or `/help` until it
                 exists" no longer applies — it exists. */}
-            <button type="button" onClick={() => help.composeNew()} style={footerLinkButton}>
+            <button
+              type="button"
+              onClick={() => help.composeNew()}
+              className={`${LINK_CLASS} cursor-pointer text-start`}
+            >
               {t("footer.links.support")}
             </button>
             <FooterLink to="/help">{t("footer.links.faq")}</FooterLink>
@@ -91,15 +109,12 @@ export function Footer() {
               on a footer a reader is most likely to act on. */}
         </div>
 
-        <div
-          className="mx-auto mt-12 flex max-w-[1320px] flex-col items-start justify-between gap-6 border-t pt-8 sm:flex-row sm:items-center"
-          style={{ borderColor: BORDER }}
-        >
+        <div className="mt-12 flex flex-col items-start justify-between gap-6 border-t border-[var(--color-border)] pt-8 sm:flex-row sm:items-center">
           <div>
-            <div style={{ fontSize: 13, color: MUTED, marginBottom: 12 }}>
+            <div className="mb-3 text-[13px] text-[var(--color-muted-foreground)]">
               {t("footer.ourSocials")}
             </div>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div className="flex gap-2.5">
               <SocialIcon
                 href={CONTACT.instagram}
                 label="Instagram"
@@ -116,8 +131,7 @@ export function Footer() {
               </SocialIcon>
             </div>
           </div>
-          {/* The alignment is a breakpoint's business, so it is in classes
-              rather than in the inline styles the rest of this file leans on.
+          {/* The alignment is a breakpoint's business, so it is in classes.
               The strip is a row from `sm` up, socials at one end and payments
               at the other, so the block right-aligns to meet the edge. Below
               `sm` the strip stacks `items-start` and the inline
@@ -125,7 +139,7 @@ export function Footer() {
               the label sat left and the chip was pushed to the far side of
               it, which is what a reader sees as a chip belonging to nothing. */}
           <div className="text-left sm:text-right">
-            <div style={{ fontSize: 13, color: MUTED, marginBottom: 12 }}>
+            <div className="mb-3 text-[13px] text-[var(--color-muted-foreground)]">
               {t("footer.acceptedPayments")}
             </div>
             <div className="flex flex-wrap justify-start gap-2.5 sm:justify-end">
@@ -134,7 +148,7 @@ export function Footer() {
                   the checkout refuses — see the FAQ's "que métodos aceitam".
                   Each returns the day its charge path ships
                   (follow-ups #129). */}
-              <PayChip color="#e60000">M-Pesa</PayChip>
+              <PayChip color={MPESA}>M-Pesa</PayChip>
             </div>
           </div>
         </div>
@@ -142,7 +156,7 @@ export function Footer() {
         {/* Through i18next like the blurb above it. "All rights reserved."
             was the last English sentence left in the markup, so it stayed in
             English under a footer that had just translated everything else. */}
-        <div style={copyright}>
+        <div className="mt-8 border-t border-[var(--color-border)] pt-6 text-center text-[13px] text-[var(--color-muted-foreground)]">
           © {new Date().getFullYear()} Ntizo. {t("footer.rights")}
         </div>
       </footer>
@@ -159,8 +173,8 @@ function FooterCol({
 }) {
   return (
     <div>
-      <h2 style={footerTitle}>{title}</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <h2 className="mb-4 text-[15px] font-bold text-[var(--color-headline)]">{title}</h2>
+      <div className="flex flex-col gap-2.5">
         {children}
       </div>
     </div>
@@ -180,12 +194,12 @@ function FooterLink({
 }) {
   if (to)
     return (
-      <Link to={to} search={search} style={footerLink}>
+      <Link to={to} search={search} className={LINK_CLASS}>
         {children}
       </Link>
     );
   return (
-    <a href={href ?? "#"} style={footerLink}>
+    <a href={href ?? "#"} className={LINK_CLASS}>
       {children}
     </a>
   );
@@ -208,21 +222,16 @@ function FooterMeta({
   value: string;
   href?: string;
 }) {
-  const style: React.CSSProperties = {
-    fontSize: 14,
-    color: NAVY,
-    fontWeight: 600,
-    textDecoration: "none",
-  };
+  const valueClass = "text-sm font-semibold text-[var(--color-headline)] no-underline";
   return (
     <div>
-      <div style={{ fontSize: 12, color: MUTED }}>{label}</div>
+      <div className="text-[13px] text-[var(--color-muted-foreground)]">{label}</div>
       {href ? (
-        <a href={href} style={style}>
+        <a href={href} className={`${valueClass} hover:underline`}>
           {value}
         </a>
       ) : (
-        <div style={style}>{value}</div>
+        <div className={valueClass}>{value}</div>
       )}
     </div>
   );
@@ -250,7 +259,8 @@ function SocialIcon({
   return (
     <a
       href={href}
-      style={{ ...socialIcon, background }}
+      style={{ background }}
+      className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-full text-white no-underline"
       aria-label={label}
       // Both of these leave the site, so both open away from it. `noopener` is
       // the half that matters: without it the opened page can reach back
@@ -270,7 +280,14 @@ function PayChip({
   color: string;
   children: React.ReactNode;
 }) {
-  return <span style={{ ...payChip, color }}>{children}</span>;
+  return (
+    <span
+      style={{ color }}
+      className="rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3.5 py-2 text-[13px] font-extrabold tracking-[0.02em]"
+    >
+      {children}
+    </span>
+  );
 }
 
 function InstagramGlyph() {
@@ -298,109 +315,3 @@ function LinkedInGlyph() {
     </svg>
   );
 }
-
-/* ---------- styles ---------- */
-
-/**
- * The footer's own styles.
- *
- * Layout moved to classes, values stayed here. Inline styles cannot carry a
- * media query, so the five-column grid held at every width — on a phone it was
- * five sixty-pixel columns of stacked words. Anything that has to change with
- * the viewport belongs in a class; anything that does not can stay.
- */
-const footer: React.CSSProperties = {
-  marginTop: 60,
-  // White, with a hairline instead of a tint. The footer was the last
-  // `#f2f8fe` surface on the site once the home, the listings and the
-  // provider pitch all went white — a tinted band under a white page reads as
-  // a section that failed to load its background, and it was on every page
-  // including the ones already following the new rules.
-  background: CARD,
-  borderTop: `1px solid ${BORDER}`,
-  // 24px, matching `.page-shell`'s gutter. At 48 the footer's content sat
-  // inset from every section above it on anything narrower than ~1416px —
-  // the same 1320 ceiling, a different edge.
-  padding: "60px 24px 32px",
-};
-
-const footerDesc: React.CSSProperties = {
-  marginTop: 16,
-  fontSize: 13,
-  lineHeight: 1.6,
-  color: MUTED,
-  maxWidth: 280,
-};
-
-const footerTitle: React.CSSProperties = {
-  fontSize: 13,
-  fontWeight: 700,
-  color: NAVY,
-  marginTop: 0,
-  marginBottom: 16,
-  textTransform: "uppercase",
-  letterSpacing: "0.06em",
-};
-
-const footerLink: React.CSSProperties = {
-  fontSize: 14,
-  color: MUTED,
-  textDecoration: "none",
-};
-
-/**
- * The same row, when the row is a button rather than a link.
- *
- * `FooterCol` lays its children out as a flex column, so every row stretches
- * to the column's width. An `<a>` keeps its text at the start of that box;
- * a `<button>` does not — `text-align: center` comes from the browser's own
- * stylesheet, and Tailwind's preflight does not reset it (it resets the
- * button's padding, border, background and font, which is why this one looked
- * like a link in every respect *except* that its label sat in the middle of
- * the column while every neighbour sat at the left edge).
- *
- * `start` rather than `left` so the rule still means "the reading edge" if a
- * right-to-left locale is ever added; there is none today and it costs
- * nothing to be right in advance.
- */
-const footerLinkButton: React.CSSProperties = {
-  ...footerLink,
-  textAlign: "start",
-  cursor: "pointer",
-};
-
-
-/**
- * The shape only. Each icon supplies its own `background`, and the glyph is
- * white on top of it — which is why the colour is not here.
- */
-const socialIcon: React.CSSProperties = {
-  width: 38,
-  height: 38,
-  borderRadius: 999,
-  color: "#fff",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  textDecoration: "none",
-};
-
-const payChip: React.CSSProperties = {
-  fontSize: 12,
-  fontWeight: 800,
-  background: CARD,
-  border: `1px solid ${BORDER}`,
-  padding: "8px 14px",
-  borderRadius: 999,
-  letterSpacing: "0.02em",
-};
-
-const copyright: React.CSSProperties = {
-  maxWidth: 1320,
-  margin: "32px auto 0",
-  paddingTop: 24,
-  borderTop: `1px solid ${BORDER}`,
-  textAlign: "center",
-  fontSize: 12,
-  color: MUTED,
-};

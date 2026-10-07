@@ -20,8 +20,8 @@ export function TrustList({ items }: { items: readonly string[] }) {
   return (
     <ul className="mt-5 grid list-none gap-3 p-0 pl-1">
       {items.map((item) => (
-        <li key={item} className="grid grid-cols-[19px_minmax(0,1fr)] gap-3.5 text-sm leading-normal text-[#4f5b87]">
-          <Check aria-hidden="true" strokeWidth={2.4} className="mt-px h-[19px] w-[19px] text-[#13a64a]" />
+        <li key={item} className="grid grid-cols-[19px_minmax(0,1fr)] gap-3.5 text-sm leading-normal text-[var(--color-muted-foreground)]">
+          <Check aria-hidden="true" strokeWidth={2.4} className="mt-px h-[19px] w-[19px] text-[var(--color-ok-fg)]" />
           <span>{item}</span>
         </li>
       ))}

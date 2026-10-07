@@ -2,15 +2,46 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  Briefcase,
+  CalendarDays,
+  Clock,
+  Hourglass,
+  MapPin,
+  MessageSquare,
+  Pencil,
+  User,
+  X,
+} from "lucide-react";
 import { QUOTE_PROVIDER_DECLINE_REASONS, type QuoteProviderDeclineReason } from "@ntizo/shared";
-import { Skeleton } from "@ntizo/frontend-ui";
+import {
+  Avatar,
+  AvatarFallback,
+  Button,
+  Skeleton,
+  buttonVariants,
+  cn,
+} from "@ntizo/frontend-ui";
 import { EmptyCard } from "@/shared/components/empty-card";
 import { GraphqlError } from "@/shared/lib/graphql/session-graphql";
+import { initialsFrom } from "@/shared/lib/initials";
 import { formatMoney } from "@/features/wallet/domain/money";
 import { momentWording, slotWording } from "@/features/checkout/domain/slot-wording";
 import { useAttachments } from "@/features/messaging/viewmodel/use-attachments";
 import { useActiveProvider } from "@/features/provider/viewmodel/use-active-provider";
+import {
+  CardHead,
+  DataRow,
+  DETAIL_BACK_CLASS,
+  DETAIL_CARD,
+  DETAIL_COLUMNS,
+  DETAIL_CRUMB_LINK_CLASS,
+  DetailCrumb,
+  DetailHead,
+  MetaLine,
+  Timeline,
+} from "@/features/provider/ui/detail-kit";
 import { canDecline, canPropose, revisionCount } from "@/features/quotes/domain/status";
 import { QuoteStatusLine } from "@/features/quotes/ui/quote-status";
 import { QuoteAttachmentList } from "@/features/quotes/ui/attachment-list";
@@ -21,10 +52,6 @@ import {
   type ProposeQuoteInput,
 } from "../viewmodel/use-provider-quotes";
 import { ProposalForm, type ProposalFormInitialValues } from "./proposal-form";
-
-const CAPTION =
-  "type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase";
-const CARD = "rounded-[var(--radius-card)] border border-[var(--color-border)] p-5";
 
 /** The timeline's short form — "5 Set, 08:00" — the same shape `booking-page.tsx`'s own `stamp` uses. */
 function shortWhen(iso: string, locale: string, timeZone: string): string {
@@ -125,6 +152,10 @@ const PROPOSE_ERROR_COPY: Record<string, string> = {
  * customer sent, at full size, on the left; the proposal form (or, once one
  * exists, the proposal itself) on the right.
  *
+ * Drawn in the booking page's layout family (`detail-kit.tsx`, after the
+ * October mockup's booking file): crumb, title row and meta line, cards on
+ * the left, and a rail with the proposal, the actions and the history.
+ *
  * Follows `provider/bookings/ui/booking-page.tsx` for shape: the back link,
  * the four early returns (loading, error, not found, then the page), every
  * hook above that ladder, one clock read once per render.
@@ -175,30 +206,38 @@ export function ProviderQuotePage({ quoteId }: { quoteId: string }) {
   if (!activeProvider) return null;
   const slug = activeProvider.slug;
 
-  const back = (
+  const crumbLink = (
+    <Link to="/provider/$slug/quotes" params={{ slug }} className={DETAIL_CRUMB_LINK_CLASS}>
+      {t("provider.back")}
+    </Link>
+  );
+  const backSquare = (
     <Link
       to="/provider/$slug/quotes"
       params={{ slug }}
-      className="type-caption inline-flex items-center gap-1.5 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+      aria-label={t("provider.back")}
+      className={DETAIL_BACK_CLASS}
     >
-      <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-      {t("provider.back")}
+      <ArrowLeft className="h-[22px] w-[22px]" aria-hidden="true" />
     </Link>
+  );
+  const crumb = (current: string) => (
+    <DetailCrumb label={t("provider.title")} link={crumbLink} current={current} />
   );
 
   if (query.isLoading) {
     return (
-      <div className="mx-auto grid max-w-6xl gap-4">
-        {back}
+      <div className="grid w-full max-w-[1400px] gap-4">
+        {crumb(t("provider.title"))}
         <Skeleton className="h-10 w-1/2" />
-        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-48 w-full rounded-[14px]" />
       </div>
     );
   }
   if (query.isError) {
     return (
-      <div className="mx-auto grid max-w-6xl gap-4">
-        {back}
+      <div className="grid w-full max-w-[1400px] gap-4">
+        {crumb(t("provider.title"))}
         <p role="alert" className="type-body text-[var(--color-destructive)]">
           {t("provider.loadError")}
         </p>
@@ -207,8 +246,8 @@ export function ProviderQuotePage({ quoteId }: { quoteId: string }) {
   }
   if (!q) {
     return (
-      <div className="mx-auto grid max-w-6xl gap-4">
-        {back}
+      <div className="grid w-full max-w-[1400px] gap-4">
+        {crumb(t("provider.title"))}
         <EmptyCard
           framed
           title={t("provider.notFoundTitle")}
@@ -277,29 +316,68 @@ export function ProviderQuotePage({ quoteId }: { quoteId: string }) {
       }
     : undefined;
 
-  return (
-    <div className="mx-auto max-w-6xl">
-      {back}
+  const actions = (
+    <>
+      {q.threadId && (
+        <Link
+          to="/messages"
+          search={{ thread: q.threadId }}
+          className={buttonVariants({ variant: "secondary" })}
+        >
+          <MessageSquare aria-hidden="true" />
+          {t("provider.chatWith", { name: q.customerFirstName })}
+        </Link>
+      )}
+      {canDecline(q) && (
+        <Button
+          type="button"
+          variant="outline"
+          className="text-[var(--color-destructive)] hover:text-[var(--color-destructive)]"
+          onClick={() => {
+            setNotice(undefined);
+            setDeclining(true);
+          }}
+        >
+          <X aria-hidden="true" />
+          {t("propose.decline")}
+        </Button>
+      )}
+    </>
+  );
+  const hasActions = Boolean(q.threadId) || canDecline(q);
 
-      <header className="mt-4">
-        <h1 className="type-h1">{q.customerFirstName}</h1>
-        <p className="type-body mt-1 text-[var(--color-muted-foreground)]">{q.serviceName}</p>
-        <div className="mt-2">
+  return (
+    <div className="flex w-full max-w-[1400px] flex-col">
+      {crumb(q.customerFirstName)}
+
+      <DetailHead back={backSquare} title={q.customerFirstName}>
+        <MetaLine
+          items={[
+            { key: "service", icon: Briefcase, text: q.serviceName },
+            {
+              key: "requested",
+              icon: Clock,
+              text: <span className="tabular-nums">{shortWhen(q.requestedAt, locale, q.timezone)}</span>,
+            },
+          ]}
+        />
+        <div className="mt-3.5">
           <QuoteStatusLine quote={q} side="provider" now={now} />
         </div>
-      </header>
+      </DetailHead>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        <div className="min-w-0 grid gap-5">
+      <div className={DETAIL_COLUMNS}>
+        <div className="grid min-w-0 gap-6">
           {/* O pedido */}
-          <section className={CARD}>
-            <h2 className="type-h3">{t("provider.requestTitle")}</h2>
-            <p className="type-body mt-3 whitespace-pre-line">{q.description}</p>
-            <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-              {q.neededBy && (
-                <div>
-                  <dt className={CAPTION}>{t("provider.neededByLabel")}</dt>
-                  <dd className="type-body mt-1">
+          <section className={DETAIL_CARD}>
+            <CardHead title={t("provider.requestTitle")} />
+            <p className="mt-3 mb-0 text-[15px] leading-[1.55] whitespace-pre-line text-[var(--color-ink-2)]">
+              {q.description}
+            </p>
+            {(q.neededBy || location !== "") && (
+              <dl className="mt-5 mb-0 grid gap-4 border-t border-[var(--color-line-2)] pt-5">
+                {q.neededBy && (
+                  <DataRow icon={CalendarDays} label={t("provider.neededByLabel")}>
                     {/* `neededBy` is a calendar date with no zone of its
                         own — `UTC` is what makes the digits round-trip, the
                         same note the customer's own `quote-page.tsx` makes. */}
@@ -308,85 +386,71 @@ export function ProviderQuotePage({ quoteId }: { quoteId: string }) {
                       month: "long",
                       timeZone: "UTC",
                     }).format(new Date(q.neededBy))}
-                  </dd>
-                </div>
-              )}
-              {location !== "" && (
-                <div>
-                  <dt className={CAPTION}>{t("provider.whereLabel")}</dt>
-                  <dd className="type-body mt-1">{location}</dd>
-                  <dd className="type-caption mt-0.5 text-[var(--color-muted-foreground)]">
-                    {t("provider.whereNote")}
-                  </dd>
-                </div>
-              )}
-            </dl>
+                  </DataRow>
+                )}
+                {location !== "" && (
+                  <DataRow icon={MapPin} label={t("provider.whereLabel")}>
+                    <span className="block">{location}</span>
+                    <span className="mt-0.5 block text-sm text-[var(--color-muted-foreground)]">
+                      {t("provider.whereNote")}
+                    </span>
+                  </DataRow>
+                )}
+              </dl>
+            )}
             {q.requestAttachments.length > 0 && (
-              <div className="mt-4">
+              <div className="mt-5">
                 <QuoteAttachmentList attachments={q.requestAttachments} />
               </div>
             )}
           </section>
 
           {/* Quem pede */}
-          <section className={CARD}>
-            <h2 className="type-h3">{t("provider.whoAsks")}</h2>
-            <p className="type-body-medium mt-2 font-semibold">{q.customerFirstName}</p>
-            <p className="type-body mt-1 text-[var(--color-muted-foreground)]">
-              {t("provider.completedBookings", { count: q.customerCompletedBookings })}
-            </p>
-          </section>
-
-          {/* Historial */}
-          <section className={CARD}>
-            <h2 className="type-h3">{t("provider.historyTitle")}</h2>
-            <ol className="mt-3 grid list-none gap-4 p-0">
-              {q.closedReason && (
-                <li className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3">
-                  <span aria-hidden="true" />
-                  <div>
-                    <p className="type-body-medium font-semibold">
-                      {t(`close.reason.${q.closedReason}`, { defaultValue: q.closedReason })}
-                    </p>
-                    {q.closedNote && <p className="type-body mt-1">{q.closedNote}</p>}
-                    {q.closingAttachments.length > 0 && (
-                      <div className="mt-1.5">
-                        <QuoteAttachmentList attachments={q.closingAttachments} />
-                      </div>
-                    )}
-                  </div>
-                </li>
-              )}
-              <li className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3">
-                <time className="type-caption text-[var(--color-muted-foreground)]">
-                  {shortWhen(q.requestedAt, locale, q.timezone)}
-                </time>
-                <p className="type-body-medium font-semibold">{t("provider.requestReceived")}</p>
-              </li>
-            </ol>
+          <section className={DETAIL_CARD}>
+            <CardHead title={t("provider.whoAsks")} />
+            <div className="mt-4 flex items-center gap-[18px]">
+              <Avatar className="h-[64px] w-[64px] shrink-0">
+                <AvatarFallback className="bg-[var(--color-blue-soft)] text-xl font-semibold text-[var(--color-primary)]">
+                  {initialsFrom(q.customerFirstName)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="m-0 truncate text-base font-bold text-[var(--color-headline)]">
+                  {q.customerFirstName}
+                </p>
+                <p className="m-0 mt-1.5 text-[14.5px] text-[var(--color-muted-foreground)]">
+                  {t("provider.completedBookings", { count: q.customerCompletedBookings })}
+                </p>
+              </div>
+            </div>
           </section>
         </div>
 
-        <aside className="grid gap-4 lg:sticky lg:top-6">
+        <aside className="grid min-w-0 gap-6 lg:sticky lg:top-6">
           {canPropose(q) && editingNow ? (
-            <ProposalForm
-              commissionBps={q.commissionBps}
-              // No top-level currency on the quote itself, only on a
-              // proposal that already exists — MZN is this launch's only
-              // currency, the same fallback `formatMoney` callers across the
-              // app already make (see `DEFAULT_OPTION_CURRENCY`).
-              currency={q.proposal?.currency ?? "MZN"}
-              performers={q.performers}
-              timezone={q.timezone}
-              onSubmit={send}
-              busy={busy}
-              notice={notice}
-              isRevision={hasLiveProposal}
-              initialValues={revisionValues}
-              attachments={proposeAttachments}
-            />
+            <section className={DETAIL_CARD}>
+              <ProposalForm
+                commissionBps={q.commissionBps}
+                // No top-level currency on the quote itself, only on a
+                // proposal that already exists — MZN is this launch's only
+                // currency, the same fallback `formatMoney` callers across the
+                // app already make (see `DEFAULT_OPTION_CURRENCY`).
+                currency={q.proposal?.currency ?? "MZN"}
+                performers={q.performers}
+                timezone={q.timezone}
+                onSubmit={send}
+                busy={busy}
+                notice={notice}
+                isRevision={hasLiveProposal}
+                initialValues={revisionValues}
+                attachments={proposeAttachments}
+              />
+              {hasActions && (
+                <div className="mt-5 grid gap-3 border-t border-[var(--color-line-2)] pt-5">{actions}</div>
+              )}
+            </section>
           ) : q.proposal ? (
-            <section className={CARD}>
+            <section className={DETAIL_CARD}>
               {/* "Proposta enviada" the instant this page is the one that
                   sent it — `editing === false` only ever happens by a
                   successful `send` below, never by loading a quote that was
@@ -395,47 +459,37 @@ export function ProviderQuotePage({ quoteId }: { quoteId: string }) {
                   `hasLiveProposal`). Loading the same page again a minute
                   later reads the plain "A sua proposta" instead: it is no
                   longer news. */}
-              <h2 className="type-h3">
-                {t(editing === false ? "propose.sentTitle" : "propose.title")}
-              </h2>
-              <p className="mt-2">
-                <span className="type-display text-[var(--color-primary)] tabular-nums">
-                  {formatMoney(q.proposal.priceMinor, q.proposal.currency, locale)}
-                </span>
+              <CardHead title={t(editing === false ? "propose.sentTitle" : "propose.title")} />
+              <p className="mt-3 mb-0 font-display text-[30px] leading-none font-extrabold text-[var(--color-headline)] tabular-nums">
+                {formatMoney(q.proposal.priceMinor, q.proposal.currency, locale)}
               </p>
-              <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div>
-                  <dt className={CAPTION}>{t("propose.dateLabel")}</dt>
-                  <dd className="type-body mt-1">{proposalWhen!.date}</dd>
-                </div>
-                <div>
-                  <dt className={CAPTION}>{t("propose.timeLabel")}</dt>
-                  <dd className="type-body mt-1 tabular-nums">
+              <dl className="mt-5 mb-0 grid gap-4">
+                <DataRow icon={CalendarDays} label={t("propose.dateLabel")}>
+                  {proposalWhen!.date}
+                </DataRow>
+                <DataRow icon={Clock} label={t("propose.timeLabel")}>
+                  <span className="tabular-nums">
                     {proposalWhen!.start} – {proposalWhen!.end}
-                  </dd>
-                </div>
-                <div>
-                  <dt className={CAPTION}>{t("propose.durationLabel")}</dt>
-                  <dd className="type-body mt-1">
-                    {durationWording(q.proposal.durationMinutes, t)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className={CAPTION}>{t("propose.memberLabel")}</dt>
-                  <dd className="type-body mt-1">{q.proposal.memberFirstName}</dd>
-                </div>
+                  </span>
+                </DataRow>
+                <DataRow icon={Hourglass} label={t("propose.durationLabel")}>
+                  {durationWording(q.proposal.durationMinutes, t)}
+                </DataRow>
+                <DataRow icon={User} label={t("propose.memberLabel")}>
+                  {q.proposal.memberFirstName}
+                </DataRow>
               </dl>
               {q.proposal.note && (
-                <p className="type-body mt-3 whitespace-pre-line rounded-[var(--radius-card-sm)] bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)] p-3.5">
+                <p className="mt-5 mb-0 rounded-[14px] bg-[var(--color-blue-softer)] p-[18px] text-[15px] leading-[1.5] whitespace-pre-line text-[var(--color-ink-2)]">
                   {q.proposal.note}
                 </p>
               )}
               {q.proposal.attachments.length > 0 && (
-                <div className="mt-3">
+                <div className="mt-4">
                   <QuoteAttachmentList attachments={q.proposal.attachments} />
                 </div>
               )}
-              <p className="type-caption mt-3 text-[var(--color-muted-foreground)]">
+              <p className="mt-4 mb-0 text-sm text-[var(--color-muted-foreground)]">
                 {/* `revised` carries its own `{{count}}` and an `_one` variant
                     — the customer side's `detail.stepProposedRevised` already
                     does the same for the identical fact, and a fixed "revista
@@ -446,44 +500,55 @@ export function ProviderQuotePage({ quoteId }: { quoteId: string }) {
                   count: revised,
                 })}
               </p>
-              {canPropose(q) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setNotice(undefined);
-                    setEditing(true);
-                  }}
-                  className="type-body-medium mt-3 font-semibold text-[var(--color-primary)] hover:underline"
-                >
-                  {t("propose.reviseAction")}
-                </button>
+              {(canPropose(q) || hasActions) && (
+                <div className="mt-5 grid gap-3">
+                  {canPropose(q) && (
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setNotice(undefined);
+                        setEditing(true);
+                      }}
+                    >
+                      <Pencil aria-hidden="true" />
+                      {t("propose.reviseAction")}
+                    </Button>
+                  )}
+                  {actions}
+                </div>
               )}
             </section>
+          ) : hasActions ? (
+            <section className={cn(DETAIL_CARD, "grid gap-3")}>{actions}</section>
           ) : null}
 
-          <div className="flex flex-wrap items-center gap-4">
-            {q.threadId && (
-              <Link
-                to="/messages"
-                search={{ thread: q.threadId }}
-                className="type-body-medium font-semibold text-[var(--color-primary)] hover:underline"
-              >
-                {t("provider.chatWith", { name: q.customerFirstName })}
-              </Link>
-            )}
-            {canDecline(q) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setNotice(undefined);
-                  setDeclining(true);
-                }}
-                className="type-body-medium font-semibold text-[var(--color-destructive)] hover:underline"
-              >
-                {t("propose.decline")}
-              </button>
-            )}
-          </div>
+          {/* Historial */}
+          <section className={DETAIL_CARD}>
+            <CardHead title={t("provider.historyTitle")} />
+            <Timeline
+              entries={[
+                {
+                  key: "received",
+                  label: t("provider.requestReceived"),
+                  lines: [shortWhen(q.requestedAt, locale, q.timezone)],
+                },
+                ...(q.closedReason
+                  ? [
+                      {
+                        key: "closed",
+                        label: t(`close.reason.${q.closedReason}`, { defaultValue: q.closedReason }),
+                        lines: [
+                          ...(q.closedNote ? [q.closedNote] : []),
+                          ...(q.closingAttachments.length > 0
+                            ? [<QuoteAttachmentList key="files" attachments={q.closingAttachments} />]
+                            : []),
+                        ],
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </section>
         </aside>
       </div>
 

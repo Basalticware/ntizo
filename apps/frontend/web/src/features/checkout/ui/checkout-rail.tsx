@@ -180,7 +180,7 @@ export function CheckoutRail({
   const score = providerRatingAverage === null ? null : formatRating(providerRatingAverage, locale);
 
   return (
-    <div className="grid gap-0 rounded-[14px] border border-[#f0f4f9] p-6">
+    <div className="grid gap-0 rounded-[14px] border border-[var(--color-line-2)] p-6">
       {countdown && <div className="mb-5">{countdown}</div>}
 
       {imageUrl && (
@@ -188,7 +188,7 @@ export function CheckoutRail({
         <BrandImage src={imageUrl} alt="" className="mb-5 block h-[207px] w-full rounded-[10px] object-cover" />
       )}
 
-      <h2 className="text-[22px] leading-[1.2] font-bold text-[#06154a] md:text-[27px]">{serviceName}</h2>
+      <h2 className="text-[22px] leading-[1.2] font-bold text-[var(--color-headline)] md:text-[27px]">{serviceName}</h2>
       {/* The trust line: what people have said about the business, and
           whether the platform has seen its documents — the reason a customer
           holding a slot believes somebody will turn up. Each half disappears
@@ -203,7 +203,7 @@ export function CheckoutRail({
             </span>
           )}
           {score !== null && providerVerified && (
-            <span aria-hidden="true" className="mx-2.5 text-[#7c87a8]">
+            <span aria-hidden="true" className="mx-2.5 text-[var(--color-faint)]">
               •
             </span>
           )}
@@ -216,7 +216,7 @@ export function CheckoutRail({
         </p>
       )}
 
-      <div className="mt-[22px] mb-2 border-t border-[#eef2f7]" />
+      <div className="mt-[22px] mb-2 border-t border-[var(--color-line-2)]" />
 
       <dl className="grid">
         {length && (
@@ -278,7 +278,7 @@ export function CheckoutRail({
         </RailRow>
       </dl>
 
-      <div className="mt-2 border-t border-[#eef2f7]" />
+      <div className="mt-2 border-t border-[var(--color-line-2)]" />
 
       <div className="mt-[18px] flex items-center">
         <Avatar className="mr-[18px] h-[74px] w-[74px] shrink-0">
@@ -286,7 +286,7 @@ export function CheckoutRail({
           <AvatarFallback className="text-lg">{initialsFrom(providerName)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <p className="flex items-center gap-[7px] text-[17.5px] font-bold text-[#06154a]">
+          <p className="flex items-center gap-[7px] text-[17.5px] font-bold text-[var(--color-headline)]">
             <span className="truncate">{providerName}</span>
             {providerVerified && (
               <BadgeCheck className="h-5 w-5 shrink-0 fill-[var(--color-blue-public)] text-white" aria-label={td("providerVerified")} />
@@ -295,7 +295,7 @@ export function CheckoutRail({
           {score !== null && (
             <p className="mt-1.5 flex items-center gap-1 text-[14.5px] text-[var(--color-muted-foreground)]">
               <Star className="h-[18px] w-[18px] fill-[var(--color-star)] stroke-none" aria-hidden="true" />
-              <b className="text-base font-bold text-[#06154a] tabular-nums">{score}</b>
+              <b className="text-base font-bold text-[var(--color-headline)] tabular-nums">{score}</b>
             </p>
           )}
         </div>
@@ -344,9 +344,9 @@ function RailRow({
 }) {
   return (
     <div className={cn("flex min-h-[50px] py-1 text-[15.5px] text-[var(--color-muted-foreground)]", top ? "items-start pt-2.5" : "items-center")}>
-      <Icon className="mr-5 h-[26px] w-[26px] shrink-0 text-[#24365f]" strokeWidth={1.6} aria-hidden="true" />
+      <Icon className="mr-5 h-[26px] w-[26px] shrink-0 text-[var(--color-ink-2)]" strokeWidth={1.6} aria-hidden="true" />
       <dt className={cn(top && "mt-0.5")}>{label}</dt>
-      <dd className="ml-auto pl-4 text-right text-base leading-[1.45] text-[#182654]">{children}</dd>
+      <dd className="ml-auto pl-4 text-right text-base leading-[1.45] text-[var(--color-ink-2)]">{children}</dd>
     </div>
   );
 }

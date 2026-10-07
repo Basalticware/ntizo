@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@ntizo/frontend-ui";
+import { CustomerPageHeading } from "@/features/account/ui/customer-page";
 import type { ActivityEntry } from "../domain/types";
 import { useMyActivity } from "../viewmodel/use-activity";
 import { describeActivity } from "../viewmodel/describe-activity";
@@ -9,8 +10,8 @@ import { ActivityList } from "./activity-list";
  * What this person has done on Ntizo.
  *
  * The customer zone has no sidebar and no page header component — it is a
- * header over content — so this page carries its own title, the way the other
- * three customer pages do.
+ * header over content — so this page carries its own title, in the size the
+ * console's page heading gives every other title.
  *
  * The only one of the three zones wired to `useMyActivity()` — the provider
  * and admin feeds read a different slice of the same table and are not this
@@ -24,15 +25,15 @@ export function CustomerActivityPage() {
   const { t, i18n } = useTranslation("account");
   const { entries, loading, hasMore, loadMore } = useMyActivity();
 
-  const renderDescription = (entry: ActivityEntry) => describeActivity(t, entry);
+  const renderDescription = (entry: ActivityEntry) =>
+    describeActivity(t, entry);
 
   return (
-    // Same reasoning the deleted `placeholder-pages.tsx` Shell gave: `CustomerShell`
-    // already provides `.page-shell`, so this fills it rather than centring a
-    // narrower measure inside it and losing the header's alignment.
-    <div>
-      <h1 className="type-h1">{t("activityTitle")}</h1>
-      <div className="mt-8">
+    // No centred measure: `CustomerShell` already gives the column, and a
+    // narrower one inside it would lose the header's alignment.
+    <div className="w-full max-w-[1400px]">
+      <CustomerPageHeading title={t("activityTitle")} />
+      <div className="mt-[30px]">
         <ActivityList
           entries={entries}
           loading={loading}
@@ -44,9 +45,11 @@ export function CustomerActivityPage() {
           renderDescription={renderDescription}
         />
         {hasMore ? (
-          <Button variant="outline" className="mt-4 w-full" onClick={() => loadMore()}>
-            {t("activityLoadMore")}
-          </Button>
+          <div className="mt-4 flex justify-center">
+            <Button variant="outline" size="sm" onClick={() => loadMore()}>
+              {t("activityLoadMore")}
+            </Button>
+          </div>
         ) : null}
       </div>
     </div>

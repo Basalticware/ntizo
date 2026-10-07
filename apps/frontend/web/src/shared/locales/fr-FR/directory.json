@@ -294,5 +294,10 @@
   "servicesCountValue_other": "{{count}} services",
   "trustVerifiedReviewed": "Prestataire vérifié, avec de vrais avis.",
   "availabilityPreviousMonth": "Mois précédent",
-  "availabilityNextMonth": "Mois suivant"
+  "availabilityNextMonth": "Mois suivant",
+  "providersHeroEyebrow": "Prestataires",
+  "providersHeroTitle": "Des professionnels de confiance,\nprès de chez vous.",
+  "providersHeroSubtitle": "Comparez entreprises et professionnels selon les avis de leurs clients et le prix à partir duquel ils travaillent.",
+  "providerSearchQuestion": "Quel prestataire cherchez-vous ?",
+  "providerSearchHint": "Ex. : nom de l'entreprise ou du professionnel..."
 }

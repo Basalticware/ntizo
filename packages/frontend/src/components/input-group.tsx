@@ -9,7 +9,7 @@ export const InputGroup = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "relative flex h-10 w-full items-center rounded-md border border-[var(--color-input)] bg-[var(--color-background)] focus-within:ring-2 focus-within:ring-[var(--color-ring)]",
+      "relative flex h-[47px] w-full items-center rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] text-[15px] focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)]",
       className,
     )}
     {...props}
@@ -24,7 +24,7 @@ export const InputGroupInput = React.forwardRef<
   <input
     ref={ref}
     className={cn(
-      "flex-1 bg-transparent px-3 py-2 text-sm placeholder:text-[var(--color-muted-foreground)] focus:outline-none",
+      "min-w-0 flex-1 bg-transparent px-4 py-2 text-[15px] text-[var(--color-foreground)] placeholder:text-[var(--color-faint)] focus:outline-none",
       className,
     )}
     {...props}
@@ -42,7 +42,7 @@ export const InputGroupAddon = ({
   <div
     className={cn(
       "flex items-center",
-      align === "inline-end" ? "pr-1" : "pl-1",
+      align === "inline-end" ? "pr-1.5" : "pl-1.5",
       className,
     )}
     {...props}

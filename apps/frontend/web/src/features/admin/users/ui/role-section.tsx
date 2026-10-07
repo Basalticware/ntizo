@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Lock } from "lucide-react";
+import { Lock, ShieldCheck, ShieldOff } from "lucide-react";
 import { Button, Skeleton } from "@ntizo/frontend-ui";
 import type { AdminUserDetail } from "../domain/types";
 import { RoleConfirmDialog } from "./role-confirm-dialog";
+import { USER_CARD, UserCardHead } from "./user-card";
 
 /**
  * Whether this person administers the platform, and the one move available.
@@ -27,27 +28,25 @@ export function RoleSection({
   const change = detail?.roleChange;
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
-      <p className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
-        {t("userDetailRoleSection")}
-      </p>
-      <p className="type-body mt-0.5 text-[var(--color-muted-foreground)]">{t("userDetailRoleHint")}</p>
+    <section className={USER_CARD}>
+      <UserCardHead title={t("userDetailRoleSection")} hint={t("userDetailRoleHint")} />
 
-      <div className="mt-4 flex flex-wrap gap-2.5">
+      <div className="mt-5 grid gap-2.5">
         {loading || !change ? (
-          <Skeleton className="h-11 w-36 rounded-[var(--radius-field)]" />
+          <Skeleton className="h-[47px] w-full rounded-[var(--radius-field)]" />
         ) : change.blockedReason === "self" ? (
-          <p className="type-body flex items-start gap-2 text-[var(--color-muted-foreground)]">
-            <Lock className="mt-1 h-4 w-4 shrink-0" />
+          <p className="m-0 flex items-start gap-3.5 rounded-[14px] bg-[var(--color-blue-softer)] p-4 text-[15px] leading-[1.45] text-[var(--color-ink-2)]">
+            <Lock aria-hidden="true" className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[var(--color-primary)]" />
             {t("userDetailSelf")}
           </p>
         ) : change.to ? (
           <Button
             type="button"
             variant={change.to === "admin" ? "default" : "outline"}
-            className="w-full sm:w-auto"
+            className="w-full"
             onClick={() => setConfirmTo(change.to)}
           >
+            {change.to === "admin" ? <ShieldCheck aria-hidden="true" /> : <ShieldOff aria-hidden="true" />}
             {t(change.to === "admin" ? "userDetailGrant" : "userDetailRevoke")}
           </Button>
         ) : null}

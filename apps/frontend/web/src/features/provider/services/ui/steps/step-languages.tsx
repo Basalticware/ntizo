@@ -86,10 +86,10 @@ export function StepLanguages({
                 setError(null);
               }}
               className={cn(
-                "type-caption inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 transition-colors",
+                "inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm transition-colors",
                 selected
-                  ? "border-[var(--color-primary)] bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)] font-semibold text-[var(--color-primary)]"
-                  : "border-[var(--color-border)] hover:border-[var(--color-muted-foreground)]",
+                  ? "border-[var(--color-blue-line)] bg-[var(--color-blue-soft)] font-semibold text-[var(--color-primary)]"
+                  : "border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-ink-2)] hover:border-[var(--color-blue-line)]",
               )}
             >
               {/* A dot that has been filled in, not a tick and a cross: the
@@ -111,7 +111,7 @@ export function StepLanguages({
         })}
       </div>
 
-      {error && <p className="type-caption text-[var(--color-destructive)]">{error}</p>}
+      {error && <p className="text-[13px] leading-[1.45] text-[var(--color-destructive)]">{error}</p>}
 
       {/* Keyed on the language, so switching seeds the fields from that
           language's own saved values rather than carrying the previous one's
@@ -237,7 +237,7 @@ function LanguageForm({
 
       {service.options.length > 0 && (
         <div className="grid gap-5 border-t border-[var(--color-border)] pt-5">
-          <span className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
+          <span className="text-sm font-semibold text-[var(--color-headline)]">
             {t("serviceOptionsTitle")}
           </span>
           {service.options.map((option) => (

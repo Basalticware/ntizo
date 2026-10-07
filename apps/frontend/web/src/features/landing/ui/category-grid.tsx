@@ -24,17 +24,17 @@ function getIconComponent(name: string | null) {
 }
 
 /**
- * Eight trades, each with a picture.
+ * Eight trades, on `/services`' own category tile.
  *
- * A photograph rather than the icon strip `/services` uses. On a browse page a
- * category is a filter and an icon is the right size for it; on a home page it
- * is an invitation, and an invitation with a picture is the difference between
- * this section and the four empty tiles it replaces.
+ * The soft blue tile with the blue glyph and the name under it — the tile
+ * "Categorias populares" draws beside the listing — so a category looks the
+ * same on the home as on the page it opens. Where an administrator gave the
+ * category a photograph, it sits in the tile's round, where the glyph would.
  *
- * A category with no `imageUrl` draws navy and its own icon rather than
- * `BrandImage`'s brand tile: the brand tile prints initials, and a row of
- * eight tiles each printing two letters of its own name is a row of eight
- * near-identical squares.
+ * A category with no `imageUrl` draws its own icon rather than `BrandImage`'s
+ * brand tile: the brand tile prints initials, and a row of eight tiles each
+ * printing two letters of its own name is a row of eight near-identical
+ * squares.
  *
  * Below `sm` the grid becomes `ScrollRail`'s sideways row. `cardWidth="38%"`
  * lands two tiles on screen at 390px with a clear quarter-tile peek of a
@@ -49,7 +49,7 @@ export function CategoryGrid() {
   if (!isLoading && items.length === 0) return null;
 
   return (
-    <section className="page-shell pt-14">
+    <section className="public-inset pt-14">
       <SectionHead
         title={t("home.categoriesTitle")}
         blurb={t("home.categoriesBlurb")}
@@ -64,38 +64,36 @@ export function CategoryGrid() {
         {isLoading
           ? Array.from({ length: LANDING_CATEGORIES }, (_, i) => (
               <li key={i}>
-                <Skeleton className="aspect-square w-full rounded-2xl" />
-                <Skeleton className="mx-auto mt-2.5 h-[17px] w-16" />
+                <Skeleton className="h-[120px] w-full rounded-[10px]" />
               </li>
             ))
           : items.map((c) => {
               const Icon = getIconComponent(c.icon);
               const isFallback = !c.icon || !icons[c.icon as keyof typeof icons];
+              const glyph = (
+                <Icon
+                  data-testid={isFallback ? "category-icon-fallback" : `category-icon-${c.icon}`}
+                  className="h-7 w-7 text-[var(--color-primary)]"
+                  strokeWidth={2.2}
+                  aria-hidden="true"
+                />
+              );
               return (
                 <li key={c.id}>
                   <Link
                     to="/services"
                     search={{ category: c.code }}
-                    className="group block"
+                    className="flex h-full min-h-[120px] flex-col items-center justify-center gap-3 rounded-[10px] bg-[var(--color-blue-softer)] px-2 py-4 text-center hover:bg-[var(--color-blue-soft)]"
                   >
-                    <div className="relative aspect-square overflow-hidden rounded-2xl bg-[var(--color-navy-surface)]">
+                    <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-[var(--color-card)]">
                       <BrandImage
                         src={c.imageUrl}
                         alt=""
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
-                        fallback={
-                          <span className="grid h-full w-full place-items-center">
-                            <Icon
-                              data-testid={isFallback ? "category-icon-fallback" : `category-icon-${c.icon}`}
-                              className="h-9 w-9 text-[var(--color-navy-on)]"
-                              strokeWidth={1.4}
-                              aria-hidden="true"
-                            />
-                          </span>
-                        }
+                        className="h-full w-full object-cover"
+                        fallback={glyph}
                       />
-                    </div>
-                    <b className="mt-2.5 block truncate text-center text-sm font-semibold group-hover:underline group-hover:underline-offset-[3px]">
+                    </span>
+                    <b className="line-clamp-2 text-[14px] leading-[1.3] font-semibold text-[var(--color-ink-2)]">
                       {c.name}
                     </b>
                   </Link>

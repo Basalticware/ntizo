@@ -727,7 +727,7 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
         />
         {/* The month on the left and the chosen day's times on the right,
             parted by a rule — `client/reserva.html`'s calendar card. */}
-        <section className="grid gap-8 rounded-[14px] border border-[#f0f4f9] px-4 py-6 sm:px-8 sm:py-10 sm:pl-[22px] lg:grid-cols-[minmax(0,434px)_2px_minmax(0,1fr)] lg:gap-x-[30px]">
+        <section className="grid gap-8 rounded-[14px] border border-[var(--color-line-2)] px-4 py-6 sm:px-8 sm:py-10 sm:pl-[22px] lg:grid-cols-[minmax(0,434px)_2px_minmax(0,1fr)] lg:gap-x-[30px]">
           <MonthCalendar
             month={grid.month}
             cells={grid.cells}
@@ -739,12 +739,12 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
             onPreviousMonth={() => goToMonth(shiftMonth(anchorDate, -1))}
             onNextMonth={() => goToMonth(shiftMonth(anchorDate, 1))}
           />
-          <span aria-hidden="true" className="hidden bg-[#f1f5fa] lg:block" />
+          <span aria-hidden="true" className="hidden bg-[var(--color-line-2)] lg:block" />
           <div className="min-w-0">
             <h2 className="text-[19.8px] font-bold whitespace-nowrap text-[var(--color-headline)] first-letter:uppercase">
               {shownTitle}
             </h2>
-            <p className="mt-2.5 text-base text-[#5068a0]">{t("availableTimes")}</p>
+            <p className="mt-2.5 text-base text-[var(--color-muted-foreground)]">{t("availableTimes")}</p>
             <div className="mt-7">
               <TimeGrid
                 starts={day?.starts ?? []}
@@ -816,10 +816,10 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
 
       <main className="public-inset grid gap-x-10 gap-y-8 pt-8 pb-10 md:pt-10 lg:grid-cols-[minmax(0,1fr)_433px]">
         <div className="min-w-0">
-          <h1 className="text-[36px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[#020d3a] md:text-[62px]">
+          <h1 className="text-[36px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[62px]">
             {t("chooseWhenTitle")}
           </h1>
-          <p className="mt-3 text-lg leading-[1.45] text-[#3d5884] md:text-[22px]">{t("chooseWhenLede")}</p>
+          <p className="mt-3 text-lg leading-[1.45] text-[var(--color-muted-foreground)] md:text-[22px]">{t("chooseWhenLede")}</p>
 
           {search.expired && (
             <p
@@ -858,8 +858,8 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
         {/* What pressing Continuar does, said before it is pressed: the time
             is held while the rest is filled in, and the provider confirms it
             after the request is sent. */}
-        <p className="flex min-h-[74px] items-center gap-4 rounded-xl bg-[#ecf6fe] px-5 py-4 text-[15px] leading-[1.45] text-[#3a5ba8] md:px-8">
-          <Info className="h-[27px] w-[27px] shrink-0 text-[#0b48f5]" strokeWidth={1.8} aria-hidden="true" />
+        <p className="flex min-h-[74px] items-center gap-4 rounded-xl bg-[var(--color-blue-soft)] px-5 py-4 text-[15px] leading-[1.45] text-[var(--color-muted-foreground)] md:px-8">
+          <Info className="h-[27px] w-[27px] shrink-0 text-[var(--color-primary)]" strokeWidth={1.8} aria-hidden="true" />
           {t("chooseWhenIntro")}
         </p>
 

@@ -36,21 +36,23 @@ export function HelpRequests({
   }
 
   return (
-    <ul className="grid list-none gap-2 p-4">
+    <ul className="grid list-none gap-2.5 p-5">
       {requests.map((request) => (
         <li key={request.id}>
           <button
             type="button"
             onClick={() => onOpen(request.id)}
-            className="grid w-full gap-1 rounded-[var(--radius-card)] border border-[var(--color-border)] px-3.5 py-3 text-left hover:bg-[var(--color-muted)]"
+            className="grid w-full gap-1 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3.5 text-left hover:border-[var(--color-blue-line)] hover:bg-[var(--color-blue-softer)]"
           >
             <span className="flex items-center justify-between gap-2">
-              <span className="type-body-medium truncate">{request.support?.subject}</span>
+              <span className="truncate text-[15px] font-semibold text-[var(--color-headline)]">
+                {request.support?.subject}
+              </span>
               <Badge tone={request.support?.status === "open" ? "info" : "neutral"}>
                 {t(`status.${request.support?.status ?? "open"}`)}
               </Badge>
             </span>
-            <span className="type-caption flex items-center justify-between gap-2 text-[var(--color-muted-foreground)]">
+            <span className="flex items-center justify-between gap-2 text-[13px] text-[var(--color-muted-foreground)]">
               <span className="truncate">{request.lastMessagePreview}</span>
               <span className="shrink-0">{when.format(new Date(request.lastMessageAt))}</span>
             </span>

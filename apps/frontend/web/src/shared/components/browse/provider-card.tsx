@@ -80,7 +80,7 @@ export function ProviderCard({
           was uploaded. The heart carries `z-[3]`, which is what keeps it above
           the logo badge below (`z-[2]`) as well as above the title link's
           full-card `::after`. */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[var(--color-muted)]">
+      <div className="relative aspect-[272/127] w-full overflow-hidden bg-[var(--color-muted)]">
         <BrandImage
           src={photo}
           alt=""
@@ -95,7 +95,7 @@ export function ProviderCard({
             falls back to the provider's initials rather than the brand mark:
             this badge is the business's own face, not a missing photograph. */}
         {provider.logoUrl ? (
-          <span className="absolute bottom-3 left-3 z-[2] grid h-11 w-11 place-items-center overflow-hidden rounded-xl bg-white shadow-md">
+          <span className="absolute bottom-3 left-3 z-[2] grid h-11 w-11 place-items-center overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)]">
             <BrandImage
               src={provider.logoUrl}
               alt=""
@@ -112,15 +112,15 @@ export function ProviderCard({
           </span>
         ) : null}
       </div>
-      <div className="flex flex-1 flex-col gap-1 p-4">
+      <div className="flex flex-1 flex-col px-[18px] pt-3.5 pb-4">
         {(trade || where) && (
-          <p className="flex flex-wrap items-center gap-1 text-[12.5px] text-[var(--color-muted-foreground)]">
+          <p className="flex min-w-0 flex-wrap items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
             {trade && <span className="whitespace-nowrap">{trade}</span>}
             {trade && where && <span aria-hidden="true">·</span>}
             {where && <span className="whitespace-nowrap">{where}</span>}
           </p>
         )}
-        <h3 className="line-clamp-2 text-[15.5px] font-bold leading-snug text-[var(--color-foreground)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline">
+        <h3 className="mt-1 line-clamp-2 text-base leading-[1.25] font-extrabold text-[var(--color-headline)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline">
           <Link
             to="/providers/$slug"
             params={{ slug: provider.slug }}
@@ -148,11 +148,11 @@ export function ProviderCard({
           ) : null}
         </h3>
         {provider.serviceCount > 0 && (
-          <p className="text-[13px] text-[var(--color-muted-foreground)]">
+          <p className="mt-2 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
             {td("providerServiceCount", { count: provider.serviceCount })}
           </p>
         )}
-        <div className="mt-auto flex items-baseline justify-between gap-3 pt-2.5">
+        <div className="mt-auto flex items-center justify-between gap-3 pt-3">
           {provider.ratingAverage === null ? (
             // Not a zero: a provider nobody has reviewed yet is new, the same
             // rule every caller of this card follows for the same reason.
@@ -175,7 +175,7 @@ export function ProviderCard({
             />
           )}
           {priced ? (
-            <b className="text-right text-[15.5px] font-bold text-[var(--color-headline)]">
+            <b className="text-right text-base font-extrabold whitespace-nowrap text-[var(--color-headline)]">
               <span className="mr-[3px] text-[12.5px] font-medium text-[var(--color-muted-foreground)]">
                 {td("priceFromPrefix")}
               </span>

@@ -86,30 +86,36 @@ describe("Hero", () => {
   // reads as a page that failed to load; the media fallback reads as a
   // designed state, and it is what every other empty surface on the
   // platform draws.
-  it("draws the brand rather than a grey box while there are no photographs", async () => {
+  /**
+   * The photograph is `/services`' own hero artwork, with the quote laid over
+   * it as text so it follows the reader's language rather than staying in
+   * the Portuguese the file was drawn in.
+   */
+  it("draws the listings' hero photograph, with its quote as text", async () => {
     await renderHero();
-    expect(screen.getAllByTestId("media-fallback")).toHaveLength(3);
+    const photo = screen.getByTestId("hero-photo");
+    expect(photo.querySelector("img")).toHaveAttribute("src", "/images/services-hero.jpg");
+    expect(photo).toHaveTextContent(/real people/i);
   });
 
   /**
    * And it draws none of that on a phone.
    *
-   * Stacked under the claim it is 360px of empty tiles between the headline
-   * and the first real thing on the page — half a screen of nothing to scroll
-   * past to reach the categories, because Ntizo owns no photographs yet. At
-   * `lg` it sits beside the text and costs no vertical room at all.
+   * Stacked under the claim it would be a strip of picture between the
+   * headline and the first real thing on the page. At `lg` it sits beside the
+   * text and costs no vertical room at all.
    *
    * jsdom does no layout, so the class is the assertion. It stays in the
    * document either way: this is a `display` decision, not a render one.
    */
-  it("keeps the collage off the phone, where it is 360px of nothing", async () => {
+  it("keeps the photograph off the phone", async () => {
     await renderHero();
-    const collage = document.querySelector('[aria-hidden="true"].grid-rows-2')!;
+    const photo = screen.getByTestId("hero-photo");
 
-    expect(collage.className).toContain("hidden");
-    expect(collage.className).toContain("lg:grid");
-    // Never a bare `grid`, which would beat `hidden` and draw it anyway.
-    expect(collage.className.split(/\s+/)).not.toContain("grid");
+    expect(photo).toHaveAttribute("aria-hidden", "true");
+    expect(photo.className).toContain("hidden");
+    expect(photo.className).toContain("xl:block");
+    expect(photo.className.split(/\s+/)).not.toContain("block");
   });
 
   /**
@@ -124,14 +130,14 @@ describe("Hero", () => {
    * page before this changed: the trust list ended at y=543 and the heading
    * began at y=655.
    *
-   * So the padding is `lg:` only, and the phone falls back to the same
+   * So the padding is `xl:` only (the two-column hero starts at xl), and the phone falls back to the same
    * rhythm as every other junction on the page.
    */
   it("does not stack its own bottom padding on the next section's, on a phone", async () => {
     await renderHero();
     const section = document.querySelector("section")!;
 
-    expect(section.className).toContain("lg:pb-14");
+    expect(section.className).toContain("xl:pb-14");
     expect(section.className.split(/\s+/)).not.toContain("pb-14");
   });
 });

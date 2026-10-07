@@ -9,10 +9,19 @@ import {
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
+  Input,
   Label,
 } from "@ntizo/frontend-ui";
 import { authClient } from "@/shared/lib/api/auth-client";
 import { AuthLayout } from "@/features/auth/components/auth-layout";
+import {
+  AUTH_ERROR,
+  AUTH_FIELD,
+  AUTH_FORM,
+  AUTH_HINT,
+  AUTH_INPUT_GROUP_BUTTON,
+  AUTH_LINK,
+} from "@/features/auth/components/auth-styles";
 import { authErrorMessage } from "@/features/auth/viewmodel/auth-error";
 
 /**
@@ -58,16 +67,13 @@ export function ResetPassword() {
       title={t("newPasswordTitle")}
       subtitle={t("newPasswordSubtitle")}
       footer={
-        <Link
-          to="/sign-in"
-          className="text-[var(--color-accent)] hover:underline"
-        >
+        <Link to="/sign-in" className={AUTH_LINK}>
           {t("backToSignInArrow")}
         </Link>
       }
     >
       <form
-        className="flex flex-col gap-4"
+        className={AUTH_FORM}
         onSubmit={(e) => {
           e.preventDefault();
           void form.handleSubmit();
@@ -76,7 +82,7 @@ export function ResetPassword() {
         <form.Subscribe selector={(s) => s.errorMap.onSubmit}>
           {(err) =>
             err ? (
-              <div className="text-sm text-[var(--color-destructive)] text-center">
+              <div role="alert" className={AUTH_ERROR}>
                 {err.form}
               </div>
             ) : null
@@ -85,7 +91,7 @@ export function ResetPassword() {
 
         <form.Field name="password">
           {(field) => (
-            <div className="flex flex-col gap-1.5">
+            <div className={AUTH_FIELD}>
               <Label htmlFor={field.name}>{t("newPassword")}</Label>
               <InputGroup>
                 <InputGroupInput
@@ -99,6 +105,7 @@ export function ResetPassword() {
                 />
                 <InputGroupAddon align="inline-end">
                   <InputGroupButton
+                    className={AUTH_INPUT_GROUP_BUTTON}
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={
                       showPassword ? t("hidePassword") : t("showPassword")
@@ -112,18 +119,18 @@ export function ResetPassword() {
                   </InputGroupButton>
                 </InputGroupAddon>
               </InputGroup>
-              <p className="text-xs text-[var(--color-muted-foreground)]">
-                {t("passwordHint")}
-              </p>
+              <p className={AUTH_HINT}>{t("passwordHint")}</p>
             </div>
           )}
         </form.Field>
 
         <form.Field name="confirm">
           {(field) => (
-            <div className="flex flex-col gap-1.5">
+            <div className={AUTH_FIELD}>
               <Label htmlFor={field.name}>{t("confirmPassword")}</Label>
-              <InputGroupInput
+              {/* A bare input with the field's own frame — it was an
+                  `InputGroupInput` outside any group, which drew no border. */}
+              <Input
                 id={field.name}
                 type={showPassword ? "text" : "password"}
                 value={field.state.value}
@@ -140,7 +147,7 @@ export function ResetPassword() {
         >
           {([canSubmit, isSubmitting]) => (
             <Button type="submit" className="w-full" disabled={!canSubmit}>
-              <KeyRound className="h-4 w-4" />
+              <KeyRound />
               {isSubmitting ? t("saving") : t("setNewPassword")}
             </Button>
           )}

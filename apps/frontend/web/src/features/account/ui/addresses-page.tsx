@@ -3,23 +3,37 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { MapPin, Plus } from "lucide-react";
 import type { AddressDTO } from "@ntizo/shared";
-import { Button, countryName } from "@ntizo/frontend-ui";
+import { Badge, Button, cn, countryName } from "@ntizo/frontend-ui";
 import { AddressForm } from "@/features/account/ui/address-form";
+import { CUSTOMER_CARD, CardHead } from "@/features/account/ui/customer-page";
 import {
   useAddressMutations,
   useMyAddresses,
 } from "@/features/account/viewmodel/use-addresses";
 import { EmptyCard } from "@/shared/components/empty-card";
-import { textAction } from "@/shared/ui/text-action";
 
 /**
- * One address, on a hairline.
+ * A row's text action: the words in the brand blue, an underline on hover.
+ * Three per row is too many outlined buttons for a line of text, so they
+ * stay words — and the one that removes the row is the red one.
+ */
+function rowAction(destructive = false): string {
+  return cn(
+    "inline-flex items-center rounded-[6px] text-[14.5px] font-semibold underline-offset-[5px] hover:underline",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2",
+    "disabled:cursor-default disabled:opacity-60 disabled:hover:no-underline",
+    destructive
+      ? "text-[var(--color-destructive)]"
+      : "text-[var(--color-primary)]",
+  );
+}
+
+/**
+ * One address, on a row divider.
  *
- * A row rather than a card: a disc for the pin (a hairline ring, not a tint),
- * the label with "default" as a word beside it, the address on one line, and
- * the actions as text at the row's end — under it on a phone. It was a
- * bordered card with an outlined button and a red link per address, which is
- * a form's worth of chrome for a line of text.
+ * The pin on the soft blue ground, the label with "default" as a badge beside
+ * it, the address on one line, and the actions as words at the row's end —
+ * under it on a phone.
  */
 function AddressRow({
   address,
@@ -46,34 +60,48 @@ function AddressRow({
   ].filter(Boolean);
 
   return (
-    <li className="grid grid-cols-[36px_minmax(0,1fr)] gap-x-3.5 gap-y-3 border-t border-[var(--color-border)] py-4 first:border-t-0 sm:grid-cols-[36px_minmax(0,1fr)_auto] sm:items-start">
+    <li className="grid grid-cols-[42px_minmax(0,1fr)] gap-x-4 gap-y-3 border-t border-[var(--color-line-2)] py-[18px] first:border-t-0 first:pt-0 last:pb-0 sm:grid-cols-[42px_minmax(0,1fr)_auto] sm:items-start">
       <span
         aria-hidden="true"
-        className="grid h-9 w-9 place-items-center rounded-full border border-[var(--color-border)] text-[var(--color-headline)]"
+        className="grid h-[42px] w-[42px] place-items-center rounded-[10px] bg-[var(--color-blue-soft)] text-[var(--color-primary)]"
       >
-        <MapPin className="h-[17px] w-[17px]" strokeWidth={1.7} />
+        <MapPin className="h-5 w-5" />
       </span>
 
       <div className="min-w-0 pt-px">
-        <div className="flex flex-wrap items-baseline gap-x-2">
-          <span className="type-body font-semibold">{address.label}</span>
-          {address.isDefault && (
-            <span className="type-caption text-[var(--color-muted-foreground)]">{t("addrDefault")}</span>
-          )}
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          <span className="text-base font-bold text-[var(--color-headline)]">
+            {address.label}
+          </span>
+          {address.isDefault && <Badge tone="info">{t("addrDefault")}</Badge>}
         </div>
-        <p className="type-body mt-0.5 text-[var(--color-muted-foreground)]">{lines.join(" · ")}</p>
+        <p className="m-0 mt-1 text-[15px] text-[var(--color-muted-foreground)]">
+          {lines.join(" · ")}
+        </p>
         {address.directions && (
-          <p className="type-caption mt-1 text-[var(--color-muted-foreground)]">{address.directions}</p>
+          <p className="m-0 mt-1 text-sm text-[var(--color-muted-foreground)]">
+            {address.directions}
+          </p>
         )}
       </div>
 
       {/* Second column on a phone, its own column from `sm`. */}
-      <div className="col-start-2 flex flex-wrap items-center gap-x-5 gap-y-1 sm:col-start-3 sm:pt-0.5">
-        <button type="button" onClick={onEdit} disabled={busy} className={textAction()}>
+      <div className="col-start-2 flex flex-wrap items-center gap-x-5 gap-y-1 sm:col-start-3 sm:pt-1">
+        <button
+          type="button"
+          onClick={onEdit}
+          disabled={busy}
+          className={rowAction()}
+        >
           {t("edit")}
         </button>
         {!address.isDefault && (
-          <button type="button" onClick={onMakeDefault} disabled={busy} className={textAction()}>
+          <button
+            type="button"
+            onClick={onMakeDefault}
+            disabled={busy}
+            className={rowAction()}
+          >
             {t("addrMakeDefault")}
           </button>
         )}
@@ -81,7 +109,7 @@ function AddressRow({
           type="button"
           onClick={onDelete}
           disabled={busy}
-          className={textAction({ destructive: true })}
+          className={rowAction(true)}
         >
           {t("delete")}
         </button>
@@ -99,23 +127,24 @@ export function AddressesPage() {
   const busy = add.isPending || update.isPending || remove.isPending;
 
   return (
-    <>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="type-h1 text-[var(--color-headline)]">{t("navAddresses")}</h1>
-          <p className="type-body mt-1 text-[var(--color-muted-foreground)]">{t("addressesBlurb")}</p>
-        </div>
-        {/* The page's one filled button: adding is what the page is for. */}
-        {editing === null && (
-          <Button onClick={() => setEditing("new")}>
-            <Plus className="h-4 w-4" />
-            {t("addrAdd")}
-          </Button>
-        )}
-      </div>
+    <section className={CUSTOMER_CARD}>
+      <CardHead
+        icon={MapPin}
+        title={t("navAddresses")}
+        hint={t("addressesBlurb")}
+        aside={
+          // The page's one filled button: adding is what the page is for.
+          editing === null ? (
+            <Button size="sm" onClick={() => setEditing("new")}>
+              <Plus />
+              {t("addrAdd")}
+            </Button>
+          ) : null
+        }
+      />
 
       {editing !== null && (
-        <div className="mb-6">
+        <div className="mt-5">
           <AddressForm
             ariaLabel={editing === "new" ? t("addrAdd") : t("addrEditTitle")}
             initial={editing === "new" ? undefined : editing}
@@ -132,9 +161,15 @@ export function AddressesPage() {
       )}
 
       {isPending ? null : addresses.length === 0 && editing === null ? (
-        <EmptyCard badge={MapPin} title={t("addressesEmptyTitle")} body={t("addressesEmptyBody")} />
-      ) : (
-        <ul className="grid list-none p-0">
+        <div className="mt-5">
+          <EmptyCard
+            badge={MapPin}
+            title={t("addressesEmptyTitle")}
+            body={t("addressesEmptyBody")}
+          />
+        </div>
+      ) : addresses.length > 0 ? (
+        <ul className="m-0 mt-5 grid list-none border-t border-[var(--color-line-2)] p-0 pt-[18px]">
           {addresses.map((address) => (
             <AddressRow
               key={address.id}
@@ -147,12 +182,14 @@ export function AddressesPage() {
                   .then(() => toast.success(t("saved")))
               }
               onDelete={() =>
-                void remove.mutateAsync(address.id).then(() => toast.success(t("addrDeleted")))
+                void remove
+                  .mutateAsync(address.id)
+                  .then(() => toast.success(t("addrDeleted")))
               }
             />
           ))}
         </ul>
-      )}
-    </>
+      ) : null}
+    </section>
   );
 }

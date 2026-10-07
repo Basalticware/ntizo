@@ -57,16 +57,16 @@ describe("CustomerReviews", () => {
     const ratingEl = await screen.findByRole("img", { name: "3 out of 5" });
     // Counting the stars alone would not catch all five being filled
     // regardless of score — the label is computed independently of the fill
-    // loop. Exactly three carry the warning (gold) fill; the other two carry
+    // loop. Exactly three carry the star (amber) fill; the other two carry
     // the same muted stroke-only treatment `rating-stars.tsx` uses, not the
     // opaque fill that made an unfilled star invisible against a white ground.
     const stars = Array.from(ratingEl.querySelectorAll("svg"));
     expect(stars).toHaveLength(5);
     const filled = stars.filter((star) =>
-      (star.getAttribute("class") ?? "").includes("fill-[var(--color-warning)]"),
+      (star.getAttribute("class") ?? "").includes("fill-[var(--color-star)]"),
     );
     const unfilled = stars.filter(
-      (star) => !(star.getAttribute("class") ?? "").includes("fill-[var(--color-warning)]"),
+      (star) => !(star.getAttribute("class") ?? "").includes("fill-[var(--color-star)]"),
     );
     expect(filled).toHaveLength(3);
     expect(unfilled).toHaveLength(2);

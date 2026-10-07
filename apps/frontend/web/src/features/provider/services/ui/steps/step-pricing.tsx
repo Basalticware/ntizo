@@ -33,7 +33,7 @@ export function StepPricing({
 
   if (!serviceId) {
     return (
-      <p className="type-body rounded-[var(--radius-card-sm)] bg-[var(--color-muted)] px-3.5 py-2.5 text-[var(--color-muted-foreground)]">
+      <p className="m-0 rounded-[14px] bg-[var(--color-blue-softer)] px-[18px] py-4 text-[15px] text-[var(--color-ink-2)]">
         {t("serviceOptionsSaveFirst")}
       </p>
     );

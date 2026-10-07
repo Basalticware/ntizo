@@ -16,6 +16,9 @@
   --color-blue-public: #016efe;
   --pw-pad: clamp(16px, 2.9vw, 40px);
 }
+.dark {
+  --color-blue-public: #3d8bff;
+}
 
 @layer components {
   .public-inset {

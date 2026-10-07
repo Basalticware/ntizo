@@ -288,7 +288,7 @@ function InboxTabs({
               className={cn(
                 "inline-flex h-11 items-center justify-center gap-3 rounded-[10px] border text-[15.5px] whitespace-nowrap",
                 selected
-                  ? "min-w-[134px] border-[#a9cbfc] bg-[#e8f2fe] px-5 text-[color-mix(in_srgb,var(--color-primary)_80%,var(--color-headline))] dark:border-[var(--color-blue-line)] dark:bg-[var(--color-blue-soft)]"
+                  ? "min-w-[134px] border-[var(--color-blue-line)] bg-[var(--color-blue-soft)] px-5 text-[color-mix(in_srgb,var(--color-primary)_80%,var(--color-headline))] dark:border-[var(--color-blue-line)] dark:bg-[var(--color-blue-soft)]"
                   : "border-transparent px-[30px] text-[var(--color-ink-2)] hover:text-[var(--color-headline)]",
               )}
             >
@@ -301,7 +301,7 @@ function InboxTabs({
                       ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
                       : tab.key === "unread" && tab.count > 0
                         ? "bg-[var(--color-alert)] text-white"
-                        : "bg-[#e2eefc] text-[var(--color-ink-2)] dark:bg-[var(--color-muted)]",
+                        : "bg-[var(--color-info-bg)] text-[var(--color-ink-2)] dark:bg-[var(--color-muted)]",
                   )}
                 >
                   {tab.count}

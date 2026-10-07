@@ -5,8 +5,6 @@ import { useForm } from "@tanstack/react-form";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import {
   Button,
-  Card,
-  CardContent,
   Input,
   InputGroup,
   InputGroupAddon,
@@ -24,6 +22,16 @@ import { authErrorMessage } from "@/features/auth/viewmodel/auth-error";
 import { EMAIL_NOT_VERIFIED_CODE } from "@/features/auth/domain/errors";
 import { ResendVerification } from "@/features/auth/components/resend-verification";
 import { emailConfirmedCallbackURL } from "@/features/auth/viewmodel/email-callback";
+import {
+  AUTH_DIVIDER_TEXT,
+  AUTH_ERROR,
+  AUTH_FIELD,
+  AUTH_FORM,
+  AUTH_INPUT_GROUP_BUTTON,
+  AUTH_LEDE,
+  AUTH_LINK,
+  AUTH_TITLE,
+} from "@/features/auth/components/auth-styles";
 
 export function SignIn() {
   const { t } = useTranslation("auth");
@@ -51,7 +59,8 @@ export function SignIn() {
             password: value.password,
           });
           if (error) {
-            if (error.code === EMAIL_NOT_VERIFIED_CODE) setUnverifiedEmail(value.email);
+            if (error.code === EMAIL_NOT_VERIFIED_CODE)
+              setUnverifiedEmail(value.email);
             return { form: authErrorMessage(t, error) };
           }
           // Clear before navigating, for the same reason sign-out does.
@@ -84,168 +93,168 @@ export function SignIn() {
         t("proofSecurePayment"),
         t("proofRealReviews"),
       ]}
+      pointsAsList
     >
-      <Card>
-        <CardContent className="flex flex-col gap-6 p-8">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-xl font-semibold">{t("welcomeBack")}</h1>
-            <p className="text-sm text-[var(--color-muted-foreground)]">
-              {t("signInToAccount")}
-            </p>
-          </div>
+      <div className="flex flex-col gap-8">
+        <div>
+          <h1 className={AUTH_TITLE}>{t("welcomeBack")}</h1>
+          <p className={AUTH_LEDE}>{t("signInToAccount")}</p>
+        </div>
 
-          <form
-            className="flex flex-col gap-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void form.handleSubmit();
-            }}
-          >
-            {/* A social sign-in that failed comes back here with ?error=...
+        <form
+          className={AUTH_FORM}
+          onSubmit={(e) => {
+            e.preventDefault();
+            void form.handleSubmit();
+          }}
+        >
+          {/* A social sign-in that failed comes back here with ?error=...
                 rather than dying on the API's JSON root. better-auth writes
                 the code in lower snake case; the map is keyed the way the
                 API returns codes elsewhere, so it is upper-cased here — at
                 the one place that knows about the URL. */}
-            {socialError ? (
-              <div className="text-sm text-[var(--color-destructive)] text-center">
-                {authErrorMessage(t, { code: socialError.toUpperCase() })}
+          {socialError ? (
+            <div role="alert" className={AUTH_ERROR}>
+              {authErrorMessage(t, { code: socialError.toUpperCase() })}
+            </div>
+          ) : null}
+
+          <form.Subscribe selector={(s) => s.errorMap.onSubmit}>
+            {(error) =>
+              error ? (
+                <div role="alert" className={AUTH_ERROR}>
+                  {error.form}
+                </div>
+              ) : null
+            }
+          </form.Subscribe>
+
+          {unverifiedEmail ? (
+            <ResendVerification
+              key={unverifiedEmail}
+              email={unverifiedEmail}
+              // Where the new link lands once clicked — the same place the
+              // sign-in would have gone, when that is a path of this app.
+              callbackURL={emailConfirmedCallbackURL(
+                window.location.origin,
+                next,
+              )}
+            />
+          ) : null}
+
+          <form.Field name="email">
+            {(field) => (
+              <div className={AUTH_FIELD}>
+                <Label htmlFor={field.name}>{t("email")}</Label>
+                <Input
+                  id={field.name}
+                  type="email"
+                  placeholder={t("emailPlaceholder")}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  required
+                />
               </div>
-            ) : null}
+            )}
+          </form.Field>
 
-            <form.Subscribe selector={(s) => s.errorMap.onSubmit}>
-              {(error) =>
-                error ? (
-                  <div className="text-sm text-[var(--color-destructive)] text-center">
-                    {error.form}
-                  </div>
-                ) : null
-              }
-            </form.Subscribe>
-
-            {unverifiedEmail ? (
-              <ResendVerification
-                key={unverifiedEmail}
-                email={unverifiedEmail}
-                // Where the new link lands once clicked — the same place the
-                // sign-in would have gone, when that is a path of this app.
-                callbackURL={emailConfirmedCallbackURL(window.location.origin, next)}
-              />
-            ) : null}
-
-            <form.Field name="email">
-              {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor={field.name}>{t("email")}</Label>
-                  <Input
+          <form.Field name="password">
+            {(field) => (
+              <div className={AUTH_FIELD}>
+                <Label htmlFor={field.name}>{t("password")}</Label>
+                <InputGroup>
+                  <InputGroupInput
                     id={field.name}
-                    type="email"
-                    placeholder={t("emailPlaceholder")}
+                    type={showPassword ? "text" : "password"}
+                    placeholder={t("passwordPlaceholder")}
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
                   />
-                </div>
-              )}
-            </form.Field>
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupButton
+                      className={AUTH_INPUT_GROUP_BUTTON}
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={
+                        showPassword ? t("hidePassword") : t("showPassword")
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                </InputGroup>
+                <Link
+                  to="/forgot-password"
+                  className={`self-end text-[14px] ${AUTH_LINK}`}
+                >
+                  {t("forgotPassword")}
+                </Link>
+              </div>
+            )}
+          </form.Field>
 
-            <form.Field name="password">
-              {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor={field.name}>{t("password")}</Label>
-                  <InputGroup>
-                    <InputGroupInput
-                      id={field.name}
-                      type={showPassword ? "text" : "password"}
-                      placeholder={t("passwordPlaceholder")}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      required
-                    />
-                    <InputGroupAddon align="inline-end">
-                      <InputGroupButton
-                        onClick={() => setShowPassword((v) => !v)}
-                        aria-label={
-                          showPassword ? t("hidePassword") : t("showPassword")
-                        }
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </InputGroupButton>
-                    </InputGroupAddon>
-                  </InputGroup>
-                  <Link
-                    to="/forgot-password"
-                    className="self-end text-xs text-[var(--color-accent)] hover:underline"
-                  >
-                    {t("forgotPassword")}
-                  </Link>
-                </div>
-              )}
-            </form.Field>
-
-            <form.Subscribe
-              selector={(s) => [s.canSubmit, s.isSubmitting] as const}
-            >
-              {([canSubmit, isSubmitting]) => (
-                <Button type="submit" className="w-full" disabled={!canSubmit}>
-                  <LogIn className="h-4 w-4" />
-                  {isSubmitting ? t("signingIn") : t("signIn")}
-                </Button>
-              )}
-            </form.Subscribe>
-
-            <div className="flex items-center gap-3">
-              <Separator className="flex-1" />
-              <span className="text-xs text-[var(--color-muted-foreground)]">
-                {tc("orContinueWith")}
-              </span>
-              <Separator className="flex-1" />
-            </div>
-
-            {/* One column: Microsoft is gone and a lone button in a
-                two-column grid sits at half width beside a hole. */}
-            <div className="grid grid-cols-1">
+          <form.Subscribe
+            selector={(s) => [s.canSubmit, s.isSubmitting] as const}
+          >
+            {([canSubmit, isSubmitting]) => (
               <Button
-                type="button"
-                variant="outline"
-                onClick={() =>
-                  authClient.signIn.social({
-                    provider: "google",
-                    // Absolute, and pointing at THIS app. A relative path is
-                    // resolved against better-auth's own baseURL, which is the
-                    // API origin — a successful sign-in landed on the API's
-                    // JSON root instead of the app.
-                    callbackURL: `${window.location.origin}/`,
-                    // And the failure needs its own destination, or the error
-                    // goes to that same JSON root: a person who tried to sign
-                    // in read `{"status":"ok"}` and an error code in the URL
-                    // bar. Sent back to the form, which knows how to say it.
-                    errorCallbackURL: `${window.location.origin}/sign-in`,
-                  })
-                }
+                type="submit"
+                className="mt-1 w-full"
+                disabled={!canSubmit}
               >
-                <GoogleIcon className="h-4 w-4" />
-                {tc("google")}
+                <LogIn />
+                {isSubmitting ? t("signingIn") : t("signIn")}
               </Button>
-            </div>
-          </form>
+            )}
+          </form.Subscribe>
 
-          <p className="text-center text-sm text-[var(--color-muted-foreground)]">
-            {t("dontHaveAccount")}{" "}
-            <Link
-              to="/sign-up"
-              className="text-[var(--color-accent)] hover:underline"
+          <div className="flex items-center gap-3">
+            <Separator className="flex-1" />
+            <span className={AUTH_DIVIDER_TEXT}>{tc("orContinueWith")}</span>
+            <Separator className="flex-1" />
+          </div>
+
+          {/* One column: Microsoft is gone and a lone button in a
+                two-column grid sits at half width beside a hole. */}
+          <div className="grid grid-cols-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                authClient.signIn.social({
+                  provider: "google",
+                  // Absolute, and pointing at THIS app. A relative path is
+                  // resolved against better-auth's own baseURL, which is the
+                  // API origin — a successful sign-in landed on the API's
+                  // JSON root instead of the app.
+                  callbackURL: `${window.location.origin}/`,
+                  // And the failure needs its own destination, or the error
+                  // goes to that same JSON root: a person who tried to sign
+                  // in read `{"status":"ok"}` and an error code in the URL
+                  // bar. Sent back to the form, which knows how to say it.
+                  errorCallbackURL: `${window.location.origin}/sign-in`,
+                })
+              }
             >
-              {t("signUp")}
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
+              <GoogleIcon className="h-5 w-5" />
+              {tc("google")}
+            </Button>
+          </div>
+        </form>
+
+        <p className="text-center text-[15px] text-[var(--color-muted-foreground)]">
+          {t("dontHaveAccount")}{" "}
+          <Link to="/sign-up" className={AUTH_LINK}>
+            {t("signUp")}
+          </Link>
+        </p>
+      </div>
     </AuthSplitLayout>
   );
 }

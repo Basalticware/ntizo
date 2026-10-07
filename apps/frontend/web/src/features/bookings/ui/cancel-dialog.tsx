@@ -104,7 +104,10 @@ export function CancelDialog({
             it cached would survive the dialog closing as a dead Cancelar
             button over a booking that can no longer be cancelled. */}
         {cancel.isError && (
-          <p role="alert" className="type-caption -mt-2 mb-2 text-[var(--color-destructive)]">
+          <p
+            role="alert"
+            className="text-[13.5px] leading-normal -mt-2 mb-2 text-[var(--color-destructive)]"
+          >
             {t(errorKey)}
           </p>
         )}

@@ -301,7 +301,9 @@ export function CollectionCard({
     <section aria-label={title} className="grid min-w-0 gap-7">
       {/* The toolbar sits above the frame, not inside it: tabs (or the
           section's own heading) on the left, search and Filtrar on the right. */}
-      <div className="flex flex-wrap items-center justify-between gap-[15px]">
+      {/* `min-w-0` down the row: a tab strip wider than a phone otherwise sets
+          the row's min-content width and pushes the whole page sideways. */}
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-[15px] [&>*]:min-w-0 [&>*]:max-w-full">
         {/* A visible heading only for a section of a larger page — the
             overview's "Reservas recentes", which comes with its "Ver todas".
             A list that *is* the page already has the page's own title above

@@ -91,6 +91,7 @@
   "usersError": "Não foi possível carregar a lista de utilizadores.",
   "usersFilterTitle": "Filtrar utilizadores",
   "userDetailTitle": "Utilizador",
+  "userDetailData": "Dados do utilizador",
   "userDetailError": "Não foi possível carregar este utilizador.",
   "userDetailNotFound": "Este utilizador já não existe.",
   "userDetailEmail": "Email",

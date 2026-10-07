@@ -151,7 +151,7 @@ function ServiceDetail({ service }: { service: ServiceDetailDTO }) {
             images={service.imageUrls}
             alt={service.name}
             badge={
-              <span className="flex h-[38px] items-center gap-2.5 rounded-[18px] bg-[#f3f9fe] pr-[22px] pl-[17px] text-sm font-medium text-[#0b55d6]">
+              <span className="flex h-[38px] items-center gap-2.5 rounded-[18px] bg-[var(--color-blue-softer)] pr-[22px] pl-[17px] text-sm font-medium text-[var(--color-info-fg)]">
                 <CategoryIcon className="h-[17px] w-[17px] fill-[var(--color-blue-public)] text-[var(--color-blue-public)]" aria-hidden="true" />
                 {service.categoryName}
               </span>
@@ -160,10 +160,10 @@ function ServiceDetail({ service }: { service: ServiceDetailDTO }) {
 
           <div className="mt-6 grid gap-6 md:grid-cols-[minmax(0,1fr)_290px]">
             <header className="min-w-0">
-              <h1 className="text-[34px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[#00064f] md:text-[45px]">
+              <h1 className="text-[34px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[45px]">
                 {service.name}
               </h1>
-              <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[#5b6899]">
+              <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[var(--color-muted-foreground)]">
                 <ServiceHeaderRating service={service} />
                 {service.providerVerified && (
                   <span className="flex items-center gap-2">
@@ -211,19 +211,19 @@ function ServiceDetail({ service }: { service: ServiceDetailDTO }) {
               <div>
                 {service.description && (
                   <>
-                    <h2 className="text-2xl leading-[1.1] font-extrabold text-[#00064f]">
+                    <h2 className="text-2xl leading-[1.1] font-extrabold text-[var(--color-headline)]">
                       {t("aboutServiceHeading")}
                     </h2>
                     {/* `whitespace-pre-line`, so the paragraph breaks a
                         provider typed survive as paragraph breaks. */}
-                    <p className="mt-2.5 max-w-[620px] text-base leading-[1.55] whitespace-pre-line text-[#5e6ba0]">
+                    <p className="mt-2.5 max-w-[620px] text-base leading-[1.55] whitespace-pre-line text-[var(--color-muted-foreground)]">
                       {service.description}
                     </p>
                   </>
                 )}
               </div>
               {(hours || where) && (
-                <dl className="grid gap-4 rounded-xl bg-[#f1f8fe] px-4 py-[18px]">
+                <dl className="grid gap-4 rounded-xl bg-[var(--color-blue-softer)] px-4 py-[18px]">
                   {hours && <PanelRow icon={CalendarDays} label={t("availabilityHeading")} value={hours} />}
                   {where && <PanelRow icon={House} label={t("factServiceType")} value={where} />}
                 </dl>
@@ -325,12 +325,12 @@ function FactCards({ facts }: { facts: { icon: LucideIcon; label: string; value:
   return (
     <dl className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
       {shown.map(({ icon: Icon, label, value }) => (
-        <div key={label} className="flex h-16 items-center gap-3 rounded-[10px] border border-[#e9f0f8] px-4">
-          <span aria-hidden="true" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#e9f4fe] text-[var(--color-blue-public)]">
+        <div key={label} className="flex h-16 items-center gap-3 rounded-[10px] border border-[var(--color-border)] px-4">
+          <span aria-hidden="true" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[var(--color-blue-public)]">
             <Icon className="h-[18px] w-[18px]" />
           </span>
           <div className="flex min-w-0 flex-col-reverse">
-            <dt className="mt-[3px] truncate text-[13px] text-[#7d88b4]">{label}</dt>
+            <dt className="mt-[3px] truncate text-[13px] text-[var(--color-faint)]">{label}</dt>
             <dd className="truncate text-[15px] leading-[1.3] font-semibold text-[var(--color-headline)]">{value}</dd>
           </div>
         </div>
@@ -342,12 +342,12 @@ function FactCards({ facts }: { facts: { icon: LucideIcon; label: string; value:
 function PanelRow({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: ReactNode }) {
   return (
     <div className="flex items-center gap-3.5">
-      <span aria-hidden="true" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#e0effe] text-[var(--color-blue-public)]">
+      <span aria-hidden="true" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--color-info-bg)] text-[var(--color-blue-public)]">
         <Icon className="h-[17px] w-[17px]" />
       </span>
       <div className="min-w-0">
-        <dt className="text-sm font-semibold text-[#1a2468]">{label}</dt>
-        <dd className="mt-[3px] text-[13px] text-[#7d88b4]">{value}</dd>
+        <dt className="text-sm font-semibold text-[var(--color-ink-2)]">{label}</dt>
+        <dd className="mt-[3px] text-[13px] text-[var(--color-faint)]">{value}</dd>
       </div>
     </div>
   );
@@ -373,7 +373,7 @@ function Breadcrumb({ service }: { service: ServiceDetailDTO }) {
 
   return (
     <nav aria-label={t("breadcrumbLabel")} className="pt-[18px] pb-4 text-sm leading-[1.2]">
-      <ol className="flex list-none flex-wrap items-center p-0 text-[#7f8ab5]">
+      <ol className="flex list-none flex-wrap items-center p-0 text-[var(--color-faint)]">
         <li>
           <Link to="/" className={link}>
             {t("breadcrumbHome")}
@@ -392,7 +392,7 @@ function Breadcrumb({ service }: { service: ServiceDetailDTO }) {
           </Link>
         </li>
         {sep}
-        <li className="font-semibold text-[#0a1258]">{service.name}</li>
+        <li className="font-semibold text-[var(--color-ink-2)]">{service.name}</li>
       </ol>
     </nav>
   );
@@ -420,7 +420,7 @@ function ServiceHeaderRating({ service }: { service: ServiceDetailDTO }) {
       aria-label={t("providerRatingLabel", { score, count: data.summary.count })}
     >
       <Stars value={data.summary.average} size={18} />
-      <b aria-hidden="true" className="mr-1 ml-2 font-bold text-[#0a1258]">
+      <b aria-hidden="true" className="mr-1 ml-2 font-bold text-[var(--color-ink-2)]">
         {score}
       </b>
       <span aria-hidden="true">({t("reviewsCount", { count: data.summary.count })})</span>
@@ -450,7 +450,7 @@ function ServiceReviewsSection({ service }: { service: ServiceDetailDTO }) {
     <div id="service-reviews" className="scroll-mt-20">
       {/* Its own top margin is cancelled so the note reads as this section's
           subtitle rather than as a stray line above a new section. */}
-      <p className="mt-9 text-[13px] text-[#7d88b4]">{t("reviewsAboutProvider")}</p>
+      <p className="mt-9 text-[13px] text-[var(--color-faint)]">{t("reviewsAboutProvider")}</p>
       <div className="[&>section]:mt-1">
         <ProviderReviews providerId={service.providerId} />
       </div>

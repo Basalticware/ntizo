@@ -335,20 +335,17 @@ describe("DirectoryPage", () => {
     expect(removals).toContain("/providers?city=Maputo");
   });
 
-  it("the search bar sits under the header and submits to this page", async () => {
-    // The site's own bar — the landing hero's `ServiceSearch`, pointed here —
-    // under the header rather than inside it, and what it writes is this
-    // page's own `?q=`. The page used to draw a search pill of its own in the
-    // header, which is the inconsistency this replaced.
+  it("the list's search bar sits under the header and submits to this page", async () => {
+    // Two bars, as on `/services`: the site's own in the header, and the
+    // list's own under the hero — a band of the page, not a pill the header
+    // carries. What either writes is this page's own `?q=`.
     const { router } = renderPage("/providers", { items: [provider()], total: 1 });
-    const form = await screen.findByRole("search");
-    // Under the header, which is half of what this case is called: the bar is
-    // a band of the page, not a pill the header carries. `FOLLOWING` is "the
-    // form comes after the header in document order".
+    const form = await screen.findByRole("search", { name: "Which provider are you looking for?" });
+    // `FOLLOWING` is "the form comes after the header in document order".
     const header = screen.getByRole("banner");
     expect(header.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "mavalane" } });
+    fireEvent.change(within(form).getByRole("searchbox"), { target: { value: "mavalane" } });
     fireEvent.submit(form);
 
     await waitFor(() => {
@@ -357,24 +354,30 @@ describe("DirectoryPage", () => {
     });
   });
 
-  it("the search bar says it searches businesses, not services", async () => {
+  it("the header's search bar says it searches businesses, not services", async () => {
     // Its own accessible name, not the services one it inherits by default:
     // the placeholder tells the eye what to type and says nothing at all to a
     // screen reader, which announced "Search services" over this list.
     renderPage("/providers", { items: [provider()], total: 1 });
-    expect(await screen.findByRole("searchbox")).toHaveAccessibleName("Search providers");
+    await screen.findByRole("heading", { level: 1 });
+    expect(within(screen.getByRole("banner")).getByRole("searchbox")).toHaveAccessibleName(
+      "Search providers",
+    );
   });
 
-  it("the search bar shows the current term", async () => {
+  it("shows the current term in both bars", async () => {
     // A results page whose search box is empty tells the reader they searched
     // for nothing, and a second search from it starts from scratch.
     renderPage("/providers?q=mavalane", { items: [provider()], total: 1 });
-    expect(await screen.findByRole("searchbox")).toHaveValue("mavalane");
+    await screen.findByRole("heading", { level: 1 });
+    const boxes = screen.getAllByRole("searchbox");
+    expect(boxes).toHaveLength(2);
+    for (const box of boxes) expect(box).toHaveValue("mavalane");
   });
 
-  it("searching from a narrowed list keeps the narrowing", async () => {
-    // The bar is a control on this page like any other, so it changes one part
-    // of the URL and keeps the rest. Submitting used to write `?q=` and
+  it("searching from a narrowed list keeps the narrowing, from either bar", async () => {
+    // The bars are controls on this page like any other, so they change one
+    // part of the URL and keep the rest. Submitting used to write `?q=` and
     // nothing else: a reader who had asked for verified businesses in Maputo
     // typed one name and was handed every business on the platform, with no
     // way to see what they had lost.
@@ -382,8 +385,9 @@ describe("DirectoryPage", () => {
       items: [provider()],
       total: 1,
     });
-    fireEvent.change(await screen.findByRole("searchbox"), { target: { value: "mavalane" } });
-    fireEvent.submit(screen.getByRole("search"));
+    const listBar = await screen.findByRole("search", { name: "Which provider are you looking for?" });
+    fireEvent.change(within(listBar).getByRole("searchbox"), { target: { value: "mavalane" } });
+    fireEvent.submit(listBar);
 
     await waitFor(() => {
       // And the page resets, like every other change that is not the page
@@ -392,6 +396,17 @@ describe("DirectoryPage", () => {
         verified: true,
         city: "Maputo",
         q: "mavalane",
+      });
+    });
+
+    const headerBar = within(screen.getByRole("banner")).getByRole("search");
+    fireEvent.change(within(headerBar).getByRole("searchbox"), { target: { value: "estudio" } });
+    fireEvent.submit(headerBar);
+    await waitFor(() => {
+      expect(router.state.location.search).toEqual({
+        verified: true,
+        city: "Maputo",
+        q: "estudio",
       });
     });
   });
@@ -525,9 +540,10 @@ describe("DirectoryPage", () => {
   });
 
   it("numbers the pages off the total the server reported", async () => {
-    // Twenty to a page, and no `nextOffset` on this read model — the pager
-    // steps by the page size and stops where the total does.
-    renderPage("/providers?offset=20", { items: [provider()], total: 96 });
+    // Twenty-four to a page (the services grid's measure: eight full rows of
+    // three), and no `nextOffset` on this read model — the pager steps by the
+    // page size and stops where the total does.
+    renderPage("/providers?offset=24", { items: [provider()], total: 120 });
     const pager = await screen.findByRole("navigation", { name: "Pages" });
     expect(pager).toHaveTextContent("5");
     // Scoped to the pager: the site header's own "Providers" link is the
@@ -535,7 +551,7 @@ describe("DirectoryPage", () => {
     expect(within(pager).getByRole("link", { current: "page" })).toHaveTextContent("2");
     expect(within(pager).getByRole("link", { name: "Next" })).toHaveAttribute(
       "href",
-      "/providers?offset=40",
+      "/providers?offset=48",
     );
   });
 

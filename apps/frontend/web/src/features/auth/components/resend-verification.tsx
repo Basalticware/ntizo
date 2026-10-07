@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { authClient } from "@/shared/lib/api/auth-client";
 import { authErrorMessage } from "@/features/auth/viewmodel/auth-error";
 import { textAction } from "@/shared/ui/text-action";
+import { AUTH_ERROR, AUTH_INFO } from "@/features/auth/components/auth-styles";
 
 /**
  * Asks for a new verification link.
@@ -54,14 +55,14 @@ export function ResendVerification({
 
   if (status === "sent") {
     return (
-      <p role="status" className="text-sm text-center text-[var(--color-muted-foreground)]">
+      <p role="status" className={`${AUTH_INFO} text-center`}>
         {t("verificationResent", { email })}
       </p>
     );
   }
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-3">
       <button
         type="button"
         onClick={() => void resend()}
@@ -71,7 +72,7 @@ export function ResendVerification({
         {status === "sending" ? t("sending") : t("resendVerification")}
       </button>
       {error ? (
-        <p role="alert" className="text-sm text-center text-[var(--color-destructive)]">
+        <p role="alert" className={`${AUTH_ERROR} w-full text-center`}>
           {error}
         </p>
       ) : null}

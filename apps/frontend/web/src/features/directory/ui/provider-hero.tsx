@@ -36,8 +36,8 @@ export function ProviderHero({ provider }: { provider: ProviderPublicDTO }) {
         <h1 className="flex flex-wrap items-center gap-2.5 text-[26px] leading-[1.1] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] sm:text-[33px]">
           {provider.name}
           {provider.verified && (
-            <span className="inline-flex h-7 items-center gap-2 rounded-[14px] bg-[#e2f0fe] pr-2.5 pl-1 text-[15px] font-medium tracking-normal text-[#0244fe]">
-              <BadgeCheck className="h-[22px] w-[22px] fill-[#1060f8] text-white" strokeWidth={2.4} aria-hidden="true" />
+            <span className="inline-flex h-7 items-center gap-2 rounded-[14px] bg-[var(--color-info-bg)] pr-2.5 pl-1 text-[15px] font-medium tracking-normal text-[var(--color-primary)]">
+              <BadgeCheck className="h-[22px] w-[22px] fill-[var(--color-primary)] text-white" strokeWidth={2.4} aria-hidden="true" />
               {t("providerVerified")}
             </span>
           )}
@@ -51,14 +51,14 @@ export function ProviderHero({ provider }: { provider: ProviderPublicDTO }) {
             <b aria-hidden="true" className="ml-1.5 font-semibold text-[var(--color-headline)]">
               {score}
             </b>
-            <span aria-hidden="true" className="text-[#56628e]">
+            <span aria-hidden="true" className="text-[var(--color-muted-foreground)]">
               ({provider.reviewCount})
             </span>
           </p>
         )}
         {where && (
-          <p className="mt-3.5 flex items-center gap-2.5 text-[15px] text-[#283466]">
-            <MapPin className="h-[17px] w-[17px] text-[#1f2b5a]" aria-hidden="true" />
+          <p className="mt-3.5 flex items-center gap-2.5 text-[15px] text-[var(--color-ink-2)]">
+            <MapPin className="h-[17px] w-[17px] text-[var(--color-ink-2)]" aria-hidden="true" />
             {where}
           </p>
         )}

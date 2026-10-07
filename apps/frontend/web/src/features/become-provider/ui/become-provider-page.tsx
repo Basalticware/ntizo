@@ -6,7 +6,14 @@ import { SiteHeader } from "@/shared/components/site-header";
 import { Footer } from "@/features/landing/ui/footer";
 import { SectionHead } from "@/features/landing/ui/section-head";
 import { CONTACT } from "@/shared/lib/contact";
-import { CARD_SURFACE_CLASS } from "@/shared/components/card-surface";
+import { buttonVariants } from "@ntizo/frontend-ui";
+import {
+  CARD_BODY_CLASS,
+  CARD_TITLE_CLASS,
+  PUBLIC_CARD_CLASS,
+  PUBLIC_PAGE_CLASS,
+  STEP_MARKER_CLASS,
+} from "@/features/landing/ui/public-page";
 
 /**
  * The public case for becoming a provider.
@@ -36,6 +43,10 @@ import { CARD_SURFACE_CLASS } from "@/shared/components/card-surface";
  * `Pricing` keeps its hairline-free paragraph: it is one sentence, and a card
  * around one sentence is a box.
  *
+ * **On the October 2026 system** like the home: the 53px hero title of
+ * `/services`, the system's buttons (filled blue, outlined blue), cards at
+ * 24px padding, soft blue step markers, and `/services`' inset.
+ *
  * Nothing here paints with inline styles any more, which is what
  * `LANDING_VARS` and `PAGE_TOP` existed to supply — every colour is a token,
  * so this page follows dark mode like the rest of the site rather than staying
@@ -54,7 +65,7 @@ export function BecomeProviderPage() {
     : { to: "/sign-up", search: { next: "/onboarding" } };
 
   return (
-    <main>
+    <main className={PUBLIC_PAGE_CLASS}>
       <Hero cta={cta} t={t} />
       <Paths t={t} />
       <Pricing t={t} />
@@ -82,20 +93,11 @@ type CtaTarget =
   | { to: "/sign-up"; search: { next: string } };
 
 /**
- * The page's primary action — navy, not blue.
+ * The page's primary action: the system's filled button.
  *
- * The site spends `--color-primary` on search and sign-in and nothing else,
- * and `SiteHeader` now draws the search bar on every public page. A blue
- * button here would be the page's *second* blue, sitting a few hundred pixels
- * under the first, which is exactly the rule the home keeps by having only
- * one. Navy is what every other affirmative control on the site already
- * wears: the filled filter pill, the current page number, the phone's
- * floating capsule.
- *
- * This page used to spend blue three times over — a button repeated in the
- * hero, the pricing band and the closing band — plus an accent on half the
- * headline, a tick beside every trust line and an outlined numeral on every
- * step.
+ * It was a navy pill while the site kept blue for search and sign-in alone;
+ * the October 2026 system made the filled blue `Button` every page's primary
+ * action, and this page follows it.
  *
  * No arrow after the label: a "→" appended to a button is decoration the
  * listings dropped everywhere else.
@@ -105,7 +107,7 @@ function PrimaryCta({ cta, label }: { cta: CtaTarget; label: string }) {
     <Link
       to={cta.to}
       {...(cta.search ? { search: cta.search } : {})}
-      className="font-rounded inline-flex items-center rounded-full bg-[var(--color-navy-surface)] px-7 py-3.5 text-[15px] font-bold text-[var(--color-navy-on)]"
+      className={buttonVariants()}
     >
       {label}
     </Link>
@@ -121,7 +123,7 @@ function PrimaryCta({ cta, label }: { cta: CtaTarget; label: string }) {
  * the tell the listings and the home both removed.
  *
  * The three trust lines are the home hero's own shape: a stroked icon at 20px
- * in headline navy and a short line, not a blue tick.
+ * in the brand blue and a short line.
  */
 function Hero({ cta, t }: { cta: CtaTarget; t: T }) {
   const proofs = [
@@ -132,34 +134,30 @@ function Hero({ cta, t }: { cta: CtaTarget; t: T }) {
 
   return (
     <>
-      <SiteHeader />
-      <section className="page-shell pt-12 pb-14">
-        <h1 className="font-display max-w-[16ch] text-[clamp(2.4rem,5.2vw,3.6rem)] leading-[1.02] font-extrabold tracking-[-0.035em] text-[var(--color-headline)]">
+      <SiteHeader current="none" />
+      <section className="public-inset pt-[22px] pb-14 lg:pt-10">
+        <h1 className="max-w-[16ch] text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] lg:text-[53px]">
           {t("title")} {t("titleAccent")}
         </h1>
-        <p className="mt-5 max-w-[52ch] text-[17px] leading-relaxed text-[var(--color-foreground)]">
+        <p className="mt-3.5 max-w-[52ch] text-[17px] leading-normal text-[var(--color-muted-foreground)]">
           {t("subtitle")}
         </p>
 
-        <div className="mt-8 flex flex-wrap items-center gap-6">
+        <div className="mt-8 flex flex-wrap items-center gap-3">
           <PrimaryCta cta={cta} label={t("cta")} />
-          {/* Bare text, like every destination in the header: the page's
-              second action is somewhere to go, not a second button competing
-              with the first. */}
-          <Link
-            to="/providers"
-            className="text-[15px] font-semibold text-[var(--color-headline)] underline decoration-[var(--color-border-strong)] underline-offset-4"
-          >
+          {/* The system's second button — outlined in blue — for the second
+              action in the same task: see who is already on the platform. */}
+          <Link to="/providers" className={buttonVariants({ variant: "secondary" })}>
             {t("ctaSecondary")}
           </Link>
         </div>
 
         <ul className="mt-9 flex list-none flex-wrap gap-x-7 gap-y-2.5 p-0">
           {proofs.map(({ Icon, label }) => (
-            <li key={label} className="flex items-center gap-2.5 text-sm font-medium">
+            <li key={label} className="flex items-center gap-2.5 text-[15px] font-medium text-[var(--color-ink-2)]">
               <Icon
-                className="h-5 w-5 text-[var(--color-headline)]"
-                strokeWidth={1.7}
+                className="h-5 w-5 text-[var(--color-primary)]"
+                strokeWidth={2}
                 aria-hidden="true"
               />
               {label}
@@ -189,23 +187,21 @@ function Paths({ t }: { t: T }) {
   const paths = ["individual", "organization"] as const;
 
   return (
-    <section className="page-shell pt-4 pb-16">
+    <section className="public-inset pt-4 pb-16">
       <SectionHead title={t("pathsTitle")} blurb={t("pathsBlurb")} />
       <div className="grid gap-6 md:grid-cols-2">
         {paths.map((key) => (
           <article
             key={key}
-            className={CARD_SURFACE_CLASS}
+            className={PUBLIC_CARD_CLASS}
           >
-            <h3 className="font-display text-[20px] font-bold tracking-[-0.01em] text-[var(--color-headline)]">
+            <h3 className="text-[20px] font-bold tracking-[-0.01em] text-[var(--color-headline)]">
               {t(`path.${key}.title`)}
             </h3>
-            <p className="mt-2.5 text-[15px] leading-relaxed text-[var(--color-foreground)]">
-              {t(`path.${key}.body`)}
-            </p>
+            <p className={`mt-2.5 ${CARD_BODY_CLASS}`}>{t(`path.${key}.body`)}</p>
             {/* One fact, not a list, and set as type rather than a tinted
                 capsule — the thing that actually differs between the two. */}
-            <span className="mt-4 block text-[13px] font-semibold text-[var(--color-muted-foreground)]">
+            <span className="mt-4 block text-[14px] font-semibold text-[var(--color-primary)]">
               {t(`path.${key}.tag`)}
             </span>
           </article>
@@ -230,13 +226,13 @@ function Paths({ t }: { t: T }) {
  */
 function Pricing({ t }: { t: T }) {
   return (
-    <section className="page-shell pb-16">
+    <section className="public-inset pb-16">
       <SectionHead title={t("pricingTitle")} />
-      {/* One card, full width, because there is one thing to say. A heading
-          and a loose paragraph on a page where every other block sits on a
-          card reads as the one section that failed to load. */}
-      <div className={`${CARD_SURFACE_CLASS} md:p-7`}>
-        <p className="max-w-[62ch] text-[17px] leading-relaxed text-[var(--color-foreground)]">
+      {/* One panel, full width, because there is one thing to say — on the
+          soft blue the system gives a note, which sets it apart from the
+          cards around it. */}
+      <div className="rounded-[14px] bg-[var(--color-blue-softer)] p-6 md:p-7">
+        <p className="max-w-[62ch] text-[17px] leading-relaxed text-[var(--color-ink-2)]">
           {t("pricingBody")}
         </p>
       </div>
@@ -249,7 +245,7 @@ function Pricing({ t }: { t: T }) {
  *
  * **This one keeps its numbers**, because this one is a sequence: you cannot
  * publish before you are verified, and the reader needs the order. They are
- * small navy markers, the same shape the home's flow uses, rather than
+ * small soft blue markers, the same shape `/about`'s flow uses, rather than
  * outlined numerals the size of the headline they sit above.
  *
  * Step two says the application is reviewed, and that is not decoration:
@@ -261,7 +257,7 @@ function Steps({ t }: { t: T }) {
   const steps = ["apply", "review", "publish", "earn"] as const;
 
   return (
-    <section className="page-shell pb-16">
+    <section className="public-inset pb-16">
       {/* `stepsEyebrow` reads as a sentence, not a label — "From signing up to
           your first booking" — so it becomes the section's line now that the
           tracked-out uppercase eyebrows are gone. */}
@@ -270,21 +266,14 @@ function Steps({ t }: { t: T }) {
         {steps.map((key, i) => (
           <li
             key={key}
-            className={CARD_SURFACE_CLASS}
+            className={PUBLIC_CARD_CLASS}
           >
-            <span
-              aria-hidden="true"
-              className="mb-3.5 grid h-[26px] w-[26px] place-items-center rounded-full bg-[var(--color-navy-surface)] text-[12.5px] font-bold text-[var(--color-navy-on)] tabular-nums"
-            >
+            <span aria-hidden="true" className={`mb-4 ${STEP_MARKER_CLASS}`}>
               {i + 1}
             </span>
-            <h3 className="font-display text-[16.5px] font-bold text-[var(--color-headline)]">
-              {t(`step.${key}.title`)}
-            </h3>
-            <p className="mt-1.5 text-[14.5px] leading-relaxed text-[var(--color-foreground)]">
-              {t(`step.${key}.body`)}
-            </p>
-            <span className="mt-3 block text-[12.5px] font-semibold text-[var(--color-muted-foreground)]">
+            <h3 className={CARD_TITLE_CLASS}>{t(`step.${key}.title`)}</h3>
+            <p className={`mt-1.5 ${CARD_BODY_CLASS}`}>{t(`step.${key}.body`)}</p>
+            <span className="mt-3 block text-[13px] font-semibold text-[var(--color-primary)]">
               {t(`step.${key}.tag`)}
             </span>
           </li>
@@ -305,20 +294,16 @@ function Requirements({ t }: { t: T }) {
   const items = ["identity", "payout", "terms"] as const;
 
   return (
-    <section className="page-shell pb-16">
+    <section className="public-inset pb-16">
       <SectionHead title={t("requirementsTitle")} blurb={t("requirementsBlurb")} />
       <div className="grid gap-6 md:grid-cols-3">
         {items.map((key) => (
           <article
             key={key}
-            className={CARD_SURFACE_CLASS}
+            className={PUBLIC_CARD_CLASS}
           >
-            <h3 className="font-display text-[16.5px] font-bold text-[var(--color-headline)]">
-              {t(`requirement.${key}.title`)}
-            </h3>
-            <p className="mt-1.5 text-[14.5px] leading-relaxed text-[var(--color-foreground)]">
-              {t(`requirement.${key}.body`)}
-            </p>
+            <h3 className={CARD_TITLE_CLASS}>{t(`requirement.${key}.title`)}</h3>
+            <p className={`mt-1.5 ${CARD_BODY_CLASS}`}>{t(`requirement.${key}.body`)}</p>
           </article>
         ))}
       </div>
@@ -330,9 +315,8 @@ function Requirements({ t }: { t: T }) {
  * The last ask, and the page's only dark surface.
  *
  * Drawn exactly as `ProviderBand` draws the home's: full width, plain navy,
- * no ornament — the navy ground is the whole of it. The tokens matter as much
- * as the colour. `--color-navy-on`/`--color-navy-surface` are the dark-aware
- * pair for putting a light control on this ground; a literal white button with
+ * no ornament — the navy ground is the whole of it — and the same filled blue
+ * button, which reads on navy in both themes. A literal white button with
  * `--color-headline` text goes near-white on near-white in dark mode, which is
  * a bug this page's predecessor shipped once already.
  *
@@ -342,8 +326,8 @@ function Requirements({ t }: { t: T }) {
 function ClosingBand({ cta, t }: { cta: CtaTarget; t: T }) {
   return (
     <section className="relative mt-4 overflow-hidden bg-[var(--color-navy-surface)] text-[var(--color-navy-on)]">
-      <div className="page-shell py-16">
-        <h2 className="font-display max-w-[18ch] text-[clamp(1.75rem,3.4vw,2.25rem)] leading-[1.08] font-extrabold tracking-[-0.03em]">
+      <div className="public-inset py-16">
+        <h2 className="max-w-[18ch] text-[30px] leading-[1.08] font-extrabold tracking-[-0.02em] md:text-[36px]">
           {t("closingTitle")}
         </h2>
         <p className="mt-4 max-w-[52ch] text-base leading-relaxed text-[var(--color-navy-on)]/75">
@@ -353,7 +337,7 @@ function ClosingBand({ cta, t }: { cta: CtaTarget; t: T }) {
           <Link
             to={cta.to}
             {...(cta.search ? { search: cta.search } : {})}
-            className="font-rounded rounded-full bg-[var(--color-navy-on)] px-6 py-3.5 text-[15px] font-bold text-[var(--color-navy-surface)]"
+            className={buttonVariants()}
           >
             {t("cta")}
           </Link>
@@ -362,7 +346,7 @@ function ClosingBand({ cta, t }: { cta: CtaTarget; t: T }) {
               needs. */}
           <a
             href={`mailto:${CONTACT.general}`}
-            className="text-[14.5px] font-semibold underline decoration-[var(--color-navy-on)]/40 underline-offset-4"
+            className="text-[15px] font-semibold underline decoration-[var(--color-navy-on)]/40 underline-offset-4"
           >
             {t("closingTalk")}
           </a>

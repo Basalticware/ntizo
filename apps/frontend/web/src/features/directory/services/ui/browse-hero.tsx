@@ -26,12 +26,12 @@ export function BrowseHero({ title }: { title: string }) {
   const { t } = useTranslation("directory");
 
   return (
-    <section className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,730px)] lg:gap-x-6">
-      <div className="pt-[22px] pb-4 pl-[var(--pw-pad)] pr-[var(--pw-pad)] lg:pr-0">
-        <p className="text-[13px] leading-[1.2] font-bold tracking-[0.04em] text-[#1d87fd] uppercase">
+    <section className="grid xl:grid-cols-[minmax(0,1fr)_minmax(0,730px)] xl:gap-x-6">
+      <div className="pt-[22px] pb-4 pl-[var(--pw-pad)] pr-[var(--pw-pad)] xl:pr-0">
+        <p className="text-[13px] leading-[1.2] font-bold tracking-[0.04em] text-[var(--color-blue-edge)] uppercase">
           {t("browseHeroEyebrow")}
         </p>
-        <h1 className="mt-2.5 text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] whitespace-pre-line text-[#061e4c] lg:text-[53px]">
+        <h1 className="mt-2.5 text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] whitespace-pre-line text-[var(--color-headline)] xl:text-[53px]">
           {title}
         </h1>
         <p className="mt-3.5 max-w-[540px] text-[17px] leading-normal text-[var(--color-muted-foreground)]">
@@ -39,17 +39,17 @@ export function BrowseHero({ title }: { title: string }) {
         </p>
       </div>
 
-      <div aria-hidden="true" className="relative hidden h-[203px] self-start overflow-hidden lg:block">
+      <div aria-hidden="true" className="relative hidden h-[203px] self-start overflow-hidden xl:block">
         <img
           src="/images/services-hero.jpg"
           alt=""
           className="block h-[205px] w-[730px] max-w-none object-cover object-left"
         />
-        <p className="absolute top-[38px] left-[488px] w-[216px] rounded-xl bg-[#d7ecfd] pt-4 pr-5 pb-[18px] pl-6 text-[17.4px] leading-[1.45] whitespace-pre-line text-[#0b2081]">
+        <p className="absolute top-[38px] left-[488px] w-[216px] rounded-xl bg-[var(--color-info-bg)] pt-4 pr-5 pb-[18px] pl-6 text-[17.4px] leading-[1.45] whitespace-pre-line text-[var(--color-ink-2)]">
           {t("browseHeroQuote")}
         </p>
-        <span className="absolute top-[150px] left-[670px] h-7 w-[25px] rounded bg-[#93cdfc]" />
-        <span className="absolute top-[174px] left-[651px] h-[22px] w-[21px] rounded bg-[#8ccdfd]" />
+        <span className="absolute top-[150px] left-[670px] h-7 w-[25px] rounded bg-[var(--color-blue-outline)]" />
+        <span className="absolute top-[174px] left-[651px] h-[22px] w-[21px] rounded bg-[var(--color-blue-outline)]" />
       </div>
     </section>
   );
@@ -95,11 +95,11 @@ export function BrowseSearchBar({ current }: { current: BrowseSearch }) {
           }),
         });
       }}
-      className="flex flex-wrap items-center gap-y-2 rounded-xl border border-[#ebeff5] bg-[var(--color-background)] py-1.5 pr-1.5 pl-[18px] shadow-[0_2px_8px_rgba(30,60,120,.05)] md:h-16 md:flex-nowrap md:py-0"
+      className="flex flex-wrap items-center gap-y-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] py-1.5 pr-1.5 pl-[18px] shadow-[0_2px_8px_rgba(30,60,120,.05)] md:h-16 md:flex-nowrap md:py-0"
     >
-      <Search className="h-6 w-6 shrink-0 text-[#0068fe]" strokeWidth={2.2} aria-hidden="true" />
+      <Search className="h-6 w-6 shrink-0 text-[var(--color-primary)]" strokeWidth={2.2} aria-hidden="true" />
       <label className="ml-[18px] grid min-w-0 flex-1">
-        <span className="text-[15px] font-medium text-[#273469]">{t("browseSearchQuestion")}</span>
+        <span className="text-[15px] font-medium text-[var(--color-ink-2)]">{t("browseSearchQuestion")}</span>
         <input
           type="search"
           value={term}
@@ -111,10 +111,10 @@ export function BrowseSearchBar({ current }: { current: BrowseSearch }) {
 
       {cities.length > 1 && (
         <>
-          <span aria-hidden="true" className="mx-[18px] hidden w-px self-stretch bg-[#ebeff5] md:block" />
+          <span aria-hidden="true" className="mx-[18px] hidden w-px self-stretch bg-[var(--color-border)] md:block" />
           <label className="relative flex w-full items-center gap-3 md:w-[190px]">
             <MapPin
-              className="h-[26px] w-6 shrink-0 fill-[#0068fe] text-white"
+              className="h-[26px] w-6 shrink-0 fill-[var(--color-primary)] text-white"
               strokeWidth={1.6}
               aria-hidden="true"
             />
@@ -122,7 +122,7 @@ export function BrowseSearchBar({ current }: { current: BrowseSearch }) {
             <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="min-w-0 flex-1 cursor-pointer appearance-none bg-transparent pr-6 text-[15px] font-medium text-[#273469] outline-none"
+              className="min-w-0 flex-1 cursor-pointer appearance-none bg-transparent pr-6 text-[15px] font-medium text-[var(--color-ink-2)] outline-none"
             >
               <option value="">{t("browseAllCities")}</option>
               {cities.map((c) => (
@@ -132,7 +132,7 @@ export function BrowseSearchBar({ current }: { current: BrowseSearch }) {
               ))}
             </select>
             <ChevronDown
-              className="pointer-events-none absolute right-0 h-4 w-4 text-[#33416b]"
+              className="pointer-events-none absolute right-0 h-4 w-4 text-[var(--color-ink-2)]"
               strokeWidth={2.4}
               aria-hidden="true"
             />

@@ -6,6 +6,7 @@ import {
 } from "@ntizo/shared/read-models";
 import {
   Button,
+  cn,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -41,12 +42,17 @@ export function DeclineDialog({
           <DialogTitle>{t("bookings.declineTitle")}</DialogTitle>
           <DialogDescription>{t("bookings.declineBody")}</DialogDescription>
         </DialogHeader>
-        <fieldset className="grid gap-2 border-0 p-0">
+        <fieldset className="m-0 grid gap-2.5 border-0 p-0">
           <legend className="sr-only">{t("bookings.declineTitle")}</legend>
           {BOOKING_DECLINE_REASONS.map((key) => (
             <label
               key={key}
-              className="flex cursor-pointer items-center gap-3 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] p-3"
+              className={cn(
+                "flex min-h-[52px] cursor-pointer items-center gap-3.5 rounded-[10px] border px-4 py-3 transition-colors",
+                reason === key
+                  ? "border-[var(--color-blue-line)] bg-[var(--color-blue-softer)]"
+                  : "border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-blue-line)]",
+              )}
             >
               <input
                 type="radio"
@@ -54,9 +60,9 @@ export function DeclineDialog({
                 value={key}
                 checked={reason === key}
                 onChange={() => setReason(key)}
-                className="h-4 w-4 accent-[var(--color-primary)]"
+                className="h-[18px] w-[18px] shrink-0 accent-[var(--color-primary)]"
               />
-              <span className="type-body">{t(`bookings.declineReason.${key}`)}</span>
+              <span className="text-[15px] font-medium text-[var(--color-headline)]">{t(`bookings.declineReason.${key}`)}</span>
             </label>
           ))}
         </fieldset>

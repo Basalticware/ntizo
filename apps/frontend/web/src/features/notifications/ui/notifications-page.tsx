@@ -116,11 +116,18 @@ export function NotificationsPage({
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
-      {ownHeading && (
+      {/* The page's own h1 where nothing above prints one; in the customer's
+          account area the shell prints the area's h1, so this is the
+          section's h2, the way every other account section heads its card. */}
+      {(ownHeading || zone.kind === "customer") && (
         <div>
-          <h1 className={cn("type-h1", HEADLINE_TEXT)}>
-            {scope.kind === "provider" ? t("providerTitle") : t("title")}
-          </h1>
+          {ownHeading ? (
+            <h1 className={cn("type-h1", HEADLINE_TEXT)}>
+              {scope.kind === "provider" ? t("providerTitle") : t("title")}
+            </h1>
+          ) : (
+            <h2 className="text-lg leading-tight font-bold text-[var(--color-headline)]">{t("title")}</h2>
+          )}
           {/* Only while there is something unread. "0 unread of 27" is a
               sentence about nothing; the rows already say they are read. */}
           {unread > 0 && page.total > 0 && (

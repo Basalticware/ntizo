@@ -88,24 +88,24 @@ export function PhaseProvider({
                 className={cn(
                   "rounded-[var(--radius-card)] border p-6 text-left transition-colors",
                   selected
-                    ? "border-[var(--color-primary)] bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)]"
-                    : "border-[var(--color-border)] hover:border-[var(--color-muted-foreground)]",
+                    ? "border-[var(--color-blue-line)] bg-[var(--color-blue-softer)]"
+                    : "border-[var(--color-border)] hover:border-[var(--color-blue-line)]",
                 )}
               >
                 <span
                   className={cn(
-                    "grid h-11 w-11 place-items-center rounded-[var(--radius-card-sm)]",
+                    "grid h-12 w-12 place-items-center rounded-full",
                     selected
-                      ? "bg-[var(--color-primary)] text-white"
-                      : "bg-[var(--color-muted)] text-[var(--color-muted-foreground)]",
+                      ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                      : "bg-[var(--color-blue-soft)] text-[var(--color-primary)]",
                   )}
                 >
                   <Icon className="h-5 w-5" />
                 </span>
-                <span className="type-h3 mt-4 block font-semibold">
+                <span className="mt-4 block text-[18px] font-bold text-[var(--color-headline)]">
                   {t(`type.${value}.title`)}
                 </span>
-                <span className="type-body mt-1.5 block text-[var(--color-muted-foreground)]">
+                <span className="mt-1.5 block text-[15px] leading-[1.5] text-[var(--color-muted-foreground)]">
                   {t(`type.${value}.body`)}
                 </span>
               </button>
@@ -113,7 +113,7 @@ export function PhaseProvider({
           })}
         </div>
         {err("type") ? (
-          <p className="type-caption mt-3 text-[var(--color-destructive)]">
+          <p className="text-[13.5px] leading-[1.45] mt-3 text-[var(--color-bad-fg)]">
             {err("type")}
           </p>
         ) : null}
@@ -163,7 +163,7 @@ export function PhaseProvider({
               value={draft.description}
               onChange={(e) => onChange({ description: e.target.value })}
               placeholder={t("identity.descriptionPlaceholder")}
-              className="type-body rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-3.5 py-2.5 focus-visible:border-[var(--color-primary)] focus-visible:outline-none"
+              className="rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-4 py-3 text-[15px] text-[var(--color-foreground)] placeholder:text-[var(--color-faint)] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none"
             />
           </Field>
         </div>
@@ -284,14 +284,16 @@ export function PhaseProvider({
               value={draft.directions}
               onChange={(e) => onChange({ directions: e.target.value })}
               placeholder={ta("addrDirectionsPlaceholder")}
-              className="type-body rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-3.5 py-2.5 focus-visible:border-[var(--color-primary)] focus-visible:outline-none"
+              className="rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-4 py-3 text-[15px] text-[var(--color-foreground)] placeholder:text-[var(--color-faint)] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none"
             />
           </Field>
         </div>
       </div>
 
       <StepFooter onBack={onBack} backLabel={t("back")}>
-        <Button onClick={onContinue} disabled={busy}>{t("continue")}</Button>
+        <Button onClick={onContinue} disabled={busy}>
+          {t("continue")}
+        </Button>
       </StepFooter>
     </>
   );

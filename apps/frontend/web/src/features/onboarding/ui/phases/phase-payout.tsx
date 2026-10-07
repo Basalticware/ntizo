@@ -87,10 +87,10 @@ export function PhasePayout({
                 onChange({ payoutType: type, payoutIdentifier: "" })
               }
               className={cn(
-                "flex items-center gap-3.5 rounded-[var(--radius-card-sm)] border px-5 py-4 text-left transition-colors",
+                "flex items-center gap-3.5 rounded-[14px] border px-5 py-4 text-left transition-colors",
                 selected
-                  ? "border-[var(--color-primary)] bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)]"
-                  : "border-[var(--color-border)] hover:border-[var(--color-muted-foreground)]",
+                  ? "border-[var(--color-blue-line)] bg-[var(--color-blue-softer)]"
+                  : "border-[var(--color-border)] hover:border-[var(--color-blue-line)]",
               )}
             >
               <Icon
@@ -102,10 +102,10 @@ export function PhasePayout({
                 )}
               />
               <span className="min-w-0">
-                <span className="type-body-medium block font-semibold">
+                <span className="block text-[15px] font-semibold text-[var(--color-headline)]">
                   {t(`payout.method.${type}.title`)}
                 </span>
-                <span className="type-caption block text-[var(--color-muted-foreground)]">
+                <span className="mt-0.5 block text-[14px] text-[var(--color-muted-foreground)]">
                   {t(`payout.method.${type}.body`)}
                 </span>
               </span>

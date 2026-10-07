@@ -83,7 +83,7 @@ export function ServiceRow({
     // price/CTA column drops its own explicit position at the same
     // breakpoint so it stacks under the body instead of squeezing the name
     // into whatever width is left.
-    <li className="grid grid-cols-[91px_minmax(0,1fr)] items-center gap-x-5 gap-y-3 rounded-[10px] border border-[#edf1f7] px-5 py-3.5 sm:grid-cols-[91px_minmax(0,1fr)_auto]">
+    <li className="grid grid-cols-[91px_minmax(0,1fr)] items-center gap-x-5 gap-y-3 rounded-[10px] border border-[var(--color-line-2)] px-5 py-3.5 sm:grid-cols-[91px_minmax(0,1fr)_auto]">
       <div className="h-[68px] w-[91px] overflow-hidden rounded-md bg-[var(--color-muted)]">
         {/* Decorative: the service's
             name is already adjacent link text, so a non-empty alt would
@@ -105,29 +105,29 @@ export function ServiceRow({
           {service.name}
         </Link>
         {service.description && (
-          <p className="mt-[5px] line-clamp-2 max-w-[52ch] text-sm text-[#616c94]">
+          <p className="mt-[5px] line-clamp-2 max-w-[52ch] text-sm text-[var(--color-muted-foreground)]">
             {service.description}
           </p>
         )}
         {/* One line, three facts, each led by its glyph and parted by a dot,
             as `client/prestador-detalhe.html` draws it; the pricing mode is
             the green one. */}
-        <p className="mt-2 flex flex-wrap items-center gap-[7px] text-[13px] text-[#4b5781]">
+        <p className="mt-2 flex flex-wrap items-center gap-[7px] text-[13px] text-[var(--color-muted-foreground)]">
           {[
             durationLabel && (
               <span key="d" className="flex items-center gap-[7px]">
-                <Clock className="h-3.5 w-3.5 text-[#1f2b5a]" strokeWidth={2.1} aria-hidden="true" />
+                <Clock className="h-3.5 w-3.5 text-[var(--color-ink-2)]" strokeWidth={2.1} aria-hidden="true" />
                 {durationLabel}
               </span>
             ),
             whereLabel && (
               <span key="w" className="flex items-center gap-[7px]">
-                <MapPin className="h-3.5 w-3.5 text-[#1f2b5a]" strokeWidth={2.1} aria-hidden="true" />
+                <MapPin className="h-3.5 w-3.5 text-[var(--color-ink-2)]" strokeWidth={2.1} aria-hidden="true" />
                 {whereLabel}
               </span>
             ),
             pricingModeLabel && (
-              <span key="p" className="text-[#22b25b]">
+              <span key="p" className="text-[var(--color-ok-fg)]">
                 {pricingModeLabel}
               </span>
             ),
@@ -136,7 +136,7 @@ export function ServiceRow({
             .flatMap((fact, i) =>
               i === 0
                 ? [fact]
-                : [<i key={`dot-${i}`} aria-hidden="true" className="mx-1 h-[3px] w-[3px] rounded-full bg-[#4b5781]" />, fact],
+                : [<i key={`dot-${i}`} aria-hidden="true" className="mx-1 h-[3px] w-[3px] rounded-full bg-[var(--color-muted-foreground)]" />, fact],
             )}
         </p>
       </div>
@@ -243,7 +243,7 @@ const PRICE_CLASS = "text-[17px] font-bold text-[var(--color-headline)] tabular-
 
 /** The row's one action: a 165 × 42 outlined button, the mockup's "Ver disponibilidade". */
 const ROW_CTA_CLASS =
-  "grid h-[42px] w-[165px] place-items-center rounded-[9px] border-[1.5px] border-[#3b7dfb] bg-[var(--color-background)] text-[14.5px] font-semibold text-[#0b5bf7] hover:bg-[var(--color-blue-soft)]";
+  "grid h-[42px] w-[165px] place-items-center rounded-[9px] border-[1.5px] border-[var(--color-blue-edge)] bg-[var(--color-background)] text-[14.5px] font-semibold text-[var(--color-primary)] hover:bg-[var(--color-blue-soft)]";
 
 /**
  * The row's call to action: step 1 of checkout, as a link.

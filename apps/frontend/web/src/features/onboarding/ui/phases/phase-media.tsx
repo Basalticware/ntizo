@@ -102,10 +102,10 @@ export function PhaseMedia({
         />
 
         <div className="border-t border-[var(--color-border)] pt-6">
-          <p className="type-body-medium font-semibold">
+          <p className="text-[15px] font-semibold text-[var(--color-headline)]">
             {tp("settingsPortfolio")}
           </p>
-          <p className="type-caption mt-0.5 mb-4 text-[var(--color-muted-foreground)]">
+          <p className="text-[13.5px] leading-[1.45] mt-0.5 mb-4 text-[var(--color-muted-foreground)]">
             {t("media.portfolioHint")}
           </p>
           <GalleryUpload
@@ -138,13 +138,13 @@ export function PhaseMedia({
         </div>
 
         {(rejection ?? media.errorKey) && (
-          <p className="type-caption text-[var(--color-destructive)]">
+          <p className="text-[13.5px] leading-[1.45] text-[var(--color-bad-fg)]">
             {rejection ?? tp(media.errorKey!)}
           </p>
         )}
       </div>
 
-      <p className="type-caption mt-5 text-[var(--color-muted-foreground)]">
+      <p className="text-[13.5px] leading-[1.45] mt-5 text-[var(--color-muted-foreground)]">
         {t("media.later")}
       </p>
 

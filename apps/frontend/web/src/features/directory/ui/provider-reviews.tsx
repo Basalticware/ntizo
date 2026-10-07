@@ -93,7 +93,7 @@ export function ProviderReviews({
 
   if (layout === "rail") {
     return (
-      <section className="rounded-xl border border-[#eef2f8] bg-[var(--color-background)] px-5 pt-5 pb-[22px]">
+      <section className="rounded-xl border border-[var(--color-line-2)] bg-[var(--color-background)] px-5 pt-5 pb-[22px]">
         <div className="flex items-baseline justify-between">
           <h2 className="text-[19px] font-extrabold text-[var(--color-headline)]">
             {t("reviewsHeading", { count: summary.count })}
@@ -102,14 +102,14 @@ export function ProviderReviews({
             <button
               type="button"
               onClick={() => setLimit(REVIEWS_CAP)}
-              className="flex items-center gap-2 text-sm font-medium text-[#0c63f8] hover:underline"
+              className="flex items-center gap-2 text-sm font-medium text-[var(--color-primary)] hover:underline"
             >
               {t("reviewsSeeAll")}
               <ArrowRight className="h-[15px] w-[15px]" strokeWidth={2.2} aria-hidden="true" />
             </button>
           )}
         </div>
-        <div className="mt-4 flex items-center gap-6 border-b border-[#edf1f7] pb-[18px]">
+        <div className="mt-4 flex items-center gap-6 border-b border-[var(--color-line-2)] pb-[18px]">
           <div className="shrink-0">
             <p className="text-[45px] leading-none font-extrabold tracking-[-0.02em] text-[var(--color-headline)] tabular-nums">
               {score}
@@ -117,7 +117,7 @@ export function ProviderReviews({
             <span className="mt-1.5 flex">
               <Stars value={summary.average ?? 0} size={16} />
             </span>
-            <p className="mt-1.5 text-[13px] text-[#5f6f9e]">
+            <p className="mt-1.5 text-[13px] text-[var(--color-muted-foreground)]">
               {t("reviewsCount", { count: summary.count })}
             </p>
           </div>
@@ -127,16 +127,16 @@ export function ProviderReviews({
           {reviews.map((review) => (
             <li
               key={review.id}
-              className="grid grid-cols-[38px_minmax(0,1fr)_auto] gap-x-3 py-4 [&+&]:border-t [&+&]:border-[#f2f5f9]"
+              className="grid grid-cols-[38px_minmax(0,1fr)_auto] gap-x-3 py-4 [&+&]:border-t [&+&]:border-[var(--color-line-2)]"
             >
-              <Initials name={review.authorName} className="row-span-3 h-[38px] w-[38px] bg-[#e7f2fe] text-[#2a3a72]" />
+              <Initials name={review.authorName} className="row-span-3 h-[38px] w-[38px] bg-[var(--color-blue-soft)] text-[var(--color-ink-2)]" />
               <p className="text-sm font-bold text-[var(--color-headline)]">
                 {review.authorName ?? t("reviewAnonymous")}
               </p>
               <ReviewScore review={review} size={12} locale={locale} />
               <ReviewDate review={review} locale={locale} className="col-span-2 mt-0.5" />
               {review.comment && (
-                <p className="col-span-2 mt-1.5 text-sm leading-[1.45] whitespace-pre-line text-[#55618a]">
+                <p className="col-span-2 mt-1.5 text-sm leading-[1.45] whitespace-pre-line text-[var(--color-muted-foreground)]">
                   {review.comment}
                 </p>
               )}
@@ -150,27 +150,27 @@ export function ProviderReviews({
 
   return (
     <section className="mt-9">
-      <h2 className="text-2xl leading-[1.1] font-extrabold text-[#00064f]">
+      <h2 className="text-2xl leading-[1.1] font-extrabold text-[var(--color-headline)]">
         {t("reviewsHeading", { count: summary.count })}
       </h2>
-      <div className="mt-3.5 flex flex-col gap-6 rounded-xl border border-[#e9f0f8] py-[18px] pr-6 pl-2 sm:flex-row sm:items-center">
+      <div className="mt-3.5 flex flex-col gap-6 rounded-xl border border-[var(--color-border)] py-[18px] pr-6 pl-2 sm:flex-row sm:items-center">
         <div className="shrink-0 text-center sm:w-[150px]">
-          <p className="text-[40px] leading-none font-extrabold tracking-[-0.02em] text-[#00064f] tabular-nums">
+          <p className="text-[40px] leading-none font-extrabold tracking-[-0.02em] text-[var(--color-headline)] tabular-nums">
             {score}
           </p>
           <span className="mt-1.5 flex justify-center">
             <Stars value={summary.average ?? 0} size={17} />
           </span>
-          <p className="mt-1 text-sm text-[#6c78ac]">{t("reviewsCount", { count: summary.count })}</p>
+          <p className="mt-1 text-sm text-[var(--color-faint)]">{t("reviewsCount", { count: summary.count })}</p>
         </div>
         <Distribution summary={summary} />
       </div>
 
       <ul className="mt-4 grid list-none grid-cols-1 gap-3.5 p-0 sm:grid-cols-2 lg:grid-cols-4">
         {reviews.map((review) => (
-          <li key={review.id} className="rounded-xl border border-[#e9f0f8] px-3.5 py-4">
+          <li key={review.id} className="rounded-xl border border-[var(--color-border)] px-3.5 py-4">
             <div className="flex gap-2.5">
-              <Initials name={review.authorName} className="h-9 w-9 bg-[#e8edf9] text-[#1a2468]" />
+              <Initials name={review.authorName} className="h-9 w-9 bg-[var(--color-border)] text-[var(--color-ink-2)]" />
               <div className="min-w-0">
                 {/* Somebody who set no display name is "a customer", never
                     their email and never their id: this page is public, and
@@ -185,7 +185,7 @@ export function ProviderReviews({
               </div>
             </div>
             {review.comment && (
-              <p className="mt-3 text-sm leading-normal whitespace-pre-line text-[#6c78ac]">
+              <p className="mt-3 text-sm leading-normal whitespace-pre-line text-[var(--color-faint)]">
                 {review.comment}
               </p>
             )}
@@ -199,7 +199,7 @@ export function ProviderReviews({
             <button
               type="button"
               onClick={() => setLimit(REVIEWS_CAP)}
-              className="h-11 rounded-[10px] border border-[#e9f0f8] px-5 text-[15px] font-medium text-[#1f6ff0] hover:border-[var(--color-blue-line)]"
+              className="h-11 rounded-[10px] border border-[var(--color-border)] px-5 text-[15px] font-medium text-[var(--color-info-fg)] hover:border-[var(--color-blue-line)]"
             >
               {t("reviewsSeeAll")}
             </button>
@@ -219,7 +219,7 @@ function Distribution({
   rail?: boolean;
 }) {
   return (
-    <div className={cn("grid flex-1 text-xs", rail ? "gap-1.5 text-[#46538b]" : "max-w-[400px] gap-1.5 text-[#3a4580]")}>
+    <div className={cn("grid flex-1 text-xs", rail ? "gap-1.5 text-[var(--color-muted-foreground)]" : "max-w-[400px] gap-1.5 text-[var(--color-muted-foreground)]")}>
       {BARS.map((bar) => {
         const n = summary.histogram[bar];
         const share = summary.count === 0 ? 0 : (n / summary.count) * 100;
@@ -239,10 +239,10 @@ function Distribution({
                 stars, 12" from the row, not a percentage. */}
             <span
               aria-hidden="true"
-              className={cn("overflow-hidden", rail ? "h-1.5 rounded-[3px] bg-[#e3e7ef]" : "h-2 rounded bg-[#eff0f4]")}
+              className={cn("overflow-hidden", rail ? "h-1.5 rounded-[3px] bg-[var(--color-border)]" : "h-2 rounded bg-[var(--color-line-2)]")}
             >
               <span
-                className={cn("block h-full", rail ? "rounded-[3px] bg-[#0d1a56]" : "rounded bg-[#0b1666]")}
+                className={cn("block h-full", rail ? "rounded-[3px] bg-[var(--color-ink-2)]" : "rounded bg-[var(--color-ink-2)]")}
                 style={{ width: `${share}%` }}
               />
             </span>
@@ -269,7 +269,7 @@ function ReviewScore({ review, size, locale }: { review: ReviewPublicDTO; size: 
 
 function ReviewDate({ review, locale, className }: { review: ReviewPublicDTO; locale: string; className?: string }) {
   return (
-    <time dateTime={review.createdAt} className={cn("block text-[13px] text-[#7d88b4]", className)}>
+    <time dateTime={review.createdAt} className={cn("block text-[13px] text-[var(--color-faint)]", className)}>
       {new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(
         new Date(review.createdAt),
       )}

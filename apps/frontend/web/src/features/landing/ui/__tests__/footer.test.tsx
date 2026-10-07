@@ -86,11 +86,11 @@ describe("Footer", () => {
     // and Tailwind's preflight does not reset it — it resets the padding,
     // border, background and font, which is exactly why this read as a link in
     // every respect except that its label floated in the middle of the column.
-    // Asserting the declared style rather than a measured position: jsdom does
+    // Asserting the declared class rather than a measured position: jsdom does
     // no layout, so a geometric check here would pass on anything.
     await renderFooter();
     const support = screen.getByRole("button", { name: /talk to support/i });
-    expect(support.style.textAlign).toBe("start");
+    expect(support.className.split(/\s+/)).toContain("text-start");
   });
 
   it("offers no way into the admin console", async () => {

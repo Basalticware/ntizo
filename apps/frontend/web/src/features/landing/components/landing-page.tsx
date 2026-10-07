@@ -5,6 +5,7 @@ import { VerifiedProviders } from "@/features/landing/ui/verified-providers";
 import { CustomerReviews } from "@/features/landing/ui/customer-reviews";
 import { ProviderBand } from "@/features/landing/ui/provider-band";
 import { Footer } from "@/features/landing/ui/footer";
+import { PUBLIC_PAGE_CLASS } from "@/features/landing/ui/public-page";
 
 /**
  * The customer home page.
@@ -19,10 +20,15 @@ import { Footer } from "@/features/landing/ui/footer";
  * who might do the work. "How it works" was here, between the price and the
  * providers; the client asked for it gone outright, not just reworked, once
  * the page went live.
+ *
+ * `PUBLIC_PAGE_CLASS` is `/services`' inset, so the header, every section
+ * and the footer start on the line the listings start on.
  */
 export function LandingPage() {
   return (
-    <main className="min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)]">
+    <main
+      className={`min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)] ${PUBLIC_PAGE_CLASS}`}
+    >
       <Hero />
       <CategoryGrid />
       <PopularServices />

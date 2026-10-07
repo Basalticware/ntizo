@@ -108,11 +108,16 @@ export function CheckoutCountdown({
 }) {
   const { t } = useTranslation("checkout");
   const navigate = useNavigate();
-  const [remainingMs, setRemainingMs] = useState(() => remainingFrom(expiresAt));
+  const [remainingMs, setRemainingMs] = useState(() =>
+    remainingFrom(expiresAt),
+  );
 
   useEffect(() => {
     setRemainingMs(remainingFrom(expiresAt));
-    const id = setInterval(() => setRemainingMs(remainingFrom(expiresAt)), 1000);
+    const id = setInterval(
+      () => setRemainingMs(remainingFrom(expiresAt)),
+      1000,
+    );
     return () => clearInterval(id);
   }, [expiresAt]);
 
@@ -134,9 +139,9 @@ export function CheckoutCountdown({
     <p
       role="timer"
       aria-label={t("holdRemainingLabel")}
-      className="type-caption inline-flex items-center gap-1.5 rounded-full bg-[var(--color-muted)] px-3 py-1.5 font-semibold tabular-nums"
+      className="inline-flex items-center gap-2 rounded-full bg-[var(--color-info-bg)] px-3.5 py-1.5 text-[14px] font-semibold text-[var(--color-info-fg)] tabular-nums"
     >
-      <Timer className="h-3.5 w-3.5" aria-hidden="true" />
+      <Timer className="h-4 w-4" aria-hidden="true" />
       {t("holdRemaining", { time: formatRemaining(remainingMs) })}
     </p>
   );

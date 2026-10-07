@@ -58,7 +58,7 @@ export function OnboardingPage() {
       }
     >
       {vm.submitError ? (
-        <p className="type-body-medium mb-6 rounded-[var(--radius-field)] bg-[color-mix(in_srgb,var(--color-destructive)_10%,transparent)] px-4 py-3 text-[var(--color-destructive)]">
+        <p className="mb-6 rounded-[10px] bg-[var(--color-bad-bg)] px-4 py-3 text-[14.5px] font-medium text-[var(--color-bad-fg)]">
           {vm.submitError}
         </p>
       ) : null}

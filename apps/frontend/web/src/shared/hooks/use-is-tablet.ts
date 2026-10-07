@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-const QUERY = "(min-width: 768px) and (max-width: 1023px)";
+// Up to xl: from 1024 to 1279 a full 297px rail left the page under 800px.
+const QUERY = "(min-width: 768px) and (max-width: 1279px)";
 
 /**
  * The range between the console's two breakpoints, where the sidebar is

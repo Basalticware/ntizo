@@ -1,35 +1,39 @@
-import { MediaFallback } from "@/shared/components/brand-image";
+import { useTranslation } from "react-i18next";
 
 /**
- * Three photographs of the work, at two scales.
+ * The home's photograph: `/services`' own hero artwork, at its own size,
+ * bleeding to the window's right edge with the sky-blue quote over it.
  *
- * Ntizo owns none yet, so all three draw the same designed empty state every
- * listing uses. When the company has photographs, they replace `SLOTS` and
- * nothing else here changes.
+ * It replaced three empty brand tiles. Ntizo still owns no photographs of
+ * its providers' work, and this one is the site's artwork rather than a
+ * claim about anybody — the same picture `BrowseHero` draws, so the home and
+ * the listing it leads to open on one image. The quote is drawn as text over
+ * the picture's own panel so it follows the reader's language; it is the
+ * directory namespace's `browseHeroQuote`, the same words the listing prints.
+ *
+ * At its natural 730×205 and never scaled up: the file is that size, and a
+ * blown-up photograph is worse than a short one.
+ *
+ * `hidden xl:block`: below the two-column hero it would be a strip between
+ * the claim and the categories, and the phone reaches the categories sooner
+ * without it.
  */
-const SLOTS = ["row-span-2", "", ""] as const;
-
 export function HeroCollage() {
+  const { t } = useTranslation("directory");
   return (
     <div
       aria-hidden="true"
-      /* `hidden lg:grid`: below the two-column hero this is 360px of empty
-         tiles between the claim and the first real thing on the page, because
-         Ntizo owns no photographs yet — a phone reader scrolls past half a
-         screen of nothing to reach the categories. It draws again at `lg`,
-         where it sits beside the text rather than under it and costs no
-         vertical room at all. When the photographs exist this is the one line
-         to reconsider. */
-      className="hidden h-[360px] grid-cols-[1.15fr_1fr] grid-rows-2 gap-3 lg:grid lg:h-[520px]"
+      data-testid="hero-photo"
+      className="relative hidden h-[203px] self-start overflow-hidden xl:block"
     >
-      {SLOTS.map((className, i) => (
-        <div
-          key={i}
-          className={`relative overflow-hidden rounded-[20px] bg-[var(--color-navy-surface)] ${className}`}
-        >
-          <MediaFallback className="h-full w-full" />
-        </div>
-      ))}
+      <img
+        src="/images/services-hero.jpg"
+        alt=""
+        className="block h-[205px] w-[730px] max-w-none object-cover object-left"
+      />
+      <p className="absolute top-[38px] left-[488px] w-[216px] rounded-xl bg-[var(--color-info-bg)] pt-4 pr-5 pb-[18px] pl-6 text-[17px] leading-[1.45] whitespace-pre-line text-[var(--color-headline)]">
+        {t("browseHeroQuote")}
+      </p>
     </div>
   );
 }

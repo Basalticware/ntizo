@@ -222,7 +222,7 @@ function QuoteTabs({
             className={cn(
               "relative flex shrink-0 items-center justify-center gap-[11px] px-6 text-base whitespace-nowrap lg:flex-1",
               selected
-                ? "-my-px -ml-px rounded-[9px] bg-[#d9eafd] pl-10 font-semibold text-[var(--color-primary)] dark:bg-[var(--color-blue-soft)]"
+                ? "-my-px -ml-px rounded-[9px] bg-[var(--color-info-bg)] pl-10 font-semibold text-[var(--color-primary)] dark:bg-[var(--color-blue-soft)]"
                 : "font-medium text-[var(--color-headline)] hover:text-[var(--color-primary)]",
               // A hairline between the two plain tabs; the chosen one is its own edge.
               !selected &&
@@ -238,7 +238,7 @@ function QuoteTabs({
                   "grid h-[29px] min-w-[29px] place-items-center rounded-full px-1.5 text-[15px] font-semibold tabular-nums",
                   selected
                     ? "bg-[var(--color-card)] text-[var(--color-primary)]"
-                    : "bg-[#eaf2fb] text-[var(--color-ink-2)] dark:bg-[var(--color-muted)]",
+                    : "bg-[var(--color-blue-soft)] text-[var(--color-ink-2)] dark:bg-[var(--color-muted)]",
                 )}
               >
                 {counts[key]}

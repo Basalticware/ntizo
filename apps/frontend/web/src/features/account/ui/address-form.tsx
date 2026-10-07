@@ -1,8 +1,15 @@
 import { useTranslation } from "react-i18next";
 import { useForm } from "@tanstack/react-form";
 import type { AddressDTO } from "@ntizo/shared";
-import { Button, CitySelect, CountrySelect, Input, Label } from "@ntizo/frontend-ui";
+import {
+  Button,
+  CitySelect,
+  CountrySelect,
+  Input,
+  Label,
+} from "@ntizo/frontend-ui";
 import { useCities } from "@/features/account/viewmodel/use-cities";
+import { FIELD_LABEL } from "@/features/account/ui/customer-page";
 
 /**
  * Bridges the city field to the gazetteer.
@@ -52,7 +59,7 @@ function CityField({
 function CityDataCredit() {
   const { t } = useTranslation("account");
   return (
-    <p className="type-caption text-[var(--color-muted-foreground)]">
+    <p className="text-[13px] text-[var(--color-muted-foreground)]">
       {t("addrCityCredit")}{" "}
       <a
         href="https://www.geonames.org/"
@@ -154,7 +161,7 @@ export function AddressForm({
   return (
     <form
       aria-label={ariaLabel}
-      className="grid gap-4 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-background)] p-5"
+      className="grid gap-5 rounded-[14px] bg-[var(--color-blue-softer)] p-5 sm:p-6"
       onSubmit={(e) => {
         e.preventDefault();
         void form.handleSubmit();
@@ -163,18 +170,20 @@ export function AddressForm({
       <form.Subscribe selector={(s) => s.errorMap.onSubmit}>
         {(error) =>
           error ? (
-            <p className="type-body-medium text-[var(--color-destructive)]">
+            <p className="text-[15px] font-medium text-[var(--color-destructive)]">
               {error.form}
             </p>
           ) : null
         }
       </form.Subscribe>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2">
         <form.Field name="label">
           {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("addrLabel")}</Label>
+            <div className="grid gap-2">
+              <Label htmlFor={field.name} className={FIELD_LABEL}>
+                {t("addrLabel")}
+              </Label>
               <Input
                 id={field.name}
                 placeholder={t("addrLabelPlaceholder")}
@@ -188,8 +197,10 @@ export function AddressForm({
 
         <form.Field name="country">
           {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("addrCountry")}</Label>
+            <div className="grid gap-2">
+              <Label htmlFor={field.name} className={FIELD_LABEL}>
+                {t("addrCountry")}
+              </Label>
               {/* The same searchable list the phone field uses. A four-entry
                   hardcoded select was wrong twice over: it named the markets
                   we happen to serve today as the only places a customer can
@@ -216,8 +227,10 @@ export function AddressForm({
 
         <form.Field name="city">
           {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("addrCity")}</Label>
+            <div className="grid gap-2">
+              <Label htmlFor={field.name} className={FIELD_LABEL}>
+                {t("addrCity")}
+              </Label>
               <form.Subscribe selector={(st) => st.values.country}>
                 {(country) => (
                   <CityField
@@ -234,8 +247,10 @@ export function AddressForm({
 
         <form.Field name="district">
           {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("addrDistrict")}</Label>
+            <div className="grid gap-2">
+              <Label htmlFor={field.name} className={FIELD_LABEL}>
+                {t("addrDistrict")}
+              </Label>
               <Input
                 id={field.name}
                 value={field.state.value}
@@ -248,8 +263,10 @@ export function AddressForm({
 
       <form.Field name="line1">
         {(field) => (
-          <div className="grid gap-1.5">
-            <Label htmlFor={field.name}>{t("addrLine1")}</Label>
+          <div className="grid gap-2">
+            <Label htmlFor={field.name} className={FIELD_LABEL}>
+              {t("addrLine1")}
+            </Label>
             <Input
               id={field.name}
               value={field.state.value}
@@ -262,8 +279,10 @@ export function AddressForm({
 
       <form.Field name="directions">
         {(field) => (
-          <div className="grid gap-1.5">
-            <Label htmlFor={field.name}>{t("addrDirections")}</Label>
+          <div className="grid gap-2">
+            <Label htmlFor={field.name} className={FIELD_LABEL}>
+              {t("addrDirections")}
+            </Label>
             {/* The last hundred metres. Prominent, not tucked away: in
                 Mozambique this is often how a provider actually finds the
                 door, and a structured address alone would not get them there. */}
@@ -273,7 +292,7 @@ export function AddressForm({
               placeholder={t("addrDirectionsPlaceholder")}
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}
-              className="type-body rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-3.5 py-2.5 focus-visible:border-[var(--color-primary)] focus-visible:outline-none"
+              className="rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-4 py-3 text-[15px] placeholder:text-[var(--color-faint)] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none"
             />
           </div>
         )}
@@ -281,7 +300,7 @@ export function AddressForm({
 
       <form.Field name="isDefault">
         {(field) => (
-          <label className="type-body-medium flex items-center gap-2">
+          <label className="flex items-center gap-2.5 text-[15px] text-[var(--color-ink-2)]">
             <input
               type="checkbox"
               checked={field.state.value}

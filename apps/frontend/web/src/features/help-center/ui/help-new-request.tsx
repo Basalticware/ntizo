@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
-import { Badge } from "@ntizo/frontend-ui";
+import { Badge, Input } from "@ntizo/frontend-ui";
 import { MAX_ATTACHMENTS, type AttachmentDescriptor } from "@/features/messaging/domain/types";
 import { MessageComposer } from "@/features/messaging/ui/message-composer";
 import type { HelpPrefill } from "@/features/help-center/viewmodel/use-help-center";
@@ -54,7 +54,7 @@ export function HelpNewRequest({
   const subjectValid = trimmed.length > 0 && trimmed.length <= SUPPORT_SUBJECT_MAX;
 
   return (
-    <div className="grid gap-3 p-4">
+    <div className="grid gap-4 p-5">
       {audienceLabel && <p className="type-caption text-[var(--color-muted-foreground)]">{audienceLabel}</p>}
 
       {blocked && (
@@ -84,17 +84,16 @@ export function HelpNewRequest({
         </span>
       )}
 
-      <label className="grid gap-1">
-        <span className="type-caption font-semibold">{t("subjectLabel")}</span>
-        <input
+      <label className="grid gap-2">
+        <span className="text-[15px] font-semibold text-[var(--color-headline)]">{t("subjectLabel")}</span>
+        <Input
           value={subject}
           onChange={(event) => setSubject(event.target.value)}
           placeholder={t("subjectPlaceholder")}
           maxLength={SUPPORT_SUBJECT_MAX}
           aria-label={t("subjectLabel")}
-          className="type-body w-full rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-3.5 py-2.5 focus-visible:border-[var(--color-primary)] focus-visible:outline-none"
         />
-        <span className="type-caption text-right text-[var(--color-muted-foreground)]">
+        <span className="text-right text-[13px] text-[var(--color-muted-foreground)]">
           {t("subjectHint", { count: trimmed.length })}
         </span>
       </label>

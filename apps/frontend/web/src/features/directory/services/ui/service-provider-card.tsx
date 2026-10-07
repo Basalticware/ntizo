@@ -34,7 +34,7 @@ export function ServiceProviderCard({ service }: { service: ServiceDetailDTO }) 
   const count = reviews?.summary.count ?? 0;
 
   return (
-    <div className="self-start rounded-xl border border-[#e9f0f8] p-4">
+    <div className="self-start rounded-xl border border-[var(--color-border)] p-4">
       <div className="flex items-start gap-3.5">
         <Avatar className="h-[72px] w-[72px] shrink-0">
           {service.providerLogoUrl && <AvatarImage src={service.providerLogoUrl} alt="" />}
@@ -50,7 +50,7 @@ export function ServiceProviderCard({ service }: { service: ServiceDetailDTO }) 
               />
             )}
           </p>
-          <p className="mt-1 text-[13px] leading-[1.45] text-[#7d88b4]">
+          <p className="mt-1 text-[13px] leading-[1.45] text-[var(--color-faint)]">
             {kind}
             {place && (
               <>
@@ -61,7 +61,7 @@ export function ServiceProviderCard({ service }: { service: ServiceDetailDTO }) 
           </p>
           {average !== null && count > 0 && (
             <p
-              className="mt-1.5 flex flex-wrap items-center text-[13px] text-[#7d88b4]"
+              className="mt-1.5 flex flex-wrap items-center text-[13px] text-[var(--color-faint)]"
               aria-label={t("providerRatingLabel", { score: formatRating(average, locale), count })}
             >
               <Stars value={average} size={14} />
@@ -76,7 +76,7 @@ export function ServiceProviderCard({ service }: { service: ServiceDetailDTO }) 
       <Link
         to="/providers/$slug"
         params={{ slug: service.providerSlug }}
-        className="mt-4 flex h-[42px] items-center justify-center gap-2 rounded-[9px] bg-[#e7f3fe] text-[15px] font-medium text-[#1f6ff0] hover:bg-[var(--color-blue-soft)]"
+        className="mt-4 flex h-[42px] items-center justify-center gap-2 rounded-[9px] bg-[var(--color-blue-soft)] text-[15px] font-medium text-[var(--color-info-fg)] hover:bg-[var(--color-blue-soft)]"
       >
         {t("viewProviderProfile")}
         <ArrowRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />

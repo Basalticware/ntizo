@@ -11,6 +11,9 @@ import type { ReactNode } from "react";
  * three lines — and there is no tracked-out label above the control either:
  * the heading two lines up already names it, and the control's own
  * accessible name is what a screen reader hears.
+ *
+ * Rows of the section's card, divided by the table's row line: the card
+ * carries the section's heading, so this is a step below it.
  */
 export function Setting({
   title,
@@ -22,10 +25,14 @@ export function Setting({
   children: ReactNode;
 }) {
   return (
-    <section className="border-t border-[var(--color-border)] py-6 first:border-t-0 first:pt-0">
-      <h2 className="type-h3 font-semibold text-[var(--color-headline)]">{title}</h2>
-      <p className="type-body mt-1 text-[var(--color-muted-foreground)]">{blurb}</p>
-      <div className="mt-4">{children}</div>
+    <section className="border-t border-[var(--color-line-2)] py-5 first:border-t-0 first:pt-0 last:pb-0">
+      <h3 className="m-0 text-base font-bold text-[var(--color-headline)]">
+        {title}
+      </h3>
+      <p className="m-0 mt-1 text-sm text-[var(--color-muted-foreground)]">
+        {blurb}
+      </p>
+      <div className="mt-3.5">{children}</div>
     </section>
   );
 }

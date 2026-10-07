@@ -56,7 +56,10 @@ export function QuoteStatusLine({
 }) {
   const { t, i18n } = useTranslation("quotes");
   const locale = i18n.resolvedLanguage ?? i18n.language;
-  const tone = side === "customer" ? customerTone(quote.status) : providerTone(quote.status);
+  const tone =
+    side === "customer"
+      ? customerTone(quote.status)
+      : providerTone(quote.status);
   const clock = clockOf(quote);
 
   const at = (iso: string) => {
@@ -101,7 +104,9 @@ export function QuoteStatusLine({
       // itself, kept in case a future closing path adds a token this list
       // has not caught up with yet.
       line = t(`clock.${side}.closedReason`, {
-        reason: t(`close.reason.${clock.reason}`, { defaultValue: clock.reason }),
+        reason: t(`close.reason.${clock.reason}`, {
+          defaultValue: clock.reason,
+        }),
       });
       break;
     case "expired":
@@ -125,11 +130,18 @@ export function QuoteStatusLine({
   return (
     <span className="inline-flex flex-col items-start gap-1">
       <span className="inline-flex items-center gap-1.5">
-        <span aria-hidden="true" className={cn("h-2 w-2 shrink-0 rounded-full", TONE_CLASS[tone])} />
-        <span className="type-body-medium font-semibold">{t(`status.${side}.${quote.status}`)}</span>
+        <span
+          aria-hidden="true"
+          className={cn("h-2 w-2 shrink-0 rounded-full", TONE_CLASS[tone])}
+        />
+        <span className="type-body-medium font-semibold">
+          {t(`status.${side}.${quote.status}`)}
+        </span>
       </span>
       {line && (
-        <span className="type-caption text-[var(--color-muted-foreground)]">{line}</span>
+        <span className="text-[13.5px] leading-normal text-[var(--color-muted-foreground)]">
+          {line}
+        </span>
       )}
     </span>
   );

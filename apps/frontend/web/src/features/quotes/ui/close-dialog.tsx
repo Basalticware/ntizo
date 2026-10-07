@@ -10,21 +10,36 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@ntizo/frontend-ui";
-import { useAttachments, type PendingAttachment } from "@/features/messaging/viewmodel/use-attachments";
+import {
+  useAttachments,
+  type PendingAttachment,
+} from "@/features/messaging/viewmodel/use-attachments";
 import { QuoteAttachmentPicker } from "@/features/quotes/ui/attachment-picker";
 
-const FORM_LABEL = "text-sm font-medium";
+const FORM_LABEL = "text-[14.5px] font-semibold text-[var(--color-headline)]";
 const TEXT_FIELD =
-  "w-full rounded-[var(--radius-field)] border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-2.5 text-sm";
+  "w-full rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-4 py-3 text-[15px] placeholder:text-[var(--color-faint)] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none";
 
 /** The words that differ between the three refusals this one dialog serves. */
 const COPY: Record<
   "reject" | "withdraw" | "decline",
   { title: string; body: string; confirm: string }
 > = {
-  reject: { title: "close.rejectTitle", body: "close.rejectBody", confirm: "close.confirmReject" },
-  withdraw: { title: "close.withdrawTitle", body: "close.withdrawBody", confirm: "close.confirmWithdraw" },
-  decline: { title: "close.declineTitle", body: "close.declineBody", confirm: "close.confirmDecline" },
+  reject: {
+    title: "close.rejectTitle",
+    body: "close.rejectBody",
+    confirm: "close.confirmReject",
+  },
+  withdraw: {
+    title: "close.withdrawTitle",
+    body: "close.withdrawBody",
+    confirm: "close.confirmWithdraw",
+  },
+  decline: {
+    title: "close.declineTitle",
+    body: "close.declineBody",
+    confirm: "close.confirmDecline",
+  },
 };
 
 /**
@@ -69,14 +84,20 @@ export function CloseQuoteDialog({
   kind: "reject" | "withdraw" | "decline";
   reasons: readonly string[] | null;
   otherName: string;
-  onConfirm: (v: { reason: string | null; note: string; files: File[] }) => void;
+  onConfirm: (v: {
+    reason: string | null;
+    note: string;
+    files: File[];
+  }) => void;
   onClose: () => void;
   busy: boolean;
   notice?: string;
   attachments?: AttachmentsController;
 }) {
   const { t } = useTranslation("quotes");
-  const [reason, setReason] = useState<string | null>(reasons ? (reasons[0] ?? null) : null);
+  const [reason, setReason] = useState<string | null>(
+    reasons ? (reasons[0] ?? null) : null,
+  );
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   // Always called, whether or not a caller shares its own — the rules of
@@ -86,7 +107,8 @@ export function CloseQuoteDialog({
   const attachments = attachmentsProp ?? own;
 
   const copy = COPY[kind];
-  const bodyValues = kind === "decline" ? { customer: otherName } : { provider: otherName };
+  const bodyValues =
+    kind === "decline" ? { customer: otherName } : { provider: otherName };
 
   function submit() {
     setError(null);
@@ -116,7 +138,9 @@ export function CloseQuoteDialog({
 
         {reasons && (
           <fieldset className="grid gap-2 border-0 p-0">
-            <legend className="type-body-medium font-semibold">{t("close.reasonLegend")}</legend>
+            <legend className="type-body-medium font-semibold">
+              {t("close.reasonLegend")}
+            </legend>
             {reasons.map((token) => (
               <label
                 key={token}
@@ -162,16 +186,29 @@ export function CloseQuoteDialog({
         />
 
         {(error ?? notice) && (
-          <p role="alert" className="type-caption -mt-1 text-[var(--color-destructive)]">
+          <p
+            role="alert"
+            className="text-[13.5px] leading-normal -mt-1 text-[var(--color-destructive)]"
+          >
             {t(error ?? notice!)}
           </p>
         )}
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose} disabled={busy}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={busy}
+          >
             {t("close.keep")}
           </Button>
-          <Button type="button" variant="destructive" onClick={submit} disabled={busy}>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={submit}
+            disabled={busy}
+          >
             {t(copy.confirm)}
           </Button>
         </DialogFooter>

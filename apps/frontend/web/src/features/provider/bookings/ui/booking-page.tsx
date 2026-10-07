@@ -1,15 +1,52 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft, CalendarDays, ChevronDown, FileText, User } from "lucide-react";
-import { Button, Skeleton, cn } from "@ntizo/frontend-ui";
+import {
+  ArrowLeft,
+  Banknote,
+  Briefcase,
+  CalendarDays,
+  Check,
+  ChevronDown,
+  CircleCheck,
+  Clock,
+  FileText,
+  Hourglass,
+  Lock,
+  Mail,
+  MapPin,
+  Percent,
+  Phone,
+  User,
+  Wallet,
+  X,
+} from "lucide-react";
+import { Avatar, AvatarFallback, Badge, Button, Skeleton, cn } from "@ntizo/frontend-ui";
 import { EmptyCard } from "@/shared/components/empty-card";
+import { initialsFrom } from "@/shared/lib/initials";
 import { usePageHeader } from "@/shared/lib/page-header";
-import { Section } from "@/features/provider/ui/settings-shell";
+import {
+  CardHead,
+  DataRow,
+  DETAIL_BACK_CLASS,
+  DETAIL_CARD,
+  DETAIL_COLUMNS,
+  DETAIL_CRUMB_LINK_CLASS,
+  DetailCrumb,
+  DetailHead,
+  IconLine,
+  InfoBox,
+  MetaLine,
+  MONEY_TILES,
+  MoneyTile,
+  TITLE_PILL_CLASS,
+  Timeline,
+} from "@/features/provider/ui/detail-kit";
 import { useActiveProvider } from "@/features/provider/viewmodel/use-active-provider";
 import { slotWording } from "@/features/checkout/domain/slot-wording";
 import { formatMoney } from "@/features/wallet/domain/money";
 import {
+  STATUS_TONE,
   commissionRate,
   payoutMinor,
   shortReference,
@@ -20,11 +57,7 @@ import {
   useCloseBooking,
   useProviderBooking,
 } from "../viewmodel/use-provider-bookings";
-import { BookingStatusBadge } from "./booking-status-badge";
 import { DeclineDialog } from "./decline-dialog";
-
-const CAPTION =
-  "type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase";
 
 /**
  * The statuses whose copy may name the customer's contact and the exact
@@ -65,12 +98,14 @@ const FAILED: ReadonlySet<Notice> = new Set<Notice>(["error", "closeError"]);
 const CLOSE_REMINDER = "close_reminder";
 
 /**
- * One booking, for the page that decides it. The header is the decision:
- * name, status, reference, the two actions while it is waiting, and the
- * deadline. After the decision the actions leave and the header keeps the
- * record. Sections from `settings-shell` — the frames the settings page and
- * checkout's step 2 already draw — and a rail with the provider's arithmetic
- * and the timeline.
+ * One booking, for the page that decides it, laid out as the October
+ * mockup's booking file (`admin/reserva-detalhe.html`): the customer's name
+ * with the status and reference pills, a meta line with the appointment's
+ * facts, cards for the customer, the appointment and the money on the left,
+ * and a rail with the decision and the timeline on the right. While the
+ * booking waits, the rail's status card carries the two actions and the
+ * deadline; after the decision the actions leave and the card keeps the
+ * record.
  */
 export function BookingPage() {
   const { t, i18n } = useTranslation("provider");
@@ -104,30 +139,38 @@ export function BookingPage() {
   if (!activeProvider) return null;
   const slug = activeProvider.slug;
 
-  const back = (
+  const crumbLink = (
+    <Link to="/provider/$slug/bookings" params={{ slug }} className={DETAIL_CRUMB_LINK_CLASS}>
+      {t("bookings.back")}
+    </Link>
+  );
+  const backSquare = (
     <Link
       to="/provider/$slug/bookings"
       params={{ slug }}
-      className="type-caption inline-flex items-center gap-1.5 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+      aria-label={t("bookings.back")}
+      className={DETAIL_BACK_CLASS}
     >
-      <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-      {t("bookings.back")}
+      <ArrowLeft className="h-[22px] w-[22px]" aria-hidden="true" />
     </Link>
+  );
+  const crumb = (current: string) => (
+    <DetailCrumb label={t("bookings.title")} link={crumbLink} current={current} />
   );
 
   if (query.isLoading) {
     return (
-      <div className="mx-auto grid max-w-6xl gap-4">
-        {back}
+      <div className="grid w-full max-w-[1400px] gap-4">
+        {crumb(t("bookings.title"))}
         <Skeleton className="h-10 w-1/2" />
-        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-48 w-full rounded-[14px]" />
       </div>
     );
   }
   if (query.isError) {
     return (
-      <div className="mx-auto grid max-w-6xl gap-4">
-        {back}
+      <div className="grid w-full max-w-[1400px] gap-4">
+        {crumb(t("bookings.title"))}
         <p role="alert" className="type-body text-[var(--color-destructive)]">
           {t("bookings.loadError")}
         </p>
@@ -136,8 +179,8 @@ export function BookingPage() {
   }
   if (!b) {
     return (
-      <div className="mx-auto grid max-w-6xl gap-4">
-        {back}
+      <div className="grid w-full max-w-[1400px] gap-4">
+        {crumb(t("bookings.title"))}
         <EmptyCard
           framed
           title={t("bookings.notFoundTitle")}
@@ -246,350 +289,313 @@ export function BookingPage() {
         : "already"
       : notice;
 
+  const option = b.optionName ? ` · ${b.optionName}` : "";
+  const member = b.memberFirstName ?? t("bookings.memberAnyone");
+  const place = [
+    b.locationType ? t(`bookings.location.${b.locationType}`) : null,
+    coarse.length > 0 ? coarse.join(", ") : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  // The rail's status card is drawn only when it has something to say: a
+  // decision to make, a clock running, or the reason a button is missing.
+  const confirmedAhead = b.status === "CONFIRMED" && !ended;
+  const hasStatusCard = waiting || closable || confirmedAhead || feedbackBy !== null;
+
   return (
-    <div className="mx-auto max-w-6xl">
-      {back}
+    <div className="flex w-full max-w-[1400px] flex-col">
+      {crumb(b.customerFirstName)}
 
-      <header className="mt-4 flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="type-h1">{b.customerFirstName}</h1>
-            <BookingStatusBadge status={b.status} />
-            <span className="type-caption rounded-full bg-[var(--color-muted)] px-2.5 py-1 font-semibold tabular-nums">
+      <DetailHead
+        back={backSquare}
+        title={b.customerFirstName}
+        pills={
+          <>
+            <Badge tone={STATUS_TONE[b.status]} className={TITLE_PILL_CLASS}>
+              {t(`bookings.status.${b.status}`)}
+            </Badge>
+            <Badge tone="neutral" className={cn(TITLE_PILL_CLASS, "font-semibold tabular-nums")}>
               {t("bookings.reference", { ref: shortReference(b.id) })}
-            </span>
-          </div>
-          <p className="type-body mt-1 text-[var(--color-muted-foreground)]">
-            {b.serviceName}
-            {b.optionName ? ` · ${b.optionName}` : ""} ·{" "}
-            {b.memberFirstName ?? t("bookings.memberAnyone")}
-          </p>
-          {waiting && left && (
-            <p className="type-body-medium mt-1 font-semibold">
-              {t("bookings.respondIn", { time: left })}
-            </p>
-          )}
-          {feedbackBy && (
-            <p className="type-body-medium mt-1 font-semibold">
-              {t("bookings.feedbackBy", { time: stamp(feedbackBy) })}
-            </p>
-          )}
-          {asked && (
-            <p className="type-body mt-1 text-[var(--color-muted-foreground)]">
-              {t("bookings.askedToClose")}
-            </p>
-          )}
-        </div>
-        {/* The two actions exist only while the booking is waiting for them.
-            After the decision the header is a record, and a live "Aceitar"
-            over a booking already accepted is an invitation to an error the
-            backend would refuse. */}
-        {waiting && (
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={busy}
-              onClick={() => setDeclining(true)}
-            >
-              {t("bookings.decline")}
-            </Button>
-            <Button
-              type="button"
-              disabled={busy}
-              onClick={() =>
-                accept.mutate(b.id, { onSuccess: () => setNotice("accepted"), onError })
-              }
-            >
-              {t("bookings.accept")}
-            </Button>
-          </div>
-        )}
-        {/* The same two-button shape one stage later: the job is over and the
-            platform wants to know whether it is finished. Both wrap onto
-            their own line on a phone rather than squeezing "Marcar como
-            concluído" into half a screen. */}
-        {closable && (
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
-            <div className="flex w-full flex-wrap gap-2 sm:w-auto">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1 sm:flex-none"
-                disabled={closing}
-                onClick={() =>
-                  stillOngoing.mutate(b.id, {
-                    onSuccess: () => setNotice("stillOngoing"),
-                    onError: onCloseError,
-                  })
-                }
-              >
-                {t("bookings.stillOngoing")}
-              </Button>
-              <Button
-                type="button"
-                className="flex-1 sm:flex-none"
-                disabled={closing}
-                onClick={() =>
-                  markDone.mutate(b.id, {
-                    onSuccess: () => setNotice("markedDone"),
-                    onError: onCloseError,
-                  })
-                }
-              >
-                {t("bookings.markDone")}
-              </Button>
-            </div>
-            {/* Said before the press, not after it. Marking a job done starts
-                a clock the provider cannot take back, and "Concluído. O
-                cliente tem três dias" arriving only once it is running is
-                the news a press late.
-
-                Full width and nothing else. The wrapper is `sm:items-end`, so
-                a max width on this line — anything narrower than the button
-                row — pushes it right of the buttons it belongs to at every
-                width where the header wraps the pair onto its own
-                left-aligned line. It read as a floating sentence under the
-                middle of the pair, which is the opposite of a caption.
-                (Naming a utility class in a comment is enough for Tailwind's
-                scanner to emit its rule, so this one describes rather than
-                quotes.) */}
-            <p className="type-caption w-full text-[var(--color-muted-foreground)]">
-              {t("bookings.markDoneConfirm")}
-            </p>
-          </div>
-        )}
-        {/* Confirmed, but the appointment has not happened yet. Saying why the
-            button is not there beats leaving a provider hunting for it. */}
-        {b.status === "CONFIRMED" && !ended && (
-          <p className="type-caption max-w-64 text-[var(--color-muted-foreground)]">
-            {t("bookings.markDoneHint")}
-          </p>
-        )}
-      </header>
+            </Badge>
+          </>
+        }
+      >
+        <MetaLine
+          items={[
+            { key: "service", icon: Briefcase, text: `${b.serviceName}${option}` },
+            { key: "member", icon: User, text: member },
+            { key: "date", icon: CalendarDays, text: when.date },
+            {
+              key: "time",
+              icon: Clock,
+              text: (
+                <span className="tabular-nums">
+                  {when.start} – {when.end} ({t("bookings.minutes", { count: b.durationMinutes })})
+                </span>
+              ),
+            },
+            ...(place ? [{ key: "place", icon: MapPin, text: place }] : []),
+          ]}
+        />
+      </DetailHead>
 
       {shown && (
         <p
           role="status"
           className={cn(
-            "type-body mt-4 rounded-[var(--radius-card-sm)] p-3",
+            "type-body mt-6 mb-0 rounded-[14px] px-[18px] py-3.5",
             FAILED.has(shown)
-              ? "bg-[color-mix(in_srgb,var(--color-destructive)_8%,transparent)]"
-              : "bg-[var(--color-muted)]",
+              ? "bg-[color-mix(in_srgb,var(--color-destructive)_8%,transparent)] text-[var(--color-bad-fg)]"
+              : "bg-[var(--color-blue-softer)] text-[var(--color-ink-2)]",
           )}
         >
           {t(NOTICE_KEY[shown])}
         </p>
       )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        <div className="min-w-0">
-          <Section
-            icon={<CalendarDays className="h-5 w-5" />}
-            title={t("bookings.section.appointment")}
-            blurb={t("bookings.section.appointmentBlurb")}
-          >
-            <dl className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <dt className={CAPTION}>{t("bookings.when")}</dt>
-                <dd className="type-body-medium mt-1 font-semibold">{when.date}</dd>
-                <dd className="type-body tabular-nums">
-                  {when.start} – {when.end}
-                </dd>
-              </div>
-              <div>
-                <dt className={CAPTION}>{t("bookings.duration")}</dt>
-                <dd className="type-body mt-1">
-                  {t("bookings.minutes", { count: b.durationMinutes })}
-                </dd>
-              </div>
-              <div>
-                <dt className={CAPTION}>{t("bookings.where")}</dt>
-                <dd className="type-body mt-1">
-                  {b.locationType ? t(`bookings.location.${b.locationType}`) : null}
-                  {coarse.length > 0 && ` · ${coarse.join(", ")}`}
-                </dd>
-                {revealed && b.addressLine && (
-                  <dd className="type-body">
-                    {[b.addressLabel, b.addressLine].filter(Boolean).join(" · ")}
-                  </dd>
-                )}
-                {revealed && b.addressDirections && (
-                  <dd className="type-caption text-[var(--color-muted-foreground)]">
-                    {b.addressDirections}
-                  </dd>
-                )}
-              </div>
-              <div>
-                <dt className={CAPTION}>{t("bookings.with")}</dt>
-                <dd className="type-body mt-1">
-                  {b.memberFirstName ?? t("bookings.memberAnyone")}
-                </dd>
-              </div>
-            </dl>
-          </Section>
-
-          <Section
-            icon={<User className="h-5 w-5" />}
-            title={t("bookings.section.customer")}
-            blurb={t("bookings.section.customerBlurb")}
-          >
-            <p className="type-body-medium font-semibold">{b.customerFirstName}</p>
+      <div className={DETAIL_COLUMNS}>
+        <div className="grid min-w-0 gap-6">
+          <section className={DETAIL_CARD}>
+            <CardHead title={t("bookings.section.customer")} />
+            <div className="mt-4 flex items-center gap-[18px]">
+              <Avatar className="h-[64px] w-[64px] shrink-0">
+                <AvatarFallback className="bg-[var(--color-blue-soft)] text-xl font-semibold text-[var(--color-primary)]">
+                  {initialsFrom(b.customerFirstName)}
+                </AvatarFallback>
+              </Avatar>
+              <p className="m-0 min-w-0 truncate text-base font-bold text-[var(--color-headline)]">
+                {b.customerFirstName}
+              </p>
+            </div>
             {revealed ? (
-              <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-                <div>
-                  <dt className={CAPTION}>{t("bookings.phone")}</dt>
-                  <dd className="type-body mt-1 tabular-nums">
-                    {b.customerPhone ?? t("bookings.none")}
+              <dl className="mt-5 mb-0 grid gap-3.5 sm:grid-cols-2">
+                <div className="min-w-0">
+                  <dt className="sr-only">{t("bookings.phone")}</dt>
+                  <dd className="m-0">
+                    <IconLine icon={Phone}>
+                      <span className="tabular-nums">{b.customerPhone ?? t("bookings.none")}</span>
+                    </IconLine>
                   </dd>
                 </div>
-                <div>
-                  <dt className={CAPTION}>{t("bookings.email")}</dt>
-                  <dd className="type-body mt-1">
-                    {b.customerEmail ?? t("bookings.none")}
+                <div className="min-w-0">
+                  <dt className="sr-only">{t("bookings.email")}</dt>
+                  <dd className="m-0">
+                    <IconLine icon={Mail}>{b.customerEmail ?? t("bookings.none")}</IconLine>
                   </dd>
                 </div>
               </dl>
             ) : (
-              <p className="type-body mt-2 text-[var(--color-muted-foreground)]">
-                {t("bookings.hiddenUntilPaid")}
-              </p>
+              <InfoBox icon={Lock}>{t("bookings.hiddenUntilPaid")}</InfoBox>
             )}
-          </Section>
+          </section>
 
-          {b.description && b.description.trim() !== "" && (
-            <Section
-              icon={<FileText className="h-5 w-5" />}
-              title={t("bookings.section.note")}
-              blurb={t("bookings.section.noteBlurb")}
-            >
-              <p className="type-body whitespace-pre-line">{b.description.trim()}</p>
-            </Section>
-          )}
-        </div>
-
-        <aside className="grid gap-4 lg:sticky lg:top-6">
-          {/* The arithmetic in the order the provider does it: what the
-              customer pays, what the platform takes out of it, and the number
-              that actually arrives. The last one is the only one anybody
-              plans around, so it is the one that is set in the large type. */}
-          <section className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
-            <h2 className={CAPTION}>{t("bookings.money")}</h2>
-            <dl className="mt-3 grid gap-2">
-              <div className="flex justify-between">
-                <dt className="type-body">{t("bookings.price")}</dt>
-                <dd className="type-body tabular-nums">
-                  {formatMoney(b.priceMinor, b.currency, locale)}
-                </dd>
-              </div>
-              <div className="flex justify-between text-[var(--color-muted-foreground)]">
-                <dt className="type-body">
-                  {t("bookings.commission", {
-                    rate: commissionRate(b.commissionBps, locale),
-                  })}
-                </dt>
-                <dd className="type-body tabular-nums">
-                  −{formatMoney(b.commissionMinor, b.currency, locale)}
-                </dd>
-              </div>
-              <div className="flex justify-between border-t border-[var(--color-border)] pt-2">
-                <dt className="type-body-medium font-semibold">{t("bookings.payout")}</dt>
-                <dd className="type-h3 font-semibold tabular-nums">
-                  {formatMoney(payoutMinor(b), b.currency, locale)}
-                </dd>
-              </div>
+          <section className={DETAIL_CARD}>
+            <CardHead title={t("bookings.section.appointment")} />
+            <dl className="mt-[18px] mb-0 grid gap-4">
+              <DataRow icon={Briefcase} label={t("bookings.col.service")}>
+                <span className="font-semibold text-[var(--color-headline)]">
+                  {b.serviceName}
+                  {option}
+                </span>
+              </DataRow>
+              <DataRow icon={CalendarDays} label={t("bookings.when")}>
+                {when.date}, <span className="tabular-nums">{when.start} – {when.end}</span>
+              </DataRow>
+              <DataRow icon={Clock} label={t("bookings.duration")}>
+                {t("bookings.minutes", { count: b.durationMinutes })}
+              </DataRow>
+              <DataRow icon={MapPin} label={t("bookings.where")}>
+                {place || t("bookings.none")}
+                {revealed && b.addressLine && (
+                  <span className="block">
+                    {[b.addressLabel, b.addressLine].filter(Boolean).join(" · ")}
+                  </span>
+                )}
+                {revealed && b.addressDirections && (
+                  <span className="block text-sm text-[var(--color-muted-foreground)]">
+                    {b.addressDirections}
+                  </span>
+                )}
+              </DataRow>
+              <DataRow icon={User} label={t("bookings.with")}>
+                {member}
+              </DataRow>
+              {b.description && b.description.trim() !== "" && (
+                <DataRow icon={FileText} label={t("bookings.section.note")}>
+                  <span className="whitespace-pre-line">{b.description.trim()}</span>
+                </DataRow>
+              )}
             </dl>
           </section>
 
-          <section className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
-            <h2 className={CAPTION}>{t("bookings.timeline")}</h2>
-            <ol className="mt-3 grid list-none gap-3 p-0">
-              {b.timeline.map((e, i) => {
+          {/* The arithmetic in the order the provider does it: what the
+              customer pays, what the platform takes out of it, and the number
+              that actually arrives. */}
+          <section className={DETAIL_CARD}>
+            <CardHead title={t("bookings.money")} />
+            <dl className={MONEY_TILES}>
+              <MoneyTile
+                icon={Banknote}
+                tone="ok"
+                label={t("bookings.price")}
+                value={formatMoney(b.priceMinor, b.currency, locale)}
+              />
+              <MoneyTile
+                icon={Percent}
+                tone="violet"
+                label={t("bookings.commission", { rate: commissionRate(b.commissionBps, locale) })}
+                value={`−${formatMoney(b.commissionMinor, b.currency, locale)}`}
+              />
+              <MoneyTile
+                icon={Wallet}
+                tone="info"
+                label={t("bookings.payout")}
+                value={formatMoney(payoutMinor(b), b.currency, locale)}
+              />
+            </dl>
+          </section>
+        </div>
+
+        {/* `contents` below `lg`, so the rail's cards join the page's own
+            column and the decision can be lifted above the record: on a
+            phone "Aceitar" is the first thing under the title, not the last
+            thing under the money. */}
+        <aside className="contents lg:sticky lg:top-6 lg:grid lg:min-w-0 lg:gap-6">
+          {hasStatusCard && (
+            <section className={cn(DETAIL_CARD, "order-first lg:order-none")}>
+              <CardHead title={t("bookings.col.status")} />
+              {waiting && (
+                <InfoBox icon={Hourglass} title={left ? t("bookings.respondIn", { time: left }) : undefined} />
+              )}
+              {/* Said before the press, not after it. Marking a job done
+                  starts a clock the provider cannot take back, and "Concluído.
+                  O cliente tem três dias" arriving only once it is running is
+                  the news a press late. */}
+              {closable && (
+                <InfoBox icon={CircleCheck} title={asked ? t("bookings.askedToClose") : undefined}>
+                  <p className="m-0">{t("bookings.markDoneConfirm")}</p>
+                </InfoBox>
+              )}
+              {/* Confirmed, but the appointment has not happened yet. Saying
+                  why the button is not there beats leaving a provider hunting
+                  for it. */}
+              {confirmedAhead && (
+                <InfoBox icon={CalendarDays}>
+                  <p className="m-0">{t("bookings.markDoneHint")}</p>
+                </InfoBox>
+              )}
+              {feedbackBy && (
+                <InfoBox icon={Hourglass} title={t("bookings.feedbackBy", { time: stamp(feedbackBy) })} />
+              )}
+
+              {/* The two actions exist only while the booking is waiting for
+                  them. After the decision the card is a record, and a live
+                  "Aceitar" over a booking already accepted is an invitation to
+                  an error the backend would refuse. */}
+              {waiting && (
+                <div className="mt-5 grid gap-3">
+                  <Button
+                    type="button"
+                    disabled={busy}
+                    onClick={() =>
+                      accept.mutate(b.id, { onSuccess: () => setNotice("accepted"), onError })
+                    }
+                  >
+                    <Check aria-hidden="true" />
+                    {t("bookings.accept")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() => setDeclining(true)}
+                  >
+                    <X aria-hidden="true" />
+                    {t("bookings.decline")}
+                  </Button>
+                </div>
+              )}
+              {/* The same two-button shape one stage later: the job is over
+                  and the platform wants to know whether it is finished. */}
+              {closable && (
+                <div className="mt-5 grid gap-3">
+                  <Button
+                    type="button"
+                    disabled={closing}
+                    onClick={() =>
+                      markDone.mutate(b.id, {
+                        onSuccess: () => setNotice("markedDone"),
+                        onError: onCloseError,
+                      })
+                    }
+                  >
+                    <Check aria-hidden="true" />
+                    {t("bookings.markDone")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={closing}
+                    onClick={() =>
+                      stillOngoing.mutate(b.id, {
+                        onSuccess: () => setNotice("stillOngoing"),
+                        onError: onCloseError,
+                      })
+                    }
+                  >
+                    <Clock aria-hidden="true" />
+                    {t("bookings.stillOngoing")}
+                  </Button>
+                </div>
+              )}
+            </section>
+          )}
+
+          <section className={DETAIL_CARD}>
+            <CardHead title={t("bookings.timeline")} />
+            <Timeline
+              entries={b.timeline.map((e, i) => ({
+                key: `${e.at}-${e.reason}-${i}`,
                 // A token the locale file has no word for still gets a line:
                 // "Estado alterado" over the timestamp says less than the
                 // truth but never says something false, and a gap in the
                 // history would be worse than a vague entry in it.
-                const label = t(`bookings.timelineReason.${e.reason}`, {
+                label: t(`bookings.timelineReason.${e.reason}`, {
                   defaultValue: t("bookings.timelineReason.unknown"),
-                });
-                return (
-                  <li
-                    key={`${e.at}-${e.reason}-${i}`}
-                    aria-label={label}
-                    className="grid grid-cols-[1rem_minmax(0,1fr)] gap-x-3"
-                  >
-                    {/* Hollow for a deadline still ahead, filled for
-                        something that happened: the shape says which of the
-                        two a line is without a second word for it. */}
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "mt-1.5 h-2.5 w-2.5 rounded-full",
-                        e.pending
-                          ? "border-2 border-[var(--color-primary)]"
-                          : "bg-[var(--color-primary)]",
-                      )}
-                    />
-                    <div>
-                      <p
-                        className={cn(
-                          "type-body-medium",
-                          e.pending
-                            ? "text-[var(--color-muted-foreground)]"
-                            : "font-semibold",
-                        )}
-                      >
-                        {label}
-                      </p>
-                      <p className="type-caption text-[var(--color-muted-foreground)] tabular-nums">
-                        {stamp(e.at)}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+                }),
+                lines: [stamp(e.at)],
+                pending: e.pending,
+              }))}
+            />
           </section>
 
           {/* Closed by default and never opened by accident: these are the
               ids support asks for, and they are worth nothing to the person
               running the workspace. */}
-          <details className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
-            <summary
-              className={cn(CAPTION, "flex cursor-pointer list-none items-center justify-between")}
-            >
+          <details className={cn(DETAIL_CARD, "group")}>
+            <summary className="flex cursor-pointer list-none items-center justify-between text-lg font-bold text-[var(--color-headline)]">
               {t("bookings.technical")}
-              <ChevronDown className="h-4 w-4" aria-hidden="true" />
+              <ChevronDown
+                className="h-[18px] w-[18px] text-[var(--color-ink-2)] transition-transform group-open:rotate-180"
+                aria-hidden="true"
+              />
             </summary>
-            <dl className="mt-3 grid gap-2 break-all">
-              <div>
-                <dt className="type-caption text-[var(--color-muted-foreground)]">
-                  {t("bookings.bookingId")}
-                </dt>
-                <dd className="type-caption tabular-nums">{b.id}</dd>
-              </div>
-              <div>
-                <dt className="type-caption text-[var(--color-muted-foreground)]">
-                  {t("bookings.serviceOptionId")}
-                </dt>
-                <dd className="type-caption tabular-nums">{b.serviceOptionId}</dd>
-              </div>
-              <div>
-                <dt className="type-caption text-[var(--color-muted-foreground)]">
-                  {t("bookings.memberId")}
-                </dt>
-                <dd className="type-caption tabular-nums">
-                  {b.providerMemberId ?? t("bookings.none")}
-                </dd>
-              </div>
-              <div>
-                <dt className="type-caption text-[var(--color-muted-foreground)]">
-                  {t("bookings.paymentRef")}
-                </dt>
-                <dd className="type-caption tabular-nums">
-                  {b.paymentRef ?? t("bookings.none")}
-                </dd>
-              </div>
+            <dl className="mt-4 mb-0 grid gap-3 break-all">
+              {(
+                [
+                  ["bookings.bookingId", b.id],
+                  ["bookings.serviceOptionId", b.serviceOptionId],
+                  ["bookings.memberId", b.providerMemberId],
+                  ["bookings.paymentRef", b.paymentRef],
+                ] as const
+              ).map(([label, value]) => (
+                <div key={label}>
+                  <dt className="text-sm text-[var(--color-muted-foreground)]">{t(label)}</dt>
+                  <dd className="m-0 mt-0.5 font-mono text-[13px] text-[var(--color-ink-2)]">
+                    {value ?? t("bookings.none")}
+                  </dd>
+                </div>
+              ))}
             </dl>
           </details>
         </aside>

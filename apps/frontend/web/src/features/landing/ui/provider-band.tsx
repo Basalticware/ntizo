@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { buttonVariants } from "@ntizo/frontend-ui";
 
 /**
  * The offer made to somebody thinking about listing their work.
@@ -23,25 +24,21 @@ export function ProviderBand() {
 
   return (
     <section className="relative mt-16 overflow-hidden bg-[var(--color-navy-surface)] text-[var(--color-navy-on)]">
-      <div className="page-shell relative z-[1] grid items-center gap-14 py-16 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="public-inset relative z-[1] grid items-center gap-14 py-16 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div>
-          <h2 className="font-display max-w-[18ch] text-[clamp(1.75rem,3.4vw,2.25rem)] font-extrabold leading-[1.08] tracking-[-0.03em]">
+          <h2 className="max-w-[18ch] text-[30px] leading-[1.08] font-extrabold tracking-[-0.02em] md:text-[36px]">
             {t("home.bandTitle")}
           </h2>
           <p className="mt-4 max-w-[52ch] text-base leading-relaxed text-[var(--color-navy-on)]/75">
             {t("home.bandBody")}
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-6">
-            {/* Light, not the brand blue: the page spends its one blue on the
-                header's search button. `--color-navy-on`/`--color-navy-surface`
-                rather than literal white and `--color-headline`: those two are
-                already the dark-aware pair the rest of the page uses to put a
-                light control on this same navy surface, and `--color-headline`
-                goes near-white in dark mode — text that colour on a literal
-                white button disappears. */}
+            {/* The site's own primary button — blue, 47px — which reads on
+                the navy as it does on white. It was a white pill of its own
+                before the October system gave every page one button. */}
             <Link
               to="/become-provider"
-              className="font-rounded rounded-full bg-[var(--color-navy-on)] px-6 py-3.5 text-[15px] font-bold text-[var(--color-navy-surface)]"
+              className={buttonVariants()}
             >
               {t("home.bandCta")}
             </Link>
@@ -51,7 +48,7 @@ export function ProviderBand() {
                 reads fine in both themes without repeating the fix above. */}
             <Link
               to="/become-provider"
-              className="text-[14.5px] font-semibold underline decoration-[var(--color-navy-on)]/40 underline-offset-4"
+              className="text-[15px] font-semibold underline decoration-[var(--color-navy-on)]/40 underline-offset-4"
             >
               {t("home.bandLink")}
             </Link>
@@ -60,7 +57,7 @@ export function ProviderBand() {
         <ul className="grid gap-3.5 border-l border-[var(--color-navy-on)]/20 pl-7">
           {facts.map((f) => (
             <li key={f.title} className="text-[15px] leading-snug text-[var(--color-navy-on)]/90">
-              <b className="block font-bold text-[var(--color-navy-on)]">{f.title}</b>
+              <b className="block text-[17px] font-bold text-[var(--color-navy-on)]">{f.title}</b>
               {f.body}
             </li>
           ))}

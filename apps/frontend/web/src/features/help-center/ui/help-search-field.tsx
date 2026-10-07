@@ -23,7 +23,7 @@ export function HelpSearchField() {
       <span className="sr-only">{t("searchLabel")}</span>
       <Search
         aria-hidden="true"
-        className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]"
+        className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-[var(--color-primary)]"
       />
       <input
         type="search"
@@ -31,7 +31,7 @@ export function HelpSearchField() {
         onChange={(event) => help.setQuery(event.target.value)}
         placeholder={t("searchPlaceholder")}
         aria-label={t("searchLabel")}
-        className="type-body w-full rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] py-2.5 pr-3.5 pl-9 placeholder:text-[var(--color-muted-foreground)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none"
+        className="h-[47px] w-full rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] pr-4 pl-12 text-[15px] text-[var(--color-foreground)] placeholder:text-[var(--color-faint)] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none"
       />
     </label>
   );
