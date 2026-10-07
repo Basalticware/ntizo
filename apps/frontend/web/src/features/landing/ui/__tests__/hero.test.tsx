@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   RouterProvider,
@@ -17,7 +18,7 @@ async function renderHero() {
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       createRoute({ getParentRoute: () => rootRoute, path: "/", component: () => <Hero /> }),
-      ...["/sign-in", "/services", "/providers", "/become-provider"].map(stub),
+      ...["/sign-in", "/sign-up", "/services", "/providers", "/become-provider"].map(stub),
     ]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   });
@@ -28,6 +29,7 @@ async function renderHero() {
       <RouterProvider router={router} />
     </QueryClientProvider>,
   );
+  return router;
 }
 
 describe("Hero", () => {
@@ -38,40 +40,43 @@ describe("Hero", () => {
     ).toBeInTheDocument();
   });
 
+  // The mockup's third claim was "Pagamento seguro", which suggests money
+  // held for the customer. Nothing on the platform does that.
   it("makes three promises the platform can keep today", async () => {
     await renderHero();
-    expect(screen.getByText("Fixed price before you book")).toBeInTheDocument();
-    expect(screen.getByText("Verified providers")).toBeInTheDocument();
-    expect(screen.getByText("Pay with M-Pesa")).toBeInTheDocument();
+    expect(screen.getByText(/Price set\s+before you book/)).toBeInTheDocument();
+    expect(screen.getByText(/Verified\s+providers/)).toBeInTheDocument();
+    expect(screen.getByText(/Pay\s+with M-Pesa/)).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/secure payment|protected/i);
   });
 
   /**
-   * The search reaches the catalogue from the header, not from the hero.
-   * It used to be both: a field in the bar and a wider one under the
-   * subtitle, which is two boxes asking the same question in one screenful.
-   * The hero kept the big one only while the header had none.
+   * On the home page the search is the hero's big bar, not the header's: the
+   * October 2026 mockup draws the header without a field here, so there is
+   * still exactly one search box in the first screenful.
    */
-  it("leaves the search to the header rather than repeating it", async () => {
+  it("asks for a service in the hero, and only there", async () => {
     await renderHero();
 
-    const box = screen.getByRole("searchbox");
-    expect(box).toHaveAccessibleName("Search services");
-    expect(screen.getByRole("banner")).toContainElement(box);
+    const boxes = screen.getAllByRole("searchbox");
+    expect(boxes).toHaveLength(1);
+    expect(screen.getByRole("banner")).not.toContainElement(boxes[0]!);
+    expect(screen.getByRole("search")).toContainElement(boxes[0]!);
+  });
+
+  it("sends a search to the services list with the term", async () => {
+    const user = userEvent.setup();
+    const router = await renderHero();
+    await user.type(screen.getByRole("searchbox"), "canalizador");
+    await user.click(within(screen.getByRole("search")).getByRole("button"));
+    expect(router.state.location.pathname).toBe("/services");
+    expect(router.state.location.search).toMatchObject({ q: "canalizador" });
   });
 
   /**
    * The home page's header opens no door for a provider, and that is the
-   * decision, not an omission.
-   *
-   * The link lived here for a day. At ~148px it pushed the right-hand cluster
-   * past its track's equal share, and the middle track gave way — so the
-   * search bar sat 148px left of the window's middle on this page while every
-   * other page stayed centred, which is the failed-centring look the user had
-   * twice rejected. He asked for it removed.
-   *
-   * The provider still has two doors on this page: the footer's Company
-   * column (`footer.test.tsx`) and the navy band, which exists for nothing
-   * else.
+   * decision, not an omission: the footer's Company column and the navy band
+   * are the provider's doors on this page.
    */
   it("leaves the provider's door to the footer and the band", async () => {
     await renderHero();
@@ -82,62 +87,21 @@ describe("Hero", () => {
     expect(inHeader).toHaveLength(0);
   });
 
-  // The collage stands in for photographs nobody has uploaded. A grey box
-  // reads as a page that failed to load; the media fallback reads as a
-  // designed state, and it is what every other empty surface on the
-  // platform draws.
-  /**
-   * The photograph is `/services`' own hero artwork, with the quote laid over
-   * it as text so it follows the reader's language rather than staying in
-   * the Portuguese the file was drawn in.
-   */
-  it("draws the listings' hero photograph, with its quote as text", async () => {
+  it("sets the offer on the home's own photograph", async () => {
     await renderHero();
-    const photo = screen.getByTestId("hero-photo");
-    expect(photo.querySelector("img")).toHaveAttribute("src", "/images/services-hero.jpg");
-    expect(photo).toHaveTextContent(/real people/i);
+    expect(screen.getByTestId("hero-photo")).toHaveAttribute("src", "/images/home-hero.jpg");
   });
 
   /**
-   * And it draws none of that on a phone.
-   *
-   * Stacked under the claim it would be a strip of picture between the
-   * headline and the first real thing on the page. At `lg` it sits beside the
-   * text and costs no vertical room at all.
-   *
-   * jsdom does no layout, so the class is the assertion. It stays in the
-   * document either way: this is a `display` decision, not a render one.
+   * The quote panel sits beside the search only from `xl`; below that it
+   * would land on top of the bar. jsdom does no layout, so the class is the
+   * assertion — it stays in the document, as a `display` decision.
    */
-  it("keeps the photograph off the phone", async () => {
+  it("keeps the quote panel to wide screens, as text in the reader's language", async () => {
     await renderHero();
-    const photo = screen.getByTestId("hero-photo");
-
-    expect(photo).toHaveAttribute("aria-hidden", "true");
-    expect(photo.className).toContain("hidden");
-    expect(photo.className).toContain("xl:block");
-    expect(photo.className.split(/\s+/)).not.toContain("block");
-  });
-
-  /**
-   * The hole the collage left behind.
-   *
-   * Every section on this page is separated from the one above it by the
-   * 56px of its own `pt-14` and nothing else — except this one, which also
-   * carried `pb-14`. On a wide screen that balances the collage sitting
-   * beside the text; on a phone, with the collage gone, it stacked on the
-   * next section's `pt-14` and put 112px of white between "Pagamento por
-   * M-Pesa" and "Explorar por categoria". Measured at 390px on the deployed
-   * page before this changed: the trust list ended at y=543 and the heading
-   * began at y=655.
-   *
-   * So the padding is `xl:` only (the two-column hero starts at xl), and the phone falls back to the same
-   * rhythm as every other junction on the page.
-   */
-  it("does not stack its own bottom padding on the next section's, on a phone", async () => {
-    await renderHero();
-    const section = document.querySelector("section")!;
-
-    expect(section.className).toContain("xl:pb-14");
-    expect(section.className.split(/\s+/)).not.toContain("pb-14");
+    const quote = screen.getByTestId("hero-quote");
+    expect(quote).toHaveTextContent(/real people/i);
+    expect(quote.className.split(/\s+/)).toContain("hidden");
+    expect(quote.className).toContain("xl:block");
   });
 });

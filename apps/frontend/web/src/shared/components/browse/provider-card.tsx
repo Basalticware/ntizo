@@ -42,6 +42,7 @@ export function ProviderCard({
   provider,
   locale,
   favourite,
+  variant = "grid",
 }: {
   provider: ProviderPublicDTO;
   locale: string;
@@ -56,6 +57,13 @@ export function ProviderCard({
    * thing that is handed a `ProviderPublicDTO` and asks nobody anything.
    */
   favourite?: ReactNode;
+  /**
+   * `"grid"` is the listings' card. `"feature"` is the home page's, from the
+   * October 2026 home mockup: the name and its seal first, then the trade
+   * and the place on lines of their own, the rating beside the count of
+   * services, and "desde" with the lowest price at the foot.
+   */
+  variant?: "grid" | "feature";
 }) {
   const { t } = useTranslation("landing"); // t:ProviderCard
   // The rating's accessible label lives in the directory namespace, next to
@@ -71,6 +79,79 @@ export function ProviderCard({
   // the badge below drawing the same picture again, small, on top of itself.
   const photo = provider.photoUrls[0] ?? null;
 
+  const feature = variant === "feature";
+
+  const seal = provider.verified ? (
+    // `inline-grid`, not the service card's own `grid`: that badge
+    // sits inside a flex row, this one sits inside a line-clamped
+    // heading's normal text flow, where a block-level badge would
+    // force a line break before the name. `align-middle` on an inline
+    // badge beside running text is the same trick `collection-card.tsx`
+    // already uses.
+    <span
+      className="ml-1.5 inline-grid h-[14px] w-[14px] shrink-0 place-items-center rounded-full bg-[var(--color-navy-surface)] align-middle"
+      aria-label={t("badgeVerified")}
+    >
+      <Check
+        className="h-2.5 w-2.5 text-[var(--color-navy-on)]"
+        strokeWidth={3.4}
+        aria-hidden="true"
+      />
+    </span>
+  ) : null;
+
+  const title = (
+    <h3
+      className={`line-clamp-2 text-base leading-[1.25] text-[var(--color-headline)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline ${feature ? "font-bold" : "mt-1 font-extrabold"}`}
+    >
+      <Link
+        to="/providers/$slug"
+        params={{ slug: provider.slug }}
+        className={TILE_TITLE_LINK_CLASS}
+      >
+        {provider.name}
+      </Link>
+      {seal}
+    </h3>
+  );
+
+  const rating =
+    provider.ratingAverage === null ? (
+      // Not a zero: a provider nobody has reviewed yet is new, the same
+      // rule every caller of this card follows for the same reason.
+      <span className="shrink-0 text-[13px] text-[var(--color-muted-foreground)]">
+        {td("ratingNew")}
+      </span>
+    ) : (
+      // The same shared mark the directory row printed, with the
+      // accessible label it carries: the digits alone read as "4.8 (12)"
+      // to a screen reader, with no unit and no clue what the number in
+      // parentheses is.
+      <RatingMark
+        average={provider.ratingAverage}
+        count={provider.reviewCount}
+        locale={locale}
+        label={td("providerRatingLabel", {
+          score: formatRating(provider.ratingAverage, locale),
+          count: provider.reviewCount,
+        })}
+      />
+    );
+
+  const price = priced ? (
+    <b className="text-right text-base font-extrabold whitespace-nowrap text-[var(--color-headline)]">
+      <span className="mr-[3px] text-[12.5px] font-medium text-[var(--color-muted-foreground)]">
+        {td("priceFromPrefix")}
+      </span>
+      <span className="tabular-nums">
+        {formatHeadlinePrice(provider.fromAmountMinor!, provider.fromCurrency!, locale)}
+      </span>
+    </b>
+  ) : null;
+
+  const services =
+    provider.serviceCount > 0 ? td("providerServiceCount", { count: provider.serviceCount }) : null;
+
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-card-foreground)]">
       {/* `relative` is the positioning context the heart resolves against, and
@@ -80,11 +161,15 @@ export function ProviderCard({
           was uploaded. The heart carries `z-[3]`, which is what keeps it above
           the logo badge below (`z-[2]`) as well as above the title link's
           full-card `::after`. */}
-      <div className="relative aspect-[272/127] w-full overflow-hidden bg-[var(--color-muted)]">
+      <div
+        className={`relative w-full overflow-hidden bg-[var(--color-muted)] ${feature ? "aspect-[290/140]" : "aspect-[272/127]"}`}
+      >
         <BrandImage
           src={photo}
           alt=""
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+          // The home's wider frame keeps a portrait's upper third, where the
+          // face usually is, rather than cutting through the middle of it.
+          className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035] ${feature ? "object-[50%_30%]" : ""}`}
         />
         {favourite}
         {/* The badge draws whenever there is a logo, independent of whether a
@@ -112,80 +197,41 @@ export function ProviderCard({
           </span>
         ) : null}
       </div>
-      <div className="flex flex-1 flex-col px-[18px] pt-3.5 pb-4">
-        {(trade || where) && (
-          <p className="flex min-w-0 flex-wrap items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
-            {trade && <span className="whitespace-nowrap">{trade}</span>}
-            {trade && where && <span aria-hidden="true">·</span>}
-            {where && <span className="whitespace-nowrap">{where}</span>}
+      {feature ? (
+        <div className="flex flex-1 flex-col px-[18px] pt-3.5 pb-4">
+          {title}
+          <div className="mt-1 grid gap-1 text-[14px] leading-[1.25] text-[var(--color-muted-foreground)]">
+            {trade && <span className="truncate">{trade}</span>}
+            {where && <span className="truncate">{where}</span>}
+          </div>
+          <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[var(--color-muted-foreground)]">
+            {rating}
+            {rating && services && <span aria-hidden="true">·</span>}
+            {services && <span className="whitespace-nowrap">{services}</span>}
           </p>
-        )}
-        <h3 className="mt-1 line-clamp-2 text-base leading-[1.25] font-extrabold text-[var(--color-headline)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline">
-          <Link
-            to="/providers/$slug"
-            params={{ slug: provider.slug }}
-            className={TILE_TITLE_LINK_CLASS}
-          >
-            {provider.name}
-          </Link>
-          {provider.verified ? (
-            // `inline-grid`, not the service card's own `grid`: that badge
-            // sits inside a flex row, this one sits inside a line-clamped
-            // heading's normal text flow, where a block-level badge would
-            // force a line break before the name. `align-middle` on an inline
-            // badge beside running text is the same trick `collection-card.tsx`
-            // already uses.
-            <span
-              className="ml-1.5 inline-grid h-[14px] w-[14px] shrink-0 place-items-center rounded-full bg-[var(--color-navy-surface)] align-middle"
-              aria-label={t("badgeVerified")}
-            >
-              <Check
-                className="h-2.5 w-2.5 text-[var(--color-navy-on)]"
-                strokeWidth={3.4}
-                aria-hidden="true"
-              />
-            </span>
-          ) : null}
-        </h3>
-        {provider.serviceCount > 0 && (
-          <p className="mt-2 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
-            {td("providerServiceCount", { count: provider.serviceCount })}
-          </p>
-        )}
-        <div className="mt-auto flex items-center justify-between gap-3 pt-3">
-          {provider.ratingAverage === null ? (
-            // Not a zero: a provider nobody has reviewed yet is new, the same
-            // rule every caller of this card follows for the same reason.
-            <span className="shrink-0 text-[13px] text-[var(--color-muted-foreground)]">
-              {td("ratingNew")}
-            </span>
-          ) : (
-            // The same shared mark the directory row printed, with the
-            // accessible label it carries: the digits alone read as "4.8 (12)"
-            // to a screen reader, with no unit and no clue what the number in
-            // parentheses is.
-            <RatingMark
-              average={provider.ratingAverage}
-              count={provider.reviewCount}
-              locale={locale}
-              label={td("providerRatingLabel", {
-                score: formatRating(provider.ratingAverage, locale),
-                count: provider.reviewCount,
-              })}
-            />
-          )}
-          {priced ? (
-            <b className="text-right text-base font-extrabold whitespace-nowrap text-[var(--color-headline)]">
-              <span className="mr-[3px] text-[12.5px] font-medium text-[var(--color-muted-foreground)]">
-                {td("priceFromPrefix")}
-              </span>
-              <span className="tabular-nums">
-                {formatHeadlinePrice(provider.fromAmountMinor!, provider.fromCurrency!, locale)}
-              </span>
-            </b>
-          ) : null}
+          {price ? <div className="mt-auto pt-3">{price}</div> : null}
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-1 flex-col px-[18px] pt-3.5 pb-4">
+          {(trade || where) && (
+            <p className="flex min-w-0 flex-wrap items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
+              {trade && <span className="whitespace-nowrap">{trade}</span>}
+              {trade && where && <span aria-hidden="true">·</span>}
+              {where && <span className="whitespace-nowrap">{where}</span>}
+            </p>
+          )}
+          {title}
+          {services && (
+            <p className="mt-2 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
+              {services}
+            </p>
+          )}
+          <div className="mt-auto flex items-center justify-between gap-3 pt-3">
+            {rating}
+            {price}
+          </div>
+        </div>
+      )}
     </article>
   );
 }

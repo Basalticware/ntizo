@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Check, Clock3 } from "lucide-react";
+import { Check, Clock3, MapPin } from "lucide-react";
 import { BrandImage } from "@/shared/components/brand-image";
 import { RatingMark, TILE_TITLE_LINK_CLASS } from "@/shared/components/browse/result-tile";
 import { formatRating } from "@/shared/domain/rating";
@@ -37,13 +37,13 @@ export function ServiceCard({
   service,
   locale,
   favourite,
+  variant = "grid",
 }: {
   service: ServiceDTO;
   locale: string;
   /**
    * The heart, drawn on the photograph — or nothing, for a caller that wants
-   * a card with no control on it at all, which is what the home page's rails
-   * pass.
+   * a card with no control on it at all.
    *
    * A node the page builds rather than a `saved` flag this card turns into
    * one: the marks for a page come from a single `useFavouriteMarks` call up
@@ -51,11 +51,112 @@ export function ServiceCard({
    * thing that is handed a `ServiceDTO` and asks nobody anything.
    */
   favourite?: ReactNode;
+  /**
+   * `"grid"` is the listings' card. `"feature"` is the home page's, from the
+   * October 2026 home mockup: the category named on the photograph, the
+   * service's name first and its provider under it, then the rating, the
+   * length and where, and the price on a line of its own at the foot. The
+   * same facts from the same helpers, in the order a reader meets them on a
+   * page that is selling rather than sorting.
+   */
+  variant?: "grid" | "feature";
 }) {
   const { t } = useTranslation("directory");
   const line = servicePriceLine(service);
   const metaText = line.meta ? t(line.meta.key, line.meta.values ?? {}) : null;
   const where = t(`filterWhereOption.${service.locationType}`, { defaultValue: "" });
+  const feature = variant === "feature";
+
+  const byline = (
+    <p
+      className={`flex min-w-0 items-center gap-1.5 leading-[1.2] text-[var(--color-muted-foreground)] ${feature ? "mt-1 text-[14px]" : "text-[13px]"}`}
+    >
+      <span className="min-w-0 truncate">{service.providerName}</span>
+      {service.providerVerified && (
+        <span
+          className="grid h-[13px] w-[13px] shrink-0 place-items-center rounded-full bg-[var(--color-navy-surface)]"
+          aria-label={t("providerVerified")}
+        >
+          <Check className="h-2.5 w-2.5 text-[var(--color-navy-on)]" aria-hidden="true" strokeWidth={3.4} />
+        </span>
+      )}
+    </p>
+  );
+
+  const title = (
+    <h3
+      className={`truncate text-base leading-[1.2] text-[var(--color-headline)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline ${feature ? "font-bold" : "mt-1 font-extrabold"}`}
+    >
+      <Link to="/services/$id" params={{ id: service.id }} className={TILE_TITLE_LINK_CLASS}>
+        {service.name}
+      </Link>
+    </h3>
+  );
+
+  const meta = (metaText || where) && (
+    <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
+      {/* The clock only beside a length — the same line can carry a
+          count of packages or a quote's hint instead. */}
+      {metaText && line.meta?.key.endsWith("Minutes") && (
+        <Clock3 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
+      )}
+      {metaText && <span className="whitespace-nowrap">{metaText}</span>}
+      {metaText && where && <span aria-hidden="true" className="mx-[3px]">·</span>}
+      {where && (
+        // The pin rides in the same nowrap box as the place, so a narrow
+        // card wraps the pair together rather than stranding the glyph.
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+          {feature && <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />}
+          {where}
+        </span>
+      )}
+    </p>
+  );
+
+  const rating =
+    service.providerRatingAverage === null ? (
+      // Not a zero: a provider nobody has reviewed yet is new, the same
+      // rule every caller of this card follows for the same reason.
+      <span className="shrink-0 text-[13px] text-[var(--color-muted-foreground)]">
+        {t("ratingNew")}
+      </span>
+    ) : (
+      <RatingMark
+        average={service.providerRatingAverage}
+        count={service.providerReviewCount}
+        locale={locale}
+        label={t("providerRatingLabel", {
+          score: formatRating(service.providerRatingAverage, locale),
+          count: service.providerReviewCount,
+        })}
+      />
+    );
+
+  const price = (
+    <b
+      className={`font-extrabold whitespace-nowrap text-[var(--color-headline)] ${feature ? "text-[17px]" : "text-right text-base"}`}
+    >
+      {line.amount.kind === "words" ? (
+        <span className="text-[14px] font-semibold">{t(line.amount.key)}</span>
+      ) : (
+        <>
+          {line.amount.from && (
+            <span className="mr-[3px] text-[12.5px] font-medium text-[var(--color-muted-foreground)]">
+              {t("priceFromPrefix")}
+            </span>
+          )}
+          <span className="tabular-nums">
+            {formatHeadlinePrice(line.amount.amountMinor, line.amount.currency, locale)}
+            {line.amount.perHour && (
+              <span className="text-[12.5px] font-semibold text-[var(--color-muted-foreground)]">
+                {t("pricePerHourUnit")}
+              </span>
+            )}
+          </span>
+        </>
+      )}
+    </b>
+  );
 
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-[10px] border border-[var(--color-line-2)] bg-[var(--color-card)] text-[var(--color-card-foreground)]">
@@ -64,84 +165,40 @@ export function ServiceCard({
           reason `TileMedia` was before it: it is the same box whether the
           listing has a photograph or the site's placeholder, so the control
           does not move depending on whether a provider uploaded a picture. */}
-      <div className="relative aspect-[272/127] w-full overflow-hidden bg-[var(--color-muted)]">
+      <div
+        className={`relative w-full overflow-hidden bg-[var(--color-muted)] ${feature ? "aspect-[290/160]" : "aspect-[272/127]"}`}
+      >
         <BrandImage
           src={service.imageUrls[0] ?? null}
           alt=""
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+          className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035] ${feature ? "object-[50%_30%]" : ""}`}
         />
+        {feature && service.categoryName ? (
+          <span className="absolute bottom-2.5 left-2.5 max-w-[calc(100%-20px)] truncate rounded-md bg-[var(--color-card)] px-2 py-1 text-[12px] leading-none font-medium text-[var(--color-ink-2)]">
+            {service.categoryName}
+          </span>
+        ) : null}
         {favourite}
       </div>
-      <div className="flex flex-1 flex-col px-[18px] pt-3.5 pb-4">
-        <p className="flex min-w-0 items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
-          <span className="min-w-0 truncate">{service.providerName}</span>
-          {service.providerVerified && (
-            <span
-              className="grid h-[13px] w-[13px] shrink-0 place-items-center rounded-full bg-[var(--color-navy-surface)]"
-              aria-label={t("providerVerified")}
-            >
-              <Check className="h-2.5 w-2.5 text-[var(--color-navy-on)]" aria-hidden="true" strokeWidth={3.4} />
-            </span>
-          )}
-        </p>
-        <h3 className="mt-1 truncate text-base leading-[1.2] font-extrabold text-[var(--color-headline)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline">
-          <Link to="/services/$id" params={{ id: service.id }} className={TILE_TITLE_LINK_CLASS}>
-            {service.name}
-          </Link>
-        </h3>
-        {(metaText || where) && (
-          <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
-            {/* The clock only beside a length — the same line can carry a
-                count of packages or a quote's hint instead. */}
-            {metaText && line.meta?.key.endsWith("Minutes") && (
-              <Clock3 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
-            )}
-            {metaText && <span className="whitespace-nowrap">{metaText}</span>}
-            {metaText && where && <span aria-hidden="true" className="mx-[3px]">·</span>}
-            {where && <span className="whitespace-nowrap">{where}</span>}
-          </p>
-        )}
-        <div className="mt-auto flex items-center justify-between gap-3 pt-3">
-          {service.providerRatingAverage === null ? (
-            // Not a zero: a provider nobody has reviewed yet is new, the same
-            // rule every caller of this card follows for the same reason.
-            <span className="shrink-0 text-[13px] text-[var(--color-muted-foreground)]">
-              {t("ratingNew")}
-            </span>
-          ) : (
-            <RatingMark
-              average={service.providerRatingAverage}
-              count={service.providerReviewCount}
-              locale={locale}
-              label={t("providerRatingLabel", {
-                score: formatRating(service.providerRatingAverage, locale),
-                count: service.providerReviewCount,
-              })}
-            />
-          )}
-          <b className="text-right text-base font-extrabold whitespace-nowrap text-[var(--color-headline)]">
-            {line.amount.kind === "words" ? (
-              <span className="text-[14px] font-semibold">{t(line.amount.key)}</span>
-            ) : (
-              <>
-                {line.amount.from && (
-                  <span className="mr-[3px] text-[12.5px] font-medium text-[var(--color-muted-foreground)]">
-                    {t("priceFromPrefix")}
-                  </span>
-                )}
-                <span className="tabular-nums">
-                  {formatHeadlinePrice(line.amount.amountMinor, line.amount.currency, locale)}
-                  {line.amount.perHour && (
-                    <span className="text-[12.5px] font-semibold text-[var(--color-muted-foreground)]">
-                      {t("pricePerHourUnit")}
-                    </span>
-                  )}
-                </span>
-              </>
-            )}
-          </b>
+      {feature ? (
+        <div className="flex flex-1 flex-col px-[18px] pt-3.5 pb-4">
+          {title}
+          {byline}
+          <div className="mt-2">{rating}</div>
+          {meta}
+          <div className="mt-auto pt-3.5">{price}</div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-1 flex-col px-[18px] pt-3.5 pb-4">
+          {byline}
+          {title}
+          {meta}
+          <div className="mt-auto flex items-center justify-between gap-3 pt-3">
+            {rating}
+            {price}
+          </div>
+        </div>
+      )}
     </article>
   );
 }

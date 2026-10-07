@@ -9,7 +9,10 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import type { FeaturedReviewDTO } from "@ntizo/shared/read-models";
+import i18n from "i18next";
 import { CustomerReviews, LANDING_STORIES } from "../customer-reviews";
+import { LANDING_SERVICES } from "../popular-services";
+import { LANDING_PROVIDERS } from "../verified-providers";
 
 function story(over: Partial<FeaturedReviewDTO> = {}): FeaturedReviewDTO {
   return {
@@ -24,7 +27,10 @@ function story(over: Partial<FeaturedReviewDTO> = {}): FeaturedReviewDTO {
   };
 }
 
-async function renderReviews(items?: FeaturedReviewDTO[]) {
+async function renderReviews(
+  items?: FeaturedReviewDTO[],
+  totals?: { services: number; providers: number },
+) {
   const rootRoute = createRootRoute();
   const router = createRouter({
     routeTree: rootRoute.addChildren([
@@ -35,6 +41,18 @@ async function renderReviews(items?: FeaturedReviewDTO[]) {
   });
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   if (items) qc.setQueryData(["public", "reviews", "featured", LANDING_STORIES], items);
+  const locale = i18n.resolvedLanguage ?? i18n.language;
+  // The two totals ride on the sections' own queries, so seeding those keys
+  // is seeding the numbers.
+  qc.setQueryData(["public", "services", "popular", locale, LANDING_SERVICES], {
+    items: [],
+    nextOffset: null,
+    total: totals?.services ?? 0,
+  });
+  qc.setQueryData(["public", "providers", "popular", locale, LANDING_PROVIDERS], {
+    items: [],
+    total: totals?.providers ?? 0,
+  });
   await router.load();
   render(
     <QueryClientProvider client={qc}>
@@ -47,7 +65,7 @@ describe("CustomerReviews", () => {
   it("quotes the reviewer in their own words", async () => {
     await renderReviews([story()]);
     expect(
-      await screen.findByText("Chegou à hora combinada e deixou tudo limpo."),
+      await screen.findByText("“Chegou à hora combinada e deixou tudo limpo.”"),
     ).toBeInTheDocument();
     expect(screen.getByText("Ana Rodrigues")).toBeInTheDocument();
   });
@@ -93,7 +111,7 @@ describe("CustomerReviews", () => {
    */
   it("draws each review as the site's bordered card", async () => {
     await renderReviews([story()]);
-    const card = (await screen.findByText("Chegou à hora combinada e deixou tudo limpo.")).closest(
+    const card = (await screen.findByText("“Chegou à hora combinada e deixou tudo limpo.”")).closest(
       "article",
     );
     expect(card).not.toBeNull();
@@ -110,45 +128,37 @@ describe("CustomerReviews", () => {
   });
 
   /**
-   * The flaw this section exists to fix: reviews are different lengths, so a
-   * naive column puts three footers at three different heights and the row
-   * reads as unfinished. Asserted on the declared style rather than a measured
-   * position — jsdom does no layout, so a geometric check would pass on
-   * anything.
+   * The numbers beside the review are the ones the page can fetch, and only
+   * those. The mockup's "4,8 / 5", "1 200+" and "300+" were figures nothing
+   * serves; what is real is `serviceAll`'s total and the verified providers'
+   * total, read from the two sections' own cached queries.
    */
-  it("pins the footer to the bottom whatever the quote runs to", async () => {
-    await renderReviews([story(), story({ id: "rev-2", comment: "Bom." })]);
-    const footers = await screen.findAllByTestId("review-footer");
-    expect(footers).toHaveLength(2);
-    for (const f of footers) expect(f.style.marginTop).toBe("auto");
+  it("prints the published services and verified providers totals the queries returned", async () => {
+    await renderReviews([story()], { services: 35, providers: 4 });
+    const stats = await screen.findByTestId("home-stats");
+    expect(stats).toHaveTextContent("35");
+    expect(stats).toHaveTextContent("Published services");
+    expect(stats).toHaveTextContent("4");
+    expect(stats).toHaveTextContent("Verified providers");
+    // No platform-wide average exists in any public read model.
+    expect(stats).not.toHaveTextContent("/ 5");
   });
 
-  // jsdom does no layout, so this cannot prove a phone actually scrolls
-  // sideways or that a wide screen actually shows a grid — only that the
-  // list carries the classes `ScrollRail` needs for each: the phone-only
-  // flex/scroll/snap/bleed declarations (unprefixed, so they apply below
-  // `sm`) and the `sm:` grid declarations that replace them from `sm` up.
-  // The same assertion `verified-providers.test.tsx` makes about the row
-  // directly above this one, down to the card width.
-  it("declares a phone-width scrolling row that hands off to a grid at `sm`", async () => {
-    await renderReviews([story()]);
-    const list = await screen.findByRole("list");
-    expect(list.className).toContain("flex");
-    expect(list.className).toContain("snap-x");
-    expect(list.className).toContain("snap-mandatory");
-    expect(list.className).toContain("overflow-x-auto");
-    expect(list.className).toContain("-mx-6");
-    expect(list.className).toContain("px-6");
-    expect(list.className).toContain("[&>*]:snap-start");
-    expect(list.className).toContain("sm:grid");
-    expect(list.className).toContain("sm:grid-cols-2");
-    expect(list.className).toContain("lg:grid-cols-3");
-    expect(list.className).toContain("sm:overflow-visible");
-    expect(list.style.getPropertyValue("--rail-card")).toBe("78%");
+  it("draws no tile for a count that is zero or never arrived", async () => {
+    await renderReviews([story()], { services: 12, providers: 0 });
+    const stats = await screen.findByTestId("home-stats");
+    expect(stats).toHaveTextContent("Published services");
+    expect(stats).not.toHaveTextContent("Verified provider");
+  });
+
+  it("still appears for its numbers when nothing is featured", async () => {
+    await renderReviews([], { services: 3, providers: 2 });
+    expect(await screen.findByRole("heading", { name: "What our customers say" })).toBeInTheDocument();
+    expect(screen.queryByRole("article")).toBeNull();
   });
 
   it("does not appear when an administrator has featured nothing", async () => {
     await renderReviews([]);
-    expect(screen.queryByRole("heading", { name: "What customers say" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "What our customers say" })).toBeNull();
   });
 });

@@ -105,6 +105,7 @@ export function SiteHeader({
   overlay = false,
   current = "explore",
   search = {},
+  withSearch = true,
 }: {
   overlay?: boolean;
   /**
@@ -126,6 +127,12 @@ export function SiteHeader({
    * keeps the category, the filters, the city and the sort underneath it.
    */
   search?: ComponentProps<typeof ServiceSearch>;
+  /**
+   * `false` on the home page only, whose hero carries the big search bar (the
+   * October 2026 home mockup draws the header without one there). Every other
+   * page keeps the field in the bar.
+   */
+  withSearch?: boolean;
 }) {
   const { t } = useTranslation("landing");
   const { t: ta } = useTranslation("auth");
@@ -166,11 +173,18 @@ export function SiteHeader({
             destinations and the account controls are `nowrap` and keep their
             width, and the field is the one thing in the row that still works
             narrower. 190px plus the button is the mockup's width. */}
-        <div className="order-last w-full min-w-0 md:order-none md:ml-[26px] md:w-auto md:max-w-[315px] md:flex-1">
-          <ServiceSearch {...search} className="w-full" />
-        </div>
+        {withSearch ? (
+          <div className="order-last w-full min-w-0 md:order-none md:ml-[26px] md:w-auto md:max-w-[315px] md:flex-1">
+            <ServiceSearch {...search} className="w-full" />
+          </div>
+        ) : null}
 
-        <nav className="ml-3 hidden h-full items-center gap-4 lg:flex">
+        <nav
+          className={cn(
+            "hidden h-full items-center lg:flex",
+            withSearch ? "ml-3 gap-4" : "ml-[52px] gap-7",
+          )}
+        >
           {PUBLIC_NAV.map((item) => (
             <Link
               key={item.key}

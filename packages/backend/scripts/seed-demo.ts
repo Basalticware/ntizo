@@ -26,13 +26,23 @@
  *   STAGE=qa bun run --env-file=.env scripts/seed-categories.ts --apply   # a fresh database has none
  *   STAGE=qa bun run --env-file=.env scripts/seed-demo.ts --apply
  *
- * Images are generated here rather than downloaded: a seed that reaches out to
- * a photo site works until the network is down or the licence changes, and
- * nothing about the layout needs a photograph to be judged. Each one is an SVG
- * — a two-tone wash in the brand's own hues carrying the category's glyph — so
- * a grid of them reads as a grid of different things, which is the property the
- * grey placeholder box was missing. Swapping real photographs in later is
- * putting files in the bucket under the same keys.
+ *   bun run --env-file=.env scripts/seed-demo.ts --photos-only            # dry run
+ *   bun run --env-file=.env scripts/seed-demo.ts --photos-only --apply
+ *
+ * `--photos-only` uploads the photographs and points the image columns at them
+ * — category covers, each demo service's `imageKeys`, each demo business's
+ * `photoKeys` — re-uploads the generated marks, and touches nothing else. A
+ * full run replaces a demo business's
+ * services wholesale, and a service carries its bookings with it on delete; on
+ * QA a tester may well have booked one since the last seed.
+ *
+ * The photographs are stock, from Pexels and Unsplash, checked into
+ * `scripts/demo-photos/` with their provenance in its `CREDITS.md` — a seed
+ * that fetched them at run time would work until the network was down or a
+ * photo was taken down. A design reviewed against generated colour washes kept
+ * being judged on the washes; cards, galleries and the category band read
+ * differently with a person in the frame. Logos stay generated monograms: a
+ * photograph is not a mark.
  */
 import { randomUUID } from "node:crypto";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -57,6 +67,7 @@ import { review } from "../src/modules/ntizo/shared/infrastructure/database/revi
 import { profile, user } from "../src/modules/ntizo/shared/infrastructure/database/user/schemas";
 
 const apply = process.argv.includes("--apply");
+const photosOnly = process.argv.includes("--photos-only");
 
 type Stage = "dev" | "qa";
 
@@ -153,7 +164,7 @@ const NEW_CATEGORIES: Record<string, Record<string, string>> = {
   },
 };
 
-/** Two brand-adjacent stops per category, so a grid of covers reads as a grid of different things. */
+/** Two brand-adjacent stops per category, so a grid of marks reads as a grid of different trades. */
 const CATEGORY_COLOURS: Record<string, [string, string]> = {
   beauty: ["#e64980", "#f06595"],
   plumbing: ["#006ffd", "#00c2d7"],
@@ -167,45 +178,6 @@ const CATEGORY_COLOURS: Record<string, [string, string]> = {
   "aulas-de-musica": ["#ae3ec9", "#7048e8"],
   "jardinagem-e-piscinas": ["#2f9e44", "#66a80f"],
 };
-
-/**
- * The glyph drawn on a cover, as a path.
- *
- * Hand-traced rather than imported from Lucide: this file runs in Bun with no
- * DOM, and pulling a React icon set in to extract path data would be a
- * dependency bought for one string per category.
- */
-const CATEGORY_GLYPHS: Record<string, string> = {
-  beauty: "M6 3 18 17 M18 3 6 17 M6 20a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z M18 20a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
-  plumbing: "M8 8h8v8H8z M4 12h4 M16 12h4 M12 4v4 M12 16v4",
-  electrical: "m13 2-9 12h7l-1 8 9-12h-7z",
-  cleaning: "M9 3h6v5H9z M7 8h10l-1 13H8z M11 12v5 M14 12v5",
-  mechanic: "M5 15h14 M6 15V9l2-4h8l2 4v6 M8 17.5h.01 M16 17.5h.01",
-  cooking: "M7 21h10 M6 12a4 4 0 0 1 3-6.8 3.6 3.6 0 0 1 6 0A4 4 0 0 1 18 12v5H6z",
-  delivery: "M2 7h11v9H2z M13 10h4l3 3v3h-7z M6 19h.01 M17 19h.01",
-  building: "M4 20h16 M6 20V9l6-4 6 4v11 M10 20v-5h4v5",
-  driving: "M5 16h14 M7 16V9h10v7 M9 19h.01 M15 19h.01 M9 6h6",
-  "aulas-de-musica": "M9 18V5l10-2v13 M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z M19 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
-  "jardinagem-e-piscinas": "M12 22V9 M12 9c0-4 3-7 8-7 0 4-3 7-8 7Z M12 14c0-3-3-5-7-5 0 3 3 5 7 5Z",
-};
-
-function coverSvg(code: string): string {
-  const [from, to] = CATEGORY_COLOURS[code] ?? ["#006ffd", "#00c2d7"];
-  const glyph = CATEGORY_GLYPHS[code] ?? "M4 4h16v16H4z";
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/>
-    </linearGradient>
-  </defs>
-  <rect width="400" height="300" fill="url(#g)"/>
-  <g transform="translate(200 150) scale(5.2) translate(-12 -12)" fill="none"
-     stroke="#ffffff" stroke-opacity="0.9" stroke-width="1.4"
-     stroke-linecap="round" stroke-linejoin="round">
-    <path d="${glyph}"/>
-  </g>
-</svg>`;
-}
 
 /** A business's mark: its initials on a tinted square, in its own trade's hue. */
 function logoSvg(initials: string, code: string): string {
@@ -223,25 +195,41 @@ function logoSvg(initials: string, code: string): string {
 </svg>`;
 }
 
+/* ── the photographs ─────────────────────────────────────────────────────── */
+
 /**
- * One portfolio tile: the trade's hues, rotated per photograph so a gallery is
- * a row of different pictures rather than the same one repeated.
+ * Where the checked-in JPEGs live, laid out as their keys are: a file at
+ * `demo-photos/service/x.jpg` is uploaded as `demo/service/x.jpg`.
  */
-function photoSvg(index: number, code: string): string {
-  const [from, to] = CATEGORY_COLOURS[code] ?? ["#006ffd", "#00c2d7"];
-  const angle = (index * 47) % 360;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
-  <defs>
-    <linearGradient id="g" gradientTransform="rotate(${angle} 0.5 0.5)">
-      <stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/>
-    </linearGradient>
-  </defs>
-  <rect width="400" height="300" fill="url(#g)"/>
-  <circle cx="${60 + ((index * 71) % 280)}" cy="${50 + ((index * 43) % 200)}" r="${28 + ((index * 13) % 46)}"
-          fill="#ffffff" fill-opacity="0.16"/>
-  <text x="374" y="278" fill="#ffffff" fill-opacity="0.75" text-anchor="end"
-        font-family="Figtree, sans-serif" font-size="26" font-weight="600">${index}</text>
-</svg>`;
+const PHOTO_DIR = new URL("./demo-photos/", import.meta.url).pathname;
+
+function coverKey(code: string): string {
+  return `demo/category/${code}.jpg`;
+}
+
+/**
+ * One photograph per service, keyed by the business and the service's name.
+ *
+ * Its own photograph rather than its category's cover, which is what every
+ * service used to get: two services of one business in the same category were
+ * the same picture side by side, and a grid of beauty services was a grid of
+ * one image.
+ */
+function serviceKey(p: DemoProvider, s: DemoService): string {
+  return `demo/service/${p.slug}-${slugifyName(s.name)}.jpg`;
+}
+
+function portfolioKeys(p: DemoProvider): string[] {
+  return Array.from({ length: p.photos }, (_, i) => `demo/portfolio/${p.slug}-${i + 1}.jpg`);
+}
+
+/** The file a photo key is uploaded from, refusing one that was never checked in. */
+async function photoFile(key: string): Promise<string> {
+  const file = PHOTO_DIR + key.replace(/^demo\//, "");
+  if (!(await Bun.file(file).exists())) {
+    throw new Error(`No photograph for ${key} — expected ${file}. See demo-photos/CREDITS.md.`);
+  }
+  return file;
 }
 
 /* ── the businesses ──────────────────────────────────────────────────────── */
@@ -551,6 +539,7 @@ async function assertWranglerCanRun(): Promise<void> {
 async function putOneBucket(
   key: string,
   file: string,
+  contentType: string,
   { bucket, local }: { bucket: string; local: boolean },
 ): Promise<void> {
   const placement =
@@ -564,7 +553,7 @@ async function putOneBucket(
   const proc = Bun.spawn(
     [
       "bunx", "wrangler", "r2", "object", "put", `${bucket}/${key}`,
-      "--file", file, "--content-type", "image/svg+xml",
+      "--file", file, "--content-type", contentType,
       ...placement,
     ],
     { cwd: "../../apps/backend/api", stdout: "ignore", stderr: "pipe" },
@@ -577,15 +566,41 @@ async function putOneBucket(
   }
 }
 
-async function putMedia(key: string, svg: string): Promise<void> {
+async function putFile(key: string, file: string, contentType: string): Promise<void> {
   await assertWranglerCanRun();
-  const file = `/tmp/ntizo-seed-${key.replace(/[^a-z0-9]/gi, "-")}.svg`;
-  await Bun.write(file, svg);
   // The remote write needs Cloudflare credentials, which a machine that has
   // only ever run the local stack may not have. It still throws rather than
   // warning: a seed that half-succeeds is what shipped the broken images, and
   // an error naming the bucket is the cheapest possible way to find that out.
-  for (const target of MEDIA_BUCKETS[STAGE]) await putOneBucket(key, file, target);
+  for (const target of MEDIA_BUCKETS[STAGE]) await putOneBucket(key, file, contentType, target);
+}
+
+async function putMedia(key: string, svg: string): Promise<void> {
+  const file = `/tmp/ntizo-seed-${key.replace(/[^a-z0-9]/gi, "-")}.svg`;
+  await Bun.write(file, svg);
+  await putFile(key, file, "image/svg+xml");
+}
+
+async function putPhoto(key: string): Promise<void> {
+  await putFile(key, await photoFile(key), "image/jpeg");
+}
+
+/**
+ * Whether a key resolves in this stage's deployed bucket.
+ *
+ * Asked only of a category image this seed did not put there. An admin's own
+ * upload is kept; but dev's `mechanic` cover pointed at an object that was
+ * never in the bucket, so the band drew a broken image for it, and keeping
+ * that would be keeping a 404 out of politeness.
+ */
+async function objectExists(key: string): Promise<boolean> {
+  await assertWranglerCanRun();
+  const remote = MEDIA_BUCKETS[STAGE].find((b) => !b.local)!;
+  const proc = Bun.spawn(
+    ["bunx", "wrangler", "r2", "object", "get", `${remote.bucket}/${key}`, "--remote", "--pipe"],
+    { cwd: "../../apps/backend/api", stdout: "ignore", stderr: "ignore" },
+  );
+  return (await proc.exited) === 0;
 }
 
 /* ── the run ─────────────────────────────────────────────────────────────── */
@@ -596,8 +611,142 @@ const db = drizzle(sqlClient);
 const DEMO_CODES = Object.keys(CATEGORY_ICONS);
 const now = new Date();
 
+/** Every photograph key the demo set uses, so a missing file fails before anything is written. */
+function allPhotoKeys(): string[] {
+  return [
+    ...DEMO_CODES.map(coverKey),
+    ...PROVIDERS.flatMap((p) => p.services.map((s) => serviceKey(p, s))),
+    ...PROVIDERS.flatMap(portfolioKeys),
+  ];
+}
+
+async function uploadPhotos(): Promise<void> {
+  const keys = allPhotoKeys();
+  for (const key of keys) await photoFile(key);
+  console.log(
+    `photos: ${keys.length} to upload to ${MEDIA_BUCKETS[STAGE].map((b) => b.bucket).join(" + ")}`,
+  );
+  if (!apply) return;
+  for (const key of keys) await putPhoto(key);
+}
+
+/**
+ * The generated marks, under the keys `logoKey` already holds.
+ *
+ * Part of `--photos-only` too, though it changes no row: dev's demo rows were
+ * written while the seed still put media only in the local bucket, so every
+ * mark on dev.ntizo.co.mz pointed at an object `ntizo-media-dev` never had.
+ */
+async function uploadMarks(): Promise<void> {
+  const marked = PROVIDERS.filter((p) => p.logo);
+  console.log(`marks: ${marked.length} to upload`);
+  if (!apply) return;
+  for (const p of marked) {
+    await putMedia(
+      `demo/logo/${p.slug}.svg`,
+      logoSvg(initials(p.name), p.services[0]?.category ?? "plumbing"),
+    );
+  }
+}
+
+/**
+ * Gives each demo category its cover, by code — including the ones dev's admin
+ * created by hand, which this seed never made but which share the codes.
+ *
+ * A cover an admin uploaded is left alone when it actually loads; this seed
+ * only fills a blank, refreshes its own, or replaces one that 404s.
+ */
+async function setCategoryCovers(): Promise<void> {
+  const rows = await db
+    .select({ id: category.id, code: category.code, imageKey: category.imageKey })
+    .from(category)
+    .where(inArray(category.code, DEMO_CODES));
+  for (const c of rows) {
+    const key = coverKey(c.code);
+    if (c.imageKey === key) continue;
+    let why = "had none";
+    if (c.imageKey && !c.imageKey.startsWith("demo/")) {
+      if (await objectExists(c.imageKey)) {
+        console.log(`  cover ${c.code}: keeping the admin's ${c.imageKey}`);
+        continue;
+      }
+      why = `its ${c.imageKey} is not in the bucket`;
+    } else if (c.imageKey) {
+      why = `was ${c.imageKey}`;
+    }
+    console.log(`  cover ${c.code} -> ${key} (${why})`);
+    if (apply) {
+      await db.update(category).set({ imageKey: key, updatedAt: now }).where(eq(category.id, c.id));
+    }
+  }
+}
+
+/**
+ * `--photos-only`: points the existing demo rows at their photographs and does
+ * nothing else — no services replaced, no reviews rewritten, no week reset.
+ *
+ * Services are found by their business and their Portuguese name, the same
+ * pair the full run writes them from; one a tester renamed is reported and
+ * skipped rather than guessed at.
+ */
+async function setPhotoColumns(): Promise<void> {
+  for (const p of PROVIDERS) {
+    const [row] = await db
+      .select({ id: provider.id })
+      .from(provider)
+      .where(eq(provider.slug, p.slug));
+    if (!row) {
+      console.log(`  ${p.name}: not seeded on ${STAGE} yet — run without --photos-only first`);
+      continue;
+    }
+    if (apply) {
+      await db
+        .update(provider)
+        .set({ photoKeys: portfolioKeys(p), updatedAt: now })
+        .where(eq(provider.id, row.id));
+    }
+
+    const services = await db
+      .select({ id: service.id, name: serviceTranslation.name })
+      .from(service)
+      .innerJoin(
+        serviceTranslation,
+        and(eq(serviceTranslation.serviceId, service.id), eq(serviceTranslation.locale, "pt-MZ")),
+      )
+      .where(eq(service.providerId, row.id));
+
+    let matched = 0;
+    for (const s of p.services) {
+      const found = services.filter((r) => r.name === s.name);
+      if (found.length === 0) {
+        console.log(`  ${p.name}: no service named "${s.name}" — skipped`);
+        continue;
+      }
+      matched += found.length;
+      if (apply) {
+        await db
+          .update(service)
+          .set({ imageKeys: [serviceKey(p, s)], updatedAt: now })
+          .where(inArray(service.id, found.map((f) => f.id)));
+      }
+    }
+    console.log(
+      `  ${p.name}: ${p.photos} portfolio photos, ${matched}/${p.services.length} services`,
+    );
+  }
+}
+
 async function run(): Promise<void> {
   console.log(`${STAGE}: ${apply ? "applying." : "dry run — pass --apply to write.\n"}`);
+
+  if (photosOnly) {
+    console.log("photos only: uploads and image columns, nothing else.\n");
+    await uploadPhotos();
+    await uploadMarks();
+    await setCategoryCovers();
+    await setPhotoColumns();
+    return;
+  }
 
   /* 1. Categories: give them their icons, and hide the ones named after UUIDs. */
   const categories = await db.select().from(category);
@@ -648,32 +797,10 @@ async function run(): Promise<void> {
     }
   }
 
-  /* 2. Media. */
-  if (apply) {
-    for (const code of DEMO_CODES) await putMedia(`demo/category/${code}.svg`, coverSvg(code));
-    for (const p of PROVIDERS.filter((p) => p.logo)) {
-      await putMedia(
-        `demo/logo/${p.slug}.svg`,
-        logoSvg(initials(p.name), p.services[0]?.category ?? "plumbing"),
-      );
-    }
-    // A portfolio tile per photograph, numbered — so a gallery of six is
-    // visibly six different pictures rather than the same one six times, which
-    // is the only thing the layout needs them to prove.
-    let photos = 0;
-    for (const p of PROVIDERS) {
-      for (let i = 1; i <= p.photos; i += 1) {
-        await putMedia(
-          `demo/portfolio/${p.slug}-${i}.svg`,
-          photoSvg(i, p.services[0]?.category ?? "plumbing"),
-        );
-        photos += 1;
-      }
-    }
-    console.log(
-      `media: ${DEMO_CODES.length} covers + ${PROVIDERS.filter((p) => p.logo).length} marks + ${photos} portfolio photos`,
-    );
-  }
+  /* 2. Media: the photographs, each category's cover, and the generated marks. */
+  await uploadPhotos();
+  await uploadMarks();
+  await setCategoryCovers();
 
   /* 3. Reviewers — real user rows, because a review carries a foreign key to one. */
   const reviewerIds = new Map<string, string>();
@@ -744,7 +871,7 @@ async function run(): Promise<void> {
       addressCountry: "MZ",
       timezone: "Africa/Maputo",
       logoKey: p.logo ? `demo/logo/${p.slug}.svg` : null,
-      photoKeys: Array.from({ length: p.photos }, (_, i) => `demo/portfolio/${p.slug}-${i + 1}.svg`),
+      photoKeys: portfolioKeys(p),
       updatedAt: now,
     };
 
@@ -865,7 +992,7 @@ async function run(): Promise<void> {
           bookingMode: s.amountMinor === null ? "quote" : "priced",
           status: "published",
           sortOrder: i,
-          imageKeys: [`demo/category/${s.category}.svg`],
+          imageKeys: [serviceKey(p, s)],
         })
         .returning({ id: service.id });
       const serviceId = row!.id;

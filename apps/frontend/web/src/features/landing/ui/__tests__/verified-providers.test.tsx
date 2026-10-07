@@ -125,7 +125,7 @@ describe("VerifiedProviders", () => {
     expect(list.className).toContain("[&>*]:snap-start");
     expect(list.className).toContain("sm:grid");
     expect(list.className).toContain("sm:grid-cols-2");
-    expect(list.className).toContain("lg:grid-cols-3");
+    expect(list.className).toContain("lg:grid-cols-4");
     expect(list.className).toContain("sm:overflow-visible");
     expect(list.style.getPropertyValue("--rail-card")).toBe("78%");
   });

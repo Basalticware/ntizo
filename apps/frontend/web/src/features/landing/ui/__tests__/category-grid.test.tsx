@@ -99,6 +99,14 @@ describe("CategoryGrid", () => {
     expect(screen.queryByRole("presentation")).toBeNull();
   });
 
+  // The home keeps no stock photographs of its own: a category with no
+  // upload draws its icon even for a trade the mockup had a picture of.
+  it("draws the icon, not a stock photograph, for a category with no upload", async () => {
+    await renderGrid([category({ code: "electrical", imageUrl: null, icon: "Zap" })]);
+    expect(await screen.findByTestId("category-icon-Zap")).toBeInTheDocument();
+    expect(screen.queryByRole("presentation")).toBeNull();
+  });
+
   // jsdom does no layout, so this cannot prove a phone actually scrolls
   // sideways or that a wide screen actually shows a grid — only that the
   // list carries the classes `ScrollRail` needs for each: the phone-only
@@ -116,7 +124,7 @@ describe("CategoryGrid", () => {
     expect(list.className).toContain("[&>*]:snap-start");
     expect(list.className).toContain("sm:grid");
     expect(list.className).toContain("sm:grid-cols-4");
-    expect(list.className).toContain("xl:grid-cols-8");
+    expect(list.className).toContain("lg:grid-cols-8");
     expect(list.className).toContain("sm:overflow-visible");
     expect(list.style.getPropertyValue("--rail-card")).toBe("38%");
   });
