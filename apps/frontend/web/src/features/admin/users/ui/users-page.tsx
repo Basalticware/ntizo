@@ -17,7 +17,6 @@ import {
   pageRange,
 } from "@/features/admin/shared/ui/admin-list";
 import { ADMIN_USERS_PAGE_SIZE } from "../data/admin-user.repository";
-import { UsersFilterSheet } from "./users-filters";
 import { useAdminUsersPage } from "../viewmodel/use-admin-users";
 import { displayName, type AdminUser } from "../domain/types";
 
@@ -43,8 +42,8 @@ type UserTab = (typeof TABS)[number];
  * Everyone on the platform.
  *
  * The rows are `CollectionCard`'s at the admin measurements, as on the
- * provider queue. The role is a tab here and a filter in the panel — one
- * value behind both. The tabs carry no counts: the list read does not count,
+ * provider queue. The role is the tabs, with no Filtrar panel beside them:
+ * the panel held the same role picker and nothing else. The tabs carry no counts: the list read does not count,
  * and a number on a tab nobody can check is worse than none. For the same
  * reason the pager steps rather than numbering pages.
  */
@@ -55,7 +54,6 @@ export function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [role, setRoleState] = useState<UserTab>("");
   const [offset, setOffset] = useState(0);
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const needle = search.trim();
   const query = useAdminUsersPage({
     ...(needle ? { search: needle } : {}),
@@ -94,8 +92,6 @@ export function AdminUsersPage() {
           setOffset(0);
         }}
         searchPlaceholder={t("usersSearchPlaceholder")}
-        onOpenFilters={() => setFiltersOpen(true)}
-        activeFilterCount={role ? 1 : 0}
       />
 
       <div className="mt-[27px]">
@@ -136,13 +132,6 @@ export function AdminUsersPage() {
         total={null}
         hasNext={query.data?.hasMore ?? false}
         onOffsetChange={setOffset}
-      />
-
-      <UsersFilterSheet
-        open={filtersOpen}
-        onOpenChange={setFiltersOpen}
-        role={role}
-        onRoleChange={setRole}
       />
     </div>
   );

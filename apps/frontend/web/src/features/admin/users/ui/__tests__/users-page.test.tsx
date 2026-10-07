@@ -71,5 +71,7 @@ describe("AdminUsersPage", () => {
 
     await waitFor(() => expect(asked).toContainEqual({ role: "admin", offset: 0 }));
     expect(screen.getByRole("tab", { name: "Administrators" })).toHaveAttribute("aria-selected", "true");
+    // The role is the tabs; a Filter panel holding the same picker is gone.
+    expect(screen.queryByRole("button", { name: /^filter/i })).toBeNull();
   });
 });

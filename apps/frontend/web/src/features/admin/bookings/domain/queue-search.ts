@@ -1,5 +1,8 @@
 import { ADMIN_BOOKING_TABS, type AdminBookingTab } from "@ntizo/shared/read-models";
 
+/** The queue the page opens on when the address names none. */
+export const DEFAULT_BOOKING_TAB: AdminBookingTab = "unclosed";
+
 /**
  * What the queue's address bar is allowed to say.
  *

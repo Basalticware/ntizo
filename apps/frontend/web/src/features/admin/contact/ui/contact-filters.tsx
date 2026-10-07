@@ -14,17 +14,20 @@ export interface ContactFilters {
   status: ContactRequestStatus | undefined;
 }
 
-/** How many of the two are set to something other than the default — the number on the Filter button. */
+/**
+ * How many filters the panel has set — the number on the Filter button. The
+ * status is not one: it is the tab row's, which says so itself.
+ */
 export function contactFilterCount(filters: ContactFilters): number {
-  return (filters.kind !== undefined ? 1 : 0) + (filters.status !== "open" ? 1 : 0);
+  return filters.kind !== undefined ? 1 : 0;
 }
 
 /**
  * The contact queue's filters, in the panel every list shares.
  *
- * Two rows of toggle buttons used to sit above the card. Open is still the
- * default — the queue is worked, not browsed — so "Clear filters" goes back
- * to open requests of either kind, which is what the page shows on arrival.
+ * The kind only. The status is the tab row above the list, and a second
+ * status picker in here moved the same value from two places; "Clear filters"
+ * leaves the tab alone, as the workspace's bookings panel does.
  */
 export function ContactFilterSheet({
   open,
@@ -45,7 +48,7 @@ export function ContactFilterSheet({
       onOpenChange={onOpenChange}
       title={t("contactFilterTitle")}
       canClear={contactFilterCount(filters) > 0}
-      onClear={() => onChange(DEFAULT_CONTACT_FILTERS)}
+      onClear={() => onChange({ ...filters, kind: undefined })}
     >
       <FilterField id="filter-kind" label={t("contactKindColumn")}>
         <Select
@@ -56,22 +59,6 @@ export function ContactFilterSheet({
           options={[
             { value: "", label: t("contactKindAll") },
             ...KINDS.map((kind) => ({ value: kind, label: t(`contactKind.${kind}`) })),
-          ]}
-        />
-      </FilterField>
-
-      <FilterField id="filter-status" label={t("contactStatusLabel")}>
-        <Select
-          id="filter-status"
-          value={filters.status ?? "all"}
-          onChange={(value) =>
-            onChange({ ...filters, status: value === "all" ? undefined : (value as ContactRequestStatus) })
-          }
-          ariaLabel={t("contactStatusLabel")}
-          options={[
-            { value: "open", label: t("contactStatus.open") },
-            { value: "resolved", label: t("contactStatus.resolved") },
-            { value: "all", label: t("contactStatusAll") },
           ]}
         />
       </FilterField>

@@ -25,14 +25,13 @@ import {
   ADMIN_BOOKINGS_PAGE_SIZE,
   type AdminBookingRowDTO,
 } from "../data/admin-booking.repository";
-import type { AdminQueueSearch } from "../domain/queue-search";
+import { DEFAULT_BOOKING_TAB, type AdminQueueSearch } from "../domain/queue-search";
 import { lastPageOffset, waitedWording, waitingSince } from "../domain/waiting";
 import {
   useAdminBookingActions,
   useAdminBookings,
   type AdminBookingAction,
 } from "../viewmodel/use-admin-bookings";
-import { BookingsFilterSheet, DEFAULT_BOOKING_TAB } from "./bookings-filters";
 
 /** A row's action at the mockups' "Ver detalhes" size: outlined blue, 39px. */
 const ACTION_CLASS =
@@ -53,8 +52,8 @@ const TAB_TONE: Record<AdminBookingTab, StatusTab<AdminBookingTab>["tone"]> = {
  * The admin list layout every admin list shares (`AdminTabs`, `AdminFilterBar`,
  * `AdminTable`, `AdminListFoot`). The three queues are tabs again, as the
  * October mockups draw them — `bookingNeedsAttentionForAdmin` answers a
- * different result set per queue, not the same one narrowed — and the same
- * pick stays in the panel behind Filtrar, so either control moves the other.
+ * different result set per queue, not the same one narrowed. There is no
+ * Filtrar: its panel held the same queue picker as the tabs and nothing else.
  *
  * **The queue and the page are both in the URL**, so a refresh keeps your
  * place and a link to "the second page of the disputes" is a link. The page
@@ -81,7 +80,6 @@ export function AdminBookingsPage() {
   const tab: AdminBookingTab = search.tab ?? DEFAULT_BOOKING_TAB;
   const offset = search.offset ?? 0;
   const [needle, setNeedle] = useState("");
-  const [filtersOpen, setFiltersOpen] = useState(false);
 
   usePageHeader(t("bookingsTitle"), t("bookingsSubtitle"));
 
@@ -231,8 +229,6 @@ export function AdminBookingsPage() {
           if (offset > 0) go({ tab, replace: true });
         }}
         searchPlaceholder={t("bookingsSearchPlaceholder")}
-        onOpenFilters={() => setFiltersOpen(true)}
-        activeFilterCount={tab === DEFAULT_BOOKING_TAB ? 0 : 1}
       />
 
       <div className="mt-[27px]">
@@ -293,13 +289,6 @@ export function AdminBookingsPage() {
         pageSize={ADMIN_BOOKINGS_PAGE_SIZE}
         total={total}
         onOffsetChange={(next) => go({ tab, offset: next })}
-      />
-
-      <BookingsFilterSheet
-        open={filtersOpen}
-        onOpenChange={setFiltersOpen}
-        tab={tab}
-        onTabChange={(next) => go({ tab: next })}
       />
     </div>
   );

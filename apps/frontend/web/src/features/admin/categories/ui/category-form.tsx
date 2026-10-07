@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronRight, ImagePlus, Link2, Loader2, Save, Sparkles, Trash2, icons, type LucideIcon } from "lucide-react";
+import { ChevronRight, ImagePlus, Link2, Loader2, Save, Sparkles, Trash2, X, icons, type LucideIcon } from "lucide-react";
 import { Button, Input, Select, cn } from "@ntizo/frontend-ui";
 import { uploadCategoryImage } from "../data/admin-category.repository";
 import { useSaveCategory } from "../viewmodel/use-admin-categories";
@@ -22,8 +22,7 @@ export function categoryIcon(name: string): LucideIcon {
   return icons[name as keyof typeof icons] ?? Sparkles;
 }
 /**
- * Creating and editing a category, in the card beside the list, as the
- * October mockup draws it.
+ * Creating and editing a category, in the panel the list opens on the right.
  *
  * A box per language, with the platform's own first and marked required —
  * that is the whole multi-language decision made visible. The other seven are
@@ -44,11 +43,14 @@ export function categoryIcon(name: string): LucideIcon {
  */
 export function CategoryForm({
   editing,
+  headingId,
   onDone,
 }: {
   /** Null creates. */
   editing: AdminCategory | null;
-  /** After a save, and on Cancel: back to an empty "create" form. */
+  /** The panel's name: the id this form's heading carries. */
+  headingId: string;
+  /** After a save, and on Cancel: the panel closes. */
   onDone: () => void;
 }) {
   const { t } = useTranslation("admin");
@@ -117,13 +119,20 @@ export function CategoryForm({
   }
 
   return (
-    <section
-      aria-label={editing ? t("categoriesPage.editTitle") : t("categoriesPage.createTitle")}
-      className="min-w-0 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] px-4 pt-5 pb-6 sm:px-6"
-    >
-      <h2 className="m-0 text-[19px] font-bold text-[var(--color-headline)]">
-        {editing ? t("categoriesPage.editTitle") : t("categoriesPage.createTitle")}
-      </h2>
+    <section aria-labelledby={headingId} className="min-w-0 bg-[var(--color-card)] px-4 pt-5 pb-6 sm:px-6">
+      <div className="flex items-start justify-between gap-4">
+        <h2 id={headingId} className="m-0 text-[19px] font-bold text-[var(--color-headline)]">
+          {editing ? t("categoriesPage.editTitle") : t("categoriesPage.createTitle")}
+        </h2>
+        <button
+          type="button"
+          onClick={onDone}
+          aria-label={t("provider:close")}
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]"
+        >
+          <X aria-hidden="true" className="h-4 w-4" />
+        </button>
+      </div>
       <p className="mt-1.5 mb-0 text-[14.5px] text-[var(--color-faint)]">
         {editing ? t("categoriesPage.editLead") : t("categoriesPage.createLead")}
       </p>

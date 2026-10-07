@@ -31,7 +31,8 @@
       "support": "Offene Supportanfragen",
       "supportAction": "Antworten",
       "contact": "Offene Kontaktnachrichten",
-      "contactAction": "Antworten"
+      "contactAction": "Antworten",
+      "nothingPending": "Nichts offen"
     },
     "bookingsTitle": "Buchungen (30 Tage)",
     "bookingsHint_one": "{{count}} abgeschlossen",
@@ -65,7 +66,6 @@
   "providersStatus": "Status",
   "providersCommission": "Provision",
   "providersApplied": "Antrag",
-  "providersAllStatuses": "Alle Status",
   "providersEmpty": "Betriebe, die ihre Registrierung abschließen, warten hier auf die Prüfung.",
   "providersNoMatches": "Kein Anbieter passt dazu.",
   "providersError": "Die Anbieterliste konnte nicht geladen werden.",
@@ -76,7 +76,6 @@
     "suspended": "Gesperrt",
     "archived": "Archiviert"
   },
-  "providersFilterTitle": "Anbieter filtern",
   "usersTitle": "Benutzer",
   "usersSubtitle": "Die Benutzerkonten der Plattform und ihre Berechtigungen verwalten.",
   "usersSearchPlaceholder": "Nach Name oder E-Mail suchen...",
@@ -85,11 +84,9 @@
   "usersStatus": "Status",
   "usersWorkspaces": "Arbeitsbereiche",
   "usersJoined": "Beitritt",
-  "usersAllRoles": "Alle Rollen",
   "usersEmpty": "Alle, die sich bei Ntizo registrieren, erscheinen in dieser Liste.",
   "usersNoMatches": "Keine Benutzer stimmen damit überein.",
   "usersError": "Die Benutzerliste konnte nicht geladen werden.",
-  "usersFilterTitle": "Benutzer filtern",
   "userDetailTitle": "Nutzer",
   "userDetailData": "Nutzerdaten",
   "userDetailError": "Dieser Nutzer konnte nicht geladen werden.",
@@ -514,7 +511,6 @@
     "in_window": "In der Frist",
     "disputed": "Reklamationen"
   },
-  "bookingsFilterTitle": "Buchungen filtern",
   "bookingsQueueLabel": "Warteschlange",
   "bookingsSearchPlaceholder": "Nach Kunde, Anbieter oder Leistung suchen...",
   "bookingsNoMatches": "Keine Buchung passt dazu.",

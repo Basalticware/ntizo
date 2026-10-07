@@ -31,7 +31,8 @@
       "support": "Solicitudes de soporte abiertas",
       "supportAction": "Responder",
       "contact": "Mensajes de contacto abiertos",
-      "contactAction": "Responder"
+      "contactAction": "Responder",
+      "nothingPending": "Nada pendiente"
     },
     "bookingsTitle": "Reservas (30 días)",
     "bookingsHint_one": "{{count}} completada",
@@ -65,7 +66,6 @@
   "providersStatus": "Estado",
   "providersCommission": "Comisión",
   "providersApplied": "Solicitud",
-  "providersAllStatuses": "Todos los estados",
   "providersEmpty": "Los negocios que completen el registro se pondrán en cola aquí para su revisión.",
   "providersNoMatches": "Ningún proveedor coincide.",
   "providersError": "No se pudo cargar la lista de proveedores.",
@@ -76,7 +76,6 @@
     "suspended": "Suspendido",
     "archived": "Archivado"
   },
-  "providersFilterTitle": "Filtrar proveedores",
   "usersTitle": "Usuarios",
   "usersSubtitle": "Gestionar las cuentas de usuario de la plataforma y sus permisos.",
   "usersSearchPlaceholder": "Buscar por nombre o correo...",
@@ -85,11 +84,9 @@
   "usersStatus": "Estado",
   "usersWorkspaces": "Espacios",
   "usersJoined": "Registro",
-  "usersAllRoles": "Todos los roles",
   "usersEmpty": "Todas las personas que se registran en Ntizo aparecen en esta lista.",
   "usersNoMatches": "Ningún usuario coincide con eso.",
   "usersError": "No se pudo cargar la lista de usuarios.",
-  "usersFilterTitle": "Filtrar usuarios",
   "userDetailTitle": "Usuario",
   "userDetailData": "Datos del usuario",
   "userDetailError": "No se pudo cargar este usuario.",
@@ -514,7 +511,6 @@
     "in_window": "En plazo",
     "disputed": "Reclamaciones"
   },
-  "bookingsFilterTitle": "Filtrar reservas",
   "bookingsQueueLabel": "Cola",
   "bookingsSearchPlaceholder": "Buscar por cliente, proveedor o servicio...",
   "bookingsNoMatches": "Ninguna reserva coincide.",

@@ -23,7 +23,7 @@ export function LinkArrow() {
  * tokens the badges use — so a red disc means what a red pill means, and
  * the pair is redefined for dark mode with everything else.
  */
-export type DiscTone = "info" | "danger" | "success" | "warning" | "violet";
+export type DiscTone = "info" | "danger" | "success" | "warning" | "violet" | "muted";
 
 const DISC_TONE: Record<DiscTone, string> = {
   info: "bg-[var(--color-blue-soft)] text-[var(--color-primary)]",
@@ -31,6 +31,7 @@ const DISC_TONE: Record<DiscTone, string> = {
   success: "bg-[var(--color-ok-bg)] text-[var(--color-ok-fg)]",
   warning: "bg-[var(--color-warn-bg)] text-[var(--color-warn-fg)]",
   violet: "bg-[var(--color-violet-bg)] text-[var(--color-violet-fg)]",
+  muted: "bg-[var(--color-muted)] text-[var(--color-muted-foreground)]",
 };
 
 /** A card's glyph on a tinted disc: what the card is about, before the words say it. */
@@ -76,6 +77,9 @@ export function IconDisc({
  * console's sidebar at 1280px — where a disc beside the label would fold
  * "Novos prestadores (30 dias)" onto three lines. Measured on the card, not
  * the viewport, because the same width means a different card in each zone.
+ *
+ * `quiet` is a task card with nothing waiting: the same shape, so its row
+ * never changes, but the number steps back to the muted ink.
  */
 export function StatCard({
   label,
@@ -85,6 +89,7 @@ export function StatCard({
   loading,
   icon,
   tone,
+  quiet,
   className,
 }: {
   label: string;
@@ -94,6 +99,7 @@ export function StatCard({
   loading?: boolean;
   icon?: LucideIcon;
   tone?: DiscTone;
+  quiet?: boolean;
   /** The grid cell's own placement — a tile that needs the full width on a phone says so here. */
   className?: string;
 }) {
@@ -101,7 +107,10 @@ export function StatCard({
     <Card className={cn("@container", className)}>
       <CardContent className="flex h-full flex-col gap-3 p-4 @[15rem]:flex-row @[15rem]:gap-3.5 @[15rem]:p-5">
         {icon && <IconDisc icon={icon} tone={tone} />}
-        <div className="@container grid min-w-0 flex-1 content-start gap-1">
+        {/* A column, so the verb can sit at the card's foot: cards in one row
+            share a height, and their links then share a line whatever the
+            label or the hint above them wraps to. */}
+        <div className="@container flex min-w-0 flex-1 flex-col gap-1">
           <p className={cn(CAPTION, "tracking-[0.1em]")}>{label}</p>
           {loading ? (
             <Skeleton className="h-[clamp(24px,13cqi,36px)] w-20" />
@@ -110,12 +119,17 @@ export function StatCard({
             // in a plain `@layer components` block, so no variant of it can
             // follow the card's width. `type-h1` still carries the family,
             // the weight and the leading.
-            <p className="type-h1 text-[clamp(18px,13cqi,28px)] font-semibold whitespace-nowrap text-[var(--color-headline)] tabular-nums">
+            <p
+              className={cn(
+                "type-h1 text-[clamp(18px,13cqi,28px)] font-semibold whitespace-nowrap tabular-nums",
+                quiet ? "text-[var(--color-muted-foreground)]" : "text-[var(--color-headline)]",
+              )}
+            >
               {value}
             </p>
           )}
           {hint && <p className="type-caption text-[var(--color-muted-foreground)]">{hint}</p>}
-          {action && <div className="mt-1">{action}</div>}
+          {action && <div className="mt-auto pt-1">{action}</div>}
         </div>
       </CardContent>
     </Card>

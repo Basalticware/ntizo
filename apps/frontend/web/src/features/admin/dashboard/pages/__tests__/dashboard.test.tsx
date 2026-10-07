@@ -153,31 +153,36 @@ describe("DashboardPage", () => {
     expect(screen.getByText("What needs you, how the last 30 days went, and who applied.")).toBeInTheDocument();
   });
 
-  it("opens with the three most-owed things, each linking into its queue already narrowed", async () => {
+  it("opens with all four owed things, each linking into its queue already narrowed", async () => {
     renderDashboard();
     expect(await screen.findByText("Disputes to decide")).toBeInTheDocument();
     expect(screen.getByText("Providers awaiting review")).toBeInTheDocument();
     expect(screen.getByText("Open support requests")).toBeInTheDocument();
-    // Four sources, three cards: contact is fourth in priority and stays off.
-    expect(screen.queryByText("Contact messages open")).toBeNull();
+    expect(screen.getByText("Contact messages open")).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Decide" })).toHaveAttribute("href", "/admin/bookings?tab=disputed");
     expect(screen.getByRole("link", { name: "Review" })).toHaveAttribute("href", "/admin/providers?status=pending");
-    expect(screen.getByRole("link", { name: "Answer" })).toHaveAttribute("href", "/admin/support");
+    const answers = screen.getAllByRole("link", { name: "Answer" }).map((l) => l.getAttribute("href"));
+    expect(answers).toEqual(["/admin/support", "/admin/contact"]);
   });
 
-  it("lets contact in when something above it is quiet", async () => {
+  it("keeps a quiet queue's card, as a zero that says nothing waits, and keeps its link", async () => {
     renderDashboard({ stats: { ...STATS, disputed: 0 } });
-    expect(await screen.findByText("Contact messages open")).toBeInTheDocument();
-    expect(screen.queryByText("Disputes to decide")).toBeNull();
+    const card = (await screen.findByText("Disputes to decide")).parentElement!;
+    expect(await within(card).findByText("0")).toBeInTheDocument();
+    expect(within(card).getByText("Nothing waiting")).toBeInTheDocument();
+    expect(within(card).getByRole("link", { name: "Decide" })).toHaveAttribute("href", "/admin/bookings?tab=disputed");
+    // A card with something waiting does not say so.
+    expect(screen.getAllByText("Nothing waiting")).toHaveLength(1);
   });
 
-  it("opens straight onto the numbers on a quiet day", async () => {
+  it("draws the same four cards on a quiet day, all of them zero", async () => {
     renderDashboard({ stats: { ...STATS, disputed: 0 }, counts: { ...COUNTS, pending: 0 }, supportOpen: 0, contactOpen: 0 });
     await waitForStats();
     for (const label of ["Disputes to decide", "Providers awaiting review", "Open support requests", "Contact messages open"]) {
-      expect(screen.queryByText(label)).toBeNull();
+      expect(screen.getByText(label)).toBeInTheDocument();
     }
+    expect(await screen.findAllByText("Nothing waiting")).toHaveLength(4);
     expect(screen.getByText("Bookings (30 days)")).toBeInTheDocument();
   });
 
@@ -245,8 +250,10 @@ describe("DashboardPage", () => {
   it("does not read a failed queue count as a quiet day", async () => {
     renderDashboard({ supportFails: true });
     expect(await screen.findByRole("alert")).toHaveTextContent(/could not load the numbers/i);
-    // The other three sources still answer, and their cards still show.
-    expect(await screen.findByText("Disputes to decide")).toBeInTheDocument();
-    expect(screen.queryByText("Open support requests")).toBeNull();
+    // The card stays, with a dash where the number would be — never "nothing waiting".
+    const card = screen.getByText("Open support requests").parentElement!;
+    expect(await within(card).findByText("—")).toBeInTheDocument();
+    expect(within(card).queryByText("Nothing waiting")).toBeNull();
+    expect(screen.getByText("Disputes to decide")).toBeInTheDocument();
   });
 });

@@ -31,7 +31,8 @@
       "support": "Open ondersteuningsverzoeken",
       "supportAction": "Beantwoorden",
       "contact": "Open contactberichten",
-      "contactAction": "Beantwoorden"
+      "contactAction": "Beantwoorden",
+      "nothingPending": "Niets openstaand"
     },
     "bookingsTitle": "Boekingen (30 dagen)",
     "bookingsHint_one": "{{count}} afgerond",
@@ -65,7 +66,6 @@
   "providersStatus": "Status",
   "providersCommission": "Commissie",
   "providersApplied": "Aanvraag",
-  "providersAllStatuses": "Alle statussen",
   "providersEmpty": "Bedrijven die hun aanmelding afronden, komen hier in de wachtrij voor beoordeling.",
   "providersNoMatches": "Geen aanbieder komt overeen.",
   "providersError": "De aanbiederslijst kon niet worden geladen.",
@@ -76,7 +76,6 @@
     "suspended": "Geschorst",
     "archived": "Gearchiveerd"
   },
-  "providersFilterTitle": "Aanbieders filteren",
   "usersTitle": "Gebruikers",
   "usersSubtitle": "De gebruikersaccounts van het platform en hun rechten beheren.",
   "usersSearchPlaceholder": "Zoeken op naam of e-mail...",
@@ -85,11 +84,9 @@
   "usersStatus": "Status",
   "usersWorkspaces": "Werkruimtes",
   "usersJoined": "Aangemeld",
-  "usersAllRoles": "Alle rollen",
   "usersEmpty": "Iedereen die zich op Ntizo registreert, verschijnt in deze lijst.",
   "usersNoMatches": "Geen gebruikers komen overeen.",
   "usersError": "Kan de gebruikerslijst niet laden.",
-  "usersFilterTitle": "Gebruikers filteren",
   "userDetailTitle": "Gebruiker",
   "userDetailData": "Gebruikersgegevens",
   "userDetailError": "Deze gebruiker kon niet worden geladen.",
@@ -514,7 +511,6 @@
     "in_window": "In reactietermijn",
     "disputed": "Geschillen"
   },
-  "bookingsFilterTitle": "Boekingen filteren",
   "bookingsQueueLabel": "Wachtrij",
   "bookingsSearchPlaceholder": "Zoeken op klant, aanbieder of dienst...",
   "bookingsNoMatches": "Geen boeking komt overeen.",
