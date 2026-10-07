@@ -31,7 +31,8 @@
       "support": "Open support requests",
       "supportAction": "Answer",
       "contact": "Contact messages open",
-      "contactAction": "Answer"
+      "contactAction": "Answer",
+      "nothingPending": "Nothing waiting"
     },
     "bookingsTitle": "Bookings (30 days)",
     "bookingsHint_one": "{{count}} completed",
@@ -65,7 +66,6 @@
   "providersStatus": "Status",
   "providersCommission": "Commission",
   "providersApplied": "Applied",
-  "providersAllStatuses": "All statuses",
   "providersEmpty": "Businesses that finish signing up will queue here for review.",
   "providersNoMatches": "No provider matches that.",
   "providersError": "The provider list could not be loaded.",
@@ -76,7 +76,6 @@
     "suspended": "Suspended",
     "archived": "Archived"
   },
-  "providersFilterTitle": "Filter providers",
   "usersTitle": "Users",
   "usersSubtitle": "Manage the platform's user accounts and their permissions.",
   "usersSearchPlaceholder": "Search by name or email...",
@@ -85,11 +84,9 @@
   "usersStatus": "Status",
   "usersWorkspaces": "Workspaces",
   "usersJoined": "Joined",
-  "usersAllRoles": "All roles",
   "usersEmpty": "Everyone who registers on Ntizo shows up in this list.",
   "usersNoMatches": "No users match that.",
   "usersError": "Couldn't load the user list.",
-  "usersFilterTitle": "Filter users",
   "userDetailTitle": "User",
   "userDetailData": "User details",
   "userDetailError": "Couldn't load this user.",
@@ -514,7 +511,6 @@
     "in_window": "In window",
     "disputed": "Disputes"
   },
-  "bookingsFilterTitle": "Filter bookings",
   "bookingsQueueLabel": "Queue",
   "bookingsSearchPlaceholder": "Search by customer, provider or service...",
   "bookingsNoMatches": "No booking matches that.",

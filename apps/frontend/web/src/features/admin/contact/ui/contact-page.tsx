@@ -45,8 +45,8 @@ const STATUS_TONE: Record<ContactRequestStatus, "danger" | "success"> = {
  * spec, "What the context deliberately does not do") and resolve/reopen. Below
  * `xl` the panes stack, the chosen request under the list.
  *
- * The status is a tab and a filter in the panel — one value behind both — and
- * open is the default, because the queue is worked, not browsed. Support with
+ * The status is the tabs; the panel behind Filtrar holds the kind, the one
+ * thing the tabs do not pick. Open is the default, because the queue is worked, not browsed. Support with
  * an account is the help center's queue, at `/admin/support`, not this one.
  */
 export function AdminContactPage() {

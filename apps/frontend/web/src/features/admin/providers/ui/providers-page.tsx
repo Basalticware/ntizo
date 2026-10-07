@@ -18,7 +18,6 @@ import {
   pageRange,
 } from "@/features/admin/shared/ui/admin-list";
 import { ADMIN_PROVIDERS_PAGE_SIZE } from "../data/admin-provider.repository";
-import { ProvidersFilterSheet } from "./providers-filters";
 import { PROVIDER_STATUS_TONE } from "./provider-row";
 import { useAdminProvidersPage, useProviderStatusCounts } from "../viewmodel/use-admin-providers";
 
@@ -47,8 +46,9 @@ const TAB_TONE: Record<ProviderTab, StatusTab<ProviderTab>["tone"]> = {
  *
  * The rows are `CollectionCard`'s, drawn at the admin measurements by
  * `AdminTable`; the tabs, the search and the pager around them are the admin
- * mockups'. The status is a tab here as well as a filter in the panel — the
- * two are one value, so either control moves the other.
+ * mockups'. The status is the tabs, and only the tabs: a Filtrar panel
+ * holding the same status picker was a second control for one value, and a
+ * button that opens nothing new reads as broken.
  *
  * Search and status go to the server rather than filtering an array here. This
  * is the one list with no ceiling on its size, and "which fifty of ten thousand
@@ -70,7 +70,6 @@ export function AdminProvidersPage() {
     return (TABS as readonly string[]).includes(value) ? (value as ProviderTab) : "";
   });
   const [offset, setOffset] = useState(0);
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const needle = search.trim();
   const query = useAdminProvidersPage({
     ...(needle ? { search: needle } : {}),
@@ -118,8 +117,6 @@ export function AdminProvidersPage() {
           setOffset(0);
         }}
         searchPlaceholder={t("providersSearchPlaceholder")}
-        onOpenFilters={() => setFiltersOpen(true)}
-        activeFilterCount={status ? 1 : 0}
       />
 
       <div className="mt-[27px]">
@@ -222,13 +219,6 @@ export function AdminProvidersPage() {
         total={total}
         hasNext={query.data?.hasMore ?? false}
         onOffsetChange={setOffset}
-      />
-
-      <ProvidersFilterSheet
-        open={filtersOpen}
-        onOpenChange={setFiltersOpen}
-        status={status}
-        onStatusChange={setStatus}
       />
     </div>
   );

@@ -31,7 +31,8 @@
       "support": "Demandes d'assistance ouvertes",
       "supportAction": "Répondre",
       "contact": "Messages de contact ouverts",
-      "contactAction": "Répondre"
+      "contactAction": "Répondre",
+      "nothingPending": "Rien en attente"
     },
     "bookingsTitle": "Réservations (30 jours)",
     "bookingsHint_one": "{{count}} terminée",
@@ -65,7 +66,6 @@
   "providersStatus": "Statut",
   "providersCommission": "Commission",
   "providersApplied": "Candidature",
-  "providersAllStatuses": "Tous les statuts",
   "providersEmpty": "Les entreprises ayant terminé leur inscription arrivent ici pour être examinées.",
   "providersNoMatches": "Aucun prestataire ne correspond.",
   "providersError": "La liste des prestataires n’a pas pu être chargée.",
@@ -76,7 +76,6 @@
     "suspended": "Suspendu",
     "archived": "Archivé"
   },
-  "providersFilterTitle": "Filtrer les prestataires",
   "usersTitle": "Utilisateurs",
   "usersSubtitle": "Gérer les comptes utilisateurs de la plateforme et leurs autorisations.",
   "usersSearchPlaceholder": "Rechercher par nom ou e-mail...",
@@ -85,11 +84,9 @@
   "usersStatus": "Statut",
   "usersWorkspaces": "Espaces",
   "usersJoined": "Inscription",
-  "usersAllRoles": "Tous les rôles",
   "usersEmpty": "Toute personne qui s’inscrit sur Ntizo apparaît dans cette liste.",
   "usersNoMatches": "Aucun utilisateur ne correspond.",
   "usersError": "Impossible de charger la liste des utilisateurs.",
-  "usersFilterTitle": "Filtrer les utilisateurs",
   "userDetailTitle": "Utilisateur",
   "userDetailData": "Informations de l'utilisateur",
   "userDetailError": "Impossible de charger cet utilisateur.",
@@ -514,7 +511,6 @@
     "in_window": "Dans le délai",
     "disputed": "Litiges"
   },
-  "bookingsFilterTitle": "Filtrer les réservations",
   "bookingsQueueLabel": "File",
   "bookingsSearchPlaceholder": "Rechercher par client, prestataire ou service...",
   "bookingsNoMatches": "Aucune réservation ne correspond.",

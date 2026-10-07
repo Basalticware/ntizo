@@ -45,10 +45,14 @@ const NEEDS_YOU_LOOK: Record<NeedsYouKey, { icon: LucideIcon; tone: DiscTone }> 
   contact: { icon: Mail, tone: "violet" },
 };
 
+/** The one grid both card rows share, so their columns line up at every width. */
+const STAT_GRID = "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4";
+
 /**
  * The platform at a glance, in the order the spec fixes: what is owed, then
  * the thirty days, then who applied. The first row is verbs — every card on
- * it is a task — and it is absent on a quiet day rather than a row of zeros.
+ * it is a task — and a task with nothing waiting stays, quiet, so the row
+ * never changes shape.
  * The tiles below carry no verb; they are readings, and none of them carries
  * a "+12% vs período anterior": the stats answer one window, and a delta
  * against a period nobody asked for would be invented.
@@ -91,32 +95,32 @@ export function DashboardPage() {
         </p>
       )}
 
-      {needs.items.length > 0 && (
-        // As many columns as there are cards, from `md` up: the row holds
-        // one to three, and a fixed three-column grid left a lone card in
-        // the first third with two empty thirds beside it — one thing owed
-        // reading as two-thirds of nothing. `grid-flow-col` with `auto-cols-fr`
-        // gives one card the row, two cards half each, three a third each.
-        <div className="grid gap-4 md:grid-flow-col md:auto-cols-fr">
-          {needs.items.map((item) => (
+      {/* Both rows are one grid: one column on a phone, two from `sm`, four
+          from `xl` — the provider Overview says why not `lg`. The task row
+          draws all four sources every day, a quiet one as a muted zero, so
+          its columns are always the readings' columns and nothing shifts
+          when a queue empties. Grid rows stretch, so each row's cards share
+          one height. */}
+      <div className={STAT_GRID}>
+        {needs.items.map((item) => {
+          const quiet = item.count === 0;
+          return (
             <StatCard
               key={item.key}
               icon={NEEDS_YOU_LOOK[item.key].icon}
-              tone={NEEDS_YOU_LOOK[item.key].tone}
+              tone={quiet ? "muted" : NEEDS_YOU_LOOK[item.key].tone}
               label={t(`overview.needsYou.${item.key}`)}
-              value={item.count}
+              value={item.count ?? "—"}
+              loading={item.loading}
+              quiet={quiet}
+              hint={quiet ? t("overview.needsYou.nothingPending") : undefined}
               action={<NeedsYouLink item={item} label={t(`overview.needsYou.${item.key}Action`)} />}
             />
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
 
-      {/* Two-up on a phone, four-up from `xl` — the provider Overview says why
-          not `lg`. The two money tiles take the whole width below `sm`: the
-          platform's gross is wider than any one workspace's revenue, so on a
-          phone the two counts pair up on one row and each sum gets a line of
-          its own. */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className={STAT_GRID}>
         <StatCard
           icon={CalendarDays}
           label={t("overview.bookingsTitle")}
@@ -131,7 +135,6 @@ export function DashboardPage() {
           loading={stats.isLoading}
         />
         <StatCard
-          className="col-span-2 sm:col-span-1"
           icon={Wallet}
           label={t("overview.grossTitle")}
           value={money(s?.grossLast30Minor ?? 0)}
@@ -139,7 +142,6 @@ export function DashboardPage() {
           hint={s && s.completedLast30 === 0 ? t("overview.nothingCompleted") : t("overview.grossHint")}
         />
         <StatCard
-          className="col-span-2 sm:col-span-1"
           icon={Coins}
           tone="warning"
           label={t("overview.commissionTitle")}

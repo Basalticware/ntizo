@@ -76,18 +76,33 @@ describe("AdminContactPage", () => {
     expect(inbox().getByRole("button", { name: /Rui Tembe/ })).toHaveAttribute("aria-current", "true");
   });
 
-  it("picks the status from the tabs and the shared panel alike, and asks for resolved requests as a different list", async () => {
+  it("picks the status from the tabs, and asks for resolved requests as a different list", async () => {
     const qc = await renderPage([row()]);
     const tabs = within(screen.getByRole("tablist"));
     expect(tabs.getByRole("tab", { name: /^Open/ })).toHaveAttribute("aria-selected", "true");
 
-    await userEvent.click(screen.getByRole("button", { name: /^filter/i }));
-    const panel = screen.getByRole("dialog", { name: "Filter requests" });
-    await userEvent.click(within(panel).getByRole("button", { name: "Status" }));
-    await userEvent.click(within(panel).getByRole("option", { name: "Resolved" }));
+    await userEvent.click(tabs.getByRole("tab", { name: /^Resolved/ }));
 
     expect(qc.getQueryData(["admin", "contact", { offset: 0, status: "resolved" }])).toBeUndefined();
+    expect(tabs.getByRole("tab", { name: /^Resolved/ })).toHaveAttribute("aria-selected", "true");
+    // The tab is not a filter the button counts: it says so itself.
+    expect(within(screen.getByRole("button", { name: /^filter/i })).queryByText("1")).toBeNull();
+  });
+
+  it("keeps only the kind in the panel, and clearing it leaves the tab alone", async () => {
+    await renderPage([row()]);
+    const tabs = within(screen.getByRole("tablist"));
+    await userEvent.click(tabs.getByRole("tab", { name: /^Resolved/ }));
+
+    await userEvent.click(screen.getByRole("button", { name: /^filter/i }));
+    const panel = screen.getByRole("dialog", { name: "Filter requests" });
+    expect(within(panel).queryByRole("button", { name: "Status" })).toBeNull();
+    await userEvent.click(within(panel).getByRole("button", { name: "Kind" }));
+    await userEvent.click(within(panel).getByRole("option", { name: "Feedback" }));
     expect(within(screen.getByRole("button", { name: /^filter/i })).getByText("1")).toBeInTheDocument();
+
+    await userEvent.click(within(panel).getByRole("button", { name: "Clear filters" }));
+    expect(within(screen.getByRole("button", { name: /^filter/i })).queryByText("1")).toBeNull();
     expect(tabs.getByRole("tab", { name: /^Resolved/ })).toHaveAttribute("aria-selected", "true");
   });
 

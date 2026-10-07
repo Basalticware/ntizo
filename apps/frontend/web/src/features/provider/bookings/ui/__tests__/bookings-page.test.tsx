@@ -253,10 +253,7 @@ async function row(customer: string) {
   return within(cell.closest("tr")!);
 }
 
-/**
- * Picks a tab through the shared filter panel — the only way to one now — and
- * closes the panel again, so the page underneath is reachable by role.
- */
+/** Picks a tab from the row above the list. */
 async function pickTab(label: string) {
   const tabs = screen.getByRole("tablist", { name: "Mostrar" });
   await userEvent.click(within(tabs).getByRole("tab", { name: new RegExp(`^${label}`) }));
@@ -283,6 +280,27 @@ describe("BookingsPage", () => {
     expect(ana.getByText(/Célia$/)).toBeInTheDocument();
     expect(ana.getByText("Por responder")).toBeInTheDocument();
     expect(ana.getByText(/1h30/)).toBeInTheDocument();
+  });
+
+  it("offers Filtrar only to a workspace with more than one professional", async () => {
+    renderBookings("/provider/estudio/bookings");
+    await row("Ana");
+    // One professional: the panel's only field would be empty.
+    expect(screen.queryByRole("button", { name: /^filtrar/i })).toBeNull();
+  });
+
+  it("offers the professional in the panel once there are two", async () => {
+    renderBookings("/provider/estudio/bookings", {
+      ...pageFixture(),
+      members: [
+        { id: "mem-1", firstName: "Célia" },
+        { id: "mem-2", firstName: "Dino" },
+      ],
+    });
+    await row("Ana");
+    await userEvent.click(screen.getByRole("button", { name: /^filtrar/i }));
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Profissional" })).toBeInTheDocument();
   });
 
   it("switches tab through the URL, so a tab survives a refresh", async () => {

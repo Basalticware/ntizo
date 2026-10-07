@@ -243,13 +243,6 @@ function mutations(): { field: string; input: Record<string, unknown> }[] {
     }));
 }
 
-/** Opens the filter panel and its queue picker, so the three queues are on screen as options. */
-async function openQueuePicker() {
-  await userEvent.click(screen.getByRole("button", { name: /^filtrar/i }));
-  const panel = await screen.findByRole("dialog", { name: "Filtrar reservas" });
-  await userEvent.click(within(panel).getByRole("button", { name: "Fila" }));
-}
-
 /** How many times the queue itself has been asked for. */
 function queueReads(): number {
   return sent().filter(([document]) => document.includes("bookingNeedsAttentionForAdmin"))
@@ -270,7 +263,7 @@ afterEach(async () => {
 });
 
 describe("AdminBookingsPage", () => {
-  it("offers the three queues as tabs and in the shared filter panel, and no others", async () => {
+  it("offers the three queues as tabs, and no Filtrar that would only repeat them", async () => {
     renderQueue("/admin/bookings");
     await row("Ana");
     // The tab row the mockups draw: the queue on screen counts its own
@@ -281,13 +274,8 @@ describe("AdminBookingsPage", () => {
       expect(tabs.map((tab) => tab.textContent)).toEqual(["Por fechar1", "Em janela", "Reclamações3"]),
     );
     expect(tabs.map((tab) => tab.getAttribute("aria-selected"))).toEqual(["true", "false", "false"]);
-
-    await openQueuePicker();
-    const options = screen.getAllByRole("option");
-    expect(options.map((o) => o.textContent)).toEqual(["Por fechar", "Em janela", "Reclamações"]);
-    // Which one is selected, not merely that one is: `aria-selected` is the
-    // only thing that tells a screen reader where it is.
-    expect(options.map((o) => o.getAttribute("aria-selected"))).toEqual(["true", "false", "false"]);
+    // The panel held the same queue picker and nothing else.
+    expect(screen.queryByRole("button", { name: /^filtrar/i })).toBeNull();
   });
 
   it("searches on the server, by whatever names the row", async () => {
@@ -356,8 +344,7 @@ describe("AdminBookingsPage", () => {
     });
     await row("Ana");
 
-    await openQueuePicker();
-    await userEvent.click(screen.getByRole("option", { name: "Em janela" }));
+    await userEvent.click(within(screen.getByRole("tablist")).getByRole("tab", { name: /^Em janela/ }));
 
     await waitFor(() =>
       expect(router.state.location.search).toMatchObject({ tab: "in_window" }),

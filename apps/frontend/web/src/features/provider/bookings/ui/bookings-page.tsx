@@ -173,6 +173,10 @@ export function BookingsPage() {
   }));
 
   const filters = { tab, memberId };
+  // The panel's one field is the professional, offered only to a workspace
+  // with more than one. A solo workspace gets no Filtrar — the tabs are all
+  // there is — unless an address already narrowed it, so the way back stays.
+  const canFilter = (answered?.members.length ?? 0) > 1 || memberId !== null;
   const setFilters = (next: { tab: ProviderTab; memberId: string | null }) =>
     void navigate({
       to: "/provider/$slug/bookings",
@@ -214,7 +218,7 @@ export function BookingsPage() {
         search={typed}
         onSearchChange={setTyped}
         searchPlaceholder={t("bookings.searchPlaceholder")}
-        onOpenFilters={() => setFiltersOpen(true)}
+        {...(canFilter ? { onOpenFilters: () => setFiltersOpen(true) } : {})}
         activeFilterCount={bookingFilterCount(filters)}
         columns={bookingColumns(t)}
         emptyTitle={t(`bookings.empty.${tab}.title`)}

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BrandImage } from "@/shared/components/brand-image";
 import { ArrowDown, ArrowUp, CirclePlus, Filter, MoreHorizontal, Pencil, Search, Shapes } from "lucide-react";
@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger,
   Input,
   Select,
+  Sheet,
+  SheetContent,
   cn,
 } from "@ntizo/frontend-ui";
 import { CollectionCard } from "@/shared/components/collection-card";
@@ -37,9 +39,12 @@ type StateFilter = "" | "active" | "hidden";
  * The kinds of work the platform organises, and the one screen that says how
  * far each of them has been translated.
  *
- * Drawn as the October mockup: the list in one card and the form in the card
- * beside it, so creating or editing a category never covers the list it is
- * being added to. What the list adds to a list of names is the translation
+ * The list takes the whole width, and the form opens in a panel on the right
+ * only when it is asked for — "Nova categoria" or a row's pencil. The October
+ * mockup drew the form in a card beside the list, but half the console's
+ * width is not enough for the list's five columns: at 1280–1880px the state,
+ * the pencil and the menu were cut off, so the one way into editing was the
+ * part nobody could see. What the list adds to a list of names is the translation
  * count, the whole reason this screen is not just a list of names: a
  * category reads as finished from whichever language you happen to be in,
  * and "3/8" is the only thing that says otherwise.
@@ -53,11 +58,12 @@ export function AdminCategoriesPage() {
 
   const [search, setSearch] = useState("");
   const [state, setState] = useState<StateFilter>("");
+  const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<AdminCategory | null>(null);
   // Bumped on every "Nova categoria" and every "Editar", so the form starts
   // from what was asked for even when it is the same category twice.
   const [formKey, setFormKey] = useState(0);
-  const formRef = useRef<HTMLDivElement>(null);
+  const formHeadingId = useId();
   const listInput = search.trim() ? { search: search.trim() } : {};
   const query = useAdminCategories(listInput);
   const save = useSaveCategory();
@@ -68,8 +74,12 @@ export function AdminCategoriesPage() {
   function openForm(category: AdminCategory | null) {
     setEditing(category);
     setFormKey((k) => k + 1);
-    // Below `xl` the form sits under the list; bring it to the reader.
-    formRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    setFormOpen(true);
+  }
+
+  function closeForm() {
+    setFormOpen(false);
+    setEditing(null);
   }
 
   usePageHeader(t("categoriesTitle"), t("categoriesPage.subtitle"));
@@ -100,8 +110,8 @@ export function AdminCategoriesPage() {
   }
 
   return (
-    <div className="grid w-full max-w-[1400px] items-start gap-6 xl:grid-cols-2">
-      <section className="min-w-0 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] px-4 pt-5 pb-6 sm:px-6">
+    <>
+      <section className="w-full min-w-0 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] px-4 pt-5 pb-6 sm:px-6">
         <h2 className="m-0 text-[19px] font-bold text-[var(--color-headline)]">{t("categoriesPage.listTitle")}</h2>
         {query.error && (
           <p className="type-body mt-3 text-[var(--color-destructive)]">{t("categoriesError")}</p>
@@ -195,7 +205,7 @@ export function AdminCategoriesPage() {
                       type="button"
                       onClick={() => openForm(category)}
                       aria-label={t("categoryEdit")}
-                      aria-pressed={editing?.id === category.id}
+                      aria-pressed={formOpen && editing?.id === category.id}
                       className="grid h-[42px] w-[42px] place-items-center rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-primary)] hover:border-[var(--color-blue-line)] aria-pressed:border-[var(--color-blue-line)] aria-pressed:bg-[var(--color-blue-soft)]"
                     >
                       <Pencil aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={2.3} />
@@ -229,10 +239,12 @@ export function AdminCategoriesPage() {
         </div>
       </section>
 
-      <div ref={formRef} className="min-w-0 scroll-mt-6">
-        <CategoryForm key={formKey} editing={editing} onDone={() => openForm(null)} />
-      </div>
-    </div>
+      <Sheet open={formOpen} onOpenChange={(open) => !open && closeForm()}>
+        <SheetContent side="right" labelledBy={formHeadingId} className="w-full max-w-[640px] overflow-y-auto bg-[var(--color-card)]">
+          <CategoryForm key={formKey} editing={editing} headingId={formHeadingId} onDone={closeForm} />
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
 

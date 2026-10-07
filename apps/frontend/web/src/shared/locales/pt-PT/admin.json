@@ -30,8 +30,9 @@
       "providersAction": "Rever",
       "support": "Pedidos de suporte abertos",
       "supportAction": "Responder",
-      "contact": "Mensagens de contacto abertas",
-      "contactAction": "Responder"
+      "contact": "Contactos por responder",
+      "contactAction": "Responder",
+      "nothingPending": "Nada pendente"
     },
     "bookingsTitle": "Reservas (30 dias)",
     "bookingsHint_one": "{{count}} concluída",
@@ -65,7 +66,6 @@
   "providersStatus": "Estado",
   "providersCommission": "Comissão",
   "providersApplied": "Candidatura",
-  "providersAllStatuses": "Todos os estados",
   "providersEmpty": "As empresas que concluírem o registo ficarão aqui em fila para revisão.",
   "providersNoMatches": "Nenhum prestador corresponde a isso.",
   "providersError": "Não foi possível carregar a lista de prestadores.",
@@ -76,7 +76,6 @@
     "suspended": "Suspenso",
     "archived": "Arquivado"
   },
-  "providersFilterTitle": "Filtrar prestadores",
   "usersTitle": "Utilizadores",
   "usersSubtitle": "Gerir contas de utilizadores da plataforma e as respetivas permissões.",
   "usersSearchPlaceholder": "Pesquisar por nome ou email...",
@@ -85,11 +84,9 @@
   "usersStatus": "Estado",
   "usersWorkspaces": "Espaços",
   "usersJoined": "Registo",
-  "usersAllRoles": "Todos os papéis",
   "usersEmpty": "Todas as pessoas que se registam no Ntizo aparecem nesta lista.",
   "usersNoMatches": "Nenhum utilizador corresponde a isso.",
   "usersError": "Não foi possível carregar a lista de utilizadores.",
-  "usersFilterTitle": "Filtrar utilizadores",
   "userDetailTitle": "Utilizador",
   "userDetailData": "Dados do utilizador",
   "userDetailError": "Não foi possível carregar este utilizador.",
@@ -514,7 +511,6 @@
     "in_window": "Em janela",
     "disputed": "Reclamações"
   },
-  "bookingsFilterTitle": "Filtrar reservas",
   "bookingsQueueLabel": "Fila",
   "bookingsSearchPlaceholder": "Pesquisar por cliente, prestador ou serviço...",
   "bookingsNoMatches": "Nenhuma reserva corresponde a isso.",

@@ -4,7 +4,7 @@ import { useContactOpenCount } from "@/features/admin/contact/viewmodel/use-admi
 import { useAdminProviders, useProviderStatusCounts } from "@/features/admin/providers/viewmodel/use-admin-providers";
 import { useSupportOpenCount } from "@/features/admin/support/viewmodel/use-admin-support";
 import { adminDashboardQueries } from "../data/admin-dashboard.repository";
-import { LATEST_APPLICATIONS_LIMIT, needsYou, type NeedsYouItem } from "../domain/needs-you";
+import { LATEST_APPLICATIONS_LIMIT, needsYou, type NeedsYouItem, type NeedsYouKey } from "../domain/needs-you";
 
 /** Every number the tiles and the chart draw. */
 export function useAdminStats() {
@@ -24,13 +24,18 @@ export function useLatestApplications() {
   return { rows: list.data ?? [], isLoading: list.isLoading, total };
 }
 
+/** One "Needs you" card: its count, and whether that count is still on its way. */
+export interface NeedsYouCard extends NeedsYouItem {
+  loading: boolean;
+}
+
 /**
  * The four sources the "Needs you" row reads, folded by `needsYou`. Four
  * bounded contexts, four queries — each one is the same cache entry its own
  * screen uses, so the card and the queue it opens cannot disagree.
  */
 export function useNeedsYou(): {
-  items: NeedsYouItem[];
+  items: NeedsYouCard[];
   failed: boolean;
   retry: () => void;
 } {
@@ -40,12 +45,19 @@ export function useNeedsYou(): {
   const contact = useContactOpenCount();
   const disputed = stats.data?.disputed;
   const pending = providers.data?.pending;
+  const errored: Record<NeedsYouKey, boolean> = {
+    disputed: stats.isError,
+    providers: providers.isError,
+    support: support.isError,
+    contact: contact.isError,
+  };
   const items = useMemo(
     () => needsYou({ disputed, providers: pending, support: support.data, contact: contact.data }),
     [disputed, pending, support.data, contact.data],
   );
   return {
-    items,
+    // A count that failed is not loading either: its card says "—", never a zero.
+    items: items.map((item) => ({ ...item, loading: item.count === null && !errored[item.key] })),
     // A count that could not be read is not a zero: the row must never say
     // "all clear" over a failed read, so the page shows its error line for any
     // of the four, and one retry asks all four again.
