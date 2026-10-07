@@ -22,6 +22,22 @@ describe("HelpPage", () => {
     expect(screen.getByText(/after the provider confirms the time/i)).toBeInTheDocument();
   });
 
+  it("narrows the list as somebody searches, and says so when nothing matches", async () => {
+    const user = userEvent.setup();
+    await renderHelpPage();
+
+    const search = screen.getByRole("searchbox", { name: /search help/i });
+    await user.type(search, "M-Pesa");
+    const shown = screen.getAllByRole("button", { expanded: false });
+    expect(shown.length).toBeGreaterThan(0);
+    expect(shown.length).toBeLessThan(20);
+
+    await user.clear(search);
+    await user.type(search, "zzzz");
+    expect(screen.queryAllByRole("button", { expanded: false })).toHaveLength(0);
+    expect(screen.getByText(/zzzz/)).toBeInTheDocument();
+  });
+
   it("carries a heading with an anchor per category so a link can point at one", async () => {
     await renderHelpPage();
     expect(document.getElementById("customers")).not.toBeNull();

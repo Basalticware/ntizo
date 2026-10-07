@@ -1,27 +1,33 @@
 import { useTranslation } from "react-i18next";
-import { SectionHead } from "@/features/landing/ui/section-head";
+import { FileText, Rocket, Users } from "lucide-react";
+import { buttonVariants } from "@ntizo/frontend-ui";
 import { CONTACT } from "@/shared/lib/contact";
 import { CompanyPage } from "./company-page";
-import { buttonVariants } from "@ntizo/frontend-ui";
 import {
-  CARD_BODY_CLASS,
-  CARD_TITLE_CLASS,
-  PUBLIC_CARD_CLASS,
-} from "@/features/landing/ui/public-page";
+  IconItems,
+  PhotoHero,
+  PhotoSplit,
+  SPLIT_BODY_CLASS,
+  SPLIT_TITLE_CLASS,
+  SoftBand,
+} from "./company-sections";
 
 interface Principle {
   title: string;
   body: string;
 }
 
+const PRINCIPLE_ICONS = [FileText, Rocket, Users] as const;
+
 /**
  * No open roles, said plainly, and a spontaneous application by email. The
- * three "how we work" sentences are the only copy on the five pages not
+ * three "how we work" sentences are the only copy on the company pages not
  * derived from the code; the owner approved them.
  *
- * Drawn on the home page's rules since 2026-09-07. Two of this page's eyebrows
- * were the only thing naming their block, so they became the headings rather
- * than disappearing with the treatment.
+ * On the home page's pieces since October 2026: a photograph to open on,
+ * what we are building beside a second one, the three principles as icons in
+ * a row, and the ask on the soft blue band. The "see also" strip went — the
+ * footer under it links the same pages.
  */
 export function CareersPage() {
   const { t } = useTranslation("company");
@@ -29,60 +35,49 @@ export function CareersPage() {
   const mailto = `mailto:${CONTACT.general}?subject=${encodeURIComponent(t("careers.mailSubject"))}`;
 
   return (
-    <CompanyPage page="careers" title={t("careers.heading")} lede={t("careers.lede")}>
-      <section className="public-inset pb-14">
-        <div className="grid gap-10 md:grid-cols-2 md:gap-14">
-          <div>
-            {/* Was an eyebrow with two paragraphs under it and no heading at
-                all. It is the heading now. */}
-            <SectionHead title={t("careers.buildingEyebrow")} />
-            <div className={PUBLIC_CARD_CLASS}>
-              <p className="text-[16px] leading-relaxed text-[var(--color-ink-2)]">
-                {t("careers.building1")}
-              </p>
-              <p className="mt-4 text-[16px] leading-relaxed text-[var(--color-ink-2)]">
-                {t("careers.building2")}
-              </p>
-            </div>
-          </div>
-          <div>
-            <SectionHead title={t("careers.howEyebrow")} />
-            <ul className="grid list-none gap-6 p-0">
-              {Array.isArray(how) &&
-                how.map((p) => (
-                  <li key={p.title} className={PUBLIC_CARD_CLASS}>
-                    <h3 className={CARD_TITLE_CLASS}>{p.title}</h3>
-                    <p className={`mt-1.5 ${CARD_BODY_CLASS}`}>
-                      {p.body}
-                    </p>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        </div>
+    <CompanyPage>
+      <PhotoHero
+        photo="/images/company/careers-hero.jpg"
+        position="75% 40%"
+        title={t("careers.heading")}
+        lede={t("careers.lede")}
+      />
+
+      <PhotoSplit photo="/images/company/careers-building.jpg" position="50% 35%" flip>
+        <h2 className={SPLIT_TITLE_CLASS}>{t("careers.buildingEyebrow")}</h2>
+        <p className={`mt-5 ${SPLIT_BODY_CLASS}`}>{t("careers.building1")}</p>
+        <p className={`mt-4 ${SPLIT_BODY_CLASS}`}>{t("careers.building2")}</p>
+      </PhotoSplit>
+
+      <section className="public-inset pt-16 md:pt-20">
+        <h2 className="mb-8 text-[26px] leading-tight font-extrabold tracking-[-0.01em] text-[var(--color-headline)]">
+          {t("careers.howEyebrow")}
+        </h2>
+        {Array.isArray(how) && (
+          <IconItems
+            items={how.map((p, i) => ({ Icon: PRINCIPLE_ICONS[i % PRINCIPLE_ICONS.length]!, ...p }))}
+          />
+        )}
       </section>
 
-      {/* The ask, on the soft blue info panel — it is the only thing in its
-          section — with the system's primary button. */}
-      <section className="public-inset pb-14">
-        <div className="rounded-[14px] bg-[var(--color-blue-softer)] p-6 md:p-8">
-          <h2 className="text-[22px] font-extrabold tracking-[-0.01em] text-[var(--color-headline)]">
+      <SoftBand className="mb-16 flex flex-col gap-6 md:mb-20 md:flex-row md:items-center md:justify-between md:gap-12">
+        <div>
+          <h2 className="text-[26px] leading-tight font-extrabold tracking-[-0.01em] text-[var(--color-headline)]">
             {t("careers.openingsTitle")}
           </h2>
           <p className="mt-2 max-w-[56ch] text-[16px] leading-relaxed text-[var(--color-ink-2)]">
             {t("careers.openingsBody")}
           </p>
-          <a
-            href={mailto}
-            className={`mt-6 no-underline ${buttonVariants()}`}
-          >
+        </div>
+        <div className="shrink-0 md:text-right">
+          <a href={mailto} className={`no-underline ${buttonVariants()}`}>
             {t("careers.openingsCta")}
           </a>
-          <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">
+          <p className="mt-3 max-w-[32ch] text-sm text-[var(--color-muted-foreground)]">
             {t("careers.openingsHint", { email: CONTACT.general })}
           </p>
         </div>
-      </section>
+      </SoftBand>
     </CompanyPage>
   );
 }

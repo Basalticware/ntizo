@@ -1,57 +1,30 @@
 {
-  "shared": {
-    "seeAlso": "Siehe auch",
-    "links": {
-      "contact": {
-        "title": "Kontakt",
-        "body": "Partnerschaften, Presse, oder einfach nur ein Hallo."
-      },
-      "feedback": {
-        "title": "Feedback geben",
-        "body": "Eine Idee, etwas, das nicht funktioniert hat, oder etwas, das Ihnen gefallen hat."
-      },
-      "help": {
-        "title": "Hilfezentrum",
-        "body": "Häufig gestellte Fragen, und eine Möglichkeit, uns zu erreichen."
-      },
-      "about": {
-        "title": "Über Ntizo",
-        "body": "Was wir tun, wie es funktioniert und woran wir glauben."
-      },
-      "careers": {
-        "title": "Karriere",
-        "body": "Wie wir arbeiten, und wie Sie sich bewerben."
-      }
-    }
-  },
   "about": {
     "headTitle": "Über Ntizo",
     "heading": "Lokale Dienstleistungen, denen Sie",
     "headingAccent": "vertrauen",
-    "lede": "Ntizo verbindet Menschen, die eine Dienstleistung brauchen, mit Menschen, die sie erbringen können. Verifizierte Anbieter, der Preis von Anfang an sichtbar, und die Zahlung erst, nachdem der Anbieter den Termin bestätigt hat.",
+    "lede": "Verifizierte Anbieter, der Preis von Anfang an sichtbar, und die Zahlung erst, nachdem der Anbieter den Termin bestätigt hat.",
     "missionTitle": "Das Buchen einer Dienstleistung so einfach und sicher machen wie einen Einkauf im Laden.",
-    "mission1": "In Mosambik hängt es noch immer davon ab, jemanden zu kennen, der jemanden kennt, um einen guten Klempner, eine Friseurin oder eine Nachhilfelehrkraft zu finden. Der Preis wird am Telefon vereinbart, der Termin verschiebt sich, und wenn etwas schiefgeht, gibt es niemanden, an den man sich wenden kann.",
-    "mission2": "Ntizo gibt es, um das zu ändern. Jeder Anbieter wird verifiziert, bevor er in den Ergebnissen erscheint, jede Dienstleistung zeigt ihren Preis, und jede Buchung wird lückenlos festgehalten, vom vereinbarten Termin bis zur Zahlung.",
-    "howTitle": "Drei Schritte – und keiner davon heißt, zu bezahlen, bevor Sie wissen, dass es stattfindet.",
+    "mission1": "In Mosambik hängt es noch immer davon ab, jemanden zu kennen, um einen guten Klempner, eine Friseurin oder eine Nachhilfelehrkraft zu finden. Der Preis wird am Telefon vereinbart, und wenn etwas schiefgeht, gibt es niemanden, an den man sich wenden kann.",
+    "mission2": "Bei Ntizo ist jeder Anbieter verifiziert, jede Dienstleistung zeigt ihren Preis, und jede Buchung wird festgehalten, vom vereinbarten Termin bis zur Zahlung.",
+    "howTitle": "Drei Schritte. Bezahlen kommt zuletzt.",
     "steps": {
       "search": {
         "title": "Suchen und vergleichen",
-        "body": "Durchsuchen Sie Dienstleistungen nach Kategorie und Stadt, mit Preis, Bewertungen von Menschen, die sie genutzt haben, und dem Verifiziert-Abzeichen."
+        "body": "Nach Kategorie und Stadt, mit Preis, Bewertungen und dem Verifiziert-Siegel."
       },
       "book": {
         "title": "Termin buchen",
-        "body": "Wählen Sie Tag und Uhrzeit im Kalender des Anbieters und geben Sie an, wo die Dienstleistung stattfindet. Die Anfrage geht zur Bestätigung an den Anbieter."
+        "body": "Wählen Sie Tag und Uhrzeit im Kalender des Anbieters. Er bestätigt."
       },
       "pay": {
         "title": "Nach der Bestätigung bezahlen",
-        "body": "Erst wenn der Anbieter den Termin bestätigt, erhalten Sie die Zahlungsaufforderung auf Ihrem Telefon. Vorher wird nichts berechnet."
+        "body": "Die Zahlungsaufforderung kommt erst aufs Handy, wenn der Anbieter den Termin bestätigt hat."
       }
     },
     "customersTitle": "Finden, buchen und bezahlen an einem Ort.",
-    "customersBody": "Keine Anrufe, um den Preis zu erfahren, kein Warten auf eine Antwort, die nie kommt. Jede Buchung hat einen Termin, einen Betrag und einen Nachweis.",
     "customersCta": "Dienstleistungen entdecken",
     "providersTitle": "Ihr Kalender, Ihre Preise, Ihre Kundschaft.",
-    "providersBody": "Veröffentlichen Sie Ihre Dienstleistungen, legen Sie Ihre Verfügbarkeit fest und erhalten Sie bestätigte Anfragen. Ntizo kümmert sich um den Kalender, die Zahlung und darum, dass man Sie findet.",
     "providersCta": "Anbieter werden"
   },
   "contact": {
@@ -59,20 +32,9 @@
     "heading": "Sprechen Sie mit uns.",
     "lede": "Partnerschaften, Presse, eine Frage zur Plattform, oder einfach nur ein Hallo. Wir antworten an Werktagen.",
     "messagePlaceholder": "Sagen Sie uns, was Sie beschäftigt.",
-    "cards": {
-      "email": {
-        "title": "Per E-Mail",
-        "body": "Für alle, die lieber direkt schreiben."
-      },
-      "social": {
-        "title": "In den sozialen Netzwerken",
-        "body": "Neuigkeiten, Einblicke hinter die Kulissen und die Anbieter, die wir vorstellen."
-      },
-      "feedback": {
-        "title": "Eine Idee, oder ist etwas kaputtgegangen?",
-        "body": "Das ist Feedback, und wir lesen alles davon.",
-        "cta": "Feedback geben"
-      }
+    "elsewhere": {
+      "title": "Eine Idee, oder ist etwas kaputtgegangen?",
+      "cta": "Feedback geben"
     }
   },
   "feedback": {
@@ -80,20 +42,9 @@
     "heading": "Sagen Sie uns, was Sie denken.",
     "lede": "Eine Idee, etwas, das nicht funktioniert hat, oder etwas, das Ihnen gefallen hat. Wir lesen alles, und das entscheidet, was wir als Nächstes bauen.",
     "messagePlaceholder": "Was sollte anders sein? Wenn etwas nicht funktioniert hat, sagen Sie uns, wo Sie waren und was Sie erwartet haben.",
-    "cards": {
-      "read": {
-        "title": "Wir lesen alles",
-        "body": "Jede Nachricht erreicht eine Person im Team. Nicht alle bekommen eine Antwort, aber alle zählen."
-      },
-      "contact": {
-        "title": "Eine Partnerschaft, die Presse, eine Frage?",
-        "body": "Dafür ist der Kontakt da, der antwortet.",
-        "cta": "Zum Kontakt"
-      },
-      "social": {
-        "title": "In den sozialen Netzwerken",
-        "body": "Neuigkeiten, Einblicke hinter die Kulissen und die Anbieter, die wir vorstellen."
-      }
+    "elsewhere": {
+      "title": "Eine Partnerschaft, die Presse, eine Frage?",
+      "cta": "Zum Kontakt"
     }
   },
   "form": {
@@ -144,27 +95,27 @@
   "careers": {
     "headTitle": "Karriere",
     "heading": "Bauen Sie Ntizo mit uns.",
-    "lede": "Wir sind ein kleines Team, das die Infrastruktur für lokale Dienstleistungen in Mosambik aufbaut. Wir haben derzeit keine offenen Stellen, aber wir lesen jede Bewerbung.",
+    "lede": "Wir sind ein kleines Team, das die Infrastruktur für lokale Dienstleistungen in Mosambik aufbaut.",
     "buildingEyebrow": "Was wir aufbauen",
-    "building1": "Einen Marktplatz, auf dem Kundinnen und Kunden eine Dienstleistung mit derselben Sicherheit finden, buchen und bezahlen wie einen Einkauf im Laden, und auf dem ein Anbieter Kalender, Preise und Zahlungen hat, ohne ein Unternehmen im Hintergrund zu brauchen.",
-    "building2": "Wir haben mit Mosambik begonnen, mit M-Pesa und auf Portugiesisch. Die Plattform ist von Anfang an darauf ausgelegt, auch andere Länder, andere Währungen und andere Sprachen zu bedienen.",
+    "building1": "Ein Marktplatz, auf dem Kunden eine Dienstleistung mit Vertrauen finden, buchen und bezahlen, und auf dem Anbieter Kalender, Preise und Zahlungen haben, ohne ein Unternehmen im Rücken zu brauchen.",
+    "building2": "Wir haben mit Mosambik begonnen, mit M-Pesa und auf Portugiesisch, und vom ersten Tag an für andere Länder, Währungen und Sprachen geplant.",
     "howEyebrow": "Wie wir arbeiten",
     "how": [
       {
         "title": "Wir schreiben, bevor wir bauen.",
-        "body": "Jede Entscheidung hat ein Dokument mit dem Warum, damit niemand, der später dazukommt, es erraten muss."
+        "body": "Jede Entscheidung hat ein Dokument mit dem Warum."
       },
       {
         "title": "Wir liefern früh und beheben Fehler schnell.",
-        "body": "Uns ist eine echte Version in den Händen einer Kundin lieber als eine perfekte Version in einer Präsentation."
+        "body": "Eine echte Version in der Hand eines Kunden ist mehr wert als eine perfekte in einer Präsentation."
       },
       {
         "title": "Wer es nutzt, kommt zuerst.",
-        "body": "Wir sprechen mit Anbietern und Kundschaft, bevor wir für sie entscheiden."
+        "body": "Wir sprechen mit Anbietern und Kunden, bevor wir für sie entscheiden."
       }
     ],
-    "openingsTitle": "Derzeit keine.",
-    "openingsBody": "Wenn Sie denken, dass wir trotzdem mit Ihnen sprechen sollten, schreiben Sie uns. Sagen Sie uns, was Sie gut können, was Sie schon gebaut haben, und warum Ntizo. Wir antworten auf jede.",
+    "openingsTitle": "Derzeit keine offenen Stellen.",
+    "openingsBody": "Wenn Sie finden, dass wir trotzdem reden sollten, schreiben Sie uns: was Sie gut können, was Sie gebaut haben, und warum Ntizo.",
     "openingsCta": "Initiativbewerbung",
     "openingsHint": "Öffnet Ihre E-Mail an {{email}} mit bereits ausgefülltem Betreff.",
     "mailSubject": "Initiativbewerbung"

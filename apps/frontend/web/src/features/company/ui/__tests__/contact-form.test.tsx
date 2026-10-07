@@ -134,13 +134,16 @@ describe("ContactRequestPage — contact", () => {
     expect(trap).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("offers feedback, help and about at the bottom", async () => {
+  it("puts the address, the socials and the way to feedback beside the form, once", async () => {
     await renderCompanyPage(ContactPage, "/contact");
-    // `closest("section")`, not the heading's parent: `SectionHead` wraps the
-    // heading a div deep, so the parent holds no links and this quietly
-    // returned an empty list.
-    const strip = screen.getByRole("heading", { name: /see also/i }).closest("section")!;
-    expect(Array.from(strip.querySelectorAll("a")).map((a) => a.getAttribute("href"))).toEqual(["/feedback?from=%2Fcontact", "/help", "/about"]);
+    const panel = screen.getByRole("heading", { level: 1, name: "Talk to us." }).parentElement!;
+    expect(within(panel).getByRole("link", { name: "ola@ntizo.co.mz" })).toHaveAttribute("href", "mailto:ola@ntizo.co.mz");
+    expect(within(panel).getByRole("link", { name: "Instagram" })).toHaveAttribute("target", "_blank");
+    expect(within(panel).getByRole("link", { name: "LinkedIn" })).toHaveAttribute("target", "_blank");
+    expect(within(panel).getByRole("link", { name: /share feedback/i })).toHaveAttribute("href", "/feedback?from=%2Fcontact");
+    // The cards and the see-also strip that said all of this a second time are gone.
+    expect(screen.queryByRole("heading", { name: /see also/i })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "By email" })).toBeNull();
   });
 });
 

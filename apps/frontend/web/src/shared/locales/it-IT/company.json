@@ -1,57 +1,30 @@
 {
-  "shared": {
-    "seeAlso": "Vedi anche",
-    "links": {
-      "contact": {
-        "title": "Contatti",
-        "body": "Collaborazioni, stampa, o semplicemente un saluto."
-      },
-      "feedback": {
-        "title": "Lascia un feedback",
-        "body": "Un'idea, qualcosa che non ha funzionato, o qualcosa che ti è piaciuto."
-      },
-      "help": {
-        "title": "Centro assistenza",
-        "body": "Domande frequenti, e un modo per parlare con noi."
-      },
-      "about": {
-        "title": "Chi è Ntizo",
-        "body": "Cosa facciamo, come funziona e in cosa crediamo."
-      },
-      "careers": {
-        "title": "Lavora con noi",
-        "body": "Come lavoriamo, e come candidarti."
-      }
-    }
-  },
   "about": {
     "headTitle": "Chi è Ntizo",
     "heading": "Servizi locali di cui potersi",
     "headingAccent": "fidare",
-    "lede": "Ntizo mette in contatto chi ha bisogno di un servizio con chi sa farlo. Fornitori verificati, il prezzo sempre visibile, e il pagamento solo dopo che il fornitore conferma l'orario.",
+    "lede": "Fornitori verificati, il prezzo sempre visibile, e il pagamento solo dopo che il fornitore conferma l'orario.",
     "missionTitle": "Rendere l'assunzione di un servizio semplice e sicura come un acquisto in negozio.",
-    "mission1": "In Mozambico, trovare un buon idraulico, una parrucchiera o un insegnante privato dipende ancora dal conoscere qualcuno che conosce qualcuno. Il prezzo si concorda per telefono, l'orario slitta, e quando le cose vanno male non c'è a chi rivolgersi.",
-    "mission2": "Ntizo esiste per cambiare questo. Ogni fornitore viene verificato prima di comparire nei risultati, ogni servizio mostra il suo prezzo, e ogni prenotazione resta registrata dall'inizio alla fine, dall'orario concordato al pagamento.",
-    "howTitle": "Tre passaggi, e nessuno di questi è pagare prima di sapere se accadrà davvero.",
+    "mission1": "In Mozambico, trovare un buon idraulico, una parrucchiera o un insegnante privato dipende ancora dal conoscere qualcuno. Il prezzo si concorda per telefono e, quando le cose vanno male, non c'è a chi rivolgersi.",
+    "mission2": "Su Ntizo, ogni fornitore è verificato, ogni servizio mostra il suo prezzo e ogni prenotazione resta registrata, dall'orario concordato al pagamento.",
+    "howTitle": "Tre passaggi. Pagare è l'ultimo.",
     "steps": {
       "search": {
         "title": "Cerca e confronta",
-        "body": "Sfoglia i servizi per categoria e città, con il prezzo, le recensioni di chi li ha già usati e il badge di verificato."
+        "body": "Per categoria e città, con il prezzo, le recensioni e il badge di verifica."
       },
       "book": {
         "title": "Prenota l'orario",
-        "body": "Scegli il giorno e l'ora nel calendario del fornitore e indica dove si svolge il servizio. La richiesta passa a lui per la conferma."
+        "body": "Scegli il giorno e l'ora nel calendario del fornitore. Lui conferma."
       },
       "pay": {
         "title": "Paga dopo la conferma",
-        "body": "Solo dopo che il fornitore conferma l'orario ricevi la richiesta di pagamento sul telefono. Prima di allora non viene addebitato nulla."
+        "body": "La richiesta di pagamento arriva sul telefono solo dopo che il fornitore conferma l'orario."
       }
     },
     "customersTitle": "Trova, prenota e paga in un unico posto.",
-    "customersBody": "Niente telefonate per sapere il prezzo, niente attese per una risposta che non arriva. Ogni prenotazione ha un orario, un importo e uno storico.",
     "customersCta": "Esplora i servizi",
     "providersTitle": "La tua agenda, i tuoi prezzi, i tuoi clienti.",
-    "providersBody": "Pubblica i tuoi servizi, imposta quando sei disponibile e ricevi richieste confermate. Ntizo si occupa del calendario, del pagamento e di farti conoscere.",
     "providersCta": "Diventa fornitore"
   },
   "contact": {
@@ -59,20 +32,9 @@
     "heading": "Parla con noi.",
     "lede": "Collaborazioni, stampa, una domanda sulla piattaforma o semplicemente un saluto. Rispondiamo nei giorni lavorativi.",
     "messagePlaceholder": "Dicci cosa hai in mente.",
-    "cards": {
-      "email": {
-        "title": "Via email",
-        "body": "Per chi preferisce scrivere direttamente."
-      },
-      "social": {
-        "title": "Sui social",
-        "body": "Novità, dietro le quinte e i fornitori che mettiamo in evidenza."
-      },
-      "feedback": {
-        "title": "Un'idea, o qualcosa non ha funzionato?",
-        "body": "Quello è feedback, e lo leggiamo tutto.",
-        "cta": "Lascia un feedback"
-      }
+    "elsewhere": {
+      "title": "Un'idea, o qualcosa non ha funzionato?",
+      "cta": "Lascia un feedback"
     }
   },
   "feedback": {
@@ -80,20 +42,9 @@
     "heading": "Dicci cosa ne pensi.",
     "lede": "Un'idea, qualcosa che non ha funzionato, o qualcosa che ti è piaciuto. Lo leggiamo tutto, ed è questo a decidere cosa costruiamo dopo.",
     "messagePlaceholder": "Cosa vorresti fosse diverso? Se qualcosa non ha funzionato, dicci dove eri e cosa ti aspettavi.",
-    "cards": {
-      "read": {
-        "title": "Leggiamo tutto",
-        "body": "Ogni messaggio arriva a una persona del team. Non tutti hanno una risposta, ma tutti contano."
-      },
-      "contact": {
-        "title": "Una collaborazione, la stampa, una domanda?",
-        "body": "Quello è per i contatti, che rispondono.",
-        "cta": "Vai ai contatti"
-      },
-      "social": {
-        "title": "Sui social",
-        "body": "Novità, dietro le quinte e i fornitori che mettiamo in evidenza."
-      }
+    "elsewhere": {
+      "title": "Una collaborazione, la stampa, una domanda?",
+      "cta": "Vai ai contatti"
     }
   },
   "form": {
@@ -144,27 +95,27 @@
   "careers": {
     "headTitle": "Lavora con noi",
     "heading": "Costruisci Ntizo con noi.",
-    "lede": "Siamo un piccolo team che sta costruendo l'infrastruttura dei servizi locali in Mozambico. Al momento non abbiamo posizioni aperte, ma leggiamo tutte le candidature.",
+    "lede": "Siamo un piccolo team che sta costruendo l'infrastruttura dei servizi locali in Mozambico.",
     "buildingEyebrow": "Cosa stiamo costruendo",
-    "building1": "Un marketplace dove un cliente trova, prenota e paga un servizio con la stessa fiducia con cui fa un acquisto in negozio, e dove un fornitore ha agenda, prezzi e pagamenti senza bisogno di un'azienda alle spalle.",
-    "building2": "Abbiamo iniziato dal Mozambico, con M-Pesa e in portoghese. La piattaforma è pensata fin dal primo giorno per servire altri Paesi, altre valute e altre lingue.",
+    "building1": "Un mercato dove il cliente trova, prenota e paga un servizio con fiducia, e dove il fornitore ha agenda, prezzi e pagamenti senza bisogno di un'azienda alle spalle.",
+    "building2": "Abbiamo iniziato dal Mozambico, con M-Pesa e in portoghese, pensando fin dal primo giorno ad altri paesi, valute e lingue.",
     "howEyebrow": "Come lavoriamo",
     "how": [
       {
         "title": "Scriviamo prima di costruire.",
-        "body": "Ogni decisione ha un documento con il perché, così chi arriva dopo non deve indovinarlo."
+        "body": "Ogni decisione ha un documento con il perché."
       },
       {
         "title": "Rilasciamo presto e correggiamo in fretta.",
-        "body": "Preferiamo una versione vera nelle mani di un cliente a una versione perfetta in una presentazione."
+        "body": "Meglio una versione reale nelle mani di un cliente che una perfetta in una presentazione."
       },
       {
         "title": "Chi usa il prodotto viene prima.",
-        "body": "Parliamo con fornitori e clienti prima di decidere al posto loro."
+        "body": "Parliamo con fornitori e clienti prima di decidere per loro."
       }
     ],
-    "openingsTitle": "Nessuna al momento.",
-    "openingsBody": "Se pensi che dovremmo comunque parlare con te, scrivici. Dicci cosa sai fare bene, cosa hai già costruito, e perché Ntizo. Rispondiamo a tutte.",
+    "openingsTitle": "Nessuna posizione aperta al momento.",
+    "openingsBody": "Se pensi che dovremmo parlarci comunque, scrivici: cosa sai fare bene, cosa hai già costruito, e perché Ntizo.",
     "openingsCta": "Candidatura spontanea",
     "openingsHint": "Apre la tua email verso {{email}} con l'oggetto già compilato.",
     "mailSubject": "Candidatura spontanea"

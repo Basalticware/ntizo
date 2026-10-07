@@ -1,107 +1,93 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { ArrowRight, Mail } from "lucide-react";
 import type { ContactRequestKind } from "@ntizo/shared";
 import { CONTACT } from "@/shared/lib/contact";
 import { CompanyPage } from "./company-page";
 import { ContactForm } from "./contact-form";
-import {
-  CARD_BODY_CLASS,
-  CARD_TITLE_CLASS,
-  PUBLIC_CARD_CLASS,
-} from "@/features/landing/ui/public-page";
 
-/** A link inside a note: the brand blue, the way the listings draw one. */
-const NOTE_LINK_CLASS = "font-semibold text-[var(--color-primary)] hover:underline";
+/** Where each kind sends somebody who came to the other one. */
+const ELSEWHERE: Record<ContactRequestKind, string> = {
+  contact: "/feedback",
+  feedback: "/contact",
+};
 
-/** Which three cards sit under each form, and where the linking one goes. */
-const CARDS: Record<ContactRequestKind, ReadonlyArray<{ key: string; kind: "email" | "social" | "text" | "link"; to?: string }>> = {
-  contact: [
-    { key: "email", kind: "email" },
-    { key: "social", kind: "social" },
-    { key: "feedback", kind: "link", to: "/feedback" },
-  ],
-  feedback: [
-    { key: "read", kind: "text" },
-    { key: "contact", kind: "link", to: "/contact" },
-    { key: "social", kind: "social" },
-  ],
+const PHOTO: Record<ContactRequestKind, string> = {
+  contact: "/images/company/contact.jpg",
+  feedback: "/images/company/feedback.jpg",
 };
 
 /**
- * Contact and Feedback: a centred band, the form, three cards.
+ * Contact and Feedback: a photograph with the heading, the address and the
+ * socials on one side, the form on the other.
  *
- * On the October 2026 system: white, the heading in navy, the three notes on
- * the site's card, and the links inside them in the brand blue.
+ * Since October 2026. It was a centred heading, the form, three cards under
+ * it and the "see also" strip — the address, the socials and the way to the
+ * other form said twice over. Now each is said once, on the photograph, and
+ * the form sits level with it. Below `lg` the photograph goes on top, short,
+ * and the form follows.
  *
- * Single centred column, decided 2026-09-02 against a side rail: the form is
- * what the page is for, and the alternatives sit under it rather than beside
- * it. Each kind's copy lives under its own key in the `company` namespace,
- * and the kind doubles as the frame's page id.
+ * The words on the photograph are white over a dark gradient from the
+ * bottom, as the home's hero carries them; black at an opacity, because it
+ * shades a picture and looks the same in either theme.
  */
 export function ContactRequestPage({ kind }: { kind: ContactRequestKind }) {
   const { t } = useTranslation("company");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const elsewhere = ELSEWHERE[kind];
 
   return (
-    <CompanyPage page={kind} title={t(`${kind}.heading`)} lede={t(`${kind}.lede`)} centred>
-      <section className="public-inset pb-14">
-        <div className="mx-auto max-w-[640px]">
-          <ContactForm kind={kind} messagePlaceholder={t(`${kind}.messagePlaceholder`)} />
-        </div>
-
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {CARDS[kind].map((card) => (
-            <article
-              key={card.key}
-              className={PUBLIC_CARD_CLASS}
+    <CompanyPage>
+      <section className="public-inset pt-8 pb-16 md:pt-10 md:pb-20">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-10">
+          <div className="relative isolate flex min-h-[340px] flex-col justify-end overflow-hidden rounded-[14px] bg-[var(--color-muted)] p-6 pt-44 text-white sm:p-8 sm:pt-56 lg:min-h-[560px] lg:pt-8">
+            <img
+              src={PHOTO[kind]}
+              alt=""
+              className="absolute inset-0 -z-10 h-full w-full object-cover object-[60%_35%]"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/50 via-45% to-black/5"
+            />
+            <h1 className="text-[34px] leading-[1.05] font-extrabold tracking-[-0.02em] sm:text-[40px]">
+              {t(`${kind}.heading`)}
+            </h1>
+            <p className="mt-3 max-w-[40ch] text-[16.5px] leading-normal text-white/90">
+              {t(`${kind}.lede`)}
+            </p>
+            <a
+              href={`mailto:${CONTACT.general}`}
+              className="mt-6 inline-flex items-center gap-2.5 self-start text-[16px] font-semibold text-white hover:underline"
             >
-              <h2 className={`m-0 ${CARD_TITLE_CLASS}`}>
-                {t(`${kind}.cards.${card.key}.title`)}
-              </h2>
-              <p className={`mt-1.5 mb-0 ${CARD_BODY_CLASS}`}>
-                {card.kind === "email" && (
-                  <>
-                    <a href={`mailto:${CONTACT.general}`} className={NOTE_LINK_CLASS}>
-                      {CONTACT.general}
-                    </a>
-                    <br />
-                  </>
-                )}
-                {t(`${kind}.cards.${card.key}.body`)}
-                {card.kind === "social" && (
-                  <>
-                    <br />
-                    <a
-                      href={CONTACT.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={NOTE_LINK_CLASS}
-                    >
-                      Instagram
-                    </a>
-                    {" · "}
-                    <a
-                      href={CONTACT.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={NOTE_LINK_CLASS}
-                    >
-                      LinkedIn
-                    </a>
-                  </>
-                )}
-              </p>
-              {card.to && (
-                <Link
-                  to={card.to}
-                  search={card.to === "/feedback" ? { from: pathname } : undefined}
-                  className={`mt-3 inline-flex items-center gap-2 text-sm ${NOTE_LINK_CLASS}`}
-                >
-                  {t(`${kind}.cards.${card.key}.cta`)}
-                </Link>
-              )}
-            </article>
-          ))}
+              <Mail className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
+              {CONTACT.general}
+            </a>
+            <p className="mt-3 text-[15px] text-white/85">
+              <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className="font-semibold text-white hover:underline">
+                Instagram
+              </a>
+              {" · "}
+              <a href={CONTACT.linkedin} target="_blank" rel="noopener noreferrer" className="font-semibold text-white hover:underline">
+                LinkedIn
+              </a>
+            </p>
+            <p className="mt-6 border-t border-white/25 pt-4 text-[15px] text-white/85">
+              {t(`${kind}.elsewhere.title`)}{" "}
+              <Link
+                to={elsewhere}
+                search={elsewhere === "/feedback" ? { from: pathname } : undefined}
+                className="inline-flex items-center gap-1.5 font-semibold text-white hover:underline"
+              >
+                {t(`${kind}.elsewhere.cta`)}
+                <ArrowRight className="h-4 w-4" strokeWidth={2.4} aria-hidden="true" />
+              </Link>
+            </p>
+          </div>
+
+          <div className="lg:self-center">
+            <ContactForm kind={kind} messagePlaceholder={t(`${kind}.messagePlaceholder`)} />
+          </div>
         </div>
       </section>
     </CompanyPage>
