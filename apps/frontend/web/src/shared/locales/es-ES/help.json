@@ -105,7 +105,7 @@
       },
       "whenPaid": {
         "q": "When do I get paid?",
-        "a": "The customer pays after you confirm the time, and the amount is held until the service is completed. After that it moves to your wallet, where it becomes available to withdraw after the holding period shown there."
+        "a": "The customer pays by M-Pesa once the provider confirms the time."
       },
       "verification": {
         "q": "How does verification work?",
@@ -136,7 +136,7 @@
       },
       "serviceNotDone": {
         "q": "What happens if the service is not done?",
-        "a": "The payment is held until the service is completed. If something goes wrong, message support with the date and the provider's name. We look at the case with both sides."
+        "a": "The customer pays by M-Pesa once the provider confirms the time. If something goes wrong, message support with the date and the provider's name. We look at the case with both sides."
       },
       "dataHandling": {
         "q": "How do you handle my data?",

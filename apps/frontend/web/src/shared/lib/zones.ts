@@ -24,14 +24,13 @@ export function canAccessProvider(
  * header, so the customer bottom bar on top of that is a second navigation
  * offering four destinations that lead out of the zone you are working in.
  *
- * Checkout (`/book`, `/booking`) is deliberately *not* here. It briefly was,
- * on the argument that a slot on hold should not be a swipe away from four
- * exits; the decision (2026-09-02) went the other way — the bar is the
- * phone's navigation and it stays the same on every customer page, checkout
- * included. Only the top of those pages is different: `CheckoutHeader`
- * instead of `SiteHeader`.
+ * Checkout (`/book`, `/booking`) is here too. It was taken out on
+ * 2026-09-02 (the bar is the phone's navigation, the same on every customer
+ * page); on 2026-10-07 the user asked for the checkout to be a focused space
+ * — the logo, the steps and the way back — on the phone as on the desktop,
+ * so the bottom bar goes with the site's top menu.
  */
-const OWN_CHROME = ["provider", "admin"];
+const OWN_CHROME = ["provider", "admin", "book", "booking"];
 
 /**
  * Whether this path belongs to a zone that draws its own navigation.
