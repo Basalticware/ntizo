@@ -32,7 +32,7 @@ export function Hero() {
 
   return (
     <>
-      <SiteHeader withSearch={false} />
+      <SiteHeader />
       <section className="relative isolate overflow-hidden">
         <img
           src="/images/home-hero.jpg"

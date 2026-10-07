@@ -112,49 +112,23 @@ describe("SiteHeader", () => {
   });
 
   /**
-   * The search is the header's, not a page's. Every public surface wears the
-   * same bar in the same place, so a reader who wants a different service
-   * never has to find their way back to a page that happens to have a field.
-   *
-   * The default is the landing hero's: it asks for a service and a submit
-   * starts a fresh search, because a page with no list under it has no
-   * narrowing to keep.
+   * One header on every page, as the user asked on 7 October 2026: the logo,
+   * the three destinations centred, the account on the right — and no search
+   * and no "Cidades" in the bar. Searching is the pages' own (the home,
+   * services and providers heroes carry the big bar).
    */
-  it("carries the site's search, asking for a service by default", async () => {
+  it("carries no search and no cities menu", async () => {
     await renderHeader();
-
-    expect(screen.getByRole("searchbox")).toHaveAccessibleName("Search services");
+    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /cities|cidades/i })).not.toBeInTheDocument();
   });
 
-  /**
-   * A list page hands over its own bar so a typed term keeps the category,
-   * the filters, the city and the sort it already had — the same four props
-   * `ServiceSearch` has always required together, passed through rather than
-   * re-declared here.
-   */
-  it("wears the page's own search when the page has a list to narrow", async () => {
-    await renderHeader({
-      current: "providers",
-      search: {
-        to: "/providers",
-        placeholder: "Search by name",
-        label: "Search providers",
-        search: (q) => (q ? { q } : {}),
-        initialValue: "mavalane",
-      },
-    });
-
-    const box = screen.getByRole("searchbox");
-    expect(box).toHaveAccessibleName("Search providers");
-    expect(box).toHaveValue("mavalane");
-  });
-
-  // One field, not one per breakpoint. The bar moves to its own row on a
-  // phone by grid placement; rendering a second copy would put two searchboxes
-  // and two identical labels in the document for every page that has one.
-  it("draws the search once, however narrow the window", async () => {
+  // Equal outer tracks are what put the destinations at the window's centre,
+  // whatever the logo and the account measure.
+  it("centres the destinations between two equal tracks", async () => {
     await renderHeader();
-    expect(screen.getAllByRole("searchbox")).toHaveLength(1);
+    const row = screen.getByRole("banner").firstElementChild!;
+    expect(row.className).toContain("lg:grid-cols-[1fr_auto_1fr]");
   });
 
   /**
@@ -177,7 +151,7 @@ describe("SiteHeader", () => {
    * jsdom does no layout, so the widths are not assertable here; the classes
    * that produce them are.
    */
-  it("makes the bar yield before the logo or the sign-in do", async () => {
+  it("keeps the logo and the sign-in at their own size", async () => {
     await renderHeader();
 
     expect(screen.getByAltText("Ntizo")).toHaveClass("max-w-none");

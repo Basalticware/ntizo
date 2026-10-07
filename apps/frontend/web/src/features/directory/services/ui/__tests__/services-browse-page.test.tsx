@@ -353,17 +353,18 @@ describe("ServicesBrowsePage", () => {
     });
   });
 
-  it("shows the current term in both bars", async () => {
+  it("shows the current term in the page's search bar", async () => {
     // A results page whose search box is empty tells the reader they searched
     // for nothing, and a second search from it starts from scratch.
     renderPage("/services?q=barba", { items: [service()], nextOffset: null, total: 1 });
     await screen.findByRole("link", { name: "Corte de cabelo" });
+    // One bar: the header carries no search since 7 October 2026.
     const boxes = screen.getAllByRole("searchbox");
-    expect(boxes).toHaveLength(2);
-    for (const box of boxes) expect(box).toHaveValue("barba");
+    expect(boxes).toHaveLength(1);
+    expect(boxes[0]).toHaveValue("barba");
   });
 
-  it("searching from a narrowed list keeps the narrowing, from either bar", async () => {
+  it("searching from a narrowed list keeps the narrowing", async () => {
     // The bars are controls on this page like any other, so they change one
     // part of the URL and keep the rest. Submitting used to write `?q=` and
     // nothing else: a reader who had picked a category and a filter typed one
@@ -384,17 +385,6 @@ describe("ServicesBrowsePage", () => {
         category: "hair",
         locationType: "at_customer",
         q: "barba",
-      });
-    });
-
-    const headerBar = within(screen.getByRole("banner")).getByRole("search");
-    fireEvent.change(within(headerBar).getByRole("searchbox"), { target: { value: "corte" } });
-    fireEvent.submit(headerBar);
-    await waitFor(() => {
-      expect(router.state.location.search).toEqual({
-        category: "hair",
-        locationType: "at_customer",
-        q: "corte",
       });
     });
   });

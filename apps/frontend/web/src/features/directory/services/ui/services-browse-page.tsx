@@ -181,16 +181,7 @@ export function ServicesBrowsePage() {
           `browseSearch`, like every other control here, which holds on to the
           category, the filters, the city and the sort when a term is typed,
           and resets the page. */}
-      <SiteHeader
-        current="services"
-        search={{
-          to: "/services",
-          placeholder: t("searchPlaceholder"),
-          label: t("searchLabel"),
-          search: (q) => browseSearch(current, { q, offset: undefined }),
-          initialValue: current.q ?? "",
-        }}
-      />
+      <SiteHeader current="services" />
 
       <div className="mx-auto max-w-[1440px]">
         {/* The mockup's headline until the reader narrows the list; then
