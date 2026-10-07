@@ -18,12 +18,6 @@ import { cn } from "@ntizo/frontend-ui";
 import { CONTACT } from "@/shared/lib/contact";
 import { useHelpCenter } from "@/features/help-center/viewmodel/use-help-center";
 
-/**
- * M-Pesa's own red, for the one payment chip — the only literal colour left
- * in the footer, on purpose: a brand's mark is its colour, in light mode and
- * dark. The socials are drawn in the footer's ink, as the mockup draws them.
- */
-const MPESA = "#e60000";
 
 /**
  * A footer row, link or button alike. `text-start` matters on the button: the
@@ -133,24 +127,10 @@ export function Footer({
                 door. */}
           </FooterCol>
 
-          {/* The alignment is a breakpoint's business, so it is in classes:
-              the block right-aligns to meet the edge only once it sits at the
-              end of a row. Below `sm` everything stacks `items-start`, and a
-              chip pushed to the far side of a left-aligned label reads as a
-              chip belonging to nothing. */}
-          <div className="col-span-2 flex flex-col justify-between gap-5 sm:col-span-3 sm:items-end lg:col-span-1">
-            <div className="text-left sm:text-right">
-              <div className="mb-2.5 text-[12px] text-[var(--color-muted-foreground)]">
-                {t("footer.acceptedPayments")}
-              </div>
-              <div className="flex flex-wrap justify-start gap-2.5 sm:justify-end">
-                {/* One chip, because one method charges. e-Mola, Visa and
-                    Mastercard stood here until 2026-09-02, advertising methods
-                    the checkout refuses. Each returns the day its charge path
-                    ships (follow-ups #129). */}
-                <PayChip color={MPESA}>M-Pesa</PayChip>
-              </div>
-            </div>
+          {/* "Feito em Moçambique", right-aligned at the end of the row from
+              `sm`. A payment-methods block stood above it until 7 October
+              2026, when it was removed from the footer. */}
+          <div className="col-span-2 flex flex-col justify-end gap-5 sm:col-span-3 sm:items-end lg:col-span-1">
             <p className="inline-flex items-center gap-1.5 text-[12px] text-[var(--color-muted-foreground)] sm:justify-end">
               {t("footer.madeIn")}
               <Heart
@@ -277,22 +257,6 @@ function SocialIcon({
   );
 }
 
-function PayChip({
-  color,
-  children,
-}: {
-  color: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <span
-      style={{ color }}
-      className="rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-[13px] font-extrabold tracking-[0.02em]"
-    >
-      {children}
-    </span>
-  );
-}
 
 function InstagramGlyph() {
   return (

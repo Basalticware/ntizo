@@ -72,9 +72,12 @@ describe("LandingPage", () => {
     ).toBeInTheDocument();
   });
 
+  // The footer advertises no payment methods at all since 7 October 2026;
+  // the provider band is waited on so the absence is checked on a real page.
   it("keeps the footer's promises", async () => {
     await renderPage();
-    expect(await screen.findByText("M-Pesa")).toBeInTheDocument();
+    await screen.findByRole("link", { name: "Become a provider" });
+    expect(screen.queryByText("M-Pesa")).toBeNull();
     expect(screen.queryByText("Visa")).toBeNull();
   });
 

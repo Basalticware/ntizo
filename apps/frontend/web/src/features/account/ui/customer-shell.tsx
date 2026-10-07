@@ -15,7 +15,7 @@ import { SiteHeader } from "@/shared/components/site-header";
 export function CustomerShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-svh bg-[var(--color-background)]">
-      <SiteHeader />
+      <SiteHeader current="none" />
       {/* The public frame's inset rather than `page-shell`: the header above
           is drawn through `.public-inset`, and a page in a different column
           started its title a few pixels off the logo at every width. Full
