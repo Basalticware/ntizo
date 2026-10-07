@@ -55,7 +55,8 @@ async function renderIn(node: ReactNode) {
   return render(<RouterProvider router={router} />);
 }
 
-const renderFilters = (current: BrowseSearch) => renderIn(<ServiceFilters current={current} />);
+const renderFilters = (current: BrowseSearch, total = 0) =>
+  renderIn(<ServiceFilters current={current} total={total} />);
 
 const renderMobile = (current: BrowseSearch, total = 0) =>
   renderIn(<MobileServiceFilters current={current} total={total} />);
@@ -85,37 +86,32 @@ describe("ServiceFilters", () => {
     expect(clearAll.getAttribute("href")).toContain("q=corte");
   });
 
-  it("keeps four pills on the bar and the rest behind More filters", async () => {
+  it("keeps four pills on the bar, in the mockup's order, and no More filters", async () => {
     const { container } = await renderFilters({});
     const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    // The fixture offers more than one city, so all four show, then "More".
-    expect(summaries).toEqual([
-      "Category",
-      "Price range",
-      "Where it happens",
-      "City",
-      "More filters",
-    ]);
-    // Every option is still a link in the document, behind the last pill.
-    const more = [...container.querySelectorAll("details")].at(-1)!;
-    expect(more).toHaveTextContent("How you pay");
-    expect(more).toHaveTextContent("Who provides it");
-    expect(more).toHaveTextContent("Listing language");
+    // The fixture offers more than one city, so all four show. The mockup's
+    // duration, rating and availability pills are absent: the services API
+    // can apply none of them.
+    expect(summaries).toEqual(["Category", "City", "Price range", "Where it happens"]);
+    expect(screen.getByRole("button", { name: "Filter" })).toBeInTheDocument();
   });
 
-  it("counts what More filters hides, and its × takes off exactly those", async () => {
-    const { container } = await renderFilters({
-      paymentMode: "hourly",
-      providerType: "individual",
-      locationType: "at_customer",
-    });
-    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).toContain("More filters · 2");
+  it("opens every group, the bar's and the rest, from Filter", async () => {
+    await renderFilters({ paymentMode: "hourly" }, 12);
+    const button = screen.getByRole("button", { name: /^Filter/ });
+    // The count of what is on rides beside the word, as on the phone.
+    expect(button).toHaveTextContent("Filter · 1");
+    fireEvent.click(button);
 
-    const href = screen.getByRole("link", { name: "Remove More filters" }).getAttribute("href")!;
-    expect(href).not.toContain("paymentMode");
-    expect(href).not.toContain("providerType");
-    expect(href).toContain("locationType=at_customer");
+    const sheet = screen.getByRole("dialog", { name: "Filters" });
+    expect(sheet).toHaveTextContent("How you pay");
+    expect(sheet).toHaveTextContent("Who provides it");
+    expect(sheet).toHaveTextContent("Listing language");
+    expect(within(sheet).getByRole("link", { name: "Per hour" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(within(sheet).getByRole("button", { name: "Show 12 results" })).toBeInTheDocument();
   });
 
   it("fills no pill and offers no clear-all when nothing is applied", async () => {
@@ -123,7 +119,7 @@ describe("ServiceFilters", () => {
     // No group's name has been replaced by a chosen option.
     const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
     expect(summaries).toContain("Where it happens");
-    expect(summaries).toContain("More filters");
+    expect(screen.getByRole("button", { name: "Filter" }).textContent).not.toContain("·");
     // No filter is on, so no pill carries a remove link and there is nothing
     // to clear all of.
     expect(screen.queryByRole("link", { name: /^Remove /i })).toBeNull();
@@ -135,18 +131,17 @@ describe("ServiceFilters", () => {
     expect(screen.queryByRole("link", { name: "Clear all" })).toBeNull();
   });
 
-  it("says which language the language pill means, as the sheet already did", async () => {
+  it("says which language the language group means, wherever it is opened", async () => {
     // "Listing language" reads two ways and the wrong one — the language the
-    // provider speaks — is the one a reader actually wants. The sheet has
-    // said which since it was built; the pill said nothing, so one filter
-    // meant two things at two widths.
-    const { container } = await renderFilters({});
-    const hint = screen.getAllByText(
+    // provider speaks — is the one a reader actually wants. The desktop now
+    // reaches the group through the same sheet as the phone, so it carries
+    // the same line.
+    await renderFilters({});
+    fireEvent.click(screen.getByRole("button", { name: "Filter" }));
+    const sheet = screen.getByRole("dialog", { name: "Filters" });
+    expect(sheet).toHaveTextContent(
       "Which languages this listing is written in — not what the provider speaks.",
-    )[0]!;
-    expect(container.contains(hint)).toBe(true);
-    const group = hint.closest("details");
-    expect(group).toHaveTextContent("Listing language");
+    );
   });
 
   it("wears navy on the price form's OK, not the kit's default blue", async () => {

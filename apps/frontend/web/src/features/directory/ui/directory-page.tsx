@@ -7,7 +7,13 @@ import type { ProviderPublicDTO } from "@ntizo/shared";
 import { EmptyCard } from "@/shared/components/empty-card";
 import { SiteHeader } from "@/shared/components/site-header";
 import { SortDropdown } from "@/shared/components/browse/sort-dropdown";
-import { PAGER_EDGE_CLASS, Pager, pagerPageClass } from "@/shared/components/browse/pager";
+import {
+  PAGER_EDGE_CLASS,
+  Pager,
+  PagerChevron,
+  PagerEdgeOff,
+  pagerPageClass,
+} from "@/shared/components/browse/pager";
 import { EXACT_MATCH } from "@/shared/components/browse/active-match";
 import { formatHeadlinePrice } from "@/features/directory/services/domain/service-card";
 // Categories are platform data that happens to be fetched under `landing/`.
@@ -205,7 +211,7 @@ export function DirectoryPage() {
           <div className="min-w-0">
             <DirectorySearchBar current={current} />
 
-            <ProviderFilters current={current} />
+            <ProviderFilters current={current} total={page.total} />
 
             <div className="mt-[30px] flex flex-wrap items-center gap-3">
               {/* Two translated pieces, and the second is a whole clause per
@@ -304,46 +310,48 @@ export function DirectoryPage() {
                       {slot.page}
                     </Link>
                   )}
-                  {...(offset > 0
-                    ? {
-                        previous: (
-                          <Link
-                            to="/providers"
-                            activeOptions={EXACT_MATCH}
-                            search={directorySearch(current, {
-                              offset: Math.max(offset - DIRECTORY_PAGE_SIZE, 0),
-                            })}
-                            className={PAGER_EDGE_CLASS}
-                          >
-                            {t("providersPrevious")}
-                          </Link>
-                        ),
-                      }
-                    : {})}
-                  {...(offset + DIRECTORY_PAGE_SIZE < page.total
-                    ? {
-                        next: (
-                          <Link
-                            to="/providers"
-                            // Stepped from the total rather than from a
-                            // server-issued cursor: `providerPageReadModel`
-                            // carries a count and no `nextOffset`, because this
-                            // directory pages by a fixed size rather than
-                            // scrolling further. Never `offset + items.length` —
-                            // a row dropped for being unrenderable still occupied
-                            // a position in the underlying order, and stepping by
-                            // the shorter number would fetch it again forever.
-                            activeOptions={EXACT_MATCH}
-                            search={directorySearch(current, {
-                              offset: offset + DIRECTORY_PAGE_SIZE,
-                            })}
-                            className={PAGER_EDGE_CLASS}
-                          >
-                            {t("providersNext")}
-                          </Link>
-                        ),
-                      }
-                    : {})}
+                  previous={
+                    offset > 0 ? (
+                      <Link
+                        to="/providers"
+                        activeOptions={EXACT_MATCH}
+                        search={directorySearch(current, {
+                          offset: Math.max(offset - DIRECTORY_PAGE_SIZE, 0),
+                        })}
+                        aria-label={t("pagerPrevious")}
+                        className={PAGER_EDGE_CLASS}
+                      >
+                        <PagerChevron direction="previous" />
+                      </Link>
+                    ) : (
+                      <PagerEdgeOff direction="previous" />
+                    )
+                  }
+                  next={
+                    offset + DIRECTORY_PAGE_SIZE < page.total ? (
+                      <Link
+                        to="/providers"
+                        // Stepped from the total rather than from a
+                        // server-issued cursor: `providerPageReadModel`
+                        // carries a count and no `nextOffset`, because this
+                        // directory pages by a fixed size rather than
+                        // scrolling further. Never `offset + items.length` —
+                        // a row dropped for being unrenderable still occupied
+                        // a position in the underlying order, and stepping by
+                        // the shorter number would fetch it again forever.
+                        activeOptions={EXACT_MATCH}
+                        search={directorySearch(current, {
+                          offset: offset + DIRECTORY_PAGE_SIZE,
+                        })}
+                        aria-label={t("pagerNext")}
+                        className={PAGER_EDGE_CLASS}
+                      >
+                        <PagerChevron direction="next" />
+                      </Link>
+                    ) : (
+                      <PagerEdgeOff direction="next" />
+                    )
+                  }
                 />
               </>
             )}

@@ -46,6 +46,8 @@ const READ_BY_THE_PAGES = [
   "serviceId",
   "serviceOptionId",
   "serviceName",
+  // The picture on the summary card a sent request ends on.
+  "serviceImageUrl",
   "providerName",
   // The rail's trust line. Both are already public — every browse card prints
   // them — and they are what a customer about to hold a slot is deciding on,

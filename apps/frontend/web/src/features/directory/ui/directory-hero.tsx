@@ -18,7 +18,7 @@ import { useProviderCities } from "@/features/directory/viewmodel/use-directory"
  */
 export function DirectoryHero({ title }: { title: string }) {
   const { t } = useTranslation("directory");
-  return <BrowseHead eyebrow={t("providersHeroEyebrow")} title={title} subtitle={t("providersHeroSubtitle")} />;
+  return <BrowseHead crumb={t("providersHeroEyebrow")} title={title} subtitle={t("providersHeroSubtitle")} />;
 }
 
 /**

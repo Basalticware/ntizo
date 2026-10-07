@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -364,12 +364,11 @@ describe("ConfirmPage", () => {
     // a breakdown of money that never leaves their side invents a fee they
     // are not charged.
     //
-    // "1500,00 MTn" and not the brief's "1.500,00 MZN": `pt-MZ` writes the
-    // metical as "MTn", and it sets `minimumGroupingDigits: 2`, so a
-    // four-digit amount carries no group separator at all. Both are what
-    // `formatAmount` — the same formatter step 2's rail and the service
-    // page's total use — actually produces, and a checkout total is the one
-    // number on this platform that may not be approximated.
+    // "1 500,00 MTn": `pt-MZ` writes the metical as "MTn", and
+    // `formatAmount` groups thousands always (`useGrouping: "always"`), as
+    // every other price on the site does — `pt-MZ` alone would leave a
+    // four-digit amount ungrouped. A checkout total is the one number on this
+    // platform that may not be approximated.
     renderConfirm({ bookingId: "bk-1", priceMinor: 150000, commissionMinor: 18000 });
     await screen.findByText("Studio X");
     // **Every amount on the page, listed**, now that the rail prints a
@@ -381,7 +380,7 @@ describe("ConfirmPage", () => {
     const amounts = screen
       .getAllByText(/MTn/)
       .map((node) => (node.textContent ?? "").replace(/\s+/g, " ").trim());
-    expect(amounts).toEqual(["1500,00 MTn"]);
+    expect(amounts).toEqual(["1 500,00 MTn"]);
     expect(screen.queryByText(/comiss/i)).not.toBeInTheDocument();
     // A regex, not the exact string. `queryByText("180,00")` matches a node
     // whose whole text is "180,00" and cannot see "180,00 MTn" — which is
@@ -652,6 +651,84 @@ describe("ConfirmPage", () => {
     // The form is gone with it: a live send button beside a sent request is
     // an invitation to send it twice.
     expect(screen.queryByRole("button", { name: /enviar pedido/i })).not.toBeInTheDocument();
+  });
+
+  describe("the page a sent request ends on", () => {
+    async function sendIt() {
+      const result = renderConfirm({ bookingId: "bk-1" });
+      await userEvent.click(await screen.findByRole("button", { name: /enviar pedido/i }));
+      await screen.findByRole("heading", { level: 1, name: "Pedido enviado" });
+      return result;
+    }
+
+    it("says it is sent, not confirmed, and that nothing has been charged", async () => {
+      await sendIt();
+
+      expect(screen.getByText(/ainda não está confirmada/i)).toBeInTheDocument();
+      expect(screen.getByText(/não foi cobrado nada/i)).toBeInTheDocument();
+      // The platform holds nothing: no wording that says it does.
+      expect(screen.queryByText(/garantid|retid/i)).not.toBeInTheDocument();
+    });
+
+    it("walks through what happens next in the real order, three steps", async () => {
+      await sendIt();
+
+      const next = screen.getByRole("heading", { name: "O que acontece agora" }).closest("section")!;
+      const steps = within(next).getAllByRole("listitem");
+      expect(steps.map((s) => s.textContent)).toEqual([
+        expect.stringContaining("Studio X confirma o pedido"),
+        expect.stringContaining("Paga por M-Pesa"),
+        expect.stringContaining("O serviço acontece"),
+      ]);
+    });
+
+    it("reads back what was asked for: service, provider, when, where and the exact price", async () => {
+      await sendIt();
+
+      const summary = screen.getByRole("heading", { name: "Resumo do pedido" }).closest("section")!;
+      expect(within(summary).getByText("Corte de cabelo")).toBeInTheDocument();
+      expect(within(summary).getByText("Corte e barba")).toBeInTheDocument();
+      expect(within(summary).getByText("Studio X")).toBeInTheDocument();
+      // In the service's zone: 22:30 UTC on the 4th is 00:30 on the 5th in Maputo.
+      expect(within(summary).getByText(/5 de setembro/i)).toBeInTheDocument();
+      expect(within(summary).getByText(/00:30/)).toBeInTheDocument();
+      // An `at_provider` job: the customer's address is not its place.
+      expect(within(summary).getByText("No espaço dele")).toBeInTheDocument();
+      expect(within(summary).queryByText(/Julius Nyerere/)).not.toBeInTheDocument();
+      expect(within(summary).getByText("900,00 MTn")).toBeInTheDocument();
+    });
+
+    it("prints the address it sent for a job at the customer's, before the refetch lands", async () => {
+      renderConfirm({ bookingId: "bk-1", booking: bookingFixture({ locationType: "at_customer" }) });
+      await userEvent.click(await screen.findByRole("button", { name: /enviar pedido/i }));
+
+      const summary = (await screen.findByRole("heading", { name: "Resumo do pedido" })).closest(
+        "section",
+      )!;
+      expect(within(summary).getByText(/Em sua casa · Av\. Julius Nyerere 1234/)).toBeInTheDocument();
+    });
+
+    it("offers the booking first and browsing second", async () => {
+      await sendIt();
+
+      expect(screen.getByRole("link", { name: "Ver a reserva" })).toHaveAttribute(
+        "href",
+        "/bookings/bk-1",
+      );
+      expect(screen.getByRole("link", { name: "Voltar aos serviços" })).toHaveAttribute(
+        "href",
+        "/services",
+      );
+    });
+
+    it("keeps the checkout bar with every step ticked and no way back", async () => {
+      await sendIt();
+
+      const steps = screen.getByRole("navigation", { name: "Etapas da reserva" });
+      expect(within(steps).queryByText((_, el) => el?.getAttribute("aria-current") === "step")).toBeNull();
+      expect(screen.queryByRole("link", { name: /voltar aos detalhes/i })).not.toBeInTheDocument();
+      expect(screen.getByRole("img", { name: "Ntizo" })).toBeInTheDocument();
+    });
   });
 
   it("names the deadline the provider is held to, in the service's zone", async () => {

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   pageNumbers,
   type PageSlot,
@@ -62,29 +63,56 @@ export function Pager({
 }
 
 /**
- * One page number, as a round.
+ * One page number, as a small square (October 2026 list mockup: ‹ 1 2 ›).
  *
- * The current page is filled headline navy — the same fill an applied filter
- * pill and the phone's floating control wear, because all three say "this one
- * is on" rather than "press me". The rest carry no border at all: a row of
- * outlined boxes reads as eight buttons competing with the results above
- * them, where the numbers are only a place in a list.
+ * The current page is filled headline navy — the same fill the phone's
+ * floating control wears, because both say "this one is on" rather than
+ * "press me". The rest are outlined in the light line, the same box the
+ * arrows either side wear, so the row reads as one control.
  *
  * Only the colours move between the two states, never the size — a number
  * that grew when it became current would shift every number after it as the
  * reader paged, which is the same rule `facetOptionClass` and
  * `FilterPill`'s own summary follow. The weight is the size: both states take
- * `type-body-medium`'s 500 and neither adds a `font-*` of its own, which is
- * what the `font-bold` on the current page was quietly breaking.
+ * `type-body-medium`'s 500 and neither adds a `font-*` of its own.
  */
 export function pagerPageClass(current: boolean): string {
   const base =
-    "type-body-medium grid h-9 min-w-9 place-items-center rounded-full px-2.5 transition-colors";
+    "type-body-medium grid h-9 min-w-9 place-items-center rounded-[8px] border px-2.5 transition-colors";
   return current
-    ? `${base} bg-[var(--color-navy-surface)] text-[var(--color-navy-on)]`
-    : `${base} text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)] hover:text-[var(--color-foreground)]`;
+    ? `${base} border-[var(--color-navy-surface)] bg-[var(--color-navy-surface)] text-[var(--color-navy-on)]`
+    : `${base} border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-ink-2)] hover:border-[var(--color-headline)]`;
 }
 
-/** "Previous" / "Next", which are wider than a number and read as words. */
+/** The ‹ and › either side of the numbers, the numbers' own box. */
 export const PAGER_EDGE_CLASS =
-  "type-body-medium grid h-9 place-items-center rounded-full border border-[var(--color-border-strong)] px-4 transition-colors hover:border-[var(--color-headline)]";
+  "grid h-9 w-9 place-items-center rounded-[8px] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-ink-2)] transition-colors hover:border-[var(--color-headline)]";
+
+/**
+ * The arrow inside an edge link. The page's `<Link>` carries the words as its
+ * `aria-label` — a bare "‹" says nothing to a screen reader.
+ */
+export function PagerChevron({ direction }: { direction: "previous" | "next" }) {
+  const Icon = direction === "previous" ? ChevronLeft : ChevronRight;
+  return <Icon className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />;
+}
+
+/**
+ * An edge the reader cannot step to — page one's ‹, the last page's ›.
+ *
+ * Drawn, faded, rather than left out, so the numbers do not shift sideways
+ * between the first page and the second. Not a link and not focusable, and
+ * hidden from assistive technology: a control that goes nowhere is a tab
+ * stop that goes nowhere.
+ */
+export function PagerEdgeOff({ direction }: { direction: "previous" | "next" }) {
+  return (
+    <span
+      aria-hidden="true"
+      data-testid={`pager-${direction}-off`}
+      className={`${PAGER_EDGE_CLASS} pointer-events-none opacity-40`}
+    >
+      <PagerChevron direction={direction} />
+    </span>
+  );
+}

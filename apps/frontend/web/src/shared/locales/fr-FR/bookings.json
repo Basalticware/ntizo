@@ -1,6 +1,6 @@
 {
   "title": "Mes réservations",
-  "lede": "Tout ce que vous avez demandé, où en est chaque demande et ce qu'il reste à faire.",
+  "lede": "Suivez toutes vos réservations de services.",
   "tab": {
     "waiting": "En attente",
     "upcoming": "À venir",
@@ -46,7 +46,6 @@
   "duration": "Durée",
   "where": "Où",
   "directions": "Indications",
-  "moneyCaption": "Le montant",
   "totalDue": "Total à payer",
   "totalPaid": "Total payé",
   "moneyNote": "C'est le prix indiqué par le prestataire. Ntizo n'ajoute rien dessus.",
@@ -61,7 +60,6 @@
   "cancelDialogGone": "Nous ne retrouvons plus cette réservation.",
   "keepBooking": "Garder",
   "payAmount": "Payer {{amount}}",
-  "supportPrompt": "Besoin de changer ou d'annuler ?",
   "supportCta": "Contacter l'assistance",
   "payDialogWaitingCaption": "En attente de confirmation",
   "payDialogWaitingTitle": "Confirmez sur votre téléphone",
@@ -89,14 +87,6 @@
   "countrySearchPlaceholder": "Rechercher un pays",
   "countryNoResults": "Aucun pays trouvé",
   "countrySelectLabel": "Choisir le pays",
-  "section": {
-    "appointment": "Le rendez-vous",
-    "appointmentBlurb": "Ce que vous avez réservé, et quand.",
-    "provider": "Le prestataire",
-    "providerBlurb": "Qui va s'occuper du travail.",
-    "note": "Votre note",
-    "noteBlurb": "Ce que vous avez écrit au moment de la demande."
-  },
   "timeline": {
     "created_by_customer": "Demande envoyée",
     "submitted_by_customer": "Informations confirmées",
@@ -119,5 +109,53 @@
       "payment": "Paiement",
       "confirmed": "Réservation confirmée"
     }
+  },
+  "list": {
+    "breadcrumbLabel": "Fil d'Ariane",
+    "home": "Accueil",
+    "shown": "{{shown}} sur {{total}} affichées",
+    "rating": "Noté {{rating}} sur 5",
+    "next": {
+      "title": "Prochaine réservation",
+      "seeAll": "Tout voir",
+      "viewDetails": "Voir la réservation",
+      "message": "Écrire au prestataire",
+      "none": "Vous n'avez aucune réservation à venir."
+    },
+    "help": {
+      "title": "Besoin d'aide ?",
+      "body": "Contactez-nous pour toute question sur vos réservations.",
+      "cta": "Contacter le support"
+    }
+  },
+  "detail": {
+    "breadcrumbLabel": "Vous êtes ici",
+    "home": "Accueil",
+    "requestedOn": "Demandée le {{date}}",
+    "statusTitle": "État de la réservation",
+    "explain": {
+      "AWAITING_PROVIDER": "Votre demande est chez {{provider}}, qui n'a pas encore répondu. Rien n'a été débité : vous ne payez qu'après l'acceptation du prestataire.",
+      "PENDING_PAYMENT": "{{provider}} a accepté la demande. Nous avons envoyé une demande de paiement M-Pesa sur votre téléphone : confirmez-la avec votre code PIN avant la fin du délai, sinon la réservation est annulée. Si vous ne l'avez pas reçue, appuyez sur Payer.",
+      "CONFIRMED": "Elle est payée et confirmée. {{provider}} vous attend le {{date}} à {{time}}.",
+      "MARKED_DONE": "{{provider}} a indiqué que le service est terminé.",
+      "COMPLETED": "Le service est terminé.",
+      "DISPUTED": "Cette réservation fait l'objet d'un litige. Contactez l'assistance si vous avez besoin d'aide.",
+      "DECLINED": "{{provider}} n'a pas accepté cette demande. Rien n'a été débité.",
+      "CANCELLED": "Cette réservation a été annulée.",
+      "EXPIRED": "Le délai est passé et la demande a été clôturée."
+    },
+    "notCharged": "Rien n'a été débité.",
+    "detailsTitle": "Détails",
+    "date": "Date",
+    "time": "Heure",
+    "place": "Lieu",
+    "notes": "Notes",
+    "providerTitle": "Prestataire",
+    "priceTitle": "Prix",
+    "actionsTitle": "Ce que vous pouvez faire",
+    "message": "Écrire au prestataire",
+    "helpTitle": "Besoin d'aide ?",
+    "helpBody": "Contactez-nous pour toute question sur cette réservation.",
+    "helpBodyConfirmed": "Pour modifier ou annuler une réservation confirmée, contactez l'assistance."
   }
 }

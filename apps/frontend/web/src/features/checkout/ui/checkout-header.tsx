@@ -18,7 +18,16 @@ import { CheckoutSteps, type CheckoutStep } from "@/features/checkout/ui/checkou
  * take a second row inside the same bar. One `CheckoutSteps` either way —
  * placed by the grid, not drawn twice — so there is one steps landmark.
  */
-export function CheckoutHeader({ current, back }: { current: CheckoutStep; back?: ReactNode }) {
+export function CheckoutHeader({
+  current,
+  back,
+  complete = false,
+}: {
+  current: CheckoutStep;
+  back?: ReactNode;
+  /** The request is sent: all three steps ticked. See `CheckoutSteps`. */
+  complete?: boolean;
+}) {
   return (
     <>
       <header className="border-b border-[var(--color-border)] bg-[var(--color-background)]">
@@ -30,7 +39,7 @@ export function CheckoutHeader({ current, back }: { current: CheckoutStep; back?
           </Link>
           <div className="flex items-center justify-self-end empty:hidden lg:col-start-3 lg:row-start-1 lg:empty:flex">{back}</div>
           <div className="col-span-2 pb-1 lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:pb-0">
-            <CheckoutSteps current={current} />
+            <CheckoutSteps current={current} complete={complete} />
           </div>
         </div>
       </header>

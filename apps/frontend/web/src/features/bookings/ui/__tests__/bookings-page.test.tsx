@@ -8,6 +8,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  Outlet,
 } from "@tanstack/react-router";
 import type {
   BookingDTO,
@@ -15,6 +16,10 @@ import type {
 } from "@ntizo/shared/read-models";
 import { CUSTOMER_BOOKING_TABS, type CustomerBookingTab } from "@ntizo/shared";
 import i18n from "@/shared/lib/i18n";
+import {
+  HelpCenterProvider,
+  useHelpCenter,
+} from "@/features/help-center/viewmodel/use-help-center";
 import { BookingsPage } from "../bookings-page";
 
 /**
@@ -121,6 +126,12 @@ function setPagesByOffset(pages: Record<number, CustomerBookingPageDTO>) {
   );
 }
 
+/** Says whether the help centre's panel is open — the panel itself is mounted at the app's root, not here. */
+function HelpProbe() {
+  const help = useHelpCenter();
+  return <p data-testid="help-probe">{help.open ? "help-open" : "help-closed"}</p>;
+}
+
 /**
  * `await router.load()` before `render()`: this router commits its first
  * match through an async transition, matching the idiom in
@@ -132,7 +143,14 @@ function setPagesByOffset(pages: Record<number, CustomerBookingPageDTO>) {
  * `Link` resolves against a route the router actually knows about.
  */
 async function renderBookings(opts: { tab?: CustomerBookingTab } = {}) {
-  const rootRoute = createRootRoute();
+  const rootRoute = createRootRoute({
+    component: () => (
+      <>
+        <Outlet />
+        <HelpProbe />
+      </>
+    ),
+  });
   const bookingsRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/bookings",
@@ -154,43 +172,31 @@ async function renderBookings(opts: { tab?: CustomerBookingTab } = {}) {
   await router.load();
   render(
     <QueryClientProvider client={qc}>
-      <RouterProvider router={router} />
+      <HelpCenterProvider>
+        <RouterProvider router={router} />
+      </HelpCenterProvider>
     </QueryClientProvider>,
   );
   return { router };
 }
 
 /**
- * One row of the table, by the service it belongs to.
+ * One row of the list, by the service it belongs to.
  *
- * jsdom applies no CSS, so `CollectionCard`'s two layouts — the table from
- * `md` and the stacked cards below it — are both in the document and every
- * value on a row is present twice (`collection-card.test.tsx` asserts this
- * directly). Naming the table's row picks one of the two, and keeps every
- * assertion about one row rather than about the whole page.
+ * Scoped to the list named after the open tab: the breadcrumb is a list too,
+ * and "Próxima reserva" beside it may show the very same booking.
  */
 async function row(serviceName: string) {
-  const table = await screen.findByRole("table");
-  // Not an exact match: the service and its option share one `<p>` as two
-  // sibling text nodes ("Canalização" · "Reparação de fuga"), so no element's
-  // own text content is the service name alone.
-  const cell = await within(table).findByText(serviceName, { exact: false });
-  return within(cell.closest("tr")!);
-}
-
-/**
- * The same row on the other screen — the card `CollectionCard` draws below
- * `md`, which is where a customer actually reads this list.
- *
- * Both renderings are always in the DOM and CSS picks between them, so an
- * assertion that does not say which one it means can pass on the strength of
- * the table while the card shows nothing. The card is found through the `ul`
- * the table has no counterpart for.
- */
-async function card(serviceName: string) {
-  const list = await screen.findByRole("list");
+  const list = await screen.findByRole("list", { name: /A aguardar|Próximas|Histórico/ });
+  // Not an exact match: the service and its option share one link as two
+  // sibling text nodes ("Canalização" · "Reparação de fuga").
   const found = await within(list).findByText(serviceName, { exact: false });
   return within(found.closest("li")!);
+}
+
+/** The "Próxima reserva" card. */
+async function nextCard() {
+  return within(await screen.findByRole("region", { name: "Próxima reserva" }));
 }
 
 /**
@@ -264,71 +270,44 @@ describe("BookingsPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  describe("the card a phone reads", () => {
-    it("arranges the appointment, the pill and the total without labelling any of them", async () => {
-      setPage(
-        pageFixture([
-          bookingFixture({ status: "PENDING_PAYMENT", priceMinor: 35_000, currency: "MZN" }),
-        ]),
-      );
+  describe("the row", () => {
+    it("writes the appointment as the mockup does: long date, time range with duration, and the place", async () => {
+      // 14:30Z is 16:30 in Maputo — the provider's zone, not the browser's.
+      setPage(pageFixture([bookingFixture()]));
       await renderBookings();
 
-      const c = await card("Canalização");
-      expect(c.getByText("A aguardar pagamento")).toBeInTheDocument();
-      expect(c.getByText("350,00 MTn")).toBeInTheDocument();
-      // "Estado" and "Valor" are two words of chrome per row on the screen
-      // with the least room for any. They belong to the table's header, and
-      // this card is not the table.
-      expect(c.queryByText("Estado")).not.toBeInTheDocument();
-      expect(c.queryByText("Valor")).not.toBeInTheDocument();
-      expect(c.queryByText("Quando")).not.toBeInTheDocument();
-
-      // And the table still carries all three, off `cells` — which is what
-      // stops the two renderings from becoming two designs.
-      const table = within(await screen.findByRole("table"));
-      expect(table.getByText("Estado")).toBeInTheDocument();
-      expect(table.getByText("Valor")).toBeInTheDocument();
-      expect(table.getByText("350,00 MTn")).toBeInTheDocument();
+      const r = await row("Canalização");
+      expect(r.getByText("8 de setembro de 2026")).toBeInTheDocument();
+      expect(r.getByText("16:30 – 18:30 (2h)")).toBeInTheDocument();
+      expect(r.getByText("Maputo, Bairro Central")).toBeInTheDocument();
+      // The street is the detail page's to show, not a row's.
+      expect(r.queryByText(/Julius Nyerere/)).not.toBeInTheDocument();
     });
 
-    it("gives the card a link to the booking that is not the title", async () => {
-      // The title is a link on both screens, but a line of text is a poor
-      // target for a thumb — this is the one the card is tapped by.
+    it("links Ver detalhes to the booking, without a second stop for the keyboard", async () => {
       setPage(pageFixture([bookingFixture({ id: "bk-9" })]));
       await renderBookings();
 
-      const link = (await card("Canalização")).getByRole("link", { name: /Ver detalhe/ });
-      expect(link).toHaveAttribute("href", "/bookings/bk-9");
+      const r = await row("Canalização");
+      expect(r.getByRole("link", { name: /Canalização/ })).toHaveAttribute(
+        "href",
+        "/bookings/bk-9",
+      );
+      // The button is the title's link a second time, so it is hidden from
+      // the accessibility tree and the tab order.
+      const details = r.getByText("Ver detalhes").closest("a")!;
+      expect(details).toHaveAttribute("href", "/bookings/bk-9");
+      expect(details).toHaveAttribute("tabindex", "-1");
+      expect(details).toHaveAttribute("aria-hidden", "true");
     });
 
     it("offers the provider a message from every row, whatever the booking's status", async () => {
-      // A customer with a question about a job that is over has the same
-      // right to ask it as one waiting to pay, so this is not gated on
-      // status the way Pagar and Cancelar are.
       setPage(pageFixture([bookingFixture({ status: "CANCELLED" })]));
       await renderBookings();
 
       expect(
-        (await card("Canalização")).getByRole("button", { name: /Mensagem/ }),
+        (await row("Canalização")).getByRole("button", { name: /Mensagem/ }),
       ).toBeInTheDocument();
-    });
-
-    it("puts the row's action at the foot of the card rather than in its corner", async () => {
-      // `CollectionCard` draws `actions` in the card's top-right, which on a
-      // 390px screen took about a third of the width the title had and
-      // wrapped a service name and its package onto three lines under a
-      // cramped button. The corner copy is kept for the table and hidden
-      // below `md`; the card's own sits at the foot, full width.
-      setPage(pageFixture([bookingFixture({ status: "PENDING_PAYMENT" })]));
-      await renderBookings();
-
-      const li = (await screen.findByRole("list")).querySelector("li")!;
-      const buttons = within(li).getAllByRole("button", { name: "Pagar" });
-      expect(buttons).toHaveLength(2);
-      // Exactly one of the two is inside the wrapper that hides it below
-      // `md` — so a phone sees one Pagar, and it is the full-width one.
-      expect(buttons.filter((b) => b.closest(".hidden"))).toHaveLength(1);
-      expect(buttons.find((b) => !b.closest(".hidden"))!.className).toContain("w-full");
     });
 
     it("draws the service photo when the booking has one", async () => {
@@ -338,28 +317,77 @@ describe("BookingsPage", () => {
       await renderBookings();
 
       // By tag, not by role: `alt=""` is deliberate — the title is right
-      // beside it and reading the service name twice says nothing new the
-      // second time — and an empty alt makes the image presentational, so
-      // `getByRole("img")` correctly finds nothing.
-      const list = await screen.findByRole("list");
-      expect(list.querySelector("li img")).toHaveAttribute(
-        "src",
-        "https://media.test/svc-1.jpg",
-      );
+      // beside it — and an empty alt makes the image presentational.
+      const li = (await row("Canalização")).getByRole("link", { name: /Canalização/ }).closest("li")!;
+      expect(li.querySelector("img")).toHaveAttribute("src", "https://media.test/svc-1.jpg");
     });
 
     it("draws the house fallback when it has none", async () => {
-      // Not a grey rectangle and not a broken-image glyph: `BrandImage`'s
-      // mark on the soft ground, which is what every missing picture in the
-      // app shows. Most bookings have no photo, so this is the common case
-      // rather than the exception.
-      setPage(pageFixture([bookingFixture({ serviceImageUrl: null })]));
+      setPage(pageFixture([bookingFixture({ serviceImageUrl: null, providerLogoUrl: null })]));
       await renderBookings();
 
-      const list = await screen.findByRole("list");
-      expect(list.querySelector("li img")).toBeNull();
-      expect((await card("Canalização")).getByTestId("media-fallback")).toBeInTheDocument();
+      const r = await row("Canalização");
+      expect(r.getByTestId("media-fallback")).toBeInTheDocument();
+      // And the provider's initials stand in for a missing avatar.
+      expect(r.getByText("AS")).toBeInTheDocument();
     });
+  });
+
+  describe("Próxima reserva", () => {
+    it("shows the soonest confirmed booking, with a way to its detail and to the provider", async () => {
+      setPage(
+        pageFixture(
+          [
+            bookingFixture({
+              id: "bk-next",
+              status: "CONFIRMED",
+              serviceName: "Avaria eléctrica",
+              startsAt: new Date(Date.now() + 2 * 86_400_000).toISOString(),
+              endsAt: new Date(Date.now() + 2 * 86_400_000 + 7_200_000).toISOString(),
+            }),
+          ],
+          { counts: { waiting: 0, upcoming: 1, history: 0 }, nextOffset: null },
+        ),
+      );
+      await renderBookings({ tab: "upcoming" });
+
+      const c = await nextCard();
+      expect(await c.findByText("Avaria eléctrica")).toBeInTheDocument();
+      expect(c.getByText("Confirmada")).toBeInTheDocument();
+      expect(c.getByLabelText("Avaliação 4,8 em 5")).toBeInTheDocument();
+      expect(c.getByRole("link", { name: "Ver detalhes da reserva" })).toHaveAttribute(
+        "href",
+        "/bookings/bk-next",
+      );
+      expect(c.getByRole("button", { name: /Falar com o prestador/ })).toBeInTheDocument();
+    });
+
+    it("says so when nothing is coming up", async () => {
+      setPage(pageFixture([], { counts: { waiting: 0, upcoming: 0, history: 0 } }));
+      await renderBookings();
+
+      const c = await nextCard();
+      expect(
+        await c.findByText("Não tem nenhuma reserva marcada para os próximos dias."),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("opens the help centre's own panel from Contactar o suporte", async () => {
+    setPage(pageFixture([]));
+    await renderBookings();
+
+    expect(screen.getByTestId("help-probe")).toHaveTextContent("help-closed");
+    await userEvent.click(await screen.findByRole("button", { name: "Contactar o suporte" }));
+    expect(screen.getByTestId("help-probe")).toHaveTextContent("help-open");
+  });
+
+  it("draws no summary of totals per status — the server counts tabs, not statuses", async () => {
+    setPage(pageFixture([bookingFixture()]));
+    await renderBookings();
+
+    await row("Canalização");
+    expect(screen.queryByText(/Resumo/)).not.toBeInTheDocument();
   });
 
   it("renders the tab counts", async () => {
@@ -383,10 +411,9 @@ describe("BookingsPage", () => {
     setPage(pageFixture([]));
     await renderBookings();
 
-    const table = within(await screen.findByRole("table"));
-    expect(await table.findByText("Ainda não há reservas")).toBeInTheDocument();
+    expect(await screen.findByText("Ainda não há reservas")).toBeInTheDocument();
     expect(
-      table.getByRole("link", { name: "Explorar serviços" }),
+      screen.getByRole("link", { name: "Explorar serviços" }),
     ).toBeInTheDocument();
   });
 
@@ -405,7 +432,7 @@ describe("BookingsPage", () => {
     await renderBookings();
 
     const r = await row("Canalização");
-    expect(r.getByText("1800,00 MTn")).toBeInTheDocument();
+    expect(r.getByText(/^1\s800,00\sMTn$/)).toBeInTheDocument();
     expect(screen.queryByText(/comiss/i)).not.toBeInTheDocument();
   });
 
@@ -420,7 +447,7 @@ describe("BookingsPage", () => {
     await renderBookings();
 
     const r = await row("Canalização");
-    expect(r.getByText("1800,50 MTn")).toBeInTheDocument();
+    expect(r.getByText(/^1\s800,50\sMTn$/)).toBeInTheDocument();
     expect(r.queryByText(/1 801/)).not.toBeInTheDocument();
   });
 
@@ -428,8 +455,9 @@ describe("BookingsPage", () => {
     setPage(pageFixture([bookingFixture()]));
     await renderBookings();
 
-    await screen.findByRole("table");
+    await row("Canalização");
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
   });
 
   describe("the countdown reads the status before the date", () => {
@@ -517,8 +545,9 @@ describe("BookingsPage", () => {
       });
       await renderBookings();
 
-      const table = within(await screen.findByRole("table"));
-      expect(await table.findByText(/Serviço 0/)).toBeInTheDocument();
+      const list = await screen.findByRole("list", { name: "A aguardar" });
+      const table = within(list);
+      expect(await table.findByText(/Serviço 0\b/)).toBeInTheDocument();
       expect(screen.getByText("20 de 25 mostradas")).toBeInTheDocument();
 
       await userEvent.click(screen.getByRole("button", { name: "Mais" }));
@@ -534,7 +563,7 @@ describe("BookingsPage", () => {
       setPage(pageFixture([bookingFixture()], { total: 1, nextOffset: null }));
       await renderBookings();
 
-      await screen.findByRole("table");
+      await row("Canalização");
       expect(screen.queryByRole("button", { name: "Mais" })).not.toBeInTheDocument();
     });
 
@@ -577,9 +606,9 @@ describe("BookingsPage", () => {
     );
     await renderBookings();
 
-    const table = within(await screen.findByRole("table"));
-    expect(await table.findByText(/Canalização/)).toBeInTheDocument();
-    expect(table.queryByText(/Meio a caminho/)).not.toBeInTheDocument();
+    const list = within(await screen.findByRole("list", { name: "A aguardar" }));
+    expect(await list.findByText(/Canalização/)).toBeInTheDocument();
+    expect(screen.queryByText(/Meio a caminho/)).not.toBeInTheDocument();
     expect(screen.queryByText("status.DRAFT")).not.toBeInTheDocument();
   });
 });

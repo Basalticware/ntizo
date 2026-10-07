@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { ShieldCheck, SlidersHorizontal, X } from "lucide-react";
+import { LayoutGrid, MapPin, ShieldCheck, SlidersHorizontal, Star, Tag, X } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import {
   FilterBar,
+  FilterButton,
   FilterPill,
   PILL_CLEAR_CLASS,
 } from "@/shared/components/browse/filter-pill";
@@ -194,7 +195,8 @@ function ClearAll({ current, onNavigate }: { current: DirectorySearch; onNavigat
 }
 
 /**
- * The directory's filters, as a row of pills above the results.
+ * The directory's filters, as a row of pills above the results and one
+ * filled "Filtrar" at its end.
  *
  * The successor to `ProviderFacets`' sidebar, and the same contract: every
  * option is a **link**, never a form control. A filtered list is a URL
@@ -210,28 +212,34 @@ function ClearAll({ current, onNavigate }: { current: DirectorySearch; onNavigat
  * disagree. Only the city pill breaks that pattern on purpose — see the
  * comment on it below.
  *
- * Four pills — category, rating, city, verification — and the price and
- * the kind of provider behind "More filters", which is the October 2026
- * pass's answer to a bar that wrapped onto two rows. See `FilterBar`. Only
- * the filters this data can honestly answer. The price
- * bound runs on the business's cheapest published option, which is the same
- * number its row prints as "from" — so a business can never be hidden by a
- * range it visibly satisfies.
+ * Five pills — category, city, price, rating, verification — in the order
+ * the October 2026 list mockup draws its own, and "Filtrar", which opens the
+ * sheet with those and the kind of provider. Only the filters this data can
+ * honestly answer. The price bound runs on the business's cheapest published
+ * option, which is the same number its card prints as "from" — so a business
+ * can never be hidden by a range it visibly satisfies.
  *
- * The option rows themselves are the `*Options` components below, shared with
- * `MobileProviderFilters` — one definition, two placements. A second copy for
- * the small screen is how the two stop offering the same filters, and how the
- * phone's count once came to count a city its sheet had no group for.
+ * The option rows themselves are the `*Options` components below, and the
+ * sheet is `ProviderSheet` — the same one the phone's capsule opens. A second
+ * copy for either width is how the two stop offering the same filters, and
+ * how the phone's count once came to count a city its sheet had no group for.
  */
-export function ProviderFilters({ current }: { current: DirectorySearch }) {
+export function ProviderFilters({
+  current,
+  total,
+}: {
+  current: DirectorySearch;
+  /** How many results the current search matched, for the sheet's own button. */
+  total: number;
+}) {
   const { t } = useTranslation("directory");
   const cities = useProviderCities();
   const categories = useCategoryPreview(CATEGORY_FILTER_LIMIT).data?.items ?? [];
   const chips = directoryFilterChips(current);
+  const [open, setOpen] = useState(false);
 
   const ratingChip = chipFor(chips, "minRating");
   const priceChip = chipFor(chips, "price");
-  const kindChip = chipFor(chips, "providerType");
   const verifiedChip = chipFor(chips, "verified");
   const cityChip = chipFor(chips, "city");
 
@@ -243,113 +251,92 @@ export function ProviderFilters({ current }: { current: DirectorySearch }) {
   const categoryLabel = t("filterCategory");
   const ratingLabel = t("filterRating");
   const priceLabel = t("filterPrice");
-  const kindLabel = t("filterProviderKind");
   const verifiedLabel = t("filterVerification");
   const cityLabel = t("filterCity");
 
-  // What sits behind "More filters", and how many of those are on — the pill
-  // fills with the count so a narrowing it hides is never invisible.
-  const moreChips = [priceChip, kindChip].filter((c): c is FilterChip => c !== undefined);
-  const moreLabel = t("filterMore");
-
   return (
-    <FilterBar>
-      {/* First, because it is the widest narrowing on the bar: every other
-          pill divides a set this one has already chosen. It is also where the
-          strip that used to carry the categories sat — above the results and
-          before everything else. */}
-      <FilterPill
-        label={categoryLabel}
-        icon={ShieldCheck}
-        active={categoryName}
-        clear={
-          current.category ? (
-            <PillClear
-              search={directorySearch(current, { category: undefined, offset: undefined })}
-              label={categoryLabel}
-            />
-          ) : undefined
-        }
-      >
-        <CategoryOptions current={current} />
-      </FilterPill>
-
-      <FilterPill
-        label={ratingLabel}
-        active={ratingChip ? t(ratingChip.label.key, ratingChip.label.values ?? {}) : undefined}
-        clear={ratingChip && <PillClear search={ratingChip.next} label={ratingLabel} />}
-      >
-        <RatingOptions current={current} />
-      </FilterPill>
-
-      {/* Only when there is more than one place to choose between. A city
-          filter offering a single city narrows nothing and takes a pill of
-          the bar to say so. Its `active` is `current.city` itself, not
-          `directoryFilterChips`' "in {{city}}" chip text — that sentence reads
-          right beside the results, but a pill that filled with the whole
-          sentence instead of just the place would be the only one on the bar
-          not simply naming what was picked. */}
-      {cities.length > 1 && (
+    <>
+      <FilterBar>
+        {/* First, because it is the widest narrowing on the bar: every other
+            pill divides a set this one has already chosen. */}
         <FilterPill
-          label={cityLabel}
-          active={current.city}
-          clear={cityChip && <PillClear search={cityChip.next} label={cityLabel} />}
+          label={categoryLabel}
+          icon={LayoutGrid}
+          active={categoryName}
+          clear={
+            current.category ? (
+              <PillClear
+                search={directorySearch(current, { category: undefined, offset: undefined })}
+                label={categoryLabel}
+              />
+            ) : undefined
+          }
         >
-          <CityOptions current={current} />
+          <CategoryOptions current={current} />
         </FilterPill>
-      )}
 
-      {/* A single-option pill: there is nothing to choose between, only to
-          switch on or off, so the group is one row rather than a list. */}
-      <FilterPill
-        label={verifiedLabel}
-        active={verifiedChip ? t(verifiedChip.label.key, verifiedChip.label.values ?? {}) : undefined}
-        clear={verifiedChip && <PillClear search={verifiedChip.next} label={verifiedLabel} />}
-      >
-        <VerifiedOption current={current} />
-      </FilterPill>
+        {/* Only when there is more than one place to choose between. A city
+            filter offering a single city narrows nothing and takes a pill of
+            the bar to say so. Its `active` is `current.city` itself, not
+            `directoryFilterChips`' "in {{city}}" chip text — a pill that
+            filled with the whole sentence instead of just the place would be
+            the only one on the bar not simply naming what was picked. */}
+        {cities.length > 1 && (
+          <FilterPill
+            label={cityLabel}
+            icon={MapPin}
+            active={current.city}
+            clear={cityChip && <PillClear search={cityChip.next} label={cityLabel} />}
+          >
+            <CityOptions current={current} />
+          </FilterPill>
+        )}
 
-      {/* Everything else, stacked the way the phone's sheet stacks it. The
-          pill fills with how many of its filters are on, and its `×` takes
-          off exactly those — never the four pills beside it. The price is
-          the one group that is not a closed set, so the one that is not
-          links — see `DirectoryPriceFilter`, which explains why a range has
-          to be typed and submitted. */}
-      <FilterPill
-        label={moreLabel}
-        icon={SlidersHorizontal}
-        active={moreChips.length > 0 ? `${moreLabel} · ${String(moreChips.length)}` : undefined}
-        clear={
-          moreChips.length > 0 ? (
-            <PillClear
-              search={directorySearch(current, {
-                minPrice: undefined,
-                maxPrice: undefined,
-                providerType: undefined,
-                offset: undefined,
-              })}
-              label={moreLabel}
-            />
-          ) : undefined
-        }
-        panelClassName="w-[min(520px,80vw)] grid-cols-2 gap-x-6 p-5"
-      >
-        <div>
-          <SheetGroup label={priceLabel}>
-            <DirectoryPriceFilter current={current} />
-          </SheetGroup>
-        </div>
-        <div>
-          <SheetGroup label={kindLabel}>
-            <KindOptions current={current} />
-          </SheetGroup>
-        </div>
-      </FilterPill>
+        {/* The one group that is not a closed set, so the one that is not
+            links — see `DirectoryPriceFilter`, which explains why a range has
+            to be typed and submitted. */}
+        <FilterPill
+          label={priceLabel}
+          icon={Tag}
+          active={priceChip ? t(priceChip.label.key, priceChip.label.values ?? {}) : undefined}
+          clear={priceChip && <PillClear search={priceChip.next} label={priceLabel} />}
+        >
+          <DirectoryPriceFilter current={current} />
+        </FilterPill>
 
-      {/* Nothing to clear is not a disabled link — it is no link, and the
-          typed term is not one of the things it clears. See `ClearAll`. */}
-      <ClearAll current={current} />
-    </FilterBar>
+        <FilterPill
+          label={ratingLabel}
+          icon={Star}
+          active={ratingChip ? t(ratingChip.label.key, ratingChip.label.values ?? {}) : undefined}
+          clear={ratingChip && <PillClear search={ratingChip.next} label={ratingLabel} />}
+        >
+          <RatingOptions current={current} />
+        </FilterPill>
+
+        {/* A single-option pill: there is nothing to choose between, only to
+            switch on or off, so the group is one row rather than a list. */}
+        <FilterPill
+          label={verifiedLabel}
+          icon={ShieldCheck}
+          active={verifiedChip ? t(verifiedChip.label.key, verifiedChip.label.values ?? {}) : undefined}
+          clear={verifiedChip && <PillClear search={verifiedChip.next} label={verifiedLabel} />}
+        >
+          <VerifiedOption current={current} />
+        </FilterPill>
+
+        {/* Nothing to clear is not a disabled link — it is no link, and the
+            typed term is not one of the things it clears. See `ClearAll`. */}
+        <ClearAll current={current} />
+
+        <FilterButton
+          label={t("filterAction")}
+          count={appliedCount(current)}
+          onClick={() => setOpen(true)}
+        />
+      </FilterBar>
+
+      <ProviderSheet current={current} total={total} open={open} onOpenChange={setOpen} />
+    </>
   );
 }
 
@@ -368,20 +355,11 @@ export function ProviderFilters({ current }: { current: DirectorySearch }) {
  * component takes the search and nothing else, and a private list here would
  * be the phone offering a different set of orders the day a sixth is added.
  *
- * The mockup draws "Filtros / Mapa" here rather than a sort. The map is phase
- * two — providers carry a city and a district, never a point — so this
- * capsule is the services page's two halves until there is a map to switch
- * to, rather than a toggle that goes nowhere.
+ * The mockup draws "Filtros / Mapa" here rather than a sort. There is no map
+ * — providers carry a city and a district, never a point — so this capsule
+ * is the services page's two halves rather than a toggle that goes nowhere.
  *
- * The sheet holds the same option rows the pills hold, stacked into headed
- * groups instead of hidden behind five summaries — a sheet is a screen, not a
- * toolbar, and there is nothing here to save room for. They are literally the
- * same components: two copies is how a phone quietly stops offering a filter
- * its own count is counting.
- *
- * Its footer button states the outcome — "Show 38 results" — rather than
- * saying "Apply", because a reader should know what they did before they
- * commit to it, not after.
+ * The sheet is `ProviderSheet`, the same one the desktop's "Filtrar" opens.
  */
 export function MobileProviderFilters({
   current,
@@ -393,7 +371,6 @@ export function MobileProviderFilters({
 }) {
   const { t } = useTranslation("directory");
   const navigate = useNavigate();
-  const cities = useProviderCities();
   const [open, setOpen] = useState(false);
   const count = appliedCount(current);
 
@@ -418,43 +395,73 @@ export function MobileProviderFilters({
         />
       </FloatingControls>
 
-      <FilterSheet
-        open={open}
-        onOpenChange={setOpen}
-        title={t("filtersTitle")}
-        clear={<ClearAll current={current} onNavigate={() => setOpen(false)} />}
-        apply={t("filterSheetApply", { count: total })}
-        onApply={() => setOpen(false)}
-      >
-        {/* The phone's only way to a category now that the strip is gone, so
-            it leads the sheet the way the pill leads the bar. */}
-        <SheetGroup label={t("filterCategory")}>
-          <CategoryOptions current={current} />
-        </SheetGroup>
-
-        <SheetGroup label={t("filterRating")}>
-          <RatingOptions current={current} />
-        </SheetGroup>
-
-        <SheetGroup label={t("filterPrice")}>
-          <DirectoryPriceFilter current={current} />
-        </SheetGroup>
-
-        <SheetGroup label={t("filterProviderKind")}>
-          <KindOptions current={current} />
-        </SheetGroup>
-
-        <SheetGroup label={t("filterVerification")}>
-          <VerifiedOption current={current} />
-        </SheetGroup>
-
-        {cities.length > 1 && (
-          <SheetGroup label={t("filterCity")}>
-            <CityOptions current={current} />
-          </SheetGroup>
-        )}
-      </FilterSheet>
+      <ProviderSheet current={current} total={total} open={open} onOpenChange={setOpen} />
     </>
+  );
+}
+
+/**
+ * Every filter the directory has, as headed groups in one sheet — what both
+ * the desktop's "Filtrar" and the phone's capsule open.
+ *
+ * The same option rows the pills hold, stacked into headed groups instead of
+ * hidden behind summaries — a sheet is a screen, not a toolbar. They are
+ * literally the same components: two copies is how a phone quietly stops
+ * offering a filter its own count is counting.
+ *
+ * Its footer button states the outcome — "Show 38 results" — rather than
+ * saying "Apply", because a reader should know what they did before they
+ * commit to it, not after.
+ */
+function ProviderSheet({
+  current,
+  total,
+  open,
+  onOpenChange,
+}: {
+  current: DirectorySearch;
+  total: number;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { t } = useTranslation("directory");
+  const cities = useProviderCities();
+  return (
+    <FilterSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("filtersTitle")}
+      clear={<ClearAll current={current} onNavigate={() => onOpenChange(false)} />}
+      apply={t("filterSheetApply", { count: total })}
+      onApply={() => onOpenChange(false)}
+    >
+      {/* It leads the sheet the way the pill leads the bar. */}
+      <SheetGroup label={t("filterCategory")}>
+        <CategoryOptions current={current} />
+      </SheetGroup>
+
+      <SheetGroup label={t("filterRating")}>
+        <RatingOptions current={current} />
+      </SheetGroup>
+
+      <SheetGroup label={t("filterPrice")}>
+        <DirectoryPriceFilter current={current} />
+      </SheetGroup>
+
+      <SheetGroup label={t("filterProviderKind")}>
+        <KindOptions current={current} />
+      </SheetGroup>
+
+      <SheetGroup label={t("filterVerification")}>
+        <VerifiedOption current={current} />
+      </SheetGroup>
+
+      {cities.length > 1 && (
+        <SheetGroup label={t("filterCity")}>
+          <CityOptions current={current} />
+        </SheetGroup>
+      )}
+    </FilterSheet>
   );
 }
 

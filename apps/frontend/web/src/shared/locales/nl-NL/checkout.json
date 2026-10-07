@@ -42,11 +42,9 @@
   "loadError": "We konden deze boeking niet openen. Controleer je verbinding en probeer opnieuw.",
   "storageBlockedTitle": "Deze browser bewaart je gegevens niet",
   "storageBlockedBody": "We moeten je gegevens in dit tabblad bewaren totdat de aanvraag is verstuurd, en deze browser staat dat niet toe. Open de pagina in een gewoon (niet-incognito) venster of sta sitegegevens toe. Je tijdstip blijft vastgehouden.",
-  "viewBookingAction": "Mijn boeking bekijken",
-  "browseMoreAction": "Andere diensten bekijken",
+  "viewBookingAction": "Boeking bekijken",
+  "browseMoreAction": "Terug naar diensten",
   "sentTitle": "Aanvraag verstuurd",
-  "sentBody": "We hebben je aanvraag naar {{provider}} gestuurd. Die heeft tot {{time}} op {{date}} om te bevestigen, en pas daarna betaal je.",
-  "sentBodyNoDeadline": "We hebben je aanvraag naar {{provider}} gestuurd. We laten het weten zodra er antwoord is, en pas daarna betaal je.",
   "unansweredTitle": "De dienstverlener heeft niet op tijd geantwoord",
   "unansweredBody": "De tijd om te bevestigen is verstreken en de aanvraag is gesloten. Er is niets afgeschreven. Je kunt een ander tijdstip kiezen.",
   "unansweredAction": "Ander tijdstip kiezen",
@@ -107,5 +105,22 @@
   "holdRemainingLabel": "Resterende tijd om deze boeking af te ronden",
   "availableTimes": "Beschikbare tijden",
   "chooseWhenLede": "Kies de datum en het tijdstip die u het beste uitkomen.",
-  "railPlaceLabel": "Locatie"
+  "railPlaceLabel": "Locatie",
+  "outcome": {
+    "sentLede": "We hebben je aanvraag naar {{provider}} gestuurd. De boeking is nog niet bevestigd en er is niets afgeschreven.",
+    "nextTitle": "Wat er nu gebeurt",
+    "next1Title": "{{provider}} bevestigt de aanvraag",
+    "next1Body": "Tot {{time}} op {{date}} kan de aanvraag worden geaccepteerd of geweigerd. We laten het je weten zodra er antwoord is.",
+    "next1BodyNoDeadline": "We laten het je weten zodra er antwoord is.",
+    "next2Title": "Je betaalt met M-Pesa",
+    "next2Body": "Na acceptatie krijg je een M-Pesa-betaalverzoek op je telefoon. Bevestig het met je pincode voordat de termijn afloopt.",
+    "next3Title": "De dienst vindt plaats",
+    "next3Body": "{{provider}} voert de dienst uit op de afgesproken dag en tijd.",
+    "summaryTitle": "Overzicht van de aanvraag",
+    "date": "Datum",
+    "time": "Tijd",
+    "place": "Locatie",
+    "price": "Prijs",
+    "verified": "Geverifieerde aanbieder"
+  }
 }

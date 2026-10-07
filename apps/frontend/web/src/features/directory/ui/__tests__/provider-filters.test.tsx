@@ -55,7 +55,8 @@ async function renderIn(node: ReactNode) {
   return render(<RouterProvider router={router} />);
 }
 
-const renderFilters = (current: DirectorySearch) => renderIn(<ProviderFilters current={current} />);
+const renderFilters = (current: DirectorySearch, total = 0) =>
+  renderIn(<ProviderFilters current={current} total={total} />);
 
 const renderMobile = (current: DirectorySearch, total = 0) =>
   renderIn(<MobileProviderFilters current={current} total={total} />);
@@ -83,23 +84,22 @@ describe("ProviderFilters", () => {
     expect(clearAll.getAttribute("href")).toContain("q=mavalane");
   });
 
-  it("keeps four pills on the bar and the price and kind behind More filters", async () => {
+  it("keeps five pills on the bar, in the mockup's order, and no More filters", async () => {
     const { container } = await renderFilters({});
     const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).toEqual(["Category", "Rating", "City", "Verification", "More filters"]);
-    const more = [...container.querySelectorAll("details")].at(-1)!;
-    expect(more).toHaveTextContent("Price range");
-    expect(more).toHaveTextContent("Who provides it");
+    expect(summaries).toEqual(["Category", "City", "Price range", "Rating", "Verification"]);
+    expect(screen.getByRole("button", { name: "Filter" })).toBeInTheDocument();
   });
 
-  it("counts what More filters hides, and its × takes off exactly those", async () => {
-    const { container } = await renderFilters({ providerType: "individual", minRating: 4 });
-    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).toContain("More filters · 1");
+  it("opens every group, the kind of provider included, from Filter", async () => {
+    await renderFilters({ providerType: "individual", minRating: 4 }, 9);
+    const button = screen.getByRole("button", { name: /^Filter/ });
+    expect(button).toHaveTextContent("Filter · 2");
+    fireEvent.click(button);
 
-    const href = screen.getByRole("link", { name: "Remove More filters" }).getAttribute("href")!;
-    expect(href).not.toContain("providerType");
-    expect(href).toContain("minRating=4");
+    const sheet = screen.getByRole("dialog", { name: "Filters" });
+    expect(sheet).toHaveTextContent("Who provides it");
+    expect(within(sheet).getByRole("button", { name: "Show 9 results" })).toBeInTheDocument();
   });
 
   it("fills no pill and offers no clear-all when nothing is applied", async () => {
@@ -108,7 +108,7 @@ describe("ProviderFilters", () => {
     const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
     expect(summaries).toContain("Rating");
     expect(summaries).toContain("Verification");
-    expect(summaries).toContain("More filters");
+    expect(screen.getByRole("button", { name: "Filter" }).textContent).not.toContain("·");
     // No filter is on, so no pill carries a remove link and there is nothing
     // to clear all of.
     expect(screen.queryByRole("link", { name: /^Remove /i })).toBeNull();

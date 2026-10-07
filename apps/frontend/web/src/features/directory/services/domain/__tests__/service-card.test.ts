@@ -135,6 +135,21 @@ describe("servicePriceCell", () => {
  * `amountMinor`, same locale, so this is a direct comparison rather than two
  * assertions that happen to agree.
  */
+describe("formatAmount", () => {
+  it("groups a four-digit amount and keeps its decimals", () => {
+    // pt-MZ's own default leaves "1200,00 MTn" ungrouped; checkout, the
+    // booking detail and the pay dialog all print through this function.
+    const total = formatAmount(120000, "MZN", "pt-MZ");
+    expect(total).toMatch(/1[\s\u00a0\u202f.]200,00/);
+    expect(total).toContain("MTn");
+  });
+
+  it("groups in every locale, not only the ones that already do", () => {
+    expect(formatAmount(120000, "MZN", "pt-PT")).toMatch(/1[\s\u00a0\u202f.]200,00/);
+    expect(formatAmount(120000, "MZN", "en-US")).toContain("1,200.00");
+  });
+});
+
 describe("formatHeadlinePrice", () => {
   it("prints whole units, unlike formatAmount's checkout precision", () => {
     const headline = formatHeadlinePrice(120000, "MZN", "pt-MZ");

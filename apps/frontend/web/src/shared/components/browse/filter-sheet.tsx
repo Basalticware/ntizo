@@ -3,7 +3,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@ntizo/frontend-ui
 import { closeOnChoice } from "@/shared/components/browse/facet-panel";
 
 /**
- * The full-height sheet a phone's filters open into.
+ * The sheet a browse page's filters open into: up from the bottom on a
+ * phone, from the floating capsule; docked right on a desktop, from the
+ * filter bar's "Filtrar".
  *
  * The shell both `MobileFilterBar` and `MobileDirectoryFilterBar` build by
  * hand today: the `Sheet` primitive slid up from the bottom, named by its
@@ -51,7 +53,10 @@ export function FilterSheet({
       <SheetContent
         side="bottom"
         labelledBy={titleId}
-        className="flex max-h-[85svh] flex-col rounded-t-[var(--radius-card)] p-5"
+        // From `lg` the desktop's "Filtrar" opens this too, and a sheet the
+        // width of a 1440px window would be a band of four short lists: there
+        // it docks to the right edge at a column's width instead.
+        className="flex max-h-[85svh] flex-col rounded-t-[var(--radius-card)] p-5 lg:top-0 lg:left-auto lg:h-full lg:max-h-none lg:w-[420px] lg:rounded-none lg:border-t-0 lg:border-l"
       >
         {/* The `Sheet` primitive itself is now the dialog — `role="dialog"`,
             `aria-modal`, focus trap and Escape all live on `SheetContent`

@@ -185,7 +185,7 @@ describe("ServicesBrowsePage", () => {
   it("names the place in the heading and in the summary's scope", async () => {
     renderPage("/services?city=Maputo", { items: [service()], nextOffset: null, total: 1 });
     expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent(
-      "Services ready to book in Maputo",
+      "Services in Maputo",
     );
     // Asked of the summary paragraph specifically: the scope clause reads
     // "in Maputo" and so does nothing else on the page, but a bare text query
@@ -304,15 +304,14 @@ describe("ServicesBrowsePage", () => {
     // The chip row under the results bar is gone: an applied filter fills its
     // own pill and grows the × that takes it off, because two places showing
     // the same state was one place too many.
-    const { container } = renderPage("/services?city=Maputo&paymentMode=hourly", {
+    const { container } = renderPage("/services?city=Maputo&locationType=at_customer", {
       items: [service()],
       nextOffset: null,
       total: 1,
     });
     await screen.findByRole("heading", { level: 1 });
     const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    // How you pay sits behind "More filters", which counts it.
-    expect(summaries).toContain("More filters · 1");
+    expect(summaries).toContain("At your place");
     expect(summaries).toContain("Maputo");
 
     // Removing one keeps the other. A link built by hand at the call site only
@@ -320,7 +319,7 @@ describe("ServicesBrowsePage", () => {
     const removals = screen
       .getAllByRole("link", { name: /^Remove / })
       .map((a) => a.getAttribute("href"));
-    expect(removals).toContain("/services?paymentMode=hourly");
+    expect(removals).toContain("/services?locationType=at_customer");
     expect(removals).toContain("/services?city=Maputo");
   });
 
@@ -567,6 +566,51 @@ describe("ServicesBrowsePage", () => {
     fireEvent.click(screen.getByRole("menuitemradio", { name: "Price" }));
     await waitFor(() => {
       expect(router.state.location.search).toEqual({ sort: "price" });
+    });
+  });
+
+  describe("the best-rated card", () => {
+    const rated = [
+      service({ id: "a", name: "Corte", providerRatingAverage: 4.2, providerReviewCount: 9 }),
+      service({ id: "b", name: "Manicure", providerRatingAverage: 4.9, providerReviewCount: 3 }),
+      service({ id: "c", name: "Barba" }),
+    ];
+
+    it("draws the best-rated service wide, labelled for what it is, and not again in the grid", async () => {
+      renderPage("/services", { items: rated, nextOffset: null, total: 3 });
+      const card = await screen.findByRole("article", { name: "Manicure" });
+      // Nothing in the data marks a service as featured, so it never says so.
+      expect(card).toHaveTextContent("Top rated");
+      expect(within(card).getByRole("link", { name: "View details" })).toHaveAttribute(
+        "href",
+        "/services/b",
+      );
+      // One service, one card: the grid holds the other two.
+      expect(screen.getAllByRole("link", { name: "Manicure" })).toHaveLength(1);
+      expect(screen.getAllByRole("listitem").map((li) => li.textContent)).not.toEqual(
+        expect.arrayContaining([expect.stringContaining("Manicure")]),
+      );
+    });
+
+    it("is absent when nobody on the page has been reviewed", async () => {
+      renderPage("/services", { items: [service()], nextOffset: null, total: 1 });
+      await screen.findByRole("heading", { level: 1 });
+      expect(screen.queryByText("Top rated")).toBeNull();
+    });
+
+    it("is absent past the first page and under a typed term", async () => {
+      const { unmount } = renderPage("/services?offset=24", {
+        items: rated,
+        nextOffset: null,
+        total: 27,
+      });
+      await screen.findByRole("heading", { level: 1 });
+      expect(screen.queryByText("Top rated")).toBeNull();
+      unmount();
+
+      renderPage("/services?q=manicure", { items: rated, nextOffset: null, total: 3 });
+      await screen.findByRole("heading", { level: 1 });
+      expect(screen.queryByText("Top rated")).toBeNull();
     });
   });
 

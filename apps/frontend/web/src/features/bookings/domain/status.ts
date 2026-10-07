@@ -15,17 +15,21 @@ export const CUSTOMER_BOOKINGS_PAGE_SIZE = 20;
  * the one where the customer is. It differs from the provider's table for
  * that reason and not by accident: there, `PENDING_PAYMENT` is information
  * about a customer, and here it is the customer's own task.
+ *
+ * Done reads green and cancelled reads red, as the October 2026 "Minhas
+ * reservas" mockup draws them; only an expired request stays grey, because
+ * nobody decided anything about it.
  */
 export const STATUS_TONE: Record<CustomerBookingStatus, BadgeTone> = {
   DRAFT: "neutral",
   AWAITING_PROVIDER: "warning",
   PENDING_PAYMENT: "info",
   CONFIRMED: "success",
-  MARKED_DONE: "neutral",
-  COMPLETED: "neutral",
+  MARKED_DONE: "success",
+  COMPLETED: "success",
   DISPUTED: "danger",
   DECLINED: "danger",
-  CANCELLED: "neutral",
+  CANCELLED: "danger",
   EXPIRED: "neutral",
 };
 

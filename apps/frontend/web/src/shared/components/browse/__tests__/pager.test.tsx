@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Pager, pagerPageClass } from "../pager";
+import { Pager, PagerChevron, PagerEdgeOff, pagerPageClass } from "../pager";
 
 const renderPage = (slot: { page: number; offset: number; current: boolean }) => (
   <a
@@ -68,5 +68,27 @@ describe("Pager", () => {
     }
     expect(on).not.toMatch(/font-(bold|semibold|medium)/);
     expect(off).not.toMatch(/font-(bold|semibold|medium)/);
+  });
+
+  it("draws an unreachable edge as a faded arrow that is neither a link nor announced", () => {
+    render(
+      <Pager
+        total={48}
+        pageSize={24}
+        offset={0}
+        label="Pages"
+        renderPage={renderPage}
+        previous={<PagerEdgeOff direction="previous" />}
+        next={
+          <a href="/services?offset=24" aria-label="Next page">
+            <PagerChevron direction="next" />
+          </a>
+        }
+      />,
+    );
+    const off = screen.getByTestId("pager-previous-off");
+    expect(off.tagName).not.toBe("A");
+    expect(off).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByRole("link", { name: "Next page" })).toBeInTheDocument();
   });
 });

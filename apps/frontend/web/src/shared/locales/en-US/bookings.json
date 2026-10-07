@@ -1,6 +1,6 @@
 {
   "title": "My bookings",
-  "lede": "Everything you've requested, where each one stands, and what's left to do.",
+  "lede": "Keep track of all your service bookings.",
   "tab": {
     "waiting": "Waiting",
     "upcoming": "Upcoming",
@@ -46,7 +46,6 @@
   "duration": "Duration",
   "where": "Where",
   "directions": "Directions",
-  "moneyCaption": "The price",
   "totalDue": "Total due",
   "totalPaid": "Total paid",
   "moneyNote": "This is the price the provider listed. Ntizo adds nothing on top.",
@@ -61,7 +60,6 @@
   "cancelDialogGone": "We can no longer find this booking.",
   "keepBooking": "Keep",
   "payAmount": "Pay {{amount}}",
-  "supportPrompt": "Need to change or cancel?",
   "supportCta": "Talk to support",
   "payDialogWaitingCaption": "Waiting for confirmation",
   "payDialogWaitingTitle": "Confirm on your phone",
@@ -89,14 +87,6 @@
   "countrySearchPlaceholder": "Search country",
   "countryNoResults": "No country found",
   "countrySelectLabel": "Select country",
-  "section": {
-    "appointment": "The appointment",
-    "appointmentBlurb": "What you booked, and when.",
-    "provider": "The provider",
-    "providerBlurb": "Who's doing the work.",
-    "note": "Your note",
-    "noteBlurb": "What you wrote when you made the request."
-  },
   "timeline": {
     "created_by_customer": "Request sent",
     "submitted_by_customer": "Details confirmed",
@@ -119,5 +109,53 @@
       "payment": "Payment",
       "confirmed": "Booking confirmed"
     }
+  },
+  "list": {
+    "breadcrumbLabel": "Breadcrumb",
+    "home": "Home",
+    "shown": "{{shown}} of {{total}} shown",
+    "rating": "Rated {{rating}} out of 5",
+    "next": {
+      "title": "Next booking",
+      "seeAll": "See all",
+      "viewDetails": "View booking details",
+      "message": "Message the provider",
+      "none": "You have no bookings coming up."
+    },
+    "help": {
+      "title": "Need help?",
+      "body": "Get in touch about anything to do with your bookings.",
+      "cta": "Contact support"
+    }
+  },
+  "detail": {
+    "breadcrumbLabel": "You are here",
+    "home": "Home",
+    "requestedOn": "Requested on {{date}}",
+    "statusTitle": "Booking status",
+    "explain": {
+      "AWAITING_PROVIDER": "Your request is with {{provider}}, who has not answered yet. Nothing has been charged: you only pay once the provider accepts.",
+      "PENDING_PAYMENT": "{{provider}} accepted the request. We sent an M-Pesa payment request to your phone: confirm it with your PIN before the deadline, or the booking is cancelled. If it did not arrive, press Pay.",
+      "CONFIRMED": "It is paid and confirmed. {{provider}} expects you on {{date}} at {{time}}.",
+      "MARKED_DONE": "{{provider}} marked the service as done.",
+      "COMPLETED": "The service is complete.",
+      "DISPUTED": "This booking is in dispute. Contact support if you need help.",
+      "DECLINED": "{{provider}} did not accept this request. Nothing has been charged.",
+      "CANCELLED": "This booking was cancelled.",
+      "EXPIRED": "The deadline passed and the request was closed."
+    },
+    "notCharged": "Nothing has been charged.",
+    "detailsTitle": "Details",
+    "date": "Date",
+    "time": "Time",
+    "place": "Place",
+    "notes": "Notes",
+    "providerTitle": "Provider",
+    "priceTitle": "Price",
+    "actionsTitle": "What you can do",
+    "message": "Message the provider",
+    "helpTitle": "Need help?",
+    "helpBody": "Contact us with any question about this booking.",
+    "helpBodyConfirmed": "To change or call off a confirmed booking, contact support."
   }
 }

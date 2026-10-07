@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ComponentType, type ReactNode, type SVGProps } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
 /**
  * One group of filters, as a pill that opens a small panel.
@@ -28,8 +28,8 @@ export function FilterPill({
   /** On the `<details>`, so something else on the page can open this pill. */
   id?: string;
   /**
-   * A glyph in a soft blue disc at the pill's start — the mockups draw one on
-   * the first pill of the bar. Decoration: the label is the pill's name.
+   * A glyph at the pill's start — the list mockup draws one on every pill.
+   * Decoration: the label is the pill's name.
    */
   icon?: ComponentType<SVGProps<SVGSVGElement>>;
   label: string;
@@ -87,23 +87,21 @@ export function FilterPill({
             // pill that turned semibold grew, and the pill after it moved.
             // Only the colours say which one is on — the same rule
             // `pagerPageClass` and `facetOptionClass` keep.
-            "flex h-[38px] cursor-pointer list-none items-center gap-2 rounded-[19px] border pr-3.5 pl-4 text-[13px] font-medium whitespace-nowrap transition-colors [&::-webkit-details-marker]:hidden",
+            // A squared 44px box rather than a 38px capsule (October 2026 list
+            // mockup): the bar reads as a row of fields, each with its glyph,
+            // beside the one filled "Filtrar" button at its end.
+            "flex h-11 cursor-pointer list-none items-center gap-2.5 rounded-[10px] border pr-3.5 pl-3.5 text-[13.5px] font-medium whitespace-nowrap transition-colors [&::-webkit-details-marker]:hidden",
             on
               ? "border-[var(--color-blue-line)] bg-[var(--color-blue-soft)] text-[var(--color-info-fg)]"
               : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-ink-2)] hover:border-[var(--color-blue-line)]",
             clear ? "pr-9" : "",
           ].join(" ")}
         >
-          {Icon && (
-            <span
-              aria-hidden="true"
-              className="-ml-2.5 grid h-[26px] w-[26px] place-items-center rounded-full bg-[var(--color-info-bg)]"
-            >
-              <Icon className="h-[15px] w-[15px] text-[var(--color-primary)]" strokeWidth={2} />
-            </span>
-          )}
+          {Icon && <Icon aria-hidden="true" className="h-[17px] w-[17px] shrink-0" strokeWidth={2} />}
           {active ?? label}
-          {!on && <ChevronDown className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden="true" />}
+          {!on && (
+            <ChevronDown className="ml-1 h-3.5 w-3.5" strokeWidth={2.4} aria-hidden="true" />
+          )}
         </summary>
         <div
           className={`absolute top-[calc(100%+6px)] left-0 z-20 grid min-w-56 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-float)] ${panelClassName ?? ""}`}
@@ -145,18 +143,50 @@ export const PILL_CLEAR_CLASS =
  * `<Link>`s a crawler should follow, and hiding them in CSS keeps them
  * followable while taking them off the phone's screen.
  *
- * **Four pills, then "More filters".** The bar used to wrap six or seven pills
- * onto two rows. Since October 2026 it holds the four filters a reader reaches
- * for first and one more pill whose panel stacks the rest, as the phone's
- * sheet does. That pill is a `<details>` of links like every other, so nothing
- * a crawler should follow is hidden from it, and it needs no `ResizeObserver`:
- * which filters sit behind it is fixed per page, not worked out from the
- * width.
+ * **A few pills, then "Filtrar".** The bar used to wrap six or seven pills
+ * onto two rows, then held four and a "More filters" pill. Since the October
+ * 2026 list mockup it holds the filters a reader reaches for first and ends in
+ * one filled button that opens the same sheet the phone's capsule opens, with
+ * every group in it — see `FilterButton`. Which filters sit on the bar is
+ * fixed per page, not worked out from the width, so it needs no
+ * `ResizeObserver`.
  */
 export function FilterBar({ children }: { children: ReactNode }) {
   return (
     <div className="mt-5 hidden flex-wrap items-center gap-x-3 gap-y-2.5 lg:flex">
       {children}
     </div>
+  );
+}
+
+/**
+ * The bar's last control: the filled blue "Filtrar" that opens the page's
+ * `FilterSheet` with every group in it.
+ *
+ * A button, not a `<details>`: what it opens is a dialog, and the pills
+ * beside it already put the bar's links in the document for a crawler. The
+ * count of filters on rides beside the word, as on the phone's capsule.
+ * `ml-auto` pushes it to the bar's end, where the mockup draws it.
+ */
+export function FilterButton({
+  label,
+  count,
+  onClick,
+}: {
+  label: string;
+  /** How many narrowings are on; nothing is drawn for zero. */
+  count: number;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="ml-auto inline-flex h-11 min-w-[150px] items-center justify-center gap-2.5 rounded-[10px] bg-[var(--color-blue-public)] px-6 text-[14px] font-semibold text-[var(--color-primary-foreground)] transition-opacity hover:opacity-90"
+    >
+      <SlidersHorizontal className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+      {label}
+      {count > 0 && ` · ${String(count)}`}
+    </button>
   );
 }

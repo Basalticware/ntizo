@@ -60,7 +60,9 @@ test("a customer sees the booking they made, and can call it off", async ({ page
   // Defaults to the "waiting" tab (bookings.index.tsx's `validateSearch`),
   // which is where `AWAITING_PROVIDER` lives (`CUSTOMER_TAB_STATUSES.waiting`)
   // — no `?tab=` needed to find it here.
-  const row = page.getByRole("row", { name: new RegExp(BOOKING_SERVICE_NAME) });
+  // A bordered card per booking since the October 2026 restyle, so the row
+  // is the list item that carries the service name.
+  const row = page.getByRole("listitem").filter({ hasText: BOOKING_SERVICE_NAME });
   await expect(row).toBeVisible();
   await expect(row.getByText("À espera do prestador")).toBeVisible();
 
@@ -90,6 +92,6 @@ test("a customer sees the booking they made, and can call it off", async ({ page
   await page.goto("/bookings?tab=history");
   await page.waitForLoadState("networkidle");
   await expect(
-    page.getByRole("row", { name: new RegExp(BOOKING_SERVICE_NAME) }).getByText("Cancelada"),
+    page.getByRole("listitem").filter({ hasText: BOOKING_SERVICE_NAME }).getByText("Cancelada"),
   ).toBeVisible();
 });

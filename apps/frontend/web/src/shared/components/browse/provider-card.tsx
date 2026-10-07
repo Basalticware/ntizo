@@ -153,7 +153,9 @@ export function ProviderCard({
     provider.serviceCount > 0 ? td("providerServiceCount", { count: provider.serviceCount }) : null;
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-card-foreground)]">
+    // The service card's shell exactly — 12px corners, the light line — so
+    // the two browse grids are one system (October 2026 list mockup).
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-[12px] border border-[var(--color-line-2)] bg-[var(--color-card)] text-[var(--color-card-foreground)]">
       {/* `relative` is the positioning context the heart resolves against, and
           this box rather than the `<article>` is the slot's home: it is the
           same box whether the business has a photograph or the site's
@@ -162,7 +164,7 @@ export function ProviderCard({
           the logo badge below (`z-[2]`) as well as above the title link's
           full-card `::after`. */}
       <div
-        className={`relative w-full overflow-hidden bg-[var(--color-muted)] ${feature ? "aspect-[290/140]" : "aspect-[272/127]"}`}
+        className={`relative w-full overflow-hidden bg-[var(--color-muted)] ${feature ? "aspect-[290/140]" : "aspect-[272/134]"}`}
       >
         <BrandImage
           src={photo}
@@ -216,7 +218,7 @@ export function ProviderCard({
         // trade and the city, then the rating and the "from" price. The
         // district and the count of services went — the profile says both,
         // and a grid of twenty-four reads by name and price.
-        <div className="flex flex-1 flex-col px-[18px] pt-3.5 pb-4">
+        <div className="flex flex-1 flex-col px-4 pt-3 pb-3.5">
           {title}
           {(trade || provider.city) && (
             <p className="mt-1.5 flex min-w-0 items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">

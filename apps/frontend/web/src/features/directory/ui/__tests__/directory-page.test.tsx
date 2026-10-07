@@ -317,14 +317,13 @@ describe("DirectoryPage", () => {
     // The chip row under the results bar is gone: an applied filter fills its
     // own pill and grows the × that takes it off, because two places showing
     // the same state was one place too many.
-    const { container } = renderPage("/providers?city=Maputo&providerType=organization", {
+    const { container } = renderPage("/providers?city=Maputo&verified=true", {
       items: [provider()],
       total: 1,
     });
     await screen.findByRole("heading", { level: 1 });
     const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    // Who provides it sits behind "More filters", which counts it.
-    expect(summaries).toContain("More filters · 1");
+    expect(summaries).toContain("Verified only");
     expect(summaries).toContain("Maputo");
 
     // Removing one keeps the other. A link built by hand at the call site only
@@ -332,7 +331,7 @@ describe("DirectoryPage", () => {
     const removals = screen
       .getAllByRole("link", { name: /^Remove / })
       .map((a) => a.getAttribute("href"));
-    expect(removals).toContain("/providers?providerType=organization");
+    expect(removals).toContain("/providers?verified=true");
     expect(removals).toContain("/providers?city=Maputo");
   });
 
@@ -421,16 +420,16 @@ describe("DirectoryPage", () => {
     // pill's row and the sheet's row announced it as where you are. There
     // used to be a third, the phone's quick chip; the chips are gone and the
     // trap is not, so the guard stays on both survivors.
-    renderPage("/providers?providerType=individual", { items: [provider()], total: 1 });
+    renderPage("/providers?verified=true", { items: [provider()], total: 1 });
     // One while the sheet is shut: the filter pill's option row alone.
     // `SheetContent` returns null until it is opened.
-    const closed = await screen.findAllByRole("link", { name: "A person" });
+    const closed = await screen.findAllByRole("link", { name: "Verified only" });
     expect(closed).toHaveLength(1);
 
     fireEvent.click(screen.getByRole("button", { name: /^Filters/ }));
 
     // Two now, and both must be clean.
-    const options = screen.getAllByRole("link", { name: "A person" });
+    const options = screen.getAllByRole("link", { name: "Verified only" });
     expect(options).toHaveLength(2);
     for (const option of options) expect(option).not.toHaveAttribute("aria-current");
 
@@ -536,7 +535,7 @@ describe("DirectoryPage", () => {
     // Scoped to the pager: the site header's own "Providers" link is the
     // current page too, and says so with the same attribute.
     expect(within(pager).getByRole("link", { current: "page" })).toHaveTextContent("2");
-    expect(within(pager).getByRole("link", { name: "Next" })).toHaveAttribute(
+    expect(within(pager).getByRole("link", { name: "Next page" })).toHaveAttribute(
       "href",
       "/providers?offset=48",
     );

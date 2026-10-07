@@ -135,7 +135,7 @@ export type CheckoutBooking = BookingDTO;
 export const BOOKING_FIELDS = `
       id status
       serviceId serviceOptionId
-      serviceName providerName providerSlug providerVerified providerRatingAverage
+      serviceName serviceImageUrl providerName providerSlug providerVerified providerRatingAverage
       optionName durationMinutes locationType
       priceMinor currency
       startsAt endsAt timezone
