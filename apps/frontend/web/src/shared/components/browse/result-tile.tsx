@@ -36,11 +36,14 @@ export const TILE_TITLE_LINK_CLASS =
 export function RatingMark({
   average,
   count,
+  countText,
   label,
   locale,
 }: {
   average: number;
   count?: number | undefined;
+  /** The count in words — "4 avaliações" — in place of the bare number. */
+  countText?: string;
   label: string;
   /** The reader's locale — the separator is theirs, not Portuguese's. */
   locale: string;
@@ -53,7 +56,9 @@ export function RatingMark({
       <Star className="h-[15px] w-[15px] fill-[var(--color-star)] stroke-none text-[var(--color-star)]" aria-hidden="true" />
       <span className="tabular-nums">{formatRating(average, locale)}</span>
       {count != null && (
-        <span className="font-normal text-[var(--color-muted-foreground)]">({count})</span>
+        <span className="font-normal whitespace-nowrap text-[var(--color-muted-foreground)]">
+          ({countText ?? count})
+        </span>
       )}
     </span>
   );

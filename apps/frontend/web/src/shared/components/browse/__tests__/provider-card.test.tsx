@@ -111,7 +111,9 @@ describe("ProviderCard", () => {
     const article = screen.getByRole("article");
     const heading = within(article).getByRole("heading", { level: 3 });
     const meta = heading.nextElementSibling!;
-    expect(meta).toHaveTextContent("Hair & beauty·Maputo");
+    expect(meta).toHaveTextContent("Hair & beauty");
+    // The city rides on the score's line, after a dot.
+    expect(meta.nextElementSibling).toHaveTextContent("Maputo");
     expect(article).not.toHaveTextContent("Mavalane, Maputo");
     expect(screen.queryByText("6 services")).toBeNull();
   });

@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Check } from "lucide-react";
+import { Check, MapPin, Tag, type LucideIcon } from "lucide-react";
+import { VerifiedPill } from "@/shared/components/browse/verified-pill";
 import type { ProviderPublicDTO } from "@ntizo/shared";
 import { BrandImage } from "@/shared/components/brand-image";
 import { RatingMark, TILE_TITLE_LINK_CLASS } from "@/shared/components/browse/result-tile";
@@ -43,9 +44,16 @@ export function ProviderCard({
   locale,
   favourite,
   variant = "grid",
+  categoryIcon: CategoryGlyph = Tag,
 }: {
   provider: ProviderPublicDTO;
   locale: string;
+  /**
+   * The trade's own glyph, for the grid card's category line. The page
+   * resolves it from the category list it already holds; a caller with no
+   * list gets the plain tag.
+   */
+  categoryIcon?: LucideIcon;
   /**
    * The heart, drawn on the photograph — or nothing, for a caller that wants
    * a card with no control on it at all, which is what the home page's rails
@@ -58,7 +66,10 @@ export function ProviderCard({
    */
   favourite?: ReactNode;
   /**
-   * `"grid"` is the listings' card. `"feature"` is the home page's, from the
+   * `"grid"` is the listings' card, from the October 2026 list-with-sidebar
+   * mockup: a wide photograph with the verified pill on it, the name, the
+   * trade, the score and the city, and "desde" in blue on the right.
+   * `"feature"` is the home page's, from the
    * October 2026 home mockup: the name and its seal first, then the trade
    * and the place on lines of their own, the rating beside the count of
    * services, and "desde" with the lowest price at the foot.
@@ -138,6 +149,23 @@ export function ProviderCard({
       />
     );
 
+  // The grid card says the count in words — "(4 avaliações)".
+  const countedRating =
+    provider.ratingAverage === null ? (
+      rating
+    ) : (
+      <RatingMark
+        average={provider.ratingAverage}
+        count={provider.reviewCount}
+        countText={td("ratingCount", { count: provider.reviewCount })}
+        locale={locale}
+        label={td("providerRatingLabel", {
+          score: formatRating(provider.ratingAverage, locale),
+          count: provider.reviewCount,
+        })}
+      />
+    );
+
   const price = priced ? (
     <b className="text-right text-base font-extrabold whitespace-nowrap text-[var(--color-headline)]">
       <span className="mr-[3px] text-[12.5px] font-medium text-[var(--color-muted-foreground)]">
@@ -164,7 +192,7 @@ export function ProviderCard({
           the logo badge below (`z-[2]`) as well as above the title link's
           full-card `::after`. */}
       <div
-        className={`relative w-full overflow-hidden bg-[var(--color-muted)] ${feature ? "aspect-[290/140]" : "aspect-[272/134]"}`}
+        className={`relative w-full overflow-hidden bg-[var(--color-muted)] ${feature ? "aspect-[290/140]" : "aspect-[5/2]"}`}
       >
         <BrandImage
           src={photo}
@@ -181,8 +209,11 @@ export function ProviderCard({
             has nothing to fall back to when it is absent. A logo that 404s
             falls back to the provider's initials rather than the brand mark:
             this badge is the business's own face, not a missing photograph. */}
+        {!feature && provider.verified ? <VerifiedPill /> : null}
+        {/* On the grid card the bottom-left is the verified pill's, so the
+            logo moves to the bottom-right. */}
         {provider.logoUrl ? (
-          <span className="absolute bottom-3 left-3 z-[2] grid h-11 w-11 place-items-center overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)]">
+          <span className={`absolute bottom-3 z-[2] ${feature ? "left-3" : "right-3"} grid h-11 w-11 place-items-center overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)]`}>
             <BrandImage
               src={provider.logoUrl}
               alt=""
@@ -214,23 +245,45 @@ export function ProviderCard({
           {price ? <div className="mt-auto pt-3">{price}</div> : null}
         </div>
       ) : (
-        // Three lines and no more (October 2026): the name and its seal, the
-        // trade and the city, then the rating and the "from" price. The
-        // district and the count of services went — the profile says both,
-        // and a grid of twenty-four reads by name and price.
-        <div className="flex flex-1 flex-col px-4 pt-3 pb-3.5">
-          {title}
-          {(trade || provider.city) && (
-            <p className="mt-1.5 flex min-w-0 items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
-              {trade && <span className="min-w-0 truncate">{trade}</span>}
-              {trade && provider.city && <span aria-hidden="true">·</span>}
-              {provider.city && <span className="shrink-0 whitespace-nowrap">{provider.city}</span>}
+        // The list-with-sidebar mockup's three lines (October 2026): the name
+        // and its seal, the trade with its glyph, then the score and the
+        // city — and "desde" with the price in the brand blue on the right.
+        <div className="flex flex-1 items-end justify-between gap-4 px-4 pt-3 pb-3.5">
+          <div className="grid min-w-0 gap-1.5">
+            <h3 className="line-clamp-2 text-[17px] leading-[1.2] font-extrabold text-[var(--color-headline)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline">
+              <Link to="/providers/$slug" params={{ slug: provider.slug }} className={TILE_TITLE_LINK_CLASS}>
+                {provider.name}
+              </Link>
+              {seal}
+            </h3>
+            {trade && (
+              <p className="flex min-w-0 items-center gap-2 text-[13.5px] leading-[1.2] text-[var(--color-muted-foreground)]">
+                <CategoryGlyph className="h-[15px] w-[15px] shrink-0" strokeWidth={2} aria-hidden="true" />
+                <span className="truncate">{trade}</span>
+              </p>
+            )}
+            <p className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-[var(--color-muted-foreground)]">
+              {countedRating}
+              {/* The pin is the separator, not a dot: a narrow card wraps the
+                  city onto its own line, and a dot would start that line. */}
+              {provider.city && (
+                <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                  <MapPin className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+                  {provider.city}
+                </span>
+              )}
             </p>
-          )}
-          <div className="mt-auto flex items-center justify-between gap-3 pt-3">
-            {rating}
-            {price}
           </div>
+          {priced ? (
+            <b className="shrink-0 text-right font-extrabold whitespace-nowrap text-[var(--color-primary)]">
+              <span className="block text-[13px] font-medium text-[var(--color-muted-foreground)]">
+                {td("priceFromPrefix")}
+              </span>
+              <span className="text-[20px] tabular-nums xl:text-[22px]">
+                {formatHeadlinePrice(provider.fromAmountMinor!, provider.fromCurrency!, locale)}
+              </span>
+            </b>
+          ) : null}
         </div>
       )}
     </article>

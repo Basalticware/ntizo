@@ -30,10 +30,11 @@ import { useFavouriteMarks } from "@/features/favourites/viewmodel/use-favourite
 import { FavouriteButton } from "@/features/favourites/ui/favourite-button";
 import { SaveToListDialog } from "@/features/favourites/ui/save-to-list-dialog";
 import { ServiceCard } from "@/shared/components/browse/service-card";
-import { BrowseHero, BrowseSearchBar } from "@/features/directory/services/ui/browse-hero";
+import { BrowseHero } from "@/features/directory/services/ui/browse-hero";
+import { categoryIcon } from "@/features/directory/services/ui/category-icon";
 import {
   MobileServiceFilters,
-  ServiceFilters,
+  ServiceSidebar,
   chooseServiceSort,
   serviceSortOptions,
 } from "@/features/directory/services/ui/service-filters";
@@ -150,6 +151,8 @@ export function ServicesBrowsePage() {
   // crawler came for, so it may arrive a beat later.
   const categories = useCategoryPreview(CATEGORY_FILTER_LIMIT).data?.items ?? [];
   const categoryName = categories.find((c) => c.code === category)?.name ?? null;
+  /** A category's glyph by its code, from the list this page already holds. */
+  const iconFor = (code: string) => categoryIcon(categories.find((c) => c.code === code)?.icon);
 
   /**
    * The wide "best rated" card, and the grid without it.
@@ -221,26 +224,24 @@ export function ServicesBrowsePage() {
             what they asked for, which is what `browseTitle` is for. */}
         <BrowseHero
           title={title.key === "titleServices" ? t("browseHeroTitle") : t(title.key, title.values)}
+          current={current}
         />
 
         {/* The floating capsule is `fixed` and covers whatever the page ends
             with — which is the pager, so "Next →" was sitting behind it and
             could not be pressed. The root layout's own `pb-14` clears
             `MobileNav` and nothing more; this clears the capsule above it,
-            and stops at `lg`, where the capsule is hidden and the pills take
-            over. */}
-        <div className="pt-6 pr-[var(--pw-pad)] pb-[calc(7rem+env(safe-area-inset-bottom))] pl-[var(--pw-pad)] lg:pb-12">
+            and stops at `lg`, where the capsule is hidden and the sidebar
+            takes over.
+
+            Two columns from `lg`: the filters' sticky card on the left and
+            the results on the right (October 2026 list-with-sidebar
+            mockup). */}
+        <div className="grid gap-7 pt-7 pr-[var(--pw-pad)] pb-[calc(7rem+env(safe-area-inset-bottom))] pl-[var(--pw-pad)] lg:grid-cols-[minmax(260px,300px)_1fr] lg:pb-12">
+          <ServiceSidebar current={current} />
+
           <main className="min-w-0">
-            <BrowseSearchBar current={current} />
-
-            <ServiceFilters current={current} total={page.total} />
-
-            {/* Between the filters and the count, where the mockup draws it.
-                The count below still counts it: it is one of the results,
-                drawn wide, not an advert on top of them. */}
-            {top && <TopRatedCard service={top} locale={locale} favourite={heart(top)} />}
-
-            <div className="mt-[30px] flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {/* Two translated pieces, and the second is a whole clause per
                   scope — never "in" plus a name. That is what lets a language
                   order, inflect or case the category and the city as its own
@@ -272,6 +273,20 @@ export function ServicesBrowsePage() {
               />
             </div>
 
+            {/* Under the count, where the mockup draws it. The count still
+                counts it: it is one of the results, drawn wide, not an advert
+                on top of them. */}
+            {top && (
+              <div className="mt-4">
+                <TopRatedCard
+                  service={top}
+                  locale={locale}
+                  categoryIcon={iconFor(top.categoryCode)}
+                  favourite={heart(top)}
+                />
+              </div>
+            )}
+
             {page.items.length === 0 ? (
               // Two different sentences, because they are two different
               // situations. An empty platform is "nothing published yet"; an
@@ -291,15 +306,18 @@ export function ServicesBrowsePage() {
               </div>
             ) : (
               <>
-                {/* The full width, with no side column: four across from
-                    `xl`, three from `lg`, two at `sm`, one below it, 24px
-                    apart — so a page of 24 fills its rows at every width. The
-                    card draws its own edge, so cards are separated by the gap
-                    at every width, never by a hairline. */}
-                <ul className="mt-5 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {/* Two across beside the sidebar, as in the mockup, from
+                    `sm`; one on a phone. The card draws its own edge, so
+                    cards are separated by the gap, never by a hairline. */}
+                <ul className="mt-5 grid list-none grid-cols-1 gap-5 p-0 sm:grid-cols-2">
                   {gridItems.map((service) => (
                     <li key={service.id}>
-                      <ServiceCard service={service} locale={locale} favourite={heart(service)} />
+                      <ServiceCard
+                        service={service}
+                        locale={locale}
+                        categoryIcon={iconFor(service.categoryCode)}
+                        favourite={heart(service)}
+                      />
                     </li>
                   ))}
                 </ul>

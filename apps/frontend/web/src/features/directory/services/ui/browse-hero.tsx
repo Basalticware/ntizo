@@ -9,17 +9,24 @@ import {
 import { useServiceCities } from "@/features/directory/services/viewmodel/use-browse-services";
 
 /**
- * The top of `/services`: the breadcrumb, the title and one line under it — see
- * `BrowseHead`, which `/providers` draws too.
+ * The top of `/services`: the photograph, the title, one line under it and
+ * the list's own search bar over the photograph's foot — see `BrowseHead`,
+ * which `/providers` draws too.
  *
  * `title` is the page's `h1`. Unnarrowed it is the page's headline; once the
  * reader asked for something — a term, a category, a city — the page passes
  * what they asked for instead, because a heading that answers a question
  * nobody asked is the bug `browseTitle` exists to prevent.
  */
-export function BrowseHero({ title }: { title: string }) {
+export function BrowseHero({ title, current }: { title: string; current: BrowseSearch }) {
   const { t } = useTranslation("directory");
-  return <BrowseHead crumb={t("browseHeroEyebrow")} title={title} subtitle={t("browseHeroSubtitle")} />;
+  return (
+    <BrowseHead
+      title={title}
+      subtitle={t("browseHeroSubtitle")}
+      search={<BrowseSearchBar current={current} />}
+    />
+  );
 }
 
 /**

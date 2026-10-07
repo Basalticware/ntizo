@@ -1,20 +1,38 @@
 import { useState } from "react";
-import { LayoutGrid, MapPin, ShieldCheck, SlidersHorizontal, Star, Tag, X } from "lucide-react";
+import {
+  Building2,
+  ChevronRight,
+  CircleDollarSign,
+  LayoutGrid,
+  MapPin,
+  RotateCcw,
+  ShieldCheck,
+  SlidersHorizontal,
+  Star,
+  User,
+  Users,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { FilterSheet } from "@/shared/components/browse/filter-sheet";
 import {
-  FilterBar,
-  FilterButton,
-  FilterPill,
-  PILL_CLEAR_CLASS,
-} from "@/shared/components/browse/filter-pill";
-import { FilterSheet, SheetGroup } from "@/shared/components/browse/filter-sheet";
+  ACTIVE_CHIP_CLASS,
+  ActiveFilters,
+  FilterSidebar,
+  MoreOptions,
+  SidebarSection,
+  SwitchMark,
+  chipOptionClass,
+  listOptionClass,
+  tileOptionClass,
+} from "@/shared/components/browse/filter-sidebar";
 import {
   FloatingControls,
   floatingControlClass,
 } from "@/shared/components/browse/floating-controls";
 import { SortDropdown, type SortDropdownOption } from "@/shared/components/browse/sort-dropdown";
-import { FacetBox, FacetCount, facetOptionClass } from "@/shared/components/browse/facet-panel";
 import { SearchableOptions } from "@/shared/components/browse/searchable-options";
 import { EXACT_MATCH } from "@/shared/components/browse/active-match";
 import { formatRating } from "@/shared/domain/rating";
@@ -25,16 +43,14 @@ import {
   type DirectorySearch,
   type DirectorySort,
 } from "@/features/directory/domain/directory-search";
-import {
-  directoryFilterChips,
-  type FilterChip,
-} from "@/features/directory/domain/directory-chips";
+import { directoryFilterChips } from "@/features/directory/domain/directory-chips";
 import { useProviderCities } from "@/features/directory/viewmodel/use-directory";
 import {
   CATEGORY_FILTER_LIMIT,
   useCategoryPreview,
 } from "@/features/landing/viewmodel/use-categories";
 import { DirectoryPriceFilter } from "@/features/directory/ui/directory-price-filter";
+import { categoryIcon } from "@/features/directory/services/ui/category-icon";
 
 /**
  * Everything the pill bar can narrow, taken off at once — but not what was
@@ -120,62 +136,56 @@ export function chooseProviderSort(
     });
 }
 
+
 /**
- * How many narrowings this bar is showing as on.
+ * How many narrowings are on.
  *
  * `q` is not one of them, for the same reason `clearedDirectorySearch` keeps
- * it: the typed term belongs to the search bar under the header, and a count
- * that included it would put a number on a control that offers no way to
- * take it off. See R18.
+ * it: the typed term belongs to the search bar, and a count that included it
+ * would put a number on a control that offers no way to take it off. See R18.
  */
 function appliedCount(current: DirectorySearch): number {
-  // The chips are the results' own summary and carry no category — the
-  // heading above them already names it, and a chip would say it twice. The
-  // count is the phone's "Filters (n)" badge, though, and a category is one of
-  // the things it now counts.
-  return (
-    directoryFilterChips(current).filter((c) => c.key !== "q").length + (current.category ? 1 : 0)
-  );
+  return activeChips(current, undefined).length;
 }
 
-function PillClear({ search, label }: { search: DirectorySearch; label: string }) {
-  const { t } = useTranslation("directory");
-  return (
-    <Link
-      to="/providers"
-      activeOptions={EXACT_MATCH}
-      search={search}
-      aria-label={t("filterPillRemove", { filter: label })}
-      className={PILL_CLEAR_CLASS}
-    >
-      <X className="h-3 w-3" aria-hidden="true" />
-    </Link>
-  );
-}
-
-/** The chip for one group, or nothing when that group is not narrowing anything. */
-function chipFor(chips: FilterChip[], key: string): FilterChip | undefined {
-  return chips.find((c) => c.key === key);
+/**
+ * Every narrowing that is on, as the sidebar's "Filtros activos" lists them:
+ * `directoryFilterChips` without the term, plus the category, which that
+ * function leaves to the heading. The city chip says just the place.
+ */
+function activeChips(
+  current: DirectorySearch,
+  categoryName: string | undefined,
+): Array<{ key: string; label: string | { key: string; values?: Record<string, string | number> }; next: DirectorySearch }> {
+  const chips = directoryFilterChips(current)
+    .filter((c) => c.key !== "q")
+    .map((c) => ({
+      key: c.key,
+      label: c.key === "city" && current.city ? current.city : c.label,
+      next: c.next,
+    }));
+  return current.category
+    ? [
+        {
+          key: "category",
+          label: categoryName ?? current.category,
+          next: directorySearch(current, { category: undefined, offset: undefined }),
+        },
+        ...chips,
+      ]
+    : chips;
 }
 
 /**
  * The link that takes every narrowing off at once, or nothing at all.
  *
- * Nothing to clear is not a disabled link — it is no link. Asked of
- * `directoryFilterChips` rather than counted again here, because that
- * function already enumerates exactly the set `clearedDirectorySearch` drops;
- * a second list is a second place for the two to disagree. Gated on the chips
- * other than `q`: the term belongs to the search bar under the header, not
- * to this pill bar, so a search with only a typed term on gets no clear-all
- * here.
- *
- * One component, two placements: the end of the pill bar and the footer of
- * the phone's sheet. A second copy is how the two would come to offer
- * different URLs.
+ * Nothing to clear is not a disabled link — it is no link. Gated on the chips
+ * other than `q`: the term belongs to the search bar, so a search with only a
+ * typed term on gets no clear-all. One component, two placements: the
+ * sidebar's head and the sheet's footer.
  *
  * `onNavigate` is the sheet's way of closing behind itself; it sits in the
  * footer, outside the `closeOnChoice` wrapper that closes on a chosen option.
- * The bar passes nothing, because there is nothing to close.
  */
 function ClearAll({ current, onNavigate }: { current: DirectorySearch; onNavigate?: () => void }) {
   const { t } = useTranslation("directory");
@@ -187,179 +197,181 @@ function ClearAll({ current, onNavigate }: { current: DirectorySearch; onNavigat
       activeOptions={EXACT_MATCH}
       search={clearedDirectorySearch(current)}
       {...(onNavigate ? { onClick: onNavigate } : {})}
-      className="ml-2 text-sm font-semibold whitespace-nowrap text-[var(--color-primary)] hover:underline"
+      className="inline-flex items-center gap-1.5 text-sm font-semibold whitespace-nowrap text-[var(--color-primary)] hover:underline"
     >
+      <RotateCcw className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden="true" />
       {t("filtersClearAll")}
     </Link>
   );
 }
 
 /**
- * The directory's filters, as a row of pills above the results and one
- * filled "Filtrar" at its end.
+ * The directory's filters as a sticky card down the left of the results,
+ * from `lg` — the October 2026 list-with-sidebar mockup.
  *
- * The successor to `ProviderFacets`' sidebar, and the same contract: every
- * option is a **link**, never a form control. A filtered list is a URL
- * somebody can send, the back button undoes a filter, and the whole thing
- * works before any JavaScript has run — a `<details>` pill opens on its own
- * `<summary>` with no script at all, which matters on a page built to be
- * crawled.
+ * Only the groups this API can apply: city, category, rating floor, price,
+ * kind of provider and verified. The mockup's "Responde rápido" is not here:
+ * nothing records how fast anybody answers. The rating tiles are the
+ * thresholds the API takes (`RATING_THRESHOLDS`), not the mockup's 4/4.5/5.
  *
- * `active` and the `×` on a filled pill both come from `directoryFilterChips`
- * rather than being worked out again here: that function already enumerates
- * exactly what is narrowing the list and exactly the URL that removes each
- * one, and a second copy of that logic is a second place for the two to
- * disagree. Only the city pill breaks that pattern on purpose — see the
- * comment on it below.
- *
- * Five pills — category, city, price, rating, verification — in the order
- * the October 2026 list mockup draws its own, and "Filtrar", which opens the
- * sheet with those and the kind of provider. Only the filters this data can
- * honestly answer. The price bound runs on the business's cheapest published
- * option, which is the same number its card prints as "from" — so a business
- * can never be hidden by a range it visibly satisfies.
- *
- * The option rows themselves are the `*Options` components below, and the
- * sheet is `ProviderSheet` — the same one the phone's capsule opens. A second
- * copy for either width is how the two stop offering the same filters, and
- * how the phone's count once came to count a city its sheet had no group for.
+ * Every option is a **link**, never a form control, so there is no "Aplicar
+ * filtros" button — each choice applies as it is made. See `FilterSidebar`.
  */
-export function ProviderFilters({
-  current,
-  total,
-}: {
-  current: DirectorySearch;
-  /** How many results the current search matched, for the sheet's own button. */
-  total: number;
-}) {
+export function ProviderSidebar({ current }: { current: DirectorySearch }) {
   const { t } = useTranslation("directory");
-  const cities = useProviderCities();
   const categories = useCategoryPreview(CATEGORY_FILTER_LIMIT).data?.items ?? [];
-  const chips = directoryFilterChips(current);
-  const [open, setOpen] = useState(false);
-
-  const ratingChip = chipFor(chips, "minRating");
-  const priceChip = chipFor(chips, "price");
-  const verifiedChip = chipFor(chips, "verified");
-  const cityChip = chipFor(chips, "city");
-
-  // The name, not the code, because the pill fills with what was chosen. It
-  // is undefined until the categories land, exactly as the heading's own name
-  // is — one request answers both, so they fill together.
   const categoryName = categories.find((c) => c.code === current.category)?.name;
-
-  const categoryLabel = t("filterCategory");
-  const ratingLabel = t("filterRating");
-  const priceLabel = t("filterPrice");
-  const verifiedLabel = t("filterVerification");
-  const cityLabel = t("filterCity");
+  const chips = activeChips(current, categoryName);
 
   return (
+    <FilterSidebar
+      title={t("filtersTitle")}
+      clear={<ClearAll current={current} />}
+      active={
+        chips.length > 0 ? (
+          <ActiveFilters label={t("filtersActive", { count: chips.length })}>
+            {chips.map((chip) => {
+              const label = typeof chip.label === "string" ? chip.label : t(chip.label.key, chip.label.values ?? {});
+              return (
+                <Link
+                  key={chip.key}
+                  to="/providers"
+                  activeOptions={EXACT_MATCH}
+                  search={chip.next}
+                  aria-label={t("filterPillRemove", { filter: label })}
+                  className={ACTIVE_CHIP_CLASS}
+                >
+                  <span className="truncate">{label}</span>
+                  <X className="h-3.5 w-3.5 shrink-0" strokeWidth={2.4} aria-hidden="true" />
+                </Link>
+              );
+            })}
+          </ActiveFilters>
+        ) : undefined
+      }
+    >
+      <div className="mt-5">
+        <ProviderFilterSections current={current} />
+      </div>
+    </FilterSidebar>
+  );
+}
+
+/**
+ * Every group, in the order the sidebar and the sheet both draw them — one
+ * definition, two placements.
+ */
+function ProviderFilterSections({ current }: { current: DirectorySearch }) {
+  const { t, i18n } = useTranslation("directory");
+  const locale = i18n.resolvedLanguage ?? i18n.language;
+  const cities = useProviderCities();
+  // Lowest floor first, after "all", the way the mockup reads them.
+  const floors = [...RATING_THRESHOLDS].sort((a, b) => a - b);
+  return (
     <>
-      <FilterBar>
-        {/* First, because it is the widest narrowing on the bar: every other
-            pill divides a set this one has already chosen. */}
-        <FilterPill
-          label={categoryLabel}
-          icon={LayoutGrid}
-          active={categoryName}
-          clear={
-            current.category ? (
-              <PillClear
-                search={directorySearch(current, { category: undefined, offset: undefined })}
-                label={categoryLabel}
-              />
-            ) : undefined
-          }
+      {cities.length > 1 && (
+        <SidebarSection icon={MapPin} label={t("filterCity")}>
+          <CityOptions current={current} />
+        </SidebarSection>
+      )}
+
+      <SidebarSection icon={LayoutGrid} label={t("filterCategories")}>
+        <CategoryOptions current={current} />
+      </SidebarSection>
+
+      <SidebarSection icon={Star} label={t("filterRatingMin")} hint={t("filterRatingHint")}>
+        <div className="grid grid-cols-4 gap-2">
+          <OptionLink
+            look="tile"
+            icon={Star}
+            label={t("filterRatingAny")}
+            active={current.minRating == null}
+            search={directorySearch(current, { minRating: undefined, offset: undefined })}
+          />
+          {floors.map((v) => (
+            <OptionLink
+              key={v}
+              look="tile"
+              icon={Star}
+              star
+              label={t("filterRatingTile", { score: formatRating(v, locale) })}
+              aria={t("filterRatingOption", { score: formatRating(v, locale) })}
+              active={current.minRating === v}
+              search={directorySearch(current, {
+                minRating: current.minRating === v ? undefined : v,
+                offset: undefined,
+              })}
+            />
+          ))}
+        </div>
+      </SidebarSection>
+
+      {/* The one group that is not a closed set, so the one that is not
+          links — see `DirectoryPriceFilter`. No slider: it would need an
+          apply step the rest of the card does not have. */}
+      <SidebarSection icon={CircleDollarSign} label={t("filterPrice")}>
+        <DirectoryPriceFilter current={current} />
+      </SidebarSection>
+
+      <SidebarSection icon={Users} label={t("filterProviderKindTitle")}>
+        <div className="grid grid-cols-2 gap-2">
+          {PROVIDER_KINDS.map((v) => (
+            <OptionLink
+              key={v}
+              look="tile"
+              icon={v === "individual" ? User : Building2}
+              label={t(`filterProviderKindTile.${v}`)}
+              sub={t(`filterProviderKindTileHint.${v}`)}
+              active={current.providerType === v}
+              search={directorySearch(current, {
+                providerType: current.providerType === v ? undefined : v,
+                offset: undefined,
+              })}
+            />
+          ))}
+        </div>
+      </SidebarSection>
+
+      {/* A switch, because there is nothing to choose between — only on or
+          off. Still a link: `verified: false` is never written, see
+          `directorySearch`, so turning it off is dropping the parameter. */}
+      <section className="mt-5 border-t border-[var(--color-border)] pt-5">
+        <Link
+          to="/providers"
+          activeOptions={EXACT_MATCH}
+          search={directorySearch(current, { verified: !current.verified, offset: undefined })}
+          aria-pressed={current.verified === true}
+          className="flex items-center gap-2.5 text-[14px] font-medium text-[var(--color-ink-2)]"
         >
-          <CategoryOptions current={current} />
-        </FilterPill>
-
-        {/* Only when there is more than one place to choose between. A city
-            filter offering a single city narrows nothing and takes a pill of
-            the bar to say so. Its `active` is `current.city` itself, not
-            `directoryFilterChips`' "in {{city}}" chip text — a pill that
-            filled with the whole sentence instead of just the place would be
-            the only one on the bar not simply naming what was picked. */}
-        {cities.length > 1 && (
-          <FilterPill
-            label={cityLabel}
-            icon={MapPin}
-            active={current.city}
-            clear={cityChip && <PillClear search={cityChip.next} label={cityLabel} />}
-          >
-            <CityOptions current={current} />
-          </FilterPill>
-        )}
-
-        {/* The one group that is not a closed set, so the one that is not
-            links — see `DirectoryPriceFilter`, which explains why a range has
-            to be typed and submitted. */}
-        <FilterPill
-          label={priceLabel}
-          icon={Tag}
-          active={priceChip ? t(priceChip.label.key, priceChip.label.values ?? {}) : undefined}
-          clear={priceChip && <PillClear search={priceChip.next} label={priceLabel} />}
-        >
-          <DirectoryPriceFilter current={current} />
-        </FilterPill>
-
-        <FilterPill
-          label={ratingLabel}
-          icon={Star}
-          active={ratingChip ? t(ratingChip.label.key, ratingChip.label.values ?? {}) : undefined}
-          clear={ratingChip && <PillClear search={ratingChip.next} label={ratingLabel} />}
-        >
-          <RatingOptions current={current} />
-        </FilterPill>
-
-        {/* A single-option pill: there is nothing to choose between, only to
-            switch on or off, so the group is one row rather than a list. */}
-        <FilterPill
-          label={verifiedLabel}
-          icon={ShieldCheck}
-          active={verifiedChip ? t(verifiedChip.label.key, verifiedChip.label.values ?? {}) : undefined}
-          clear={verifiedChip && <PillClear search={verifiedChip.next} label={verifiedLabel} />}
-        >
-          <VerifiedOption current={current} />
-        </FilterPill>
-
-        {/* Nothing to clear is not a disabled link — it is no link, and the
-            typed term is not one of the things it clears. See `ClearAll`. */}
-        <ClearAll current={current} />
-
-        <FilterButton
-          label={t("filterAction")}
-          count={appliedCount(current)}
-          onClick={() => setOpen(true)}
-        />
-      </FilterBar>
-
-      <ProviderSheet current={current} total={total} open={open} onOpenChange={setOpen} />
+          <ShieldCheck className="h-[17px] w-[17px] shrink-0 text-[var(--color-headline)]" strokeWidth={2.2} aria-hidden="true" />
+          {t("filterVerifiedSwitch")}
+          <SwitchMark on={current.verified === true} />
+        </Link>
+        <p className="type-caption mt-1.5 pl-[27px] text-[var(--color-muted-foreground)]">
+          {t("filterVerificationHint")}
+        </p>
+      </section>
     </>
   );
 }
 
 /**
- * The filters on a phone: one navy control at the thumb, opening a sheet.
- *
- * The successor to `MobileDirectoryFilterBar`'s full-width bar, and the reason
- * that bar's spacer is gone: the capsule is narrow and centred rather than a
- * strip across the screen, so it never sits over the last row or the pager.
+ * The filters on a phone: one navy control at the thumb, opening a sheet that
+ * holds the sidebar's own sections.
  *
  * Two halves, because a control with one half is a button: the filters, with
  * how many are on, and the same `SortDropdown` the heading row carries — the
  * heading's copy is `hidden lg:inline-flex`, so a phone shows exactly one
  * sort. Its options and its chooser are `providerSortOptions` and
- * `chooseProviderSort`, the same two the page hands its own copy: this
- * component takes the search and nothing else, and a private list here would
- * be the phone offering a different set of orders the day a sixth is added.
+ * `chooseProviderSort`, the same two the page hands its own copy.
  *
  * The mockup draws "Filtros / Mapa" here rather than a sort. There is no map
  * — providers carry a city and a district, never a point — so this capsule
  * is the services page's two halves rather than a toggle that goes nowhere.
  *
- * The sheet is `ProviderSheet`, the same one the desktop's "Filtrar" opens.
+ * Its footer button states the outcome — "Show 38 results" — rather than
+ * saying "Apply", because a reader should know what they did before they
+ * commit to it, not after.
  */
 export function MobileProviderFilters({
   current,
@@ -395,138 +407,64 @@ export function MobileProviderFilters({
         />
       </FloatingControls>
 
-      <ProviderSheet current={current} total={total} open={open} onOpenChange={setOpen} />
+      <FilterSheet
+        open={open}
+        onOpenChange={setOpen}
+        title={t("filtersTitle")}
+        clear={<ClearAll current={current} onNavigate={() => setOpen(false)} />}
+        apply={t("filterSheetApply", { count: total })}
+        onApply={() => setOpen(false)}
+      >
+        <ProviderFilterSections current={current} />
+      </FilterSheet>
     </>
   );
 }
 
+/** How many cities show as chips before the rest fold behind "Outras cidades". */
+const VISIBLE_CITIES = 4;
+
 /**
- * Every filter the directory has, as headed groups in one sheet — what both
- * the desktop's "Filtrar" and the phone's capsule open.
- *
- * The same option rows the pills hold, stacked into headed groups instead of
- * hidden behind summaries — a sheet is a screen, not a toolbar. They are
- * literally the same components: two copies is how a phone quietly stops
- * offering a filter its own count is counting.
- *
- * Its footer button states the outcome — "Show 38 results" — rather than
- * saying "Apply", because a reader should know what they did before they
- * commit to it, not after.
+ * The cities as chips, the busiest first and the rest behind "Outras
+ * cidades". A chosen city is always among the visible ones, so the chip that
+ * says what is on is never folded away.
  */
-function ProviderSheet({
-  current,
-  total,
-  open,
-  onOpenChange,
-}: {
-  current: DirectorySearch;
-  total: number;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
+function CityOptions({ current }: { current: DirectorySearch }) {
   const { t } = useTranslation("directory");
   const cities = useProviderCities();
-  return (
-    <FilterSheet
-      open={open}
-      onOpenChange={onOpenChange}
-      title={t("filtersTitle")}
-      clear={<ClearAll current={current} onNavigate={() => onOpenChange(false)} />}
-      apply={t("filterSheetApply", { count: total })}
-      onApply={() => onOpenChange(false)}
-    >
-      {/* It leads the sheet the way the pill leads the bar. */}
-      <SheetGroup label={t("filterCategory")}>
-        <CategoryOptions current={current} />
-      </SheetGroup>
+  const head = cities.slice(0, VISIBLE_CITIES);
+  const tail = cities.slice(VISIBLE_CITIES);
+  const chosen = tail.find((c) => c.city === current.city);
+  const shown = chosen ? [...head, chosen] : head;
+  const folded = tail.filter((c) => c !== chosen);
 
-      <SheetGroup label={t("filterRating")}>
-        <RatingOptions current={current} />
-      </SheetGroup>
-
-      <SheetGroup label={t("filterPrice")}>
-        <DirectoryPriceFilter current={current} />
-      </SheetGroup>
-
-      <SheetGroup label={t("filterProviderKind")}>
-        <KindOptions current={current} />
-      </SheetGroup>
-
-      <SheetGroup label={t("filterVerification")}>
-        <VerifiedOption current={current} />
-      </SheetGroup>
-
-      {cities.length > 1 && (
-        <SheetGroup label={t("filterCity")}>
-          <CityOptions current={current} />
-        </SheetGroup>
-      )}
-    </FilterSheet>
-  );
-}
-
-function RatingOptions({ current }: { current: DirectorySearch }) {
-  const { t, i18n } = useTranslation("directory");
-  const locale = i18n.resolvedLanguage ?? i18n.language;
-  return (
-    <>
-      {RATING_THRESHOLDS.map((v) => (
-        <FacetOption
-          key={v}
-          label={t("filterRatingOption", { score: formatRating(v, locale) })}
-          active={current.minRating === v}
-          value={String(v)}
-          toSearch={(raw) =>
-            directorySearch(current, {
-              minRating:
-                raw == null ? undefined : (Number(raw) as (typeof RATING_THRESHOLDS)[number]),
-              offset: undefined,
-            })
-          }
-        />
-      ))}
-    </>
-  );
-}
-
-function KindOptions({ current }: { current: DirectorySearch }) {
-  const { t } = useTranslation("directory");
-  return (
-    <>
-      {PROVIDER_KINDS.map((v) => (
-        <FacetOption
-          key={v}
-          label={t(`filterProviderKindOption.${v}`)}
-          active={current.providerType === v}
-          value={v}
-          toSearch={(providerType) => directorySearch(current, { providerType, offset: undefined })}
-        />
-      ))}
-    </>
-  );
-}
-
-function VerifiedOption({ current }: { current: DirectorySearch }) {
-  const { t } = useTranslation("directory");
-  return (
-    <FacetOption
-      label={t("filterVerifiedOnly")}
-      active={current.verified === true}
-      value="verified"
-      // `verified: false` is never written — see `directorySearch`, which
-      // drops it. Turning the filter off is turning the parameter off.
-      toSearch={(v) => directorySearch(current, { verified: v != null, offset: undefined })}
+  const chip = (c: { city: string }) => (
+    <OptionLink
+      key={c.city}
+      look="chip"
+      label={c.city}
+      active={current.city === c.city}
+      search={directorySearch(current, {
+        city: current.city === c.city ? undefined : c.city,
+        offset: undefined,
+      })}
     />
+  );
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {shown.map(chip)}
+      {folded.length > 0 && <MoreOptions label={t("filterCityMore")}>{folded.map(chip)}</MoreOptions>}
+    </div>
   );
 }
 
 /**
- * The categories, as the bar's first group.
+ * The categories, as rows with their glyphs — "Todas as categorias" first.
  *
  * Every category in one request rather than a page of them: `SearchableOptions`
  * matches against what it holds, so a category left out of the response is one
- * a reader can type the name of and be told does not exist. See
- * `CATEGORY_FILTER_LIMIT`.
+ * a reader can type the name of and be told does not exist.
  */
 function CategoryOptions({ current }: { current: DirectorySearch }) {
   const { t } = useTranslation("directory");
@@ -538,22 +476,27 @@ function CategoryOptions({ current }: { current: DirectorySearch }) {
       searchPlaceholder={t("filterCategorySearchPlaceholder")}
       noMatchLabel={(term) => t("filterCategoryNoMatch", { term })}
       lead={
-        <FacetOption
-          label={t("providersAllCategories")}
+        <OptionLink
+          look="row"
+          icon={LayoutGrid}
+          label={t("filterCategoriesAll")}
           active={!current.category}
-          value=""
-          toSearch={() => directorySearch(current, { category: undefined, offset: undefined })}
+          search={directorySearch(current, { category: undefined, offset: undefined })}
         />
       }
       options={categories.map((c) => ({
         key: c.id,
         label: c.name,
         node: (
-          <FacetOption
+          <OptionLink
+            look="row"
+            icon={categoryIcon(c.icon)}
             label={c.name}
             active={current.category === c.code}
-            value={c.code}
-            toSearch={(category) => directorySearch(current, { category, offset: undefined })}
+            search={directorySearch(current, {
+              category: current.category === c.code ? undefined : c.code,
+              offset: undefined,
+            })}
           />
         ),
       }))}
@@ -561,62 +504,69 @@ function CategoryOptions({ current }: { current: DirectorySearch }) {
   );
 }
 
-function CityOptions({ current }: { current: DirectorySearch }) {
-  const cities = useProviderCities();
-  return (
-    <>
-      {cities.map((c) => (
-        <FacetOption
-          key={c.city}
-          label={c.city}
-          active={current.city === c.city}
-          count={c.count}
-          value={c.city}
-          toSearch={(city) => directorySearch(current, { city, offset: undefined })}
-        />
-      ))}
-    </>
-  );
-}
-
 /**
- * One option row.
+ * One option: a chip, a row or a tile, and always a link.
  *
- * It builds no search of its own: `toSearch` comes from the group, which is
- * the only place that knows which parameter this row changes. That is what
- * keeps "clicking the active one clears it" written once for five groups.
+ * It builds no search of its own — the group hands it the URL, which already
+ * says "clicking the active one clears it". `aria-pressed` is what says it is
+ * a toggle. `aria` names a tile whose visible text is a glyph and a number.
  */
-function FacetOption({
+function OptionLink({
+  look,
   label,
+  sub,
+  aria,
+  icon: Icon,
+  star = false,
   active,
-  value,
-  count,
-  toSearch,
+  search,
 }: {
+  look: "chip" | "row" | "tile";
   label: string;
+  /** A tile's second line. */
+  sub?: string;
+  aria?: string;
+  icon?: LucideIcon;
+  /** Fill the glyph amber, for the rating tiles. */
+  star?: boolean;
   active: boolean;
-  value: string;
-  /** Only the cities are counted server-side; every other group renders none. */
-  count?: number;
-  toSearch: (value: string | undefined) => DirectorySearch;
+  search: DirectorySearch;
 }) {
+  const className =
+    look === "chip"
+      ? chipOptionClass(active)
+      : look === "row"
+        ? `${listOptionClass(active)} mb-1.5`
+        : tileOptionClass(active);
   return (
     <Link
       to="/providers"
       activeOptions={EXACT_MATCH}
-      // Clicking the active one clears it: a filter you set by clicking should
-      // come off the same way, without hunting for a separate "clear" the
-      // pill would otherwise need.
-      search={toSearch(active ? undefined : value)}
-      // A link, not a checkbox: it navigates, a filtered list is a URL somebody
-      // can send, and the back button undoes it. `aria-pressed` is what says
-      // it is a toggle; `FacetBox` is only a picture of that state.
+      search={search}
       aria-pressed={active}
-      className={facetOptionClass(active)}
+      {...(aria ? { "aria-label": aria } : {})}
+      className={className}
     >
-      <FacetBox active={active} />
-      {label}
-      {count != null && <FacetCount value={count} />}
+      {Icon && (
+        <Icon
+          className={
+            look === "tile"
+              ? `h-[18px] w-[18px] ${star ? "fill-[var(--color-star)] text-[var(--color-star)]" : ""}`
+              : "h-[17px] w-[17px] shrink-0"
+          }
+          strokeWidth={2}
+          aria-hidden="true"
+        />
+      )}
+      {look === "tile" ? (
+        <span className="grid leading-tight">
+          <span className="font-semibold">{label}</span>
+          {sub && <span className="text-[11.5px] text-[var(--color-muted-foreground)]">{sub}</span>}
+        </span>
+      ) : (
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+      )}
+      {look === "row" && <ChevronRight className="h-4 w-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />}
     </Link>
   );
 }
