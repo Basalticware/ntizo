@@ -426,7 +426,9 @@ function RowActions({ booking, ctx }: { booking: AdminBookingRowDTO; ctx: RowCon
 
   if (booking.status === "DISPUTED") {
     return (
-      <span className="grid justify-items-stretch gap-2 xl:justify-items-start">
+      // `py-3`: two stacked buttons are taller than the row, and without it
+      // they touched the row's top and bottom edges.
+      <span className="grid justify-items-stretch gap-2.5 py-3 xl:justify-items-start">
         {/* Two long labels, and three widths to keep them honest at, because
             Tailwind's breakpoints are viewport widths and this row's box is
             the viewport minus the sidebar.
@@ -437,7 +439,7 @@ function RowActions({ booking, ctx }: { booking: AdminBookingRowDTO; ctx: RowCon
             the card is wide (`sm`, and still no sidebar). Stacked again from
             `md`, where the sidebar appears and the card narrows — and in the
             table from `xl`, whose last column is the narrowest of the seven. */}
-        <span className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end md:flex-col md:items-stretch">
+        <span className="flex flex-col items-stretch gap-2.5 sm:flex-row sm:items-center sm:justify-end md:flex-col md:items-stretch">
           <Button
             variant="outline"
             size="sm"
