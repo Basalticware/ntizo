@@ -9,6 +9,8 @@ import { DETAILS_BUTTON_CLASS } from "@/shared/components/list-cells";
 import { usePageHeader } from "@/shared/lib/page-header";
 import {
   AdminFilterBar,
+  AdminToolbar,
+  TOOLBAR_SEARCH_CLASS,
   AdminListFoot,
   AdminPerson,
   AdminTable,
@@ -82,17 +84,19 @@ export function AdminUsersPage() {
         <p className="type-body mb-4 text-[var(--color-destructive)]">{t("usersError")}</p>
       )}
 
-      <AdminTabs tabs={tabs} value={role} onChange={setRole} ariaLabel={t("usersRole")} />
+      <AdminToolbar>
+        <AdminTabs tabs={tabs} value={role} onChange={setRole} ariaLabel={t("usersRole")} />
 
-      <AdminFilterBar
-        className="mt-[27px]"
-        search={search}
-        onSearchChange={(value) => {
-          setSearch(value);
-          setOffset(0);
-        }}
-        searchPlaceholder={t("usersSearchPlaceholder")}
-      />
+        <AdminFilterBar
+          className={TOOLBAR_SEARCH_CLASS}
+          search={search}
+          onSearchChange={(value) => {
+            setSearch(value);
+            setOffset(0);
+          }}
+          searchPlaceholder={t("usersSearchPlaceholder")}
+        />
+      </AdminToolbar>
 
       <div className="mt-[27px]">
         <AdminTable

@@ -11,6 +11,8 @@ import { usePageHeader } from "@/shared/lib/page-header";
 import { relativeDayLabel, shortDate } from "@/shared/lib/relative-day";
 import {
   AdminFilterBar,
+  AdminToolbar,
+  TOOLBAR_SEARCH_CLASS,
   AdminListFoot,
   AdminTabs,
   adminDate,
@@ -114,8 +116,7 @@ export function AdminContactPage() {
         <p className="type-body mb-4 text-[var(--color-destructive)]">{t("contactStatusFailed")}</p>
       )}
 
-      {/* Tabs, search and Filtrar share one row here, from `xl`. */}
-      <div className="flex flex-col gap-[27px] xl:flex-row xl:items-center xl:gap-[21px]">
+      <AdminToolbar>
         <AdminTabs
           tabs={tabs}
           value={tab}
@@ -123,7 +124,7 @@ export function AdminContactPage() {
           ariaLabel={t("contactStatusLabel")}
         />
         <AdminFilterBar
-          className="flex-1 gap-[13px] [&>div:first-child]:lg:max-w-none"
+          className={cn(TOOLBAR_SEARCH_CLASS, "gap-[13px]")}
           search={search}
           onSearchChange={(value) => {
             setSearch(value);
@@ -133,9 +134,16 @@ export function AdminContactPage() {
           onOpenFilters={() => setFiltersOpen(true)}
           activeFilterCount={contactFilterCount(filters)}
         />
-      </div>
+      </AdminToolbar>
 
-      <div className="mt-[26px] grid items-start gap-[9px] xl:grid-cols-[minmax(0,697fr)_minmax(0,625fr)]">
+      {/* Two panes only when there is a message to open; an empty or loading
+          inbox takes the whole width. */}
+      <div
+        className={cn(
+          "mt-[26px] grid items-start gap-[9px]",
+          selected && "xl:grid-cols-[minmax(0,697fr)_minmax(0,625fr)]",
+        )}
+      >
         <div className="min-w-0">
           <div className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
             {query.isLoading ? (

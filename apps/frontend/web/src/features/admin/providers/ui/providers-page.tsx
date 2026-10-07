@@ -10,6 +10,8 @@ import { usePageHeader } from "@/shared/lib/page-header";
 import { formatCommission } from "@/shared/domain/commission-format";
 import {
   AdminFilterBar,
+  AdminToolbar,
+  TOOLBAR_SEARCH_CLASS,
   AdminListFoot,
   AdminPerson,
   AdminTable,
@@ -107,17 +109,19 @@ export function AdminProvidersPage() {
         <p className="type-body mb-4 text-[var(--color-destructive)]">{t("providersError")}</p>
       )}
 
-      <AdminTabs tabs={tabs} value={status} onChange={setStatus} ariaLabel={t("providersStatus")} />
+      <AdminToolbar>
+        <AdminTabs tabs={tabs} value={status} onChange={setStatus} ariaLabel={t("providersStatus")} />
 
-      <AdminFilterBar
-        className="mt-[27px]"
-        search={search}
-        onSearchChange={(value) => {
-          setSearch(value);
-          setOffset(0);
-        }}
-        searchPlaceholder={t("providersSearchPlaceholder")}
-      />
+        <AdminFilterBar
+          className={TOOLBAR_SEARCH_CLASS}
+          search={search}
+          onSearchChange={(value) => {
+            setSearch(value);
+            setOffset(0);
+          }}
+          searchPlaceholder={t("providersSearchPlaceholder")}
+        />
+      </AdminToolbar>
 
       <div className="mt-[27px]">
         <AdminTable

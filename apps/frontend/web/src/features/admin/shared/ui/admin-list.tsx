@@ -41,6 +41,18 @@ export function AdminTabs<K extends string>(props: {
 }
 
 /**
+ * The row above an admin list: the tabs on the left and the search (with
+ * Filtrar) on the right, on one line when they fit and wrapped under the tabs
+ * when they do not.
+ */
+export function AdminToolbar({ children }: { children: ReactNode }) {
+  return <div className="flex flex-wrap items-center justify-between gap-x-[21px] gap-y-5">{children}</div>;
+}
+
+/** The filter bar's width inside `AdminToolbar`: it grows into the free space up to a comfortable search width. */
+export const TOOLBAR_SEARCH_CLASS = "min-w-[280px] flex-1 justify-end xl:max-w-[520px] [&>div:first-child]:lg:max-w-none";
+
+/**
  * Search on the left, any filters the server can apply beside it, and
  * Filtrar at the far right for the rest.
  */
