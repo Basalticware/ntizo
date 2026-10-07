@@ -594,15 +594,12 @@ afterEach(async () => {
 });
 
 /**
- * Unfold "Com quem?". The roster starts folded on the current choice — see
- * `MemberPicker`'s doc comment — so a test that reaches for a performer's
- * row opens it first, the way a customer would. Anchored, so "Alterar" here
- * cannot match a longer button elsewhere on the page.
+ * Wait for "Com quem?". Every performer is on screen as a card from the start
+ * (2026-10-07) — see `MemberPicker`'s doc comment — so there is nothing to
+ * open; this only waits for the roster to render.
  */
 async function openRoster() {
-  await userEvent.click(
-    await screen.findByRole("button", { name: /^(escolher profissional|alterar)$/i }),
-  );
+  await screen.findByRole("radiogroup", { name: "Com quem?" });
 }
 
 describe("ChooseWhenPage", () => {
