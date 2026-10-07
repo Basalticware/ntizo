@@ -11,9 +11,17 @@ export function useAdminStats() {
   return useQuery(adminDashboardQueries.stats());
 }
 
-/** The newest applications, whatever their status: who is new, not who is pending. */
+/**
+ * The newest applications, whatever their status: who is new, not who is
+ * pending. `total` is every provider on the platform, for "5 de 47 mostradas"
+ * — the status counts' sum, the same cache entry the providers queue's tabs
+ * read; null until it answers, and the card then says only how many it shows.
+ */
 export function useLatestApplications() {
-  return useAdminProviders({ limit: LATEST_APPLICATIONS_LIMIT });
+  const list = useAdminProviders({ limit: LATEST_APPLICATIONS_LIMIT });
+  const counts = useProviderStatusCounts();
+  const total = counts.data ? Object.values(counts.data).reduce((sum, n) => sum + n, 0) : null;
+  return { rows: list.data ?? [], isLoading: list.isLoading, total };
 }
 
 /**

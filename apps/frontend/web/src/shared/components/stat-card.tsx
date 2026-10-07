@@ -1,15 +1,57 @@
 import type { ReactNode } from "react";
-import { Card, CardContent, Skeleton } from "@ntizo/frontend-ui";
+import { ArrowRight, type LucideIcon } from "lucide-react";
+import { Card, CardContent, Skeleton, cn } from "@ntizo/frontend-ui";
 
 /**
  * The uppercase label every card on this page wears, and nothing else — no
  * rule, no accent, no glyph before it.
  */
-const CAPTION =
+export const CAPTION =
   "type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase";
 
 /** A card's way out, at caption size: small enough not to compete with the number. */
-export const CARD_LINK = "type-caption font-semibold text-[var(--color-primary)] hover:underline";
+export const CARD_LINK =
+  "type-caption inline-flex items-center gap-1.5 font-semibold text-[var(--color-primary)] hover:underline";
+
+/** A card link's trailing arrow — "Decidir →". Decorative: the words carry the name. */
+export function LinkArrow() {
+  return <ArrowRight aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />;
+}
+
+/**
+ * The status tones as a soft ground and a strong glyph, from the same
+ * tokens the badges use — so a red disc means what a red pill means, and
+ * the pair is redefined for dark mode with everything else.
+ */
+export type DiscTone = "info" | "danger" | "success" | "warning" | "violet";
+
+const DISC_TONE: Record<DiscTone, string> = {
+  info: "bg-[var(--color-blue-soft)] text-[var(--color-primary)]",
+  danger: "bg-[var(--color-bad-bg)] text-[var(--color-bad-fg)]",
+  success: "bg-[var(--color-ok-bg)] text-[var(--color-ok-fg)]",
+  warning: "bg-[var(--color-warn-bg)] text-[var(--color-warn-fg)]",
+  violet: "bg-[var(--color-violet-bg)] text-[var(--color-violet-fg)]",
+};
+
+/** A card's glyph on a tinted disc: what the card is about, before the words say it. */
+export function IconDisc({
+  icon: Icon,
+  tone = "info",
+  className,
+}: {
+  icon: LucideIcon;
+  tone?: DiscTone;
+  className?: string;
+}) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-full", DISC_TONE[tone], className)}
+    >
+      <Icon aria-hidden="true" className="h-5 w-5" />
+    </span>
+  );
+}
 
 /**
  * One reading. The value is the point, so it is the only thing at heading
@@ -21,16 +63,19 @@ export const CARD_LINK = "type-caption font-semibold text-[var(--color-primary)]
  * too would make the grid flash four grey rectangles and then four different
  * shapes.
  *
- * The value's size is the one thing here that is a breakpoint. At 390px the
- * two-column track leaves each card 137px inside its border and padding, and
- * the widest thing this component is ever handed is the revenue card's money:
- * `formatMoney` of a seven-figure minor amount in pt-MZ is "99 999,99 MTn",
- * which measures 7.25em in Poppins SemiBold — 203px at `type-h1`'s 28px, and
- * still 159px at 22px. Only 18px, the scale's next step down, fits it (130px),
- * so that is what a phone gets; from `sm` the card is wide enough for the full
- * 28px and the number keeps its presence. The skeleton follows the same step,
- * or the placeholder would be half a line taller than the value that replaces
- * it.
+ * The value is sized by the card, not the viewport. The widest thing this
+ * is handed is the platform's gross — "99 999,99 MTn" measures 7.25em in
+ * Poppins SemiBold — and the text column beside the disc is anything from
+ * 120px (four-up at 1280px, beside the console's sidebar) to 400px (two-up
+ * at 1100px). `13cqi` keeps that string inside its column at any of them;
+ * the clamp keeps a phone at the scale's 18px step and stops a wide card
+ * passing `type-h1`'s 28px.
+ *
+ * In a card narrower than 15rem the disc sits over the text rather than
+ * beside it — two counts sharing a 390px row, or four tiles beside the
+ * console's sidebar at 1280px — where a disc beside the label would fold
+ * "Novos prestadores (30 dias)" onto three lines. Measured on the card, not
+ * the viewport, because the same width means a different card in each zone.
  */
 export function StatCard({
   label,
@@ -38,6 +83,8 @@ export function StatCard({
   hint,
   action,
   loading,
+  icon,
+  tone,
   className,
 }: {
   label: string;
@@ -45,28 +92,31 @@ export function StatCard({
   hint?: ReactNode;
   action?: ReactNode;
   loading?: boolean;
+  icon?: LucideIcon;
+  tone?: DiscTone;
   /** The grid cell's own placement — a tile that needs the full width on a phone says so here. */
   className?: string;
 }) {
   return (
-    <Card className={className}>
-      <CardContent className="grid gap-1 p-4">
-        <p className={CAPTION}>{label}</p>
-        {loading ? (
-          <Skeleton className="h-6 w-20 sm:h-9" />
-        ) : (
-          // `text-[18px] sm:text-[28px]` rather than `type-h2 sm:type-h1`: the
-          // type scale lives in a plain `@layer components` block, so Tailwind
-          // never generates a `sm:` variant of those class names. `type-h1`
-          // still carries the family, the weight and the leading.
-          <p className="type-h1 text-[18px] font-semibold tabular-nums sm:text-[28px]">
-            {value}
-          </p>
-        )}
-        {hint && (
-          <p className="type-caption text-[var(--color-muted-foreground)]">{hint}</p>
-        )}
-        {action}
+    <Card className={cn("@container", className)}>
+      <CardContent className="flex h-full flex-col gap-3 p-4 @[15rem]:flex-row @[15rem]:gap-3.5 @[15rem]:p-5">
+        {icon && <IconDisc icon={icon} tone={tone} />}
+        <div className="@container grid min-w-0 flex-1 content-start gap-1">
+          <p className={cn(CAPTION, "tracking-[0.1em]")}>{label}</p>
+          {loading ? (
+            <Skeleton className="h-[clamp(24px,13cqi,36px)] w-20" />
+          ) : (
+            // A literal size rather than `type-h1` alone: the type scale lives
+            // in a plain `@layer components` block, so no variant of it can
+            // follow the card's width. `type-h1` still carries the family,
+            // the weight and the leading.
+            <p className="type-h1 text-[clamp(18px,13cqi,28px)] font-semibold whitespace-nowrap text-[var(--color-headline)] tabular-nums">
+              {value}
+            </p>
+          )}
+          {hint && <p className="type-caption text-[var(--color-muted-foreground)]">{hint}</p>}
+          {action && <div className="mt-1">{action}</div>}
+        </div>
       </CardContent>
     </Card>
   );

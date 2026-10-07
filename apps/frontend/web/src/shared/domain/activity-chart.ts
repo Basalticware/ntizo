@@ -13,7 +13,7 @@ export const CHART = {
   padBottom: 0,
   /** Between the two bars of one day, and between one day and the next. */
   gap: 2,
-  groupGap: 6,
+  groupGap: 9,
   radius: 4,
   /** A day with one booking must not draw a bar nobody can see. */
   minBar: 3,
@@ -44,7 +44,11 @@ export interface ChartGroup {
  * empty day contributes no bar at all: a zero-height rectangle is invisible
  * anyway, and leaving it out halves the element count on a quiet month.
  */
-export function chartGeometry(days: readonly ProviderBookingStatsDayDTO[]): {
+export function chartGeometry(
+  days: readonly ProviderBookingStatsDayDTO[],
+  /** The value the top of the plot stands for — the y-axis's last tick. Defaults to the tallest bar. */
+  scaleMax?: number,
+): {
   bars: ChartBar[];
   groups: ChartGroup[];
   max: number;
@@ -53,7 +57,7 @@ export function chartGeometry(days: readonly ProviderBookingStatsDayDTO[]): {
   const plot = view.height - view.padTop - view.padBottom;
   const groupWidth = view.width / Math.max(days.length, 1);
   const barWidth = Math.max((groupWidth - view.groupGap - view.gap) / 2, 1);
-  const max = Math.max(1, ...days.flatMap((d) => [d.requests, d.confirmed]));
+  const max = Math.max(1, scaleMax ?? 0, ...days.flatMap((d) => [d.requests, d.confirmed]));
 
   const bars: ChartBar[] = [];
   const groups: ChartGroup[] = [];
@@ -140,4 +144,41 @@ export function chartTicks(
     index,
     label: format.format(new Date(`${days[index]!.date}T00:00:00.000Z`)),
   }));
+}
+
+/**
+ * Every `every`th day, counted back from the last so today always has its
+ * label, as "2/10" in pt — the wide screen's axis, where a label every other day
+ * fits and a month name in each would not.
+ */
+export function denseChartTicks(
+  days: readonly ProviderBookingStatsDayDTO[],
+  locale: string,
+  every = 2,
+): { index: number; label: string }[] {
+  const format = new Intl.DateTimeFormat(locale, { day: "numeric", month: "2-digit", timeZone: "UTC" });
+  const ticks: { index: number; label: string }[] = [];
+  for (let index = days.length - 1; index >= 0; index -= every) {
+    ticks.unshift({ index, label: format.format(new Date(`${days[index]!.date}T00:00:00.000Z`)) });
+  }
+  return ticks;
+}
+
+/**
+ * The y-axis: 0 up to the first round step that holds the tallest bar, in at
+ * most four steps of 1, 2 or 5 × 10ⁿ. The last tick is what the top of the
+ * plot stands for, so the gridlines and the bars share one scale.
+ */
+export function valueTicks(max: number): number[] {
+  const top = Math.max(1, max);
+  let step = 1;
+  for (let magnitude = 1; ; magnitude *= 10) {
+    const found = [1, 2, 5].map((m) => m * magnitude).find((s) => Math.ceil(top / s) <= 4);
+    if (found) {
+      step = found;
+      break;
+    }
+  }
+  const count = Math.ceil(top / step);
+  return Array.from({ length: count + 1 }, (_, i) => i * step);
 }

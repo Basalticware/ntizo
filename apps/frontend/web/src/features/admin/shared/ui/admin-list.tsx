@@ -163,17 +163,20 @@ export function AdminPerson({
   name,
   title,
   sub,
+  compact = false,
   className,
 }: {
   /** For the monogram; `title` is what is drawn. */
   name: string;
   title: ReactNode;
   sub?: ReactNode;
+  /** A 44px monogram, for a table that is a card on a page rather than the page. */
+  compact?: boolean;
   className?: string;
 }) {
   return (
-    <div className={cn("flex min-w-0 items-center gap-[25px]", className)}>
-      <Avatar className="h-[54px] w-[54px] shrink-0">
+    <div className={cn("flex min-w-0 items-center", compact ? "gap-4" : "gap-[25px]", className)}>
+      <Avatar className={cn("shrink-0", compact ? "h-11 w-11" : "h-[54px] w-[54px]")}>
         <AvatarFallback className="bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] text-sm font-semibold text-[var(--color-primary)]">
           {initialsFrom(name)}
         </AvatarFallback>

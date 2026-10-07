@@ -4,8 +4,10 @@ import {
   barPath,
   chartGeometry,
   chartTicks,
+  denseChartTicks,
   seriesTotals,
   tooltipPlacement,
+  valueTicks,
 } from "../activity-chart";
 
 /**
@@ -95,6 +97,33 @@ describe("seriesTotals and chartTicks", () => {
     expect(ticks[0]!.index).toBe(0);
     expect(ticks.at(-1)!.index).toBe(29);
     expect(ticks[0]!.label.length).toBeGreaterThan(0);
+  });
+
+  it("labels every other day on the wide axis, always including the last", () => {
+    const ticks = denseChartTicks(days, "pt-MZ");
+    expect(ticks).toHaveLength(15);
+    expect(ticks.at(-1)).toEqual({ index: 29, label: "3/09" });
+    expect(ticks[0]!.index).toBe(1);
+  });
+});
+
+describe("valueTicks", () => {
+  it("climbs in round steps to the first one that holds the tallest bar", () => {
+    expect(valueTicks(7)).toEqual([0, 2, 4, 6, 8]);
+    expect(valueTicks(4)).toEqual([0, 1, 2, 3, 4]);
+    expect(valueTicks(14)).toEqual([0, 5, 10, 15]);
+    expect(valueTicks(230)).toEqual([0, 100, 200, 300]);
+  });
+
+  it("still draws an axis over a month with nothing", () => {
+    expect(valueTicks(0)).toEqual([0, 1]);
+  });
+
+  it("scales the bars to the axis's top, not to the tallest bar", () => {
+    const { bars, max } = chartGeometry(days, 5);
+    expect(max).toBe(5);
+    const tallest = bars.find((b) => b.series === "requests")!;
+    expect(tallest.height).toBeCloseTo(((CHART.height - CHART.padTop - CHART.padBottom) * 4) / 5, 5);
   });
 });
 

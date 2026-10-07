@@ -190,8 +190,15 @@ describe("DashboardPage", () => {
     expect(screen.getByText("What customers paid for completed work.")).toBeInTheDocument();
     // 12 400 000 minor units — the platform's cut.
     expect(screen.getByText(/124,000\.00/)).toBeInTheDocument();
-    expect(screen.getByText("New providers (30 days)")).toBeInTheDocument();
-    expect(screen.getByText("3")).toBeInTheDocument();
+    // Within its card: the chart's y-axis draws its own 3.
+    expect(within(screen.getByText("New providers (30 days)").parentElement!).getByText("3")).toBeInTheDocument();
+  });
+
+  it("states one window and invents no comparison with another", async () => {
+    renderDashboard();
+    await waitForStats();
+    expect(screen.queryByText(/previous period|período anterior/i)).toBeNull();
+    expect(screen.queryByText(/%/)).toBeNull();
   });
 
   it("says why the gross is zero when nothing has been completed", async () => {
@@ -209,13 +216,19 @@ describe("DashboardPage", () => {
 
   it("lists the newest applications and links to all of them", async () => {
     renderDashboard();
-    expect(await screen.findByText("Latest applications")).toBeInTheDocument();
+    expect(await screen.findByText("Latest applications", { selector: "#latest-applications" })).toBeInTheDocument();
     // `CollectionCard` renders each row twice — the table and the phone's card —
     // and jsdom applies no media query, so both copies are present: assert both.
     for (const link of await screen.findAllByRole("link", { name: "Estúdio Mavalane" })) {
       expect(link).toHaveAttribute("href", "/admin/providers/p1");
     }
+    for (const link of screen.getAllByRole("link", { name: "View details" })) {
+      expect(link.getAttribute("href")).toMatch(/^\/admin\/providers\/p[12]$/);
+    }
+    expect(screen.getAllByText("p1@ntizo.test").length).toBeGreaterThan(0);
     expect(screen.getByRole("link", { name: "See all providers" })).toHaveAttribute("href", "/admin/providers");
+    // Two shown of every provider on the platform — the status counts' sum.
+    expect(await screen.findByText("2 of 47 shown")).toBeInTheDocument();
     const call = fakes.session.mock.calls.find((c) => String(c[0]).includes("ProviderAllForAdmin"));
     expect(call?.[1]).toMatchObject({ input: { limit: 5 } });
   });
