@@ -4,22 +4,12 @@ import { AboutPage } from "../about-page";
 import { CareersPage } from "../careers-page";
 import { renderCompanyPage } from "./render-company-page";
 
-/**
- * The strip's links, as hrefs, in order.
- *
- * Scoped by `closest("section")`, not by the heading's parent: the heading is
- * `SectionHead`'s now, which wraps it a div deep, so the parent held no links
- * at all and this returned an empty list rather than failing loudly.
- */
-function stripHrefs() {
-  const strip = screen.getByRole("heading", { name: /see also/i }).closest("section")!;
-  return Array.from(strip.querySelectorAll("a")).map((a) => a.getAttribute("href"));
-}
-
 describe("AboutPage", () => {
   it("leads with the title, the mission and the three steps, and no longer the four rules", async () => {
     await renderCompanyPage(AboutPage, "/about");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Local services you can trust.");
+    // Search, book, pay is an order, so the steps are a list that says so.
+    expect(screen.getByRole("heading", { name: "Search and compare" }).closest("ol")).not.toBeNull();
     expect(screen.getByText("Make hiring a service as simple and as safe as buying in a shop.")).toBeInTheDocument();
     for (const step of ["Search and compare", "Book the time", "Pay after confirmation"]) {
       expect(screen.getByRole("heading", { name: step })).toBeInTheDocument();
@@ -61,7 +51,7 @@ describe("AboutPage", () => {
 describe("CareersPage", () => {
   it("says there are no open roles and opens the mail client with the subject filled in", async () => {
     await renderCompanyPage(CareersPage, "/careers");
-    expect(screen.getByRole("heading", { name: "None right now." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "No openings right now." })).toBeInTheDocument();
     const cta = screen.getByRole("link", { name: /spontaneous application/i });
     expect(cta).toHaveAttribute("href", "mailto:ola@ntizo.co.mz?subject=Spontaneous%20application");
   });
@@ -73,8 +63,8 @@ describe("CareersPage", () => {
     }
   });
 
-  it("offers contact, feedback and help at the bottom", async () => {
+  it("ends on the ask, with no see-also strip repeating the footer", async () => {
     await renderCompanyPage(CareersPage, "/careers");
-    expect(stripHrefs()).toEqual(["/contact", "/feedback?from=%2Fcareers", "/help"]);
+    expect(screen.queryByRole("heading", { name: /see also/i })).toBeNull();
   });
 });

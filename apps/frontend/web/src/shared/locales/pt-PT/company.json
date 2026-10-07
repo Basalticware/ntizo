@@ -1,57 +1,30 @@
 {
-  "shared": {
-    "seeAlso": "Ver também",
-    "links": {
-      "contact": {
-        "title": "Contacto",
-        "body": "Parcerias, imprensa, ou simplesmente um olá."
-      },
-      "feedback": {
-        "title": "Dar feedback",
-        "body": "Uma ideia, algo que não funcionou, ou o que gostou."
-      },
-      "help": {
-        "title": "Central de ajuda",
-        "body": "Perguntas frequentes, e uma forma de falar connosco."
-      },
-      "about": {
-        "title": "Sobre a Ntizo",
-        "body": "O que fazemos, como funciona e no que acreditamos."
-      },
-      "careers": {
-        "title": "Carreiras",
-        "body": "Como trabalhamos, e como se candidatar."
-      }
-    }
-  },
   "about": {
     "headTitle": "Sobre a Ntizo",
     "heading": "Serviços locais em quem pode",
     "headingAccent": "confiar",
-    "lede": "A Ntizo liga quem precisa de um serviço a quem o sabe fazer. Prestadores verificados, preço à vista, e o pagamento só depois de o prestador confirmar a hora.",
+    "lede": "Prestadores verificados, preço à vista, e o pagamento só depois de o prestador confirmar a hora.",
     "missionTitle": "Tornar a contratação de um serviço tão simples e segura como uma compra numa loja.",
-    "mission1": "Em Moçambique, encontrar um bom canalizador, uma cabeleireira ou um explicador ainda depende de conhecer alguém que conheça alguém. O preço combina-se por telefone, a hora falha, e quando corre mal não há a quem recorrer.",
-    "mission2": "A Ntizo existe para mudar isso. Cada prestador é verificado antes de aparecer nos resultados, cada serviço tem o preço à vista, e cada reserva fica registada de ponta a ponta, da hora marcada ao pagamento.",
-    "howTitle": "Três passos, e nenhum deles é pagar antes de saber se vai acontecer.",
+    "mission1": "Em Moçambique, encontrar um bom canalizador, uma cabeleireira ou um explicador ainda depende de conhecer alguém. O preço combina-se por telefone e, quando corre mal, não há a quem recorrer.",
+    "mission2": "Na Ntizo, cada prestador é verificado, cada serviço tem o preço à vista e cada reserva fica registada, da hora marcada ao pagamento.",
+    "howTitle": "Três passos. Pagar é o último.",
     "steps": {
       "search": {
         "title": "Procure e compare",
-        "body": "Veja serviços por categoria e cidade, com o preço, as avaliações de quem já os usou e o selo de verificado."
+        "body": "Por categoria e cidade, com o preço, as avaliações e o selo de verificado."
       },
       "book": {
         "title": "Reserve a hora",
-        "body": "Escolha o dia e a hora no calendário do prestador e diga onde o serviço acontece. O pedido segue para ele confirmar."
+        "body": "Escolha o dia e a hora no calendário do prestador. Ele confirma."
       },
       "pay": {
         "title": "Pague depois da confirmação",
-        "body": "Só depois de o prestador confirmar a hora recebe o pedido de pagamento no telemóvel. Antes disso não é cobrado nada."
+        "body": "O pedido de pagamento chega ao telemóvel só depois de o prestador confirmar a hora."
       }
     },
     "customersTitle": "Encontre, reserve e pague num só sítio.",
-    "customersBody": "Sem telefonemas para saber o preço, sem esperar por uma resposta que não vem. Cada reserva tem uma hora, um valor e um registo.",
     "customersCta": "Explorar serviços",
     "providersTitle": "A sua agenda, os seus preços, os seus clientes.",
-    "providersBody": "Publique os serviços, defina quando está disponível e receba pedidos confirmados. A Ntizo trata do calendário, do pagamento e de o dar a conhecer.",
     "providersCta": "Torne-se prestador"
   },
   "contact": {
@@ -59,20 +32,9 @@
     "heading": "Fale connosco.",
     "lede": "Parcerias, imprensa, uma pergunta sobre a plataforma ou simplesmente um olá. Respondemos em dias úteis.",
     "messagePlaceholder": "Diga-nos o que tem em mente.",
-    "cards": {
-      "email": {
-        "title": "Por email",
-        "body": "Para quem prefere escrever directamente."
-      },
-      "social": {
-        "title": "Nas redes",
-        "body": "Novidades, bastidores e os prestadores que destacamos."
-      },
-      "feedback": {
-        "title": "Tem uma ideia, ou algo falhou?",
-        "body": "Isso é feedback, e lemos tudo.",
-        "cta": "Dar feedback"
-      }
+    "elsewhere": {
+      "title": "Tem uma ideia, ou algo falhou?",
+      "cta": "Dar feedback"
     }
   },
   "feedback": {
@@ -80,20 +42,9 @@
     "heading": "Diga-nos o que acha.",
     "lede": "Uma ideia, algo que não funcionou, ou o que gostou. Lemos tudo, e é isto que decide o que construímos a seguir.",
     "messagePlaceholder": "O que gostava que fosse diferente? Se algo falhou, diga-nos onde estava e o que esperava.",
-    "cards": {
-      "read": {
-        "title": "Lemos tudo",
-        "body": "Cada mensagem chega a uma pessoa da equipa. Nem todas têm resposta, mas todas contam."
-      },
-      "contact": {
-        "title": "Uma parceria, a imprensa, uma pergunta?",
-        "body": "Isso é para o contacto, que responde.",
-        "cta": "Ir para o contacto"
-      },
-      "social": {
-        "title": "Nas redes",
-        "body": "Novidades, bastidores e os prestadores que destacamos."
-      }
+    "elsewhere": {
+      "title": "Uma parceria, a imprensa, uma pergunta?",
+      "cta": "Ir para o contacto"
     }
   },
   "form": {
@@ -144,27 +95,27 @@
   "careers": {
     "headTitle": "Carreiras",
     "heading": "Construa a Ntizo connosco.",
-    "lede": "Somos uma equipa pequena a construir a infra-estrutura dos serviços locais em Moçambique. Não temos vagas abertas neste momento, mas lemos todas as candidaturas.",
+    "lede": "Somos uma equipa pequena a construir a infra-estrutura dos serviços locais em Moçambique.",
     "buildingEyebrow": "O que estamos a construir",
-    "building1": "Um mercado onde um cliente encontra, reserva e paga um serviço com a mesma confiança com que compra numa loja, e onde um prestador tem agenda, preços e pagamentos sem precisar de uma empresa por trás.",
-    "building2": "Começámos por Moçambique, com M-Pesa e em português. A plataforma é desenhada desde o primeiro dia para servir outros países, outras moedas e outras línguas.",
+    "building1": "Um mercado onde o cliente encontra, reserva e paga um serviço com confiança, e onde o prestador tem agenda, preços e pagamentos sem precisar de uma empresa por trás.",
+    "building2": "Começámos por Moçambique, com M-Pesa e em português, a pensar desde o primeiro dia noutros países, moedas e línguas.",
     "howEyebrow": "Como trabalhamos",
     "how": [
       {
         "title": "Escrevemos antes de construir.",
-        "body": "Cada decisão tem um documento com o porquê, para que quem chegar depois não a tenha de adivinhar."
+        "body": "Cada decisão tem um documento com o porquê."
       },
       {
         "title": "Enviamos cedo, corrigimos depressa.",
-        "body": "Preferimos uma versão real nas mãos de um cliente a uma versão perfeita numa apresentação."
+        "body": "Mais vale uma versão real nas mãos de um cliente do que uma perfeita numa apresentação."
       },
       {
         "title": "Quem usa vem primeiro.",
         "body": "Falamos com prestadores e clientes antes de decidir por eles."
       }
     ],
-    "openingsTitle": "Nenhuma neste momento.",
-    "openingsBody": "Se acha que devíamos estar a falar consigo mesmo assim, escreva-nos. Diga o que faz bem, o que já construiu, e porquê a Ntizo. Respondemos a todas.",
+    "openingsTitle": "Nenhuma vaga neste momento.",
+    "openingsBody": "Se acha que devíamos falar consigo mesmo assim, escreva-nos: o que faz bem, o que já construiu, e porquê a Ntizo.",
     "openingsCta": "Candidatura espontânea",
     "openingsHint": "Abre o seu email para {{email}} com o assunto já preenchido.",
     "mailSubject": "Candidatura espontânea"

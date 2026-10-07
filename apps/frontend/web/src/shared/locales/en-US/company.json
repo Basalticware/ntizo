@@ -1,57 +1,30 @@
 {
-  "shared": {
-    "seeAlso": "See also",
-    "links": {
-      "contact": {
-        "title": "Contact",
-        "body": "Partnerships, press, or simply a hello."
-      },
-      "feedback": {
-        "title": "Share feedback",
-        "body": "An idea, something that did not work, or something you liked."
-      },
-      "help": {
-        "title": "Help centre",
-        "body": "Frequently asked questions, and a way to reach us."
-      },
-      "about": {
-        "title": "About Ntizo",
-        "body": "What we do, how it works, and what we believe."
-      },
-      "careers": {
-        "title": "Careers",
-        "body": "How we work, and how to apply."
-      }
-    }
-  },
   "about": {
     "headTitle": "About Ntizo",
     "heading": "Local services you can",
     "headingAccent": "trust",
-    "lede": "Ntizo connects people who need a service with people who know how to do it. Verified providers, the price up front, and payment only after the provider confirms the time.",
+    "lede": "Verified providers, the price up front, and payment only after the provider confirms the time.",
     "missionTitle": "Make hiring a service as simple and as safe as buying in a shop.",
-    "mission1": "In Mozambique, finding a good plumber, a hairdresser or a tutor still depends on knowing someone who knows someone. The price is agreed over the phone, the time slips, and when it goes wrong there is nobody to turn to.",
-    "mission2": "Ntizo exists to change that. Every provider is verified before they appear in results, every service shows its price, and every booking is on record from start to finish, from the time agreed to the payment.",
-    "howTitle": "Three steps, and none of them is paying before you know it will happen.",
+    "mission1": "In Mozambique, finding a good plumber, a hairdresser or a tutor still depends on knowing someone. The price is agreed over the phone and, when it goes wrong, there is nobody to turn to.",
+    "mission2": "On Ntizo, every provider is verified, every service shows its price, and every booking is on record, from the time agreed to the payment.",
+    "howTitle": "Three steps. Paying is the last.",
     "steps": {
       "search": {
         "title": "Search and compare",
-        "body": "Browse services by category and city, with the price, reviews from people who used them, and the verified badge."
+        "body": "By category and city, with the price, the reviews and the verified badge."
       },
       "book": {
         "title": "Book the time",
-        "body": "Pick the day and time on the provider's calendar and say where the service happens. The request goes to the provider to confirm."
+        "body": "Pick the day and time on the provider's calendar. They confirm it."
       },
       "pay": {
         "title": "Pay after confirmation",
-        "body": "Only once the provider confirms the time do you get the payment prompt on your phone. Nothing is charged before that."
+        "body": "The payment prompt reaches your phone only after the provider confirms the time."
       }
     },
     "customersTitle": "Find, book and pay in one place.",
-    "customersBody": "No phone calls to learn the price, no waiting for a reply that never comes. Every booking has a time, an amount and a record.",
     "customersCta": "Explore services",
     "providersTitle": "Your calendar, your prices, your customers.",
-    "providersBody": "Publish your services, set when you are available, and receive confirmed requests. Ntizo handles the calendar, the payment and getting you found.",
     "providersCta": "Become a provider"
   },
   "contact": {
@@ -59,20 +32,9 @@
     "heading": "Talk to us.",
     "lede": "Partnerships, press, a question about the platform, or simply a hello. We reply on working days.",
     "messagePlaceholder": "Tell us what is on your mind.",
-    "cards": {
-      "email": {
-        "title": "By email",
-        "body": "For anyone who would rather write directly."
-      },
-      "social": {
-        "title": "On social",
-        "body": "News, behind the scenes, and the providers we feature."
-      },
-      "feedback": {
-        "title": "An idea, or something broke?",
-        "body": "That is feedback, and we read all of it.",
-        "cta": "Share feedback"
-      }
+    "elsewhere": {
+      "title": "An idea, or something broke?",
+      "cta": "Share feedback"
     }
   },
   "feedback": {
@@ -80,20 +42,9 @@
     "heading": "Tell us what you think.",
     "lede": "An idea, something that did not work, or something you liked. We read all of it, and it is what decides what we build next.",
     "messagePlaceholder": "What would you like to be different? If something failed, tell us where you were and what you expected.",
-    "cards": {
-      "read": {
-        "title": "We read everything",
-        "body": "Every message reaches a person on the team. Not all get a reply, but all of them count."
-      },
-      "contact": {
-        "title": "A partnership, the press, a question?",
-        "body": "That is for contact, which replies.",
-        "cta": "Go to contact"
-      },
-      "social": {
-        "title": "On social",
-        "body": "News, behind the scenes, and the providers we feature."
-      }
+    "elsewhere": {
+      "title": "A partnership, the press, a question?",
+      "cta": "Go to contact"
     }
   },
   "form": {
@@ -144,27 +95,27 @@
   "careers": {
     "headTitle": "Careers",
     "heading": "Build Ntizo with us.",
-    "lede": "We are a small team building the infrastructure for local services in Mozambique. There are no open roles right now, but we read every application.",
+    "lede": "We are a small team building the infrastructure for local services in Mozambique.",
     "buildingEyebrow": "What we are building",
-    "building1": "A marketplace where a customer finds, books and pays for a service with the same confidence as buying in a shop, and where a provider has a calendar, prices and payments without needing a company behind them.",
-    "building2": "We started with Mozambique, with M-Pesa and in Portuguese. The platform is designed from day one to serve other countries, other currencies and other languages.",
+    "building1": "A marketplace where a customer finds, books and pays for a service with confidence, and where a provider has a calendar, prices and payments without needing a company behind them.",
+    "building2": "We started with Mozambique, with M-Pesa and in Portuguese, designed from day one for other countries, currencies and languages.",
     "howEyebrow": "How we work",
     "how": [
       {
         "title": "We write before we build.",
-        "body": "Every decision has a document with the why, so whoever comes next does not have to guess it."
+        "body": "Every decision has a document with the why."
       },
       {
         "title": "We ship early and fix fast.",
-        "body": "We would rather have a real version in a customer's hands than a perfect one in a presentation."
+        "body": "A real version in a customer's hands beats a perfect one in a presentation."
       },
       {
         "title": "Whoever uses it comes first.",
         "body": "We talk to providers and customers before deciding for them."
       }
     ],
-    "openingsTitle": "None right now.",
-    "openingsBody": "If you think we should be talking to you anyway, write to us. Tell us what you do well, what you have built, and why Ntizo. We reply to every one.",
+    "openingsTitle": "No openings right now.",
+    "openingsBody": "If you think we should be talking anyway, write to us: what you do well, what you have built, and why Ntizo.",
     "openingsCta": "Spontaneous application",
     "openingsHint": "Opens your email to {{email}} with the subject already filled in.",
     "mailSubject": "Spontaneous application"

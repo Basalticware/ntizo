@@ -1,126 +1,101 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { SectionHead } from "@/features/landing/ui/section-head";
+import { ArrowRight, CalendarCheck, Search, Smartphone } from "lucide-react";
 import { CompanyPage } from "./company-page";
-import { buttonVariants } from "@ntizo/frontend-ui";
 import {
-  CARD_BODY_CLASS,
-  CARD_TITLE_CLASS,
-  PUBLIC_CARD_CLASS,
-  STEP_MARKER_CLASS,
-} from "@/features/landing/ui/public-page";
+  IconItems,
+  PhotoHero,
+  PhotoSplit,
+  SPLIT_BODY_CLASS,
+  SPLIT_TITLE_CLASS,
+  SoftBand,
+} from "./company-sections";
 
 /**
  * Who Ntizo is, told through what the product does — mission, the three
  * steps, two audiences. No founding year, no city, no names: the owner chose
  * (2026-09-02) not to publish them.
  *
- * Four blocks since October 2026. "Four rules" went — each one restated a
- * step or the mission — and so did the "see also" strip, which repeated the
- * footer directly under it.
- *
- * Drawn on the home page's rules since 2026-09-07. The blue half-headline,
- * the blue `01`/`02`/`03`, the eyebrow over every block and the rounded
- * cells sharing one outer border are gone; what replaced them is what the
- * home uses — `SectionHead`, `CARD_SURFACE_CLASS` per block, and navy where
- * something is affirmative.
+ * On the home page's pieces since October 2026, after the owner called the
+ * text-in-boxes version "muito mau": a photograph to open on, the mission
+ * beside a second one, the steps as icons on the soft blue band, and the two
+ * doors on the navy band the home ends with. The copy was cut by about half;
+ * every claim left is one the old page made.
  */
 export function AboutPage() {
   const { t } = useTranslation("company");
 
   return (
-    <CompanyPage
-      page="about"
-      seeAlso={false}
-      title={`${t("about.heading")} ${t("about.headingAccent")}.`}
-      lede={t("about.lede")}
-    >
-      {/* The mission statement is the heading. It used to sit under an
-          eyebrow reading "Our mission", which said less than the sentence
-          below it did. Two calm columns on the page itself, not a card: it
-          is the page's argument, not one item among several. */}
-      <section className="public-inset pb-14">
-        <div className="grid gap-6 md:grid-cols-[1fr_1fr] md:gap-14">
-          <h2 className="max-w-[24ch] text-[24px] leading-[1.15] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[28px]">
-            {t("about.missionTitle")}
-          </h2>
-          <div className="text-[16px] leading-relaxed text-[var(--color-ink-2)]">
-            <p>{t("about.mission1")}</p>
-            <p className="mt-4">{t("about.mission2")}</p>
-          </div>
-        </div>
-      </section>
+    <CompanyPage>
+      <PhotoHero
+        photo="/images/company/about-hero.jpg"
+        position="70% 18%"
+        title={`${t("about.heading")} ${t("about.headingAccent")}.`}
+        lede={t("about.lede")}
+      />
 
-      {/* These three keep their numbers: search, book, pay is an order, and
-          the whole point of the section is that paying comes last. Small soft
-          blue markers, the same shape the provider pitch's steps use — not
-          outlined `01`s the size of a heading. */}
-      <section className="public-inset pb-14">
-        <SectionHead title={t("about.howTitle")} />
-        <ol className="grid list-none gap-6 p-0 md:grid-cols-3">
-          {(["search", "book", "pay"] as const).map((key, i) => (
-            <li key={key} className={PUBLIC_CARD_CLASS}>
-              <span aria-hidden="true" className={`mb-4 ${STEP_MARKER_CLASS}`}>
-                {i + 1}
-              </span>
-              <h3 className={CARD_TITLE_CLASS}>{t(`about.steps.${key}.title`)}</h3>
-              <p className={`mt-1.5 ${CARD_BODY_CLASS}`}>
-                {t(`about.steps.${key}.body`)}
-              </p>
-            </li>
-          ))}
-        </ol>
-      </section>
+      <PhotoSplit photo="/images/company/about-mission.jpg" position="60% 50%">
+        <h2 className={SPLIT_TITLE_CLASS}>{t("about.missionTitle")}</h2>
+        <p className={`mt-5 ${SPLIT_BODY_CLASS}`}>{t("about.mission1")}</p>
+        <p className={`mt-4 ${SPLIT_BODY_CLASS}`}>{t("about.mission2")}</p>
+      </PhotoSplit>
 
-      <section className="public-inset pb-14">
-        <div className="grid gap-6 md:grid-cols-2">
-          <Audience
-            title={t("about.customersTitle")}
-            body={t("about.customersBody")}
-            cta={t("about.customersCta")}
-            to="/services"
-          />
-          <Audience
-            title={t("about.providersTitle")}
-            body={t("about.providersBody")}
-            cta={t("about.providersCta")}
-            to="/become-provider"
-          />
-        </div>
-      </section>
+      {/* Numbered: search, book, pay is an order, and the point of the
+          section is that paying comes last. */}
+      <SoftBand>
+        <h2 className="mb-8 text-[26px] leading-tight font-extrabold tracking-[-0.01em] text-[var(--color-headline)]">
+          {t("about.howTitle")}
+        </h2>
+        <IconItems
+          numbered
+          onBand
+          items={[
+            { Icon: Search, title: t("about.steps.search.title"), body: t("about.steps.search.body") },
+            { Icon: CalendarCheck, title: t("about.steps.book.title"), body: t("about.steps.book.body") },
+            { Icon: Smartphone, title: t("about.steps.pay.title"), body: t("about.steps.pay.body") },
+          ]}
+        />
+      </SoftBand>
+
+      <AudienceBand />
     </CompanyPage>
   );
 }
 
 /**
- * One of the two doors off this page.
+ * The two doors off this page, on the home's navy band.
  *
- * Both are the same button — the system's `secondary`, outlined in blue — and
- * neither is filled. They used to be a filled blue pill and an outlined one,
- * which ranked them: the customer's way out was the loud one and the
- * provider's the quiet one, on a page whose whole last section exists to
- * offer both. Two equal buttons keep them unranked.
+ * Both are the same white pill, so neither audience outranks the other —
+ * a page whose last section exists to offer both should not pick one.
  */
-function Audience({
-  title,
-  body,
-  cta,
-  to,
-}: {
-  title: string;
-  body: string;
-  cta: string;
-  to: string;
-}) {
+function AudienceBand() {
+  const { t } = useTranslation("company");
+  const doors = [
+    { key: "customers", to: "/services" },
+    { key: "providers", to: "/become-provider" },
+  ] as const;
+
   return (
-    <article className={PUBLIC_CARD_CLASS}>
-      <h3 className="text-[20px] font-bold tracking-[-0.01em] text-[var(--color-headline)]">
-        {title}
-      </h3>
-      <p className={`mt-2.5 ${CARD_BODY_CLASS}`}>{body}</p>
-      <Link to={to} className={`mt-5 ${buttonVariants({ variant: "secondary", size: "sm" })}`}>
-        {cta}
-      </Link>
-    </article>
+    <section className="mt-16 bg-[var(--color-navy-surface)] text-[var(--color-navy-on)] md:mt-20">
+      <div className="public-inset grid gap-10 py-12 md:grid-cols-2 md:gap-0 md:py-14">
+        {doors.map((door, i) => (
+          <article
+            key={door.key}
+            className={i === 1 ? "md:border-l md:border-[var(--color-navy-on)]/20 md:pl-12" : "md:pr-12"}
+          >
+            <h2 className="max-w-[22ch] text-[24px] leading-[1.15] font-extrabold tracking-[-0.01em] md:text-[28px]">
+              {t(`about.${door.key}Title`)}
+            </h2>
+            <Link
+              to={door.to}
+              className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-[var(--color-navy-on)] px-6 text-[15px] font-semibold text-[var(--color-navy-surface)] hover:opacity-90"
+            >
+              {t(`about.${door.key}Cta`)}
+              <ArrowRight className="h-4 w-4" strokeWidth={2.4} aria-hidden="true" />
+            </Link>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
