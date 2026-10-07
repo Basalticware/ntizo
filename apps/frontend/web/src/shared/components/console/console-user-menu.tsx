@@ -75,11 +75,11 @@ export function ConsoleUserMenu({
           </Avatar>
           {/* Name and role from `lg`: below that the bar has the search to
               keep, and the photo alone still opens the menu. */}
-          <span className="hidden max-w-[200px] lg:grid">
+          <span className="hidden max-w-[200px] xl:grid">
             <span className="truncate text-base leading-tight font-bold text-[var(--color-headline)]">{user?.name ?? ""}</span>
             <span className="mt-0.5 truncate text-[15px] leading-tight text-[var(--color-muted-foreground)]">{roleLabel}</span>
           </span>
-          <ChevronDown aria-hidden="true" className="ml-[22px] hidden size-5 text-[var(--color-headline)] lg:block" />
+          <ChevronDown aria-hidden="true" className="ml-[22px] hidden size-5 text-[var(--color-headline)] xl:block" />
         </button>
       </DropdownMenuTrigger>
             <DropdownMenuContent className="w-64" align="end">

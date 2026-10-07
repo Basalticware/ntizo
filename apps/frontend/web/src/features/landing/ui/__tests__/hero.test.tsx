@@ -114,7 +114,7 @@ describe("Hero", () => {
 
     expect(photo).toHaveAttribute("aria-hidden", "true");
     expect(photo.className).toContain("hidden");
-    expect(photo.className).toContain("lg:block");
+    expect(photo.className).toContain("xl:block");
     expect(photo.className.split(/\s+/)).not.toContain("block");
   });
 
@@ -130,14 +130,14 @@ describe("Hero", () => {
    * page before this changed: the trust list ended at y=543 and the heading
    * began at y=655.
    *
-   * So the padding is `lg:` only, and the phone falls back to the same
+   * So the padding is `xl:` only (the two-column hero starts at xl), and the phone falls back to the same
    * rhythm as every other junction on the page.
    */
   it("does not stack its own bottom padding on the next section's, on a phone", async () => {
     await renderHero();
     const section = document.querySelector("section")!;
 
-    expect(section.className).toContain("lg:pb-14");
+    expect(section.className).toContain("xl:pb-14");
     expect(section.className.split(/\s+/)).not.toContain("pb-14");
   });
 });

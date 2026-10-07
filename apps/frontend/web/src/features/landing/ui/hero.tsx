@@ -41,7 +41,7 @@ export function Hero() {
   return (
     <>
       <SiteHeader />
-      {/* `lg:pb-14`, not `pb-14`. Every section on this page is separated
+      {/* `xl:pb-14`, not `pb-14`. Every section on this page is separated
           from the one above it by the 56px of its own `pt-14` and nothing
           else; this one also paid 56px on the way out, which balances the
           collage sitting beside the text on a wide screen. On a phone the
@@ -51,9 +51,9 @@ export function Hero() {
           rhythm as every other junction. */}
       {/* `/services`' hero grid: the text inset by the page's `--pw-pad`,
           the photograph running out to the window's right edge. */}
-      <section className="mx-auto grid max-w-[1440px] lg:grid-cols-[minmax(0,1fr)_minmax(0,730px)] lg:gap-x-6 lg:pb-14">
-        <div className="pt-[22px] pr-[var(--pw-pad)] pl-[var(--pw-pad)] lg:pr-0">
-          <h1 className="max-w-[13ch] text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] lg:text-[53px]">
+      <section className="mx-auto grid max-w-[1440px] xl:grid-cols-[minmax(0,1fr)_minmax(0,730px)] xl:gap-x-6 xl:pb-14">
+        <div className="pt-[22px] pr-[var(--pw-pad)] pl-[var(--pw-pad)] xl:pr-0">
+          <h1 className="max-w-[13ch] text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] xl:text-[53px]">
             {t("home.heroTitle")}
           </h1>
           <p className="mt-3.5 max-w-[46ch] text-[17px] leading-normal text-[var(--color-muted-foreground)]">

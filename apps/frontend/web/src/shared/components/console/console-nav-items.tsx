@@ -43,7 +43,7 @@ export function ConsoleNavItems({ nav, slug }: { nav: ConsoleNav; slug: string |
             "hover:bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)]",
             "data-[active=true]:bg-[var(--color-primary)] data-[active=true]:text-[var(--color-primary-foreground)]",
             "hover:data-[active=true]:bg-[var(--color-primary)] hover:data-[active=true]:text-[var(--color-primary-foreground)]",
-            "group-data-[collapsible=icon]:mx-auto",
+            "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:w-11 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
           )}
         >
           <Link to={item.url} params={{ slug: slug ?? "" }}>

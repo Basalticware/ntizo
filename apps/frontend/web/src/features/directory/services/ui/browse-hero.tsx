@@ -26,12 +26,12 @@ export function BrowseHero({ title }: { title: string }) {
   const { t } = useTranslation("directory");
 
   return (
-    <section className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,730px)] lg:gap-x-6">
-      <div className="pt-[22px] pb-4 pl-[var(--pw-pad)] pr-[var(--pw-pad)] lg:pr-0">
+    <section className="grid xl:grid-cols-[minmax(0,1fr)_minmax(0,730px)] xl:gap-x-6">
+      <div className="pt-[22px] pb-4 pl-[var(--pw-pad)] pr-[var(--pw-pad)] xl:pr-0">
         <p className="text-[13px] leading-[1.2] font-bold tracking-[0.04em] text-[var(--color-blue-edge)] uppercase">
           {t("browseHeroEyebrow")}
         </p>
-        <h1 className="mt-2.5 text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] whitespace-pre-line text-[var(--color-headline)] lg:text-[53px]">
+        <h1 className="mt-2.5 text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] whitespace-pre-line text-[var(--color-headline)] xl:text-[53px]">
           {title}
         </h1>
         <p className="mt-3.5 max-w-[540px] text-[17px] leading-normal text-[var(--color-muted-foreground)]">
@@ -39,7 +39,7 @@ export function BrowseHero({ title }: { title: string }) {
         </p>
       </div>
 
-      <div aria-hidden="true" className="relative hidden h-[203px] self-start overflow-hidden lg:block">
+      <div aria-hidden="true" className="relative hidden h-[203px] self-start overflow-hidden xl:block">
         <img
           src="/images/services-hero.jpg"
           alt=""

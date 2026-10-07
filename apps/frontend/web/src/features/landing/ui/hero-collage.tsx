@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
  * At its natural 730×205 and never scaled up: the file is that size, and a
  * blown-up photograph is worse than a short one.
  *
- * `hidden lg:block`: below the two-column hero it would be a strip between
+ * `hidden xl:block`: below the two-column hero it would be a strip between
  * the claim and the categories, and the phone reaches the categories sooner
  * without it.
  */
@@ -24,7 +24,7 @@ export function HeroCollage() {
     <div
       aria-hidden="true"
       data-testid="hero-photo"
-      className="relative hidden h-[203px] self-start overflow-hidden lg:block"
+      className="relative hidden h-[203px] self-start overflow-hidden xl:block"
     >
       <img
         src="/images/services-hero.jpg"

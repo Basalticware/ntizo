@@ -43,15 +43,15 @@ export function SettingsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="w-full max-w-[1400px] xl:grid xl:grid-cols-[minmax(0,1fr)_302px] xl:grid-rows-[auto_1fr] xl:gap-x-5">
-      <div className="min-w-0 xl:row-span-2">
+    <div className="w-full max-w-[1400px] 2xl:grid 2xl:grid-cols-[minmax(0,1fr)_302px] 2xl:grid-rows-[auto_1fr] 2xl:gap-x-5">
+      <div className="min-w-0 2xl:row-span-2">
         {hero}
         <div className="mt-4 lg:grid lg:grid-cols-[213px_minmax(0,1fr)] lg:items-start lg:gap-[15px]">
           {nav}
           <div className="grid min-w-0 gap-4">{children}</div>
         </div>
       </div>
-      <aside className="mt-5 grid content-start gap-5 xl:col-start-2 xl:row-start-1 xl:mt-0">{aside}</aside>
+      <aside className="mt-5 grid content-start gap-5 2xl:col-start-2 2xl:row-start-1 2xl:mt-0">{aside}</aside>
       {save}
     </div>
   );
@@ -102,7 +102,9 @@ export function Section({
         <p className="mt-[3px] text-sm leading-[1.45] text-[var(--color-muted-foreground)]">{blurb}</p>
         <div className="mt-4">{children}</div>
       </div>
-      {side && <div className="mt-4 2xl:mt-0 2xl:ml-5">{side}</div>}
+      {/* Under the body, in its column, until the wide screen has room for a
+          third: without `col-start-2` it wraps into the 58px icon column. */}
+      {side && <div className="mt-4 sm:col-start-2 2xl:col-start-3 2xl:row-start-1 2xl:mt-0 2xl:ml-5">{side}</div>}
     </section>
   );
 }
@@ -117,7 +119,7 @@ export function SettingsSaveBar({ children }: { children: React.ReactNode }) {
     <div
       className={cn(
         "sticky -bottom-6 z-20 -mx-6 -mb-6 mt-6 border-t border-[var(--color-border)] bg-[var(--color-background)]/95 px-6 backdrop-blur",
-        "xl:top-6 xl:bottom-auto xl:col-start-2 xl:row-start-2 xl:mx-0 xl:mt-5 xl:mb-0 xl:self-start xl:border-0 xl:bg-transparent xl:px-0 xl:backdrop-blur-none",
+        "2xl:top-6 2xl:bottom-auto 2xl:col-start-2 2xl:row-start-2 2xl:mx-0 2xl:mt-5 2xl:mb-0 2xl:self-start 2xl:border-0 2xl:bg-transparent 2xl:px-0 2xl:backdrop-blur-none",
       )}
     >
       {children}
