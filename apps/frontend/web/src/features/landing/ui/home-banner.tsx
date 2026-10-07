@@ -44,7 +44,7 @@ export function HomeBanner() {
           <img
             src="/images/home-banner.jpg"
             alt=""
-            className="absolute inset-y-0 right-0 -z-10 h-full w-full object-cover object-right sm:w-[68%]"
+            className="absolute inset-0 -z-10 h-full w-full object-cover object-right"
           />
           <div
             aria-hidden="true"
@@ -80,7 +80,11 @@ export function HomeBanner() {
                     className="group grid h-full grid-cols-[124px_minmax(0,1fr)_auto] items-center gap-4 overflow-hidden rounded-[10px] bg-[var(--color-blue-softer)] pr-4 hover:bg-[var(--color-blue-soft)]"
                   >
                     <span className="block h-[56px] overflow-hidden">
-                      <CategoryPicture category={c} className="h-full w-full" iconClassName="h-6 w-6" />
+                      <CategoryPicture
+                        category={c}
+                        className="h-full w-full object-[50%_30%]"
+                        iconClassName="h-6 w-6"
+                      />
                     </span>
                     <span className="min-w-0">
                       <b className="block truncate text-[15px] font-bold text-[var(--color-headline)] group-hover:underline">

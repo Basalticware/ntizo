@@ -167,7 +167,9 @@ export function ProviderCard({
         <BrandImage
           src={photo}
           alt=""
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+          // The home's wider frame keeps a portrait's upper third, where the
+          // face usually is, rather than cutting through the middle of it.
+          className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035] ${feature ? "object-[50%_30%]" : ""}`}
         />
         {favourite}
         {/* The badge draws whenever there is a logo, independent of whether a

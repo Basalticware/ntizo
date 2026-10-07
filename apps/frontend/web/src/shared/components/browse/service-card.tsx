@@ -171,7 +171,7 @@ export function ServiceCard({
         <BrandImage
           src={service.imageUrls[0] ?? null}
           alt=""
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+          className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035] ${feature ? "object-[50%_30%]" : ""}`}
         />
         {feature && service.categoryName ? (
           <span className="absolute bottom-2.5 left-2.5 max-w-[calc(100%-20px)] truncate rounded-md bg-[var(--color-card)] px-2 py-1 text-[12px] leading-none font-medium text-[var(--color-ink-2)]">
