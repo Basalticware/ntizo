@@ -313,18 +313,13 @@ describe("DirectoryPage", () => {
     });
   });
 
-  it("shows what is narrowing the list on the pills themselves, each with the link that removes just it", async () => {
-    // The chip row under the results bar is gone: an applied filter fills its
-    // own pill and grows the × that takes it off, because two places showing
-    // the same state was one place too many.
-    const { container } = renderPage("/providers?city=Maputo&verified=true", {
+  it("shows what is narrowing the list as the sidebar's chips, each with the link that removes just it", async () => {
+    renderPage("/providers?city=Maputo&verified=true", {
       items: [provider()],
       total: 1,
     });
     await screen.findByRole("heading", { level: 1 });
-    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).toContain("Verified only");
-    expect(summaries).toContain("Maputo");
+    expect(screen.getByText("Active filters (2)")).toBeInTheDocument();
 
     // Removing one keeps the other. A link built by hand at the call site only
     // ever remembers the parameters that call site knows about.
@@ -405,7 +400,9 @@ describe("DirectoryPage", () => {
     // a menu row's `aria-checked`, decided by comparing the URL to a value
     // this page already holds, not a `<Link>` guessing from a subset match.
     renderPage("/providers?sort=rating&category=hair", { items: [provider()], total: 1 });
-    expect(await screen.findByRole("link", { name: /All/ })).not.toHaveAttribute("aria-current");
+    expect(await screen.findByRole("link", { name: "All categories" })).not.toHaveAttribute(
+      "aria-current",
+    );
     // And the site header's own /providers link, which genuinely *is* this
     // page, still says so — the fix must not silence a true one.
     expect(screen.getByRole("link", { name: "Providers" })).toHaveAttribute(
@@ -421,15 +418,15 @@ describe("DirectoryPage", () => {
     // used to be a third, the phone's quick chip; the chips are gone and the
     // trap is not, so the guard stays on both survivors.
     renderPage("/providers?verified=true", { items: [provider()], total: 1 });
-    // One while the sheet is shut: the filter pill's option row alone.
+    // One while the sheet is shut: the sidebar's switch alone.
     // `SheetContent` returns null until it is opened.
-    const closed = await screen.findAllByRole("link", { name: "Verified only" });
+    const closed = await screen.findAllByRole("link", { name: /Verified providers only/ });
     expect(closed).toHaveLength(1);
 
     fireEvent.click(screen.getByRole("button", { name: /^Filters/ }));
 
     // Two now, and both must be clean.
-    const options = screen.getAllByRole("link", { name: "Verified only" });
+    const options = screen.getAllByRole("link", { name: /Verified providers only/ });
     expect(options).toHaveLength(2);
     for (const option of options) expect(option).not.toHaveAttribute("aria-current");
 
@@ -478,7 +475,7 @@ describe("DirectoryPage", () => {
       "aria-pressed",
       "true",
     );
-    expect(within(sheet).getByRole("link", { name: "A person" })).toBeInTheDocument();
+    expect(within(sheet).getByRole("link", { name: /Person/ })).toBeInTheDocument();
     // Clearing takes off what the sheet showed as on and keeps what it never
     // offered — the term survives.
     expect(within(sheet).getByRole("link", { name: "Clear all" })).toHaveAttribute(
@@ -516,6 +513,45 @@ describe("DirectoryPage", () => {
     expect(screen.queryByRole("list", { name: "Quick filters" })).toBeNull();
     // And the capsule that replaces them is still there.
     expect(screen.getByRole("button", { name: /^Filters/ })).toBeInTheDocument();
+  });
+
+  describe("the best-rated card", () => {
+    const rated = [
+      provider({ id: "a", slug: "a", name: "Casa A", ratingAverage: 4.2, reviewCount: 9 }),
+      provider({ id: "b", slug: "b", name: "Casa B", ratingAverage: 4.9, reviewCount: 3, verified: true }),
+      provider({ id: "c", slug: "c", name: "Casa C", ratingAverage: null, reviewCount: 0 }),
+    ];
+
+    it("draws the best-rated business wide, says so truthfully, and not again in the grid", async () => {
+      renderPage("/providers", { items: rated, total: 3 });
+      const card = await screen.findByRole("article", { name: /Casa B/ });
+      expect(card).toHaveTextContent("Top rated");
+      expect(card).not.toHaveTextContent(/featured/i);
+      expect(card).toHaveTextContent("Verified provider");
+      expect(within(card).getByRole("link", { name: "View profile" })).toHaveAttribute(
+        "href",
+        "/providers/b",
+      );
+      expect(screen.getAllByRole("listitem").map((li) => li.textContent)).not.toEqual(
+        expect.arrayContaining([expect.stringContaining("Casa B")]),
+      );
+    });
+
+    it("is absent past the first page, under a typed name, and when nobody is reviewed", async () => {
+      const first = renderPage("/providers?offset=24", { items: rated, total: 27 });
+      await screen.findByRole("heading", { level: 1 });
+      expect(screen.queryByText("Top rated")).toBeNull();
+      first.unmount();
+
+      const second = renderPage("/providers?q=casa", { items: rated, total: 3 });
+      await screen.findByRole("heading", { level: 1 });
+      expect(screen.queryByText("Top rated")).toBeNull();
+      second.unmount();
+
+      renderPage("/providers", { items: [rated[2]!], total: 1 });
+      await screen.findByRole("heading", { level: 1 });
+      expect(screen.queryByText("Top rated")).toBeNull();
+    });
   });
 
   it("offers no numbered pages when everything matched fits on one", async () => {

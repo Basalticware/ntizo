@@ -42,8 +42,7 @@ vi.mock("@/features/landing/viewmodel/use-categories", () => ({
     },
   }),
 }));
-
-const { MobileProviderFilters, ProviderFilters } = await import("../provider-filters");
+const { MobileProviderFilters, ProviderSidebar } = await import("../provider-filters");
 
 async function renderIn(node: ReactNode) {
   const root = createRootRoute({ component: () => <>{node}</> });
@@ -55,132 +54,116 @@ async function renderIn(node: ReactNode) {
   return render(<RouterProvider router={router} />);
 }
 
-const renderFilters = (current: DirectorySearch, total = 0) =>
-  renderIn(<ProviderFilters current={current} total={total} />);
+const renderSidebar = (current: DirectorySearch) => renderIn(<ProviderSidebar current={current} />);
 
 const renderMobile = (current: DirectorySearch, total = 0) =>
   renderIn(<MobileProviderFilters current={current} total={total} />);
 
-describe("ProviderFilters", () => {
-  it("shows an applied filter's option as its pill's label, and its × removes just that filter", async () => {
-    const { container } = await renderFilters({
-      verified: true,
-      minRating: 4,
-      q: "mavalane",
-    });
-    // The rating pill fills with the chosen option, in place of its own name.
-    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).not.toContain("Rating");
+const groupsIn = (root: HTMLElement) => [...root.querySelectorAll("h3")].map((h) => h.textContent);
 
-    const remove = screen.getByRole("link", { name: "Remove Rating" });
-    const href = remove.getAttribute("href")!;
-    expect(href).not.toContain("minRating");
-    expect(href).toContain("verified=true");
-
-    // The clear-all is on because a facet is narrowing the list, and it
-    // keeps `q` — the typed term is the search bar's to clear, up under the
-    // header, not this bar's, so "Clear all" here must not also wipe it.
-    const clearAll = screen.getByRole("link", { name: "Clear all" });
-    expect(clearAll.getAttribute("href")).toContain("q=mavalane");
+describe("ProviderSidebar", () => {
+  it("draws only the groups the directory API applies, in the mockup's order", async () => {
+    const { container } = await renderSidebar({});
+    expect(screen.getByRole("heading", { level: 2, name: "Filters" })).toBeInTheDocument();
+    // No "Responde rápido": nothing records how fast anybody answers.
+    expect(groupsIn(container)).toEqual([
+      "City",
+      "Categories",
+      "Minimum rating",
+      "Price range",
+      "Type of provider",
+    ]);
+    expect(screen.getByRole("link", { name: /Verified providers only/ })).toBeInTheDocument();
+    // Every option applies as it is chosen, so there is nothing to apply.
+    expect(screen.queryByRole("button", { name: /Apply/ })).toBeNull();
   });
 
-  it("keeps five pills on the bar, in the mockup's order, and no More filters", async () => {
-    const { container } = await renderFilters({});
-    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).toEqual(["Category", "City", "Price range", "Rating", "Verification"]);
-    expect(screen.getByRole("button", { name: "Filter" })).toBeInTheDocument();
+  it("lists what is on as chips, each removing just itself, and the category by name", async () => {
+    await renderSidebar({ category: "plumbing", city: "Maputo", minRating: 4, q: "mavalane" });
+    expect(screen.getByText("Active filters (3)")).toBeInTheDocument();
+
+    const category = screen.getByRole("link", { name: "Remove Canalização" });
+    expect(category.getAttribute("href")).not.toContain("category");
+    expect(category.getAttribute("href")).toContain("minRating=4");
+
+    // The city chip says just the place, not "in Maputo".
+    const city = screen.getByRole("link", { name: "Remove Maputo" });
+    expect(city.getAttribute("href")).not.toContain("city");
+    expect(city.getAttribute("href")).toContain("category=plumbing");
+
+    // The clear-all keeps the term: it is the search bar's to clear.
+    expect(screen.getByRole("link", { name: "Clear all" }).getAttribute("href")).toContain(
+      "q=mavalane",
+    );
   });
 
-  it("opens every group, the kind of provider included, from Filter", async () => {
-    await renderFilters({ providerType: "individual", minRating: 4 }, 9);
-    const button = screen.getByRole("button", { name: /^Filter/ });
-    expect(button).toHaveTextContent("Filter · 2");
-    fireEvent.click(button);
-
-    const sheet = screen.getByRole("dialog", { name: "Filters" });
-    expect(sheet).toHaveTextContent("Who provides it");
-    expect(within(sheet).getByRole("button", { name: "Show 9 results" })).toBeInTheDocument();
-  });
-
-  it("fills no pill and offers no clear-all when nothing is applied", async () => {
-    const { container } = await renderFilters({});
-    // No group's name has been replaced by a chosen option.
-    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).toContain("Rating");
-    expect(summaries).toContain("Verification");
-    expect(screen.getByRole("button", { name: "Filter" }).textContent).not.toContain("·");
-    // No filter is on, so no pill carries a remove link and there is nothing
-    // to clear all of.
-    expect(screen.queryByRole("link", { name: /^Remove /i })).toBeNull();
-    expect(screen.queryByText("Clear all")).toBeNull();
-  });
-
-  it("offers no clear-all for a typed term alone, because the bar does not narrow on it", async () => {
-    await renderFilters({ q: "mavalane" });
+  it("shows no active box and no clear-all when nothing is narrowing", async () => {
+    await renderSidebar({ q: "mavalane" });
+    expect(screen.queryByText(/Active filters/)).toBeNull();
     expect(screen.queryByRole("link", { name: "Clear all" })).toBeNull();
   });
 
+  it("offers the API's rating floors as tiles, all first and lit when none is set", async () => {
+    await renderSidebar({});
+    expect(screen.getByRole("link", { name: "All" })).toHaveAttribute("aria-pressed", "true");
+    for (const score of ["3.0", "4.0", "4.5"]) {
+      expect(screen.getByRole("link", { name: `${score} or more` })).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+    }
+  });
+
+  it("clears a rating floor from its own tile", async () => {
+    await renderSidebar({ minRating: 4 });
+    const tile = screen.getByRole("link", { name: "4.0 or more" });
+    expect(tile).toHaveAttribute("aria-pressed", "true");
+    expect(tile.getAttribute("href")).not.toContain("minRating");
+  });
+
+  it("turns verified on and off as a switch that is a link", async () => {
+    const { unmount } = await renderSidebar({});
+    const off = screen.getByRole("link", { name: /Verified providers only/ });
+    expect(off).toHaveAttribute("aria-pressed", "false");
+    expect(off.getAttribute("href")).toContain("verified=true");
+    unmount();
+
+    await renderSidebar({ verified: true, city: "Maputo" });
+    const on = screen.getByRole("link", { name: /Verified providers only/ });
+    expect(on).toHaveAttribute("aria-pressed", "true");
+    // `verified: false` is never written — off is the parameter gone.
+    expect(on.getAttribute("href")).not.toContain("verified");
+    expect(on.getAttribute("href")).toContain("city=Maputo");
+  });
+
+  it("offers the two kinds of provider as tiles", async () => {
+    await renderSidebar({ providerType: "individual" });
+    expect(screen.getByRole("link", { name: /Person/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("link", { name: /Business/ })).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("leads the categories with All categories, then each by name", async () => {
+    await renderSidebar({});
+    expect(screen.getByRole("link", { name: "All categories" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("link", { name: "Canalização" })).toHaveAttribute("href", "/providers?category=plumbing");
+  });
+
   it("wears navy on the price form's OK, not the kit's default blue", async () => {
-    // `--color-primary` is the site's own blue — the header's sign-in and
-    // sign-in, and the search bar's button — and nothing in the results wears
-    // it; the kit's default `Button` variant is that blue, and this submit is
-    // drawn twice, in the price pill's popover and in the sheet.
-    await renderFilters({});
+    // The kit's default `Button` variant is the site's blue; this submit is
+    // drawn twice, in the sidebar and in the sheet.
+    await renderSidebar({});
     const ok = screen.getByRole("button", { name: "OK" });
     expect(ok.className).toContain("--color-navy-surface");
     expect(ok.className).not.toContain("--color-primary");
-  });
-  /**
-   * The category was a strip of chips above the results until it became the
-   * bar's first pill. Three things have to hold for it to be a filter like
-   * the five beside it rather than a strip in a new shape.
-   */
-  it("leads the bar with the category, filled with the name and not the code", async () => {
-    const { container } = await renderFilters({ category: "plumbing" });
-
-    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    // First, because every other pill divides a set this one already chose.
-    expect(summaries[0]).toContain("Canalização");
-    // The name the reader picked, never the code the URL carries.
-    expect(summaries[0]).not.toContain("plumbing");
-  });
-
-  it("takes only the category off with the category pill's ×", async () => {
-    await renderFilters({ category: "plumbing", city: "Maputo", minRating: 4 });
-
-    const clear = screen.getByRole("link", { name: "Remove Category" });
-    expect(clear).toHaveAttribute("href", expect.stringContaining("city=Maputo"));
-    expect(clear).toHaveAttribute("href", expect.stringContaining("minRating=4"));
-    expect(clear.getAttribute("href")).not.toContain("category");
-  });
-
-  it("offers no × on the category pill when no category is chosen", async () => {
-    await renderFilters({ city: "Maputo" });
-    expect(screen.queryByRole("link", { name: "Remove Category" })).toBeNull();
-  });
-
-  /**
-   * Nine categories on the platform today, which is under
-   * `OPTION_SEARCH_THRESHOLD` — the panel is a plain list until an
-   * administrator adds enough of them to make one worth scanning.
-   * `searchable-options.test.tsx` owns the searching itself.
-   */
-  it("lists the categories plainly while there are few of them", async () => {
-    await renderFilters({});
-
-    expect(screen.queryByRole("searchbox", { name: "Search categories" })).toBeNull();
-    expect(screen.getByRole("link", { name: "Canalização" })).toBeInTheDocument();
-    // And the row that clears the group, marked as the one in force.
-    expect(screen.getByRole("link", { name: "All" })).toHaveAttribute("aria-pressed", "true");
   });
 });
 
 describe("MobileProviderFilters", () => {
   it("counts the filters it can take off, and not the term the search bar owns", async () => {
-    // The count sits on a control whose sheet has no box for the term: a
-    // number that included `q` would put a "2" over a sheet offering one
-    // thing the reader can act on, which is the bug the old badge had with
-    // `city`. See R18 — the term is the search bar's to clear.
+    // See R18 — the term is the search bar's to clear.
     await renderMobile({ q: "mavalane", city: "Maputo" });
     expect(screen.getByRole("button", { name: /^Filters/ })).toHaveTextContent("Filters · 1");
   });
@@ -192,37 +175,27 @@ describe("MobileProviderFilters", () => {
     expect(control.textContent).not.toContain("·");
   });
 
-  it("states the outcome on the sheet's button rather than saying 'Apply'", async () => {
-    // A button that says "Apply" makes a reader tap it to find out what they
-    // did; one that counts tells them before they commit, so they can loosen
-    // a filter instead of narrowing to nothing.
+  it("states the outcome on the sheet's button and holds the sidebar's own groups", async () => {
     await renderMobile({ providerType: "individual" }, 38);
     fireEvent.click(screen.getByRole("button", { name: /^Filters/ }));
 
     const sheet = screen.getByRole("dialog", { name: "Filters" });
     expect(within(sheet).getByRole("button", { name: "Show 38 results" })).toBeInTheDocument();
-    // And the sheet offers the same rows the pills do, with the chosen one
-    // already marked — one definition, two placements.
-    expect(within(sheet).getByRole("link", { name: "A person" })).toHaveAttribute(
+    // One definition, two placements: the same groups as the sidebar.
+    expect(groupsIn(sheet)).toEqual([
+      "City",
+      "Categories",
+      "Minimum rating",
+      "Price range",
+      "Type of provider",
+    ]);
+    expect(within(sheet).getByRole("link", { name: /Person/ })).toHaveAttribute(
       "aria-pressed",
       "true",
     );
   });
-  it("leads the phone's sheet with the category, now that the strip is gone", async () => {
-    // The pills are desktop-only, so the sheet is the phone's only way to a
-    // category once the strip above the results went away.
-    await renderMobile({}, 12);
-    fireEvent.click(screen.getByRole("button", { name: /^Filters/ }));
-
-    const sheet = screen.getByRole("dialog", { name: "Filters" });
-    const groups = [...sheet.querySelectorAll("h3")].map((h) => h.textContent);
-    expect(groups[0]).toBe("Category");
-    expect(within(sheet).getByRole("link", { name: "Electricidade" })).toBeInTheDocument();
-  });
 
   it("counts a chosen category on the phone's own control", async () => {
-    // The chips beside the results carry no category — the heading already
-    // names it — but the badge counts what the sheet can take off.
     await renderMobile({ category: "plumbing" });
     expect(screen.getByRole("button", { name: /^Filters/ })).toHaveTextContent("Filters · 1");
   });

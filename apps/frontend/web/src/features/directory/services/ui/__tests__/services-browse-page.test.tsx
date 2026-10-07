@@ -228,8 +228,9 @@ describe("ServicesBrowsePage", () => {
     await screen.findByRole("link", { name: "Corte de cabelo" });
     const list = container.querySelector("article")!.closest("ul")!;
     expect(list.className).toContain("grid-cols-1");
-    // 24px both ways, the mockup's three-column grid.
-    expect(list.className).toContain("gap-6");
+    // 20px both ways, two across beside the sidebar.
+    expect(list.className).toContain("gap-5");
+    expect(list.className).toContain("sm:grid-cols-2");
     expect(list.className.split(/\s+/)).not.toContain("gap-0");
     expect(list.className).not.toMatch(/\bdivide-y\b/);
   });
@@ -300,19 +301,14 @@ describe("ServicesBrowsePage", () => {
     });
   });
 
-  it("shows what is narrowing the list on the pills themselves, each with the link that removes just it", async () => {
-    // The chip row under the results bar is gone: an applied filter fills its
-    // own pill and grows the × that takes it off, because two places showing
-    // the same state was one place too many.
-    const { container } = renderPage("/services?city=Maputo&locationType=at_customer", {
+  it("shows what is narrowing the list as the sidebar's chips, each with the link that removes just it", async () => {
+    renderPage("/services?city=Maputo&locationType=at_customer", {
       items: [service()],
       nextOffset: null,
       total: 1,
     });
     await screen.findByRole("heading", { level: 1 });
-    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).toContain("At your place");
-    expect(summaries).toContain("Maputo");
+    expect(screen.getByText("Active filters (2)")).toBeInTheDocument();
 
     // Removing one keeps the other. A link built by hand at the call site only
     // ever remembers the parameters that call site knows about.
@@ -512,7 +508,7 @@ describe("ServicesBrowsePage", () => {
     // On the city pill and not merely somewhere on the page: this is the one
     // group whose label overclaims, and the language group carries a hint of
     // its own beside it.
-    const group = hint.closest("details");
+    const group = hint.closest("section");
     expect(group).not.toBeNull();
     expect(group).toHaveTextContent("City");
     expect(within(group!).getByRole("link", { name: /Beira/ })).toBeInTheDocument();
@@ -590,6 +586,31 @@ describe("ServicesBrowsePage", () => {
       expect(screen.getAllByRole("listitem").map((li) => li.textContent)).not.toEqual(
         expect.arrayContaining([expect.stringContaining("Manicure")]),
       );
+    });
+
+    it("says a quote is free only for a service that works by quote", async () => {
+      const { unmount } = renderPage("/services", { items: rated, nextOffset: null, total: 3 });
+      const priced = await screen.findByRole("article", { name: "Manicure" });
+      expect(priced).not.toHaveTextContent("Free quote");
+      // Never a fast-reply or guarantee claim: nothing records either.
+      expect(priced).not.toHaveTextContent(/guarantee|fast/i);
+      unmount();
+
+      renderPage("/services", {
+        items: [
+          service({
+            id: "q",
+            name: "Obra",
+            bookingMode: "quote",
+            defaultOption: null,
+            providerRatingAverage: 4.6,
+            providerReviewCount: 5,
+          }),
+        ],
+        nextOffset: null,
+        total: 1,
+      });
+      expect(await screen.findByRole("article", { name: "Obra" })).toHaveTextContent("Free quote");
     });
 
     it("is absent when nobody on the page has been reviewed", async () => {

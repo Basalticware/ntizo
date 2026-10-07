@@ -1,60 +1,69 @@
-import { Link } from "@tanstack/react-router";
-import { useTranslation } from "react-i18next";
-import { ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
 
 /**
- * The top of a browse page: a short breadcrumb, the title and one line under
- * it — the size `PageIntro` and the consoles use, so a list reads as the same
- * system as every other page.
+ * The top of a browse page: a photograph across the window with the title on
+ * its left, one line under it, and the page's own search bar sitting over
+ * the photograph's bottom edge (October 2026 list-with-sidebar mockup).
  *
- * Shared by `/services` and `/providers` so the twins open the same way. It
- * replaced a hero with a photograph and a quote panel bleeding to the
- * window's edge (October 2026): artwork that pushed the results a screen
- * down and said nothing the title did not. The October 2026 list mockup puts
- * a photograph of the city back beside the title; there is still no licensed
- * one, so the head stays text rather than faking it.
+ * Shared by `/services` and `/providers` so the twins open the same way. The
+ * photograph is the home page's own electrician — the one licensed picture
+ * the platform has — under a fade from the page's ground on the left to
+ * clear on the right, so the navy title reads over it in both themes.
  *
- * The breadcrumb took the eyebrow's place, as in that mockup: "Início › "
- * and the page's own name, which is the one word the eyebrow said. Only the
- * home is a link — the last crumb is where the reader already is.
+ * **The phone gets no photograph.** At 390px the fade would have to cover
+ * the whole picture for the title to read, which leaves a grey band where a
+ * photograph was; the head is the title, the line and the bar, as before.
  *
- * `title` is the page's `h1`. A newline in it is a soft break in the copy,
- * not a layout: at 44px the title fits one line, so it is read as a space.
+ * `title` is the page's `h1`. A newline in it splits the two lines the
+ * mockup draws, and the second one wears the brand blue. A narrowed title
+ * ("Serviços em Maputo") has no newline and is one navy line.
+ *
+ * What the mockup adds and this leaves out: a "Centenas de prestadores
+ * verificados" badge, which is not true of the platform, and a handwritten
+ * line over the photograph.
  */
 export function BrowseHead({
-  crumb,
   title,
   subtitle,
+  search,
 }: {
-  /** The page's own name, the breadcrumb's last step. */
-  crumb: string;
   title: string;
   subtitle: string;
+  /** The page's `BrowseSearchForm`, drawn over the photograph's foot. */
+  search: ReactNode;
 }) {
-  const { t } = useTranslation("directory");
+  const [first, ...rest] = title.split("\n");
+  const second = rest.join(" ").trim();
   return (
-    <section className="pt-7 pr-[var(--pw-pad)] pb-1 pl-[var(--pw-pad)]">
-      <nav aria-label={t("breadcrumbLabel")}>
-        <ol className="flex list-none items-center gap-1.5 p-0 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
-          <li>
-            <Link to="/" className="hover:text-[var(--color-headline)] hover:underline">
-              {t("breadcrumbHome")}
-            </Link>
-          </li>
-          <li aria-hidden="true">
-            <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
-          </li>
-          <li aria-current="page" className="font-semibold text-[var(--color-ink-2)]">
-            {crumb}
-          </li>
-        </ol>
-      </nav>
-      <h1 className="mt-3 text-[30px] leading-[1.08] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[44px]">
-        {title}
-      </h1>
-      <p className="mt-[7px] text-[16.5px] leading-relaxed text-[var(--color-muted-foreground)]">
-        {subtitle}
-      </p>
+    <section className="relative">
+      <div className="relative overflow-hidden md:min-h-[330px]">
+        <img
+          src="/images/home-hero.jpg"
+          alt=""
+          data-testid="browse-hero-photo"
+          className="absolute inset-0 hidden h-full w-full object-cover object-[78%_30%] md:block"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 hidden bg-[linear-gradient(90deg,var(--color-background)_0%,var(--color-background)_32%,color-mix(in_srgb,var(--color-background)_55%,transparent)_55%,transparent_78%)] md:block"
+        />
+        <div className="relative pt-7 pr-[var(--pw-pad)] pb-5 pl-[var(--pw-pad)] md:pt-12 md:pb-[72px]">
+          <h1 className="max-w-[620px] text-[30px] leading-[1.06] font-extrabold tracking-[-0.025em] text-[var(--color-headline)] md:text-[48px]">
+            {first}
+            {second && (
+              <>
+                <br />
+                <span className="text-[var(--color-primary)]">{second}</span>
+              </>
+            )}
+          </h1>
+          <p className="mt-3 max-w-[520px] text-[16px] leading-relaxed text-[var(--color-ink-2)] md:text-[17px]">
+            {subtitle}
+          </p>
+        </div>
+      </div>
+      {/* Over the photograph's foot from `md`: half on it, half on the page. */}
+      <div className="relative z-[1] pr-[var(--pw-pad)] pl-[var(--pw-pad)] md:-mt-[38px]">{search}</div>
     </section>
   );
 }

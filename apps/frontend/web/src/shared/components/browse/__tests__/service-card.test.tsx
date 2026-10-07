@@ -82,14 +82,18 @@ function renderCard(
 }
 
 describe("ServiceCard", () => {
-  it("prints the price in full and the duration beside it", async () => {
+  it("prints the price in full, the category and who sells it", async () => {
     renderCard(service());
     await screen.findByRole("listitem");
     // `formatHeadlinePrice(80_000, "MZN", "en-US")` prints "MZN 800", not
     // "800 MZN": `en-US` has no short symbol for MZN, so `Intl` falls back to
     // the ISO code and, in that locale, places it before the number.
     expect(screen.getByText("MZN 800")).toBeInTheDocument();
-    expect(screen.getByText("45 min")).toBeInTheDocument();
+    expect(screen.getByText("Hair & beauty")).toBeInTheDocument();
+    expect(screen.getByText("Estúdio Mavalane")).toBeInTheDocument();
+    // The length is the detail page's to say; the list-with-sidebar card is
+    // three lines and the price.
+    expect(screen.queryByText("45 min")).toBeNull();
   });
 
   it("labels the rating as the provider's average, not the service's own", async () => {
@@ -112,7 +116,7 @@ describe("ServiceCard", () => {
     renderCard(service({ optionCount: 3, fromAmountMinor: 250_000 }));
     await screen.findByRole("listitem");
     expect(screen.getByText("from")).toBeInTheDocument();
-    expect(screen.getByText("3 options")).toBeInTheDocument();
+    expect(screen.getByText(/2,500/)).toBeInTheDocument();
   });
 
   it("says the price is unavailable for a priced service with no active option", async () => {
@@ -227,9 +231,23 @@ describe("ServiceCard, feature layout", () => {
     expect(title.compareDocumentPosition(byline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("draws no category tag on the listings' own card", async () => {
+  it("names the category in the words, not on the listings' photograph", async () => {
     renderCard(service());
     await screen.findByRole("listitem");
-    expect(screen.queryByText("Hair & beauty")).toBeNull();
+    const media = screen.getByRole("article").firstElementChild as HTMLElement;
+    expect(within(media).queryByText("Hair & beauty")).toBeNull();
+    expect(screen.getByText("Hair & beauty")).toBeInTheDocument();
+  });
+
+  it("puts the verified pill on the photograph only when the provider is verified", async () => {
+    const { unmount } = renderCard(service({ providerVerified: true }));
+    await screen.findByRole("listitem");
+    const media = screen.getByRole("article").firstElementChild as HTMLElement;
+    expect(within(media).getByText("Verified provider")).toBeInTheDocument();
+    unmount();
+
+    renderCard(service({ providerVerified: false }));
+    await screen.findByRole("listitem");
+    expect(screen.queryByText("Verified provider")).toBeNull();
   });
 });

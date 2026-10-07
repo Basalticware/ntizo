@@ -32,10 +32,13 @@ import { useFavouriteMarks } from "@/features/favourites/viewmodel/use-favourite
 import { FavouriteButton } from "@/features/favourites/ui/favourite-button";
 import { SaveToListDialog } from "@/features/favourites/ui/save-to-list-dialog";
 import { ProviderCard } from "@/shared/components/browse/provider-card";
-import { DirectoryHero, DirectorySearchBar } from "@/features/directory/ui/directory-hero";
+import { DirectoryHero } from "@/features/directory/ui/directory-hero";
+import { TopRatedProviderCard } from "@/features/directory/ui/top-rated-provider-card";
+import { topRatedProvider } from "@/features/directory/domain/top-rated-provider";
+import { categoryIcon } from "@/features/directory/services/ui/category-icon";
 import {
   MobileProviderFilters,
-  ProviderFilters,
+  ProviderSidebar,
   chooseProviderSort,
   providerSortOptions,
 } from "@/features/directory/ui/provider-filters";
@@ -156,6 +159,32 @@ export function DirectoryPage() {
   const categories = useCategoryPreview(CATEGORY_FILTER_LIMIT).data?.items ?? [];
   const categoryName = categories.find((c) => c.code === category)?.name ?? null;
 
+  /** A category's glyph by its code, from the list this page already holds. */
+  const iconFor = (code: string | undefined) =>
+    categoryIcon(categories.find((c) => c.code === code)?.icon);
+
+  /**
+   * The wide "best rated" card, and the grid without it — page one only and
+   * never under a typed term, for the reasons `/services` gives. Taken out of
+   * the grid rather than drawn twice.
+   */
+  const top = offset === 0 && !q?.trim() ? topRatedProvider(page.items) : null;
+  const gridItems = top ? page.items.filter((item) => item.id !== top.id) : page.items;
+
+  /** One heart per card, built here because the page holds the marks. */
+  const heart = (provider: ProviderPublicDTO) => (
+    <FavouriteButton
+      targetType="provider"
+      targetId={provider.id}
+      saved={marks.isMarked(provider.id)}
+      // Fires when the save answers, never on the press: the lists come from
+      // the mutation's own data, so the dialog opens already knowing which
+      // are ticked. A press on an already-filled heart brings none, and the
+      // dialog asks for itself.
+      onSaved={({ listIds }) => setFiling({ provider, ...(listIds ? { listIds } : {}) })}
+    />
+  );
+
   const title = directoryTitle(current, categoryName);
   const scope = scopeValues(current, categoryName);
 
@@ -199,21 +228,23 @@ export function DirectoryPage() {
             they asked for, which is what `directoryTitle` is for. */}
         <DirectoryHero
           title={title.key === "titleProviders" ? t("providersHeroTitle") : t(title.key, title.values)}
+          current={current}
         />
 
         {/* The floating capsule is `fixed` and covers whatever the page ends
             with — which is the pager, so "Next →" was sitting behind it and
             could not be pressed. The root layout's own `pb-14` clears
             `MobileNav` and nothing more; this clears the capsule above it,
-            and stops at `lg`, where the capsule is hidden and the pills take
-            over. */}
-        <div className="pt-6 pr-[var(--pw-pad)] pb-[calc(7rem+env(safe-area-inset-bottom))] pl-[var(--pw-pad)] lg:pb-12">
+            and stops at `lg`, where the capsule is hidden and the sidebar
+            takes over.
+
+            Two columns from `lg`: the filters' sticky card on the left and
+            the results on the right — `/services`' layout exactly. */}
+        <div className="grid gap-7 pt-7 pr-[var(--pw-pad)] pb-[calc(7rem+env(safe-area-inset-bottom))] pl-[var(--pw-pad)] lg:grid-cols-[minmax(260px,300px)_1fr] lg:pb-12">
+          <ProviderSidebar current={current} />
+
           <div className="min-w-0">
-            <DirectorySearchBar current={current} />
-
-            <ProviderFilters current={current} total={page.total} />
-
-            <div className="mt-[30px] flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {/* Two translated pieces, and the second is a whole clause per
                   scope — never "in" plus a name. That is what lets a language
                   order, inflect or case the category and the city as its own
@@ -247,6 +278,19 @@ export function DirectoryPage() {
               />
             </div>
 
+            {/* The best-rated business on this page, drawn wide under the
+                count — the same rules as `/services`' card. */}
+            {top && (
+              <div className="mt-4">
+                <TopRatedProviderCard
+                  provider={top}
+                  locale={locale}
+                  categoryIcon={iconFor(top.categories[0]?.code)}
+                  favourite={heart(top)}
+                />
+              </div>
+            )}
+
             {page.items.length === 0 ? (
               // Two different sentences, because they are two different
               // situations. An empty platform is "nobody has joined yet"; an
@@ -262,32 +306,18 @@ export function DirectoryPage() {
               </div>
             ) : (
               <>
-                {/* `/services`' grid exactly — four across from `xl`, three
-                    from `lg`, two at `sm`, one below it, 24px apart — because
-                    the two pages are twins and a provider is drawn on the same
-                    card a service is. The card draws its own edge, so the gap
-                    is the only separation it needs. */}
-                <ul className="mt-5 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {page.items.map((provider) => (
+                {/* `/services`' grid exactly — two across beside the sidebar
+                    from `sm`, one on a phone — because the two pages are
+                    twins. The card draws its own edge, so the gap is the only
+                    separation it needs. */}
+                <ul className="mt-5 grid list-none grid-cols-1 gap-5 p-0 sm:grid-cols-2">
+                  {gridItems.map((provider) => (
                     <li key={provider.id}>
                       <ProviderCard
                         provider={provider}
                         locale={locale}
-                        favourite={
-                          <FavouriteButton
-                            targetType="provider"
-                            targetId={provider.id}
-                            saved={marks.isMarked(provider.id)}
-                            // Fires when the save answers, never on the press:
-                            // the lists come from the mutation's own data, so the
-                            // dialog opens already knowing which are ticked. A
-                            // press on an already-filled heart brings none, and
-                            // the dialog asks for itself.
-                            onSaved={({ listIds }) =>
-                              setFiling({ provider, ...(listIds ? { listIds } : {}) })
-                            }
-                          />
-                        }
+                        categoryIcon={iconFor(provider.categories[0]?.code)}
+                        favourite={heart(provider)}
                       />
                     </li>
                   ))}

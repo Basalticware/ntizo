@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Check, Clock3, MapPin } from "lucide-react";
+import { Check, Clock3, MapPin, Tag, type LucideIcon } from "lucide-react";
+import { VerifiedPill } from "@/shared/components/browse/verified-pill";
 import { BrandImage } from "@/shared/components/brand-image";
 import { RatingMark, TILE_TITLE_LINK_CLASS } from "@/shared/components/browse/result-tile";
 import { formatRating } from "@/shared/domain/rating";
@@ -42,9 +43,16 @@ export function ServiceCard({
   locale,
   favourite,
   variant = "grid",
+  categoryIcon: CategoryGlyph = Tag,
 }: {
   service: ServiceDTO;
   locale: string;
+  /**
+   * The category's own glyph, for the grid card's category line. The page
+   * resolves it from the category list it already holds; a caller with no
+   * list gets the plain tag.
+   */
+  categoryIcon?: LucideIcon;
   /**
    * The heart, drawn on the photograph — or nothing, for a caller that wants
    * a card with no control on it at all.
@@ -56,9 +64,10 @@ export function ServiceCard({
    */
   favourite?: ReactNode;
   /**
-   * `"grid"` is the listings' card, from the October 2026 list mockup: the
-   * name, its provider and seal, then one row with the rating, the length and
-   * where on the left and the price on the right. `"feature"` is the home
+   * `"grid"` is the listings' card, from the October 2026 list-with-sidebar
+   * mockup: a wide photograph with the verified pill on it, then the name,
+   * the category, the score and who sells it on the left and the price in
+   * blue on the right. `"feature"` is the home
    * page's: the category named on the photograph, the rating, the length and
    * where on lines of their own, and the price at the foot.
    */
@@ -74,7 +83,7 @@ export function ServiceCard({
           placeholder, so the control does not move depending on whether a
           provider uploaded a picture. */}
       <div
-        className={`relative w-full overflow-hidden bg-[var(--color-muted)] ${feature ? "aspect-[290/160]" : "aspect-[272/134]"}`}
+        className={`relative w-full overflow-hidden bg-[var(--color-muted)] ${feature ? "aspect-[290/160]" : "aspect-[5/2]"}`}
       >
         <BrandImage
           src={service.imageUrls[0] ?? null}
@@ -86,6 +95,7 @@ export function ServiceCard({
             {service.categoryName}
           </span>
         ) : null}
+        {!feature && service.providerVerified ? <VerifiedPill /> : null}
         {favourite}
       </div>
       {feature ? (
@@ -101,24 +111,29 @@ export function ServiceCard({
           </div>
         </div>
       ) : (
-        <div className="flex flex-1 flex-col px-4 pt-3 pb-3.5">
-          <ServiceTitle service={service} className="font-extrabold" />
-          <ServiceByline service={service} className="mt-1 text-[13px]" />
-          {/* The mockup's one row: what a reader compares on the left, what
-              it costs on the right. The left side wraps inside itself on a
-              narrow card, so the price never drops under it. */}
-          <div className="mt-auto flex items-end justify-between gap-3 pt-2.5">
-            {/* Two short lines rather than one that wraps wherever it
-                happens to: the score and the length, then where. */}
-            <div className="grid min-w-0 gap-1">
-              <div className="flex min-w-0 items-center gap-1.5">
-                <ServiceRating service={service} locale={locale} />
-                <ServiceMeta service={service} show="length" lead />
-              </div>
-              <ServiceMeta service={service} show="where" />
+        // The list-with-sidebar mockup's three lines on the left — the name,
+        // the category with its glyph, the score and who sells it — and the
+        // price in the brand blue on the right.
+        <div className="flex flex-1 items-end justify-between gap-4 px-4 pt-3 pb-3.5">
+          <div className="grid min-w-0 gap-1.5">
+            <ServiceTitle service={service} className="text-[17px] font-extrabold" />
+            <p className="flex min-w-0 items-center gap-2 text-[13.5px] leading-[1.2] text-[var(--color-muted-foreground)]">
+              <CategoryGlyph className="h-[15px] w-[15px] shrink-0" strokeWidth={2} aria-hidden="true" />
+              <span className="truncate">{service.categoryName}</span>
+            </p>
+            <div className="flex min-w-0 items-center gap-1.5 text-[13px] text-[var(--color-muted-foreground)]">
+              <ServiceRating service={service} locale={locale} counted />
+              <span aria-hidden="true">·</span>
+              <ServiceByline service={service} className="min-w-0" />
             </div>
-            <ServicePrice service={service} locale={locale} className="shrink-0 text-right text-base" />
           </div>
+          <ServicePrice
+            service={service}
+            locale={locale}
+            brand
+            stacked
+            className="shrink-0 text-right text-[20px] xl:text-[22px]"
+          />
         </div>
       )}
     </article>
@@ -174,7 +189,16 @@ export function ServiceByline({
  * The provider's score — or "New", never a zero: a provider nobody has
  * reviewed yet is new, the same rule every caller of this card follows.
  */
-export function ServiceRating({ service, locale }: { service: ServiceDTO; locale: string }) {
+export function ServiceRating({
+  service,
+  locale,
+  counted = false,
+}: {
+  service: ServiceDTO;
+  locale: string;
+  /** Say the count as words — "(4 avaliações)" — rather than a bare number. */
+  counted?: boolean;
+}) {
   const { t } = useTranslation("directory");
   if (service.providerRatingAverage === null) {
     return (
@@ -187,6 +211,7 @@ export function ServiceRating({ service, locale }: { service: ServiceDTO; locale
     <RatingMark
       average={service.providerRatingAverage}
       count={service.providerReviewCount}
+      {...(counted ? { countText: t("ratingCount", { count: service.providerReviewCount }) } : {})}
       locale={locale}
       label={t("providerRatingLabel", {
         score: formatRating(service.providerRatingAverage, locale),
@@ -259,21 +284,32 @@ export function ServicePrice({
   service,
   locale,
   className = "",
+  brand = false,
+  stacked = false,
 }: {
   service: ServiceDTO;
   locale: string;
   className?: string;
+  /** The brand blue rather than headline navy — the list-with-sidebar cards. */
+  brand?: boolean;
+  /** "desde" on a line of its own above the amount. */
+  stacked?: boolean;
 }) {
   const { t } = useTranslation("directory");
   const line = servicePriceLine(service);
+  const tone = brand ? "text-[var(--color-primary)]" : "text-[var(--color-headline)]";
   return (
-    <b className={`font-extrabold whitespace-nowrap text-[var(--color-headline)] ${className}`}>
+    <b className={`font-extrabold whitespace-nowrap ${tone} ${className}`}>
       {line.amount.kind === "words" ? (
-        <span className="text-[14px] font-semibold">{t(line.amount.key)}</span>
+        <span className="text-[14px] font-semibold text-[var(--color-headline)]">
+          {t(line.amount.key)}
+        </span>
       ) : (
         <>
           {line.amount.from && (
-            <span className="mr-[3px] text-[12.5px] font-medium text-[var(--color-muted-foreground)]">
+            <span
+              className={`font-medium text-[var(--color-muted-foreground)] ${stacked ? "block text-[13px]" : "mr-[3px] text-[12.5px]"}`}
+            >
               {t("priceFromPrefix")}
             </span>
           )}

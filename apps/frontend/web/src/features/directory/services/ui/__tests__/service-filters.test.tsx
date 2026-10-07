@@ -43,7 +43,7 @@ vi.mock("@/features/landing/viewmodel/use-categories", () => ({
   }),
 }));
 
-const { MobileServiceFilters, ServiceFilters } = await import("../service-filters");
+const { MobileServiceFilters, ServiceSidebar } = await import("../service-filters");
 
 async function renderIn(node: ReactNode) {
   const root = createRootRoute({ component: () => <>{node}</> });
@@ -55,101 +55,69 @@ async function renderIn(node: ReactNode) {
   return render(<RouterProvider router={router} />);
 }
 
-const renderFilters = (current: BrowseSearch, total = 0) =>
-  renderIn(<ServiceFilters current={current} total={total} />);
+const renderSidebar = (current: BrowseSearch) => renderIn(<ServiceSidebar current={current} />);
 
 const renderMobile = (current: BrowseSearch, total = 0) =>
   renderIn(<MobileServiceFilters current={current} total={total} />);
 
-describe("ServiceFilters", () => {
-  it("shows an applied filter's option as its pill's label, and its × removes just that filter", async () => {
-    const { container } = await renderFilters({
-      locationType: "at_customer",
-      paymentMode: "hourly",
-      q: "corte",
-    });
-    // The "where" pill fills with the chosen option, in place of its own
-    // name.
-    const summaries = [...container.querySelectorAll("summary")];
-    expect(summaries.map((s) => s.textContent)).toContain("At your place");
-    expect(summaries.map((s) => s.textContent)).not.toContain("Where it happens");
+const groupsIn = (root: HTMLElement) => [...root.querySelectorAll("h3")].map((h) => h.textContent);
 
-    const remove = screen.getByRole("link", { name: "Remove Where it happens" });
-    const href = remove.getAttribute("href")!;
+const SERVICE_GROUPS = [
+  "City",
+  "Categories",
+  "Price range",
+  "Where it happens",
+  "Type of provider",
+  "How you pay",
+  "Listing language",
+];
+
+describe("ServiceSidebar", () => {
+  it("draws only the groups the services API applies", async () => {
+    const { container } = await renderSidebar({});
+    // No rating floor, no verified switch, no "Responde rápido": the services
+    // API filters by none of them.
+    expect(groupsIn(container)).toEqual(SERVICE_GROUPS);
+    expect(screen.queryByRole("link", { name: /Verified providers only/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Apply/ })).toBeNull();
+  });
+
+  it("lists what is on as chips, each removing just itself", async () => {
+    await renderSidebar({ locationType: "at_customer", paymentMode: "hourly", q: "corte" });
+    expect(screen.getByText("Active filters (2)")).toBeInTheDocument();
+
+    const href = screen.getByRole("link", { name: "Remove At your place" }).getAttribute("href")!;
     expect(href).not.toContain("locationType");
     expect(href).toContain("paymentMode=hourly");
 
-    // The clear-all is on because a facet is narrowing the list, and it
-    // keeps `q` — the typed term is the search bar's to clear, up under the
-    // header, not this bar's, so "Clear all" here must not also wipe it.
-    const clearAll = screen.getByRole("link", { name: "Clear all" });
-    expect(clearAll.getAttribute("href")).toContain("q=corte");
-  });
-
-  it("keeps four pills on the bar, in the mockup's order, and no More filters", async () => {
-    const { container } = await renderFilters({});
-    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    // The fixture offers more than one city, so all four show. The mockup's
-    // duration, rating and availability pills are absent: the services API
-    // can apply none of them.
-    expect(summaries).toEqual(["Category", "City", "Price range", "Where it happens"]);
-    expect(screen.getByRole("button", { name: "Filter" })).toBeInTheDocument();
-  });
-
-  it("opens every group, the bar's and the rest, from Filter", async () => {
-    await renderFilters({ paymentMode: "hourly" }, 12);
-    const button = screen.getByRole("button", { name: /^Filter/ });
-    // The count of what is on rides beside the word, as on the phone.
-    expect(button).toHaveTextContent("Filter · 1");
-    fireEvent.click(button);
-
-    const sheet = screen.getByRole("dialog", { name: "Filters" });
-    expect(sheet).toHaveTextContent("How you pay");
-    expect(sheet).toHaveTextContent("Who provides it");
-    expect(sheet).toHaveTextContent("Listing language");
-    expect(within(sheet).getByRole("link", { name: "Per hour" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
+    // The clear-all keeps `q` — the typed term is the search bar's to clear.
+    expect(screen.getByRole("link", { name: "Clear all" }).getAttribute("href")).toContain(
+      "q=corte",
     );
-    expect(within(sheet).getByRole("button", { name: "Show 12 results" })).toBeInTheDocument();
   });
 
-  it("fills no pill and offers no clear-all when nothing is applied", async () => {
-    const { container } = await renderFilters({});
-    // No group's name has been replaced by a chosen option.
-    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
-    expect(summaries).toContain("Where it happens");
-    expect(screen.getByRole("button", { name: "Filter" }).textContent).not.toContain("·");
-    // No filter is on, so no pill carries a remove link and there is nothing
-    // to clear all of.
-    expect(screen.queryByRole("link", { name: /^Remove /i })).toBeNull();
-    expect(screen.queryByText("Clear all")).toBeNull();
-  });
-
-  it("offers no clear-all for a typed term alone, because the bar does not narrow on it", async () => {
-    await renderFilters({ q: "corte" });
+  it("offers no clear-all for a typed term alone, because the card does not narrow on it", async () => {
+    await renderSidebar({ q: "corte" });
     expect(screen.queryByRole("link", { name: "Clear all" })).toBeNull();
+    expect(screen.queryByText(/Active filters/)).toBeNull();
   });
 
-  it("says which language the language group means, wherever it is opened", async () => {
-    // "Listing language" reads two ways and the wrong one — the language the
-    // provider speaks — is the one a reader actually wants. The desktop now
-    // reaches the group through the same sheet as the phone, so it carries
-    // the same line.
-    await renderFilters({});
-    fireEvent.click(screen.getByRole("button", { name: "Filter" }));
-    const sheet = screen.getByRole("dialog", { name: "Filters" });
-    expect(sheet).toHaveTextContent(
-      "Which languages this listing is written in — not what the provider speaks.",
-    );
+  it("toggles an option off from itself", async () => {
+    await renderSidebar({ locationType: "at_customer" });
+    const option = screen.getByRole("link", { name: "At your place" });
+    expect(option).toHaveAttribute("aria-pressed", "true");
+    expect(option.getAttribute("href")).not.toContain("locationType");
+  });
+
+  it("says which language the language group means", async () => {
+    await renderSidebar({});
+    expect(
+      screen.getByText("Which languages this listing is written in — not what the provider speaks."),
+    ).toBeInTheDocument();
   });
 
   it("wears navy on the price form's OK, not the kit's default blue", async () => {
-    // `--color-primary` is the site's own blue — the header's sign-in and
-    // sign-in, and the search bar's button — and nothing in the results wears
-    // it; the kit's default `Button` variant is that blue, and this submit is
-    // drawn twice, in the price pill's popover and in the sheet.
-    await renderFilters({});
+    await renderSidebar({});
     const ok = screen.getByRole("button", { name: "OK" });
     expect(ok.className).toContain("--color-navy-surface");
     expect(ok.className).not.toContain("--color-primary");

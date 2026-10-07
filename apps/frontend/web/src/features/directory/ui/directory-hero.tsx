@@ -16,9 +16,15 @@ import { useProviderCities } from "@/features/directory/viewmodel/use-directory"
  * `title` is the page's `h1`: the headline until the reader narrows the
  * list, then what they asked for — see `directoryTitle`.
  */
-export function DirectoryHero({ title }: { title: string }) {
+export function DirectoryHero({ title, current }: { title: string; current: DirectorySearch }) {
   const { t } = useTranslation("directory");
-  return <BrowseHead crumb={t("providersHeroEyebrow")} title={title} subtitle={t("providersHeroSubtitle")} />;
+  return (
+    <BrowseHead
+      title={title}
+      subtitle={t("providersHeroSubtitle")}
+      search={<DirectorySearchBar current={current} />}
+    />
+  );
 }
 
 /**
