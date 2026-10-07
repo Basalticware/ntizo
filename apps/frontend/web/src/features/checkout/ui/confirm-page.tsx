@@ -170,7 +170,7 @@ export function ConfirmPage({ bookingId }: { bookingId: string }) {
     // and `decline` belong to the provider inbox's own spec and are not
     // mounted, so almost every request sent runs its window out.
     return (
-      <ConfirmShell>
+      <ConfirmShell done>
         <BookingOutcomePanel booking={booking} outcome={outcome} />
       </ConfirmShell>
     );
@@ -179,11 +179,24 @@ export function ConfirmPage({ bookingId }: { bookingId: string }) {
   return <Confirm booking={booking} />;
 }
 
-/** The header and the page frame — everything true before the booking is. */
-function ConfirmShell({ children }: { children: React.ReactNode }) {
+/**
+ * The header and the page frame — everything true before the booking is.
+ *
+ * `done` once the request has gone: the bar keeps the logo and the steps, so
+ * the customer can see they are at the end of the same flow, with all three
+ * ticked — and no back link, because there is no step left to go back to.
+ * Step 2 of a sent request is the outcome again, not a form.
+ */
+function ConfirmShell({
+  children,
+  done = false,
+}: {
+  children: React.ReactNode;
+  done?: boolean;
+}) {
   return (
     <div className={CHECKOUT_PAD}>
-      <CheckoutHeader current="confirm" />
+      <CheckoutHeader current="confirm" complete={done} />
       <main className="public-inset pt-8 pb-10 md:pt-10">{children}</main>
     </div>
   );
@@ -335,8 +348,20 @@ function Confirm({ booking }: { booking: CheckoutBooking }) {
   // than one a refetch has yet to confirm.
   if (sent) {
     return (
-      <ConfirmShell>
-        <SentPanel booking={booking} deadline={respondBy} />
+      <ConfirmShell done>
+        <SentPanel
+          booking={booking}
+          deadline={respondBy}
+          // The address that was sent: the booking in the cache is still the
+          // draft, which has none until the refetch lands.
+          address={
+            address
+              ? [address.line1, address.district, address.city]
+                  .filter(Boolean)
+                  .join(", ")
+              : null
+          }
+        />
       </ConfirmShell>
     );
   }

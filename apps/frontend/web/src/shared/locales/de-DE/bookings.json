@@ -1,6 +1,6 @@
 {
   "title": "Meine Buchungen",
-  "lede": "Alles, was Sie angefragt haben, wo jede Anfrage gerade steht und was noch zu tun ist.",
+  "lede": "Behalten Sie alle Ihre Buchungen im Blick.",
   "tab": {
     "waiting": "Ausstehend",
     "upcoming": "Bevorstehend",
@@ -46,7 +46,6 @@
   "duration": "Dauer",
   "where": "Wo",
   "directions": "Hinweise",
-  "moneyCaption": "Der Betrag",
   "totalDue": "Zu zahlender Betrag",
   "totalPaid": "Bezahlter Betrag",
   "moneyNote": "Das ist der vom Anbieter angegebene Preis. Ntizo erhebt keinen Aufschlag.",
@@ -61,7 +60,6 @@
   "cancelDialogGone": "Wir finden diese Buchung nicht mehr.",
   "keepBooking": "Behalten",
   "payAmount": "{{amount}} bezahlen",
-  "supportPrompt": "Möchten Sie etwas ändern oder stornieren?",
   "supportCta": "Support kontaktieren",
   "payDialogWaitingCaption": "Warten auf Bestätigung",
   "payDialogWaitingTitle": "Bestätigen Sie auf Ihrem Handy",
@@ -89,14 +87,6 @@
   "countrySearchPlaceholder": "Land suchen",
   "countryNoResults": "Kein Land gefunden",
   "countrySelectLabel": "Land auswählen",
-  "section": {
-    "appointment": "Der Termin",
-    "appointmentBlurb": "Was Sie gebucht haben, und wann.",
-    "provider": "Der Anbieter",
-    "providerBlurb": "Wer die Arbeit übernimmt.",
-    "note": "Ihre Notiz",
-    "noteBlurb": "Was Sie bei der Anfrage geschrieben haben."
-  },
   "timeline": {
     "created_by_customer": "Anfrage gesendet",
     "submitted_by_customer": "Angaben bestätigt",
@@ -119,5 +109,53 @@
       "payment": "Zahlung",
       "confirmed": "Buchung bestätigt"
     }
+  },
+  "list": {
+    "breadcrumbLabel": "Brotkrumen",
+    "home": "Startseite",
+    "shown": "{{shown}} von {{total}} angezeigt",
+    "rating": "Bewertet mit {{rating}} von 5",
+    "next": {
+      "title": "Nächste Buchung",
+      "seeAll": "Alle ansehen",
+      "viewDetails": "Buchungsdetails ansehen",
+      "message": "Anbieter kontaktieren",
+      "none": "Sie haben keine anstehenden Buchungen."
+    },
+    "help": {
+      "title": "Brauchen Sie Hilfe?",
+      "body": "Schreiben Sie uns bei Fragen zu Ihren Buchungen.",
+      "cta": "Support kontaktieren"
+    }
+  },
+  "detail": {
+    "breadcrumbLabel": "Sie sind hier",
+    "home": "Startseite",
+    "requestedOn": "Angefragt am {{date}}",
+    "statusTitle": "Buchungsstatus",
+    "explain": {
+      "AWAITING_PROVIDER": "Ihre Anfrage liegt bei {{provider}} und ist noch nicht beantwortet. Es wurde nichts abgebucht: Sie zahlen erst, wenn der Anbieter annimmt.",
+      "PENDING_PAYMENT": "{{provider}} hat die Anfrage angenommen. Wir haben eine M-Pesa-Zahlungsanforderung an Ihr Handy gesendet: Bestätigen Sie sie vor Ablauf der Frist mit Ihrer PIN, sonst wird die Buchung storniert. Falls sie nicht angekommen ist, tippen Sie auf Bezahlen.",
+      "CONFIRMED": "Sie ist bezahlt und bestätigt. {{provider}} erwartet Sie am {{date}} um {{time}}.",
+      "MARKED_DONE": "{{provider}} hat die Leistung als erledigt markiert.",
+      "COMPLETED": "Die Leistung ist abgeschlossen.",
+      "DISPUTED": "Zu dieser Buchung gibt es einen Streitfall. Wenden Sie sich an den Support, wenn Sie Hilfe brauchen.",
+      "DECLINED": "{{provider}} hat diese Anfrage nicht angenommen. Es wurde nichts abgebucht.",
+      "CANCELLED": "Diese Buchung wurde storniert.",
+      "EXPIRED": "Die Frist ist abgelaufen und die Anfrage wurde geschlossen."
+    },
+    "notCharged": "Es wurde nichts abgebucht.",
+    "detailsTitle": "Details",
+    "date": "Datum",
+    "time": "Uhrzeit",
+    "place": "Ort",
+    "notes": "Notizen",
+    "providerTitle": "Anbieter",
+    "priceTitle": "Preis",
+    "actionsTitle": "Was Sie tun können",
+    "message": "Anbieter kontaktieren",
+    "helpTitle": "Brauchen Sie Hilfe?",
+    "helpBody": "Schreiben Sie uns bei Fragen zu dieser Buchung.",
+    "helpBodyConfirmed": "Um eine bestätigte Buchung zu ändern oder abzusagen, wenden Sie sich an den Support."
   }
 }

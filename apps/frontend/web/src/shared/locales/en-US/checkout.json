@@ -42,11 +42,9 @@
   "loadError": "We couldn't open this booking. Check your connection and try again.",
   "storageBlockedTitle": "This browser won't keep your details",
   "storageBlockedBody": "We need to hold your details in this tab until the request is sent, and this browser won't let us. Open the page in a normal (not private) window, or allow site data. Your time is still held.",
-  "viewBookingAction": "View my booking",
-  "browseMoreAction": "See other services",
+  "viewBookingAction": "View the booking",
+  "browseMoreAction": "Back to services",
   "sentTitle": "Request sent",
-  "sentBody": "We've sent your request to {{provider}}. They have until {{time}} on {{date}} to confirm, and you only pay after that.",
-  "sentBodyNoDeadline": "We've sent your request to {{provider}}. We'll tell you as soon as they answer, and you only pay after that.",
   "unansweredTitle": "The provider didn't answer in time",
   "unansweredBody": "The time to confirm ran out and the request was closed. Nothing was charged. You can choose another time.",
   "unansweredAction": "Choose another time",
@@ -107,5 +105,22 @@
   "holdRemainingLabel": "Time left to finish this booking",
   "availableTimes": "Available times",
   "chooseWhenLede": "Pick the date and time that suit you best.",
-  "railPlaceLabel": "Place"
+  "railPlaceLabel": "Place",
+  "outcome": {
+    "sentLede": "We sent your request to {{provider}}. The booking is not confirmed yet, and nothing has been charged.",
+    "nextTitle": "What happens now",
+    "next1Title": "{{provider}} confirms the request",
+    "next1Body": "They have until {{time}} on {{date}} to accept or decline. We will let you know as soon as they answer.",
+    "next1BodyNoDeadline": "We will let you know as soon as they answer.",
+    "next2Title": "You pay with M-Pesa",
+    "next2Body": "Once the provider accepts, an M-Pesa payment request reaches your phone. Confirm it with your PIN before the deadline.",
+    "next3Title": "The service happens",
+    "next3Body": "{{provider}} does the job on the agreed day and time.",
+    "summaryTitle": "Request summary",
+    "date": "Date",
+    "time": "Time",
+    "place": "Place",
+    "price": "Price",
+    "verified": "Verified provider"
+  }
 }

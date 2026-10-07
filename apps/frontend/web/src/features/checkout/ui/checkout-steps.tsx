@@ -45,7 +45,18 @@ const LABEL_KEY: Record<CheckoutStep, string> = {
  * beside three labels is noise, where one sentence naming the position is
  * the whole fact.
  */
-export function CheckoutSteps({ current }: { current: CheckoutStep }) {
+export function CheckoutSteps({
+  current,
+  complete = false,
+}: {
+  current: CheckoutStep;
+  /**
+   * The request has gone: every step is ticked and none is the one being
+   * taken. A sent request drawn with step 3 still "in progress" reads as if
+   * something on the page were left to fill in.
+   */
+  complete?: boolean;
+}) {
   const { t } = useTranslation("checkout");
   const currentIndex = CHECKOUT_STEPS.indexOf(current);
 
@@ -56,8 +67,8 @@ export function CheckoutSteps({ current }: { current: CheckoutStep }) {
       </p>
       <ol className="flex list-none items-start p-0 md:items-center md:gap-3.5">
         {CHECKOUT_STEPS.map((step, index) => {
-          const done = index < currentIndex;
-          const active = index === currentIndex;
+          const done = complete || index < currentIndex;
+          const active = !complete && index === currentIndex;
           const last = index === CHECKOUT_STEPS.length - 1;
           const lineClass = done
             ? "bg-[var(--color-blue-public)]"

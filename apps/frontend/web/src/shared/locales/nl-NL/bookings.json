@@ -1,6 +1,6 @@
 {
   "title": "Mijn boekingen",
-  "lede": "Alles wat je hebt aangevraagd, waar elke aanvraag staat en wat er nog moet gebeuren.",
+  "lede": "Volg al je boekingen van diensten.",
   "tab": {
     "waiting": "In afwachting",
     "upcoming": "Aankomend",
@@ -46,7 +46,6 @@
   "duration": "Duur",
   "where": "Waar",
   "directions": "Aanwijzingen",
-  "moneyCaption": "Het bedrag",
   "totalDue": "Totaal te betalen",
   "totalPaid": "Totaal betaald",
   "moneyNote": "Dit is de prijs die de dienstverlener aangeeft. Ntizo rekent er niets bovenop.",
@@ -61,7 +60,6 @@
   "cancelDialogGone": "We kunnen deze boeking niet meer vinden.",
   "keepBooking": "Behouden",
   "payAmount": "{{amount}} betalen",
-  "supportPrompt": "Wil je iets wijzigen of annuleren?",
   "supportCta": "Neem contact op met support",
   "payDialogWaitingCaption": "Wachten op bevestiging",
   "payDialogWaitingTitle": "Bevestig op je telefoon",
@@ -89,14 +87,6 @@
   "countrySearchPlaceholder": "Land zoeken",
   "countryNoResults": "Geen land gevonden",
   "countrySelectLabel": "Land kiezen",
-  "section": {
-    "appointment": "De afspraak",
-    "appointmentBlurb": "Wat je hebt geboekt, en wanneer.",
-    "provider": "De dienstverlener",
-    "providerBlurb": "Wie het werk doet.",
-    "note": "Jouw notitie",
-    "noteBlurb": "Wat je hebt geschreven bij het aanvragen."
-  },
   "timeline": {
     "created_by_customer": "Aanvraag verstuurd",
     "submitted_by_customer": "Gegevens bevestigd",
@@ -119,5 +109,53 @@
       "payment": "Betaling",
       "confirmed": "Boeking bevestigd"
     }
+  },
+  "list": {
+    "breadcrumbLabel": "Kruimelpad",
+    "home": "Home",
+    "shown": "{{shown}} van {{total}} getoond",
+    "rating": "Beoordeeld met {{rating}} van 5",
+    "next": {
+      "title": "Volgende boeking",
+      "seeAll": "Alles bekijken",
+      "viewDetails": "Boekingsdetails bekijken",
+      "message": "Bericht aan de aanbieder",
+      "none": "Je hebt geen komende boekingen."
+    },
+    "help": {
+      "title": "Hulp nodig?",
+      "body": "Neem contact op over alles wat met je boekingen te maken heeft.",
+      "cta": "Contact opnemen met support"
+    }
+  },
+  "detail": {
+    "breadcrumbLabel": "Je bent hier",
+    "home": "Home",
+    "requestedOn": "Aangevraagd op {{date}}",
+    "statusTitle": "Status van de boeking",
+    "explain": {
+      "AWAITING_PROVIDER": "Je aanvraag ligt bij {{provider}}, die nog niet heeft geantwoord. Er is niets afgeschreven: je betaalt pas als de aanbieder accepteert.",
+      "PENDING_PAYMENT": "{{provider}} heeft de aanvraag geaccepteerd. We hebben een M-Pesa-betaalverzoek naar je telefoon gestuurd: bevestig het met je pincode voordat de termijn afloopt, anders wordt de boeking geannuleerd. Niet ontvangen? Druk op Betalen.",
+      "CONFIRMED": "De boeking is betaald en bevestigd. {{provider}} verwacht je op {{date}} om {{time}}.",
+      "MARKED_DONE": "{{provider}} heeft de dienst als uitgevoerd gemarkeerd.",
+      "COMPLETED": "De dienst is afgerond.",
+      "DISPUTED": "Over deze boeking loopt een geschil. Neem contact op met support als je hulp nodig hebt.",
+      "DECLINED": "{{provider}} heeft deze aanvraag niet geaccepteerd. Er is niets afgeschreven.",
+      "CANCELLED": "Deze boeking is geannuleerd.",
+      "EXPIRED": "De termijn is verlopen en de aanvraag is gesloten."
+    },
+    "notCharged": "Er is niets afgeschreven.",
+    "detailsTitle": "Details",
+    "date": "Datum",
+    "time": "Tijd",
+    "place": "Locatie",
+    "notes": "Notities",
+    "providerTitle": "Aanbieder",
+    "priceTitle": "Prijs",
+    "actionsTitle": "Wat je kunt doen",
+    "message": "Bericht aan de aanbieder",
+    "helpTitle": "Hulp nodig?",
+    "helpBody": "Neem contact met ons op voor vragen over deze boeking.",
+    "helpBodyConfirmed": "Neem contact op met support om een bevestigde boeking te wijzigen of af te zeggen."
   }
 }

@@ -72,7 +72,10 @@ export function formatAmount(
   currency: string,
   locale: string,
 ): string {
-  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(
+  // `useGrouping: "always"`: pt-MZ leaves a four-digit amount ungrouped by
+  // default ("1200,00 MTn"), while every other price on the site reads
+  // "1 200 MTn".
+  return new Intl.NumberFormat(locale, { style: "currency", currency, useGrouping: "always" }).format(
     amountMinor / 100,
   );
 }

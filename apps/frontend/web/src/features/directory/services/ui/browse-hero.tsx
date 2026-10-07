@@ -9,7 +9,7 @@ import {
 import { useServiceCities } from "@/features/directory/services/viewmodel/use-browse-services";
 
 /**
- * The top of `/services`: the eyebrow, the title and one line under it — see
+ * The top of `/services`: the breadcrumb, the title and one line under it — see
  * `BrowseHead`, which `/providers` draws too.
  *
  * `title` is the page's `h1`. Unnarrowed it is the page's headline; once the
@@ -19,7 +19,7 @@ import { useServiceCities } from "@/features/directory/services/viewmodel/use-br
  */
 export function BrowseHero({ title }: { title: string }) {
   const { t } = useTranslation("directory");
-  return <BrowseHead eyebrow={t("browseHeroEyebrow")} title={title} subtitle={t("browseHeroSubtitle")} />;
+  return <BrowseHead crumb={t("browseHeroEyebrow")} title={title} subtitle={t("browseHeroSubtitle")} />;
 }
 
 /**

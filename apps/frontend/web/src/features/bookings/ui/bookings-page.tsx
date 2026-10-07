@@ -1,20 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { ArrowRight, CalendarDays } from "lucide-react";
+import { CalendarDays, ChevronRight } from "lucide-react";
 import { Button, buttonVariants, cn } from "@ntizo/frontend-ui";
 import type {
   BookingDTO,
   CustomerBookingPageDTO,
 } from "@ntizo/shared/read-models";
-import { BrandImage } from "@/shared/components/brand-image";
-import { CollectionCard } from "@/shared/components/collection-card";
-import { DETAILS_BUTTON_CLASS, WhenCell } from "@/shared/components/list-cells";
 import { StatusTabs } from "@/shared/components/status-tabs";
 import { CustomerPageHeading } from "@/features/account/ui/customer-page";
 import { MessageProviderButton } from "@/features/directory/ui/provider-rail";
-import { compactSlotWording } from "@/features/checkout/domain/slot-wording";
-import { formatAmount } from "@/features/directory/services/domain/service-card";
 import { useCurrentUser } from "@/features/user/viewmodel/use-current-user";
 import {
   CUSTOMER_BOOKING_TABS,
@@ -23,59 +18,45 @@ import {
   canPay,
   deadlineOf,
   timeLeftWording,
-  type CustomerBookingStatus,
   type CustomerBookingTab,
 } from "../domain/status";
+import { nextBooking } from "../domain/list-row";
 import { useMyBookings } from "../viewmodel/use-my-bookings";
-import { BookingStatusBadge } from "./booking-status-badge";
+import { BOOKINGS_CARD, BookingRow, BookingRowSkeleton } from "./booking-row";
+import { HelpCard, NextBookingCard } from "./bookings-rail";
 import { CancelDialog } from "./cancel-dialog";
 import { PayDialog } from "./pay-dialog";
 
-/** The countdown's colour: amber while the provider is deciding, blue while the customer is. */
-function countdownTone(status: CustomerBookingStatus): string {
-  return status === "PENDING_PAYMENT"
-    ? "text-[var(--color-primary)]"
-    : "text-[var(--color-warn-fg)]";
-}
-
 /**
- * The customer's own bookings, one tab at a time.
+ * "Minhas reservas" — the customer's own bookings, one tab at a time, as the
+ * October 2026 mockup draws it: a breadcrumb and the title, the tabs with
+ * their counts, a bordered card per booking, and a rail with the next
+ * booking and a way to the help centre.
  *
- * Three tabs by what is still open, what is coming up, and what is over —
- * the same split the provider zone made for the same reason: ten statuses
- * are the system's vocabulary, not a customer's.
+ * **Three tabs, not the mockup's six.** By what is still open, what is coming
+ * up, and what is over — the server's own split (`CUSTOMER_BOOKING_TABS`),
+ * and the only one it counts. Six tabs by status would need six totals the
+ * read model does not have, and a count off the page in hand would call
+ * twenty rows "all of them".
+ *
+ * **No search box and no sort.** `bookingMine` carries no `q` and no order:
+ * each tab has its own fixed order (requests newest first, upcoming soonest
+ * first, history most recent first). A client-side filter over a paged list
+ * would tell a customer "no matches" about a booking merely on the next page.
+ *
+ * **No "Resumo das suas reservas".** It is a total per status, and the server
+ * counts three tabs, not nine statuses; the tab row already prints the three
+ * numbers it does have.
  *
  * **Paging is the provider list's own shape: "Mais" *adds* the next page
  * under the rows already there.** It was a URL offset (`?offset=`) that
  * replaced the page instead, which broke three ways at once — the rows the
- * reader was looking at vanished, `CollectionCard`'s own header went on
- * saying "20 de 45" while showing rows 21 to 40, and there was no control
- * that went back, so page 1 was reachable only by clicking the tab already
- * marked active. A bookmarkable "page 2" was the reason offset lived in the
- * URL; it is not worth those three, and the provider's list settled this
- * question already — see its `loaded`/`page` pair, which this mirrors down
- * to why both are needed.
- *
- * **The narrow screen is composed rather than labelled.** `CollectionCard`'s
- * own mobile card stacks every value under its column's name — "Quando",
- * "Estado", "Valor", one line each — which is right for a list of people and
- * wrong here: on a phone this list is read by scanning for a status and a
- * price, and those two want to share a line rather than sit under two words
- * of chrome. So all three columns are `hideOnCard` and the row hands the card
- * a `cardBody` instead. The table above `md` is untouched and still reads
- * every value off `cells`, which is what stops the two from becoming two
- * designs — see `CollectionRow.cardBody` for the rule that keeps them
- * honest.
- *
- * No search box: the mockup draws none, `bookingMine` carries no `q` the way
- * the provider's `bookingForProvider` does, and a client-side filter over a
- * paged list would tell a customer "no matches" about a booking that is
- * merely on the next page. `CollectionCard` draws the control only when it is
- * handed a change handler and a placeholder, so omitting both is the opt-out.
+ * reader was looking at vanished, the count misreported, and there was no
+ * control that went back. See the provider list's `loaded`/`page` pair, which
+ * this mirrors down to why both are needed.
  */
 export function BookingsPage() {
-  const { t, i18n } = useTranslation("bookings");
-  const locale = i18n.resolvedLanguage ?? i18n.language;
+  const { t } = useTranslation("bookings");
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as { tab?: CustomerBookingTab };
   const tab: CustomerBookingTab = search.tab ?? CUSTOMER_BOOKING_TABS[0];
@@ -168,330 +149,186 @@ export function BookingsPage() {
   // profile.
   const { data: currentUser } = useCurrentUser();
 
+  // The two answers "Próxima reserva" is read off — see `nextBooking`. Both
+  // share their cache entry with the tab of the same name at offset zero, so
+  // on those tabs this is the list's own request, not a second one.
+  const upcoming = useMyBookings({ tab: "upcoming", offset: 0 });
+  const waiting = useMyBookings({ tab: "waiting", offset: 0 });
+  const next = useMemo(
+    () =>
+      nextBooking(
+        upcoming.data?.items ?? [],
+        waiting.data && waiting.data.nextOffset === null
+          ? waiting.data.items
+          : null,
+        now,
+      ),
+    [upcoming.data, waiting.data, now],
+  );
+
+  const tabLabel = t(`tab.${tab}`);
+  const total = data?.total ?? 0;
+  const loadingFirst = query.isLoading && offset === 0;
+
   return (
     <div className="w-full max-w-[1400px]">
+      <nav aria-label={t("list.breadcrumbLabel")} className="mb-4 text-sm">
+        <ol className="m-0 flex list-none flex-wrap items-center gap-2 p-0 text-[var(--color-muted-foreground)]">
+          <li>
+            <Link to="/" className="hover:text-[var(--color-headline)] hover:underline">
+              {t("list.home")}
+            </Link>
+          </li>
+          <li aria-hidden="true">
+            <ChevronRight className="h-3.5 w-3.5" strokeWidth={2.4} />
+          </li>
+          <li aria-current="page" className="text-[var(--color-headline)]">
+            {t("title")}
+          </li>
+        </ol>
+      </nav>
+
       <CustomerPageHeading title={t("title")} subtitle={t("lede")} />
 
-      <div className="mt-[30px]">
-        <CollectionCard
-          tabs={
-            // The provider list's own tab row. Every tab's number is known
-            // here — `bookingMine` counts all three — so all three show one.
-            <div className="w-full [contain:inline-size]">
-              {/* `contain` so the row is measured by the card, not by its boxes:
-                  `CollectionCard` sizes its toolbar to its widest child, and three
-                  boxes wider than a phone pushed the whole page sideways. Inside
-                  the card's width they scroll, as `StatusTabs` means them to. */}
-              <StatusTabs
-                tabs={CUSTOMER_BOOKING_TABS.map((key) => ({
-                  key,
-                  label: t(`tab.${key}`),
-                  count: data ? data.counts[key] : null,
-                  tone: key === "waiting" ? "warning" : "neutral",
-                }))}
-                value={tab}
-                onChange={setTab}
-                ariaLabel={t("title")}
-              />
-            </div>
-          }
-          title={t(`tab.${tab}`)}
-          shown={items.length}
-          total={data?.total ?? 0}
-          loading={query.isLoading && offset === 0}
-          // All three facts are marked `hideOnCard` because all three are in
-          // `cardBody` below, arranged rather than labelled — the rule
-          // `CollectionRow.cardBody` states for anyone using the slot. The
-          // table is unchanged and still reads them off `cells`.
-          columns={[
-            { key: "service", label: t("col.service") },
-            {
-              key: "when",
-              label: t("col.when"),
-              skeletonWidth: "w-28",
-              hideOnCard: true,
-            },
-            {
-              key: "status",
-              label: t("col.status"),
-              skeletonWidth: "w-24",
-              skeletonShape: "badge",
-              hideOnCard: true,
-            },
-            {
-              key: "price",
-              label: t("col.price"),
-              align: "right",
-              skeletonWidth: "w-20",
-              hideOnCard: true,
-            },
-            { key: "actions", label: "", className: "pr-6 text-right" },
-          ]}
-          emptyTitle={t("emptyTitle")}
-          emptyText={t("emptyBody")}
-          emptyBadge={CalendarDays}
-          emptyAction={
-            <Link to="/services" className={buttonVariants({ size: "sm" })}>
-              {t("emptyAction")}
-            </Link>
-          }
-          // Unreachable: with no search box and no filter button there is
-          // nothing that could hide a row. The prop is still required, and
-          // reusing the empty state's own body is truer than inventing a
-          // sentence for a state this page cannot enter.
-          noMatchesText={t("emptyBody")}
-          filtered={false}
-          rows={items.map((b) => {
-            const slot = compactSlotWording(
-              b.startsAt,
-              b.endsAt,
-              locale,
-              b.timezone,
-            );
-            const deadline = deadlineOf(b);
-            const left = deadline ? timeLeftWording(deadline, now) : null;
-            // `canCancel` and `canPay` are the domain's answer, and both are
-            // true for `PENDING_PAYMENT` — cancelling is still on the table
-            // right up until it's paid, which is exactly what the detail
-            // page (both buttons at once) needs to know. This list's own row
-            // has room for one action, and paying is the one actually being
-            // waited on there; a waiting-for-provider row has nothing to pay
-            // yet, so it gets the only action that applies: cancel.
-            const showPay = canPay(b.status);
-            const showCancel = canCancel(b.status) && !showPay;
-            // Declared once and used by both renderings — the table's last
-            // cell and the foot of the phone's card — rather than written
-            // out twice with two sets of classes. `w-full md:w-auto` is what
-            // lets one element be a full-width target on the card and a
-            // compact control in the cell: below `md` only the card is on
-            // screen, above it only the table.
-            const payButton = (
-              <Button
-                type="button"
-                size="sm"
-                className="w-full md:w-auto"
-                onClick={() => setPaying(b)}
-              >
-                {t("pay")}
-              </Button>
-            );
-            // A `<button>`, not a link: it opens a dialog rather than
-            // navigating. Styled quietly, as the mockup draws it — this is
-            // not the page's primary action, on either screen.
-            const cancelButton = (
-              <button
-                type="button"
-                onClick={() => setCancelling(b)}
-                className="text-sm font-semibold text-[var(--color-muted-foreground)] hover:text-[var(--color-destructive)] hover:underline disabled:pointer-events-none disabled:opacity-50"
-              >
-                {t("cancel")}
-              </button>
-            );
-            return {
-              key: b.id,
-              primary: (
-                <div className="flex items-start gap-3">
-                  {/* `BrandImage`, not an `<img>`: a booking's service photo
-                      is missing more often than not, and every dead URL on
-                      dev is one of these. The mark on the soft ground is the
-                      app's single treatment for that — see its own comment.
-                      Empty `alt`, because the title is right beside it. */}
-                  <span className="h-[58px] w-[58px] shrink-0 overflow-hidden rounded-[10px]">
-                    <BrandImage
-                      src={b.serviceImageUrl}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                  </span>
-                  <div className="min-w-0">
-                    <Link
-                      to="/bookings/$bookingId"
-                      params={{ bookingId: b.id }}
-                      className="text-base leading-snug font-bold text-[var(--color-headline)] hover:underline"
-                    >
-                      {b.serviceName}
-                      {b.optionName ? ` · ${b.optionName}` : ""}
-                    </Link>
-                    {/* `truncate` on the name and `shrink-0` on the badge, so
-                        a long business name loses its own tail rather than
-                        pushing "✓ Verificado" onto a second line — which is
-                        what a card 266px wide did to every provider whose
-                        name ran past about twenty characters. */}
-                    <p className="m-0 mt-1 flex items-center gap-1.5 text-sm text-[var(--color-muted-foreground)]">
-                      <span className="truncate">{b.providerName}</span>
-                      {b.providerVerified && (
-                        <span className="shrink-0 font-semibold whitespace-nowrap text-[var(--color-primary)]">
-                          ✓ {t("verified")}
-                        </span>
-                      )}
-                    </p>
-                    {/* The appointment, on the narrow screen only. The table
-                        has a "Quando" column two cells to the right and this
-                        would be the same fact printed twice on a laptop;
-                        below `md` that column is hidden, and a date belongs
-                        with the name it qualifies rather than under a
-                        heading of its own. */}
-                    <p className="m-0 mt-1 text-sm tabular-nums text-[var(--color-muted-foreground)] md:hidden">
-                      {slot.date} · {slot.start} ·{" "}
-                      {t("minutes", { count: b.durationMinutes })}
-                    </p>
-                  </div>
-                </div>
-              ),
-              cells: {
-                when: (
-                  <WhenCell
-                    day={slot.date}
-                    time={`${slot.start} · ${t("minutes", { count: b.durationMinutes })}`}
-                  />
-                ),
-                status: (
-                  <span className="inline-flex flex-col items-start gap-1">
-                    <BookingStatusBadge status={b.status} />
-                    {left && (
-                      <span
-                        className={cn(
-                          "text-[13.5px] font-semibold",
-                          countdownTone(b.status),
-                        )}
-                      >
-                        {b.status === "PENDING_PAYMENT"
-                          ? t("payIn", { time: left })
-                          : t("respondIn", { time: left })}
-                      </span>
-                    )}
-                  </span>
-                ),
-                // The exact amount, matching the detail page's own money
-                // block and the pay dialog: a row is not a browse card's
-                // approximate headline, it is this booking's own total, and a
-                // row reading "1 801 MZN" over a dialog asking for 1 800,50
-                // is the list disagreeing with the debit.
-                price: (
-                  <span className="text-lg font-bold whitespace-nowrap text-[var(--color-headline)] tabular-nums">
-                    {formatAmount(b.priceMinor, b.currency, locale)}
-                  </span>
-                ),
-              },
-              // The same three facts as the cells above, arranged for one
-              // column instead of labelled in a list: the pill and the total
-              // share a line because they are what the eye goes to, and
-              // "Estado" and "Valor" written beside them are two words of
-              // chrome on the narrowest screen the app has.
-              cardBody: (
-                <div className="grid gap-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="inline-flex flex-col items-start gap-1">
-                      <BookingStatusBadge status={b.status} />
-                      {left && (
-                        <span
-                          className={cn(
-                            "text-[13.5px] font-semibold",
-                            countdownTone(b.status),
-                          )}
-                        >
-                          {b.status === "PENDING_PAYMENT"
-                            ? t("payIn", { time: left })
-                            : t("respondIn", { time: left })}
-                        </span>
-                      )}
-                    </span>
-                    {/* The same exact amount the cell carries, at the size the
-                        detail page gives the total — never the rounded
-                        headline. See the `price` cell below. */}
-                    <span className="shrink-0 text-lg font-bold text-[var(--color-headline)] tabular-nums">
-                      {formatAmount(b.priceMinor, b.currency, locale)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="flex items-center gap-4">
-                      {/* The provider is one press away from every row,
-                          whatever the booking's status: a customer with a
-                          question about a job that is over has the same right
-                          to ask it as one waiting to be paid for. */}
-                      <MessageProviderButton
-                        providerId={b.providerId}
-                        compact
-                        label={t("message")}
-                      />
-                      {showCancel && cancelButton}
-                    </span>
-                    {/* The row's title is a link too, but a line of text is a
-                        poor target for a thumb. This is the one the card is
-                        actually tapped by. */}
-                    <Link
-                      to="/bookings/$bookingId"
-                      params={{ bookingId: b.id }}
-                      className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-[var(--color-primary)] hover:underline"
-                    >
-                      {t("viewDetail")}
-                      <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                    </Link>
-                  </div>
-                  {/* The one action that is being waited on, given the width
-                      a thumb wants. Cancelar sits quietly in the row above
-                      instead: a booking nobody has answered yet has nothing
-                      pressing about calling it off. */}
-                  {showPay && payButton}
-                </div>
-              ),
-              // One action, never two: a confirmed booking has nothing to do
-              // here at all, and a `PENDING_PAYMENT` row shows only Pagar —
-              // both buttons together belong to the detail page, not this
-              // row (see the comment on `showPay`/`showCancel` above).
-              //
-              // **Table only, and the card draws its own copy full width.**
-              // `CollectionCard` puts this in the card's top-right corner,
-              // which on a 390px screen took about a third of the room the
-              // title had and wrapped "Fotografia de casamento · Pacote
-              // completo" onto three lines under a cramped button. The same
-              // control lives at the foot of `cardBody` above instead, where
-              // it is a full-width target rather than a corner one. Hidden
-              // rather than conditional, because a row description is one
-              // object for both renderings — see `CollectionRow.cardBody`.
-              //
-              // "Ver detalhe" beside it is the provider list's row action: the
-              // same link as the title, drawn where the mockups put the row's
-              // way in. Out of the tab order and the accessibility tree,
-              // because it *is* the title's link a second time — a reader
-              // tabbing or listening would otherwise meet every row twice.
-              actions: (
-                <span className="hidden items-center justify-end gap-4 md:inline-flex">
-                  {showPay ? payButton : showCancel ? cancelButton : null}
-                  <Link
-                    to="/bookings/$bookingId"
-                    params={{ bookingId: b.id }}
-                    className={DETAILS_BUTTON_CLASS}
-                    tabIndex={-1}
-                    aria-hidden="true"
-                  >
-                    {t("common:viewDetails")}
-                  </Link>
-                </span>
-              ),
-            };
-          })}
-        />
-      </div>
+      {/* The rail beside the list from `xl`; under it before then, two
+          cards side by side from `md` so a laptop at 1100px does not end the
+          page on two half-empty full-width boxes. */}
+      <div className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
+        <section aria-label={tabLabel} className="min-w-0">
+          {/* `contain` so the row is measured by its column, not by its
+              boxes: three tabs wider than a phone would otherwise push the
+              page sideways. Inside the column they scroll, as `StatusTabs`
+              means them to. Every number is the server's — `bookingMine`
+              counts all three tabs whatever tab is open. */}
+          <div className="w-full [contain:inline-size]">
+            <StatusTabs
+              tabs={CUSTOMER_BOOKING_TABS.map((key) => ({
+                key,
+                label: t(`tab.${key}`),
+                count: data ? data.counts[key] : null,
+                tone: key === "waiting" ? "warning" : "neutral",
+              }))}
+              value={tab}
+              onChange={setTab}
+              ariaLabel={t("title")}
+            />
+          </div>
 
-      {/* No "anterior": nothing was taken away to go back to. The card's own
-          header carries the count, and it is honest now that `shown` grows
-          with the list instead of restarting at twenty on every page. */}
-      {data && data.nextOffset !== null && (
-        <div className="mt-4 flex justify-center">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={query.isFetching}
-            onClick={() =>
-              setOffset(data.nextOffset ?? offset + CUSTOMER_BOOKINGS_PAGE_SIZE)
-            }
-          >
-            {t("loadMore")}
-          </Button>
-        </div>
-      )}
+          {loadingFirst ? (
+            <ul aria-hidden="true" className="m-0 mt-5 grid list-none gap-3 p-0">
+              <BookingRowSkeleton />
+              <BookingRowSkeleton />
+              <BookingRowSkeleton />
+            </ul>
+          ) : items.length === 0 ? (
+            <div className={cn(BOOKINGS_CARD, "mt-5 grid justify-items-center px-6 py-12 text-center")}>
+              <span
+                aria-hidden="true"
+                className="grid h-12 w-12 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[var(--color-primary)]"
+              >
+                <CalendarDays className="h-6 w-6" />
+              </span>
+              <p className="m-0 mt-4 text-lg font-bold text-[var(--color-headline)]">
+                {t("emptyTitle")}
+              </p>
+              <p className="m-0 mt-1.5 max-w-[46ch] text-sm leading-relaxed text-[var(--color-muted-foreground)]">
+                {t("emptyBody")}
+              </p>
+              <Link to="/services" className={cn(buttonVariants({ size: "sm" }), "mt-5")}>
+                {t("emptyAction")}
+              </Link>
+            </div>
+          ) : (
+            <ul aria-label={tabLabel} className="m-0 mt-5 grid list-none gap-3 p-0">
+              {items.map((b) => {
+                const deadline = deadlineOf(b);
+                const left = deadline ? timeLeftWording(deadline, now) : null;
+                // `canCancel` and `canPay` are the domain's answer, and both
+                // are true for `PENDING_PAYMENT` — the detail page shows both
+                // at once. A row offers the one actually being waited on:
+                // paying, or, while the provider has not answered, cancelling.
+                const showPay = canPay(b.status);
+                const showCancel = canCancel(b.status) && !showPay;
+                return (
+                  <BookingRow
+                    key={b.id}
+                    booking={b}
+                    countdown={
+                      left
+                        ? b.status === "PENDING_PAYMENT"
+                          ? t("payIn", { time: left })
+                          : t("respondIn", { time: left })
+                        : null
+                    }
+                    primaryAction={
+                      showPay ? (
+                        <Button
+                          type="button"
+                          className="h-10 flex-1 md:w-full md:flex-none"
+                          onClick={() => setPaying(b)}
+                        >
+                          {t("pay")}
+                        </Button>
+                      ) : undefined
+                    }
+                    quietActions={
+                      <>
+                        {/* The provider is one press away from every row,
+                            whatever the booking's status: a question about
+                            a job that is over is as fair as one about a job
+                            still waiting to be paid for. */}
+                        <MessageProviderButton
+                          providerId={b.providerId}
+                          compact
+                          label={t("message")}
+                        />
+                        {/* A `<button>`, not a link: it opens a dialog. */}
+                        {showCancel && (
+                          <button
+                            type="button"
+                            onClick={() => setCancelling(b)}
+                            className="type-caption font-semibold text-[var(--color-muted-foreground)] hover:text-[var(--color-destructive)] hover:underline"
+                          >
+                            {t("cancel")}
+                          </button>
+                        )}
+                      </>
+                    }
+                  />
+                );
+              })}
+            </ul>
+          )}
+
+          {/* No "anterior": nothing was taken away to go back to. The count
+              grows with the list instead of restarting at twenty. */}
+          {!loadingFirst && items.length > 0 && (
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
+              <span className="text-sm text-[var(--color-muted-foreground)] tabular-nums">
+                {t("list.shown", { shown: items.length, total })}
+              </span>
+              {data && data.nextOffset !== null && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={query.isFetching}
+                  onClick={() =>
+                    setOffset(data.nextOffset ?? offset + CUSTOMER_BOOKINGS_PAGE_SIZE)
+                  }
+                >
+                  {t("loadMore")}
+                </Button>
+              )}
+            </div>
+          )}
+        </section>
+
+        <aside className="grid min-w-0 gap-6 md:grid-cols-2 md:items-start xl:grid-cols-1">
+          <NextBookingCard booking={next} loading={upcoming.isLoading} />
+          <HelpCard />
+        </aside>
+      </div>
 
       {cancelling && (
         <CancelDialog

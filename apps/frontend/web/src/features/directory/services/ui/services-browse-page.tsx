@@ -6,7 +6,13 @@ import { LayoutGrid, SearchX } from "lucide-react";
 import { EmptyCard } from "@/shared/components/empty-card";
 import { SiteHeader } from "@/shared/components/site-header";
 import { SortDropdown } from "@/shared/components/browse/sort-dropdown";
-import { PAGER_EDGE_CLASS, Pager, pagerPageClass } from "@/shared/components/browse/pager";
+import {
+  PAGER_EDGE_CLASS,
+  Pager,
+  PagerChevron,
+  PagerEdgeOff,
+  pagerPageClass,
+} from "@/shared/components/browse/pager";
 import { EXACT_MATCH } from "@/shared/components/browse/active-match";
 // Categories are platform data that happens to be fetched under `landing/`.
 // Reached through its viewmodel rather than its repository — `ui` may not
@@ -44,6 +50,8 @@ import {
   type BrowseSearch,
 } from "@/features/directory/services/domain/browse-search";
 import { browseTitle } from "@/features/directory/services/domain/browse-title";
+import { topRatedService } from "@/features/directory/services/domain/top-rated";
+import { TopRatedCard } from "@/features/directory/services/ui/top-rated-card";
 import { resultsScope, scopeValues } from "@/features/directory/domain/results-scope";
 
 /**
@@ -143,6 +151,31 @@ export function ServicesBrowsePage() {
   const categories = useCategoryPreview(CATEGORY_FILTER_LIMIT).data?.items ?? [];
   const categoryName = categories.find((c) => c.code === category)?.name ?? null;
 
+  /**
+   * The wide "best rated" card, and the grid without it.
+   *
+   * Page one only, and never under a typed term: on page three it would be
+   * the best of an arbitrary slice, and above a search it would be answering
+   * a question the reader did not ask before the results that answer theirs.
+   * Taken out of the grid rather than drawn twice — one service, one card.
+   */
+  const top = offset === 0 && !q?.trim() ? topRatedService(page.items) : null;
+  const gridItems = top ? page.items.filter((item) => item.id !== top.id) : page.items;
+
+  /** One heart per card, built here because the page holds the marks — see `marks`. */
+  const heart = (service: ServiceDTO) => (
+    <FavouriteButton
+      targetType="service"
+      targetId={service.id}
+      saved={marks.isMarked(service.id)}
+      // Fires when the save answers, never on the press: the lists come from
+      // the mutation's own data, so the dialog opens already knowing which are
+      // ticked. A press on an already-filled heart brings none, and the
+      // dialog asks for itself.
+      onSaved={({ listIds }) => setFiling({ service, ...(listIds ? { listIds } : {}) })}
+    />
+  );
+
   const title = browseTitle(current, categoryName);
   const scope = scopeValues(current, categoryName);
 
@@ -200,7 +233,12 @@ export function ServicesBrowsePage() {
           <main className="min-w-0">
             <BrowseSearchBar current={current} />
 
-            <ServiceFilters current={current} />
+            <ServiceFilters current={current} total={page.total} />
+
+            {/* Between the filters and the count, where the mockup draws it.
+                The count below still counts it: it is one of the results,
+                drawn wide, not an advert on top of them. */}
+            {top && <TopRatedCard service={top} locale={locale} favourite={heart(top)} />}
 
             <div className="mt-[30px] flex flex-wrap items-center gap-3">
               {/* Two translated pieces, and the second is a whole clause per
@@ -259,27 +297,9 @@ export function ServicesBrowsePage() {
                     card draws its own edge, so cards are separated by the gap
                     at every width, never by a hairline. */}
                 <ul className="mt-5 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {page.items.map((service) => (
+                  {gridItems.map((service) => (
                     <li key={service.id}>
-                      <ServiceCard
-                        service={service}
-                        locale={locale}
-                        favourite={
-                          <FavouriteButton
-                            targetType="service"
-                            targetId={service.id}
-                            saved={marks.isMarked(service.id)}
-                            // Fires when the save answers, never on the press:
-                            // the lists come from the mutation's own data, so
-                            // the dialog opens already knowing which are
-                            // ticked. A press on an already-filled heart
-                            // brings none, and the dialog asks for itself.
-                            onSaved={({ listIds }) =>
-                              setFiling({ service, ...(listIds ? { listIds } : {}) })
-                            }
-                          />
-                        }
-                      />
+                      <ServiceCard service={service} locale={locale} favourite={heart(service)} />
                     </li>
                   ))}
                 </ul>
@@ -301,41 +321,43 @@ export function ServicesBrowsePage() {
                       {slot.page}
                     </Link>
                   )}
-                  {...(offset > 0
-                    ? {
-                        previous: (
-                          <Link
-                            to="/services"
-                            activeOptions={EXACT_MATCH}
-                            search={browseSearch(current, {
-                              offset: Math.max(offset - BROWSE_PAGE_SIZE, 0),
-                            })}
-                            className={PAGER_EDGE_CLASS}
-                          >
-                            {t("servicesPrevious")}
-                          </Link>
-                        ),
-                      }
-                    : {})}
-                  {...(page.nextOffset !== null
-                    ? {
-                        next: (
-                          <Link
-                            to="/services"
-                            // The server's own number, never
-                            // `offset + items.length`: a row dropped for
-                            // being unrenderable still occupied a position in
-                            // the underlying order, and stepping by the
-                            // shorter number would fetch it again forever.
-                            activeOptions={EXACT_MATCH}
-                            search={browseSearch(current, { offset: page.nextOffset })}
-                            className={PAGER_EDGE_CLASS}
-                          >
-                            {t("servicesNext")}
-                          </Link>
-                        ),
-                      }
-                    : {})}
+                  previous={
+                    offset > 0 ? (
+                      <Link
+                        to="/services"
+                        activeOptions={EXACT_MATCH}
+                        search={browseSearch(current, {
+                          offset: Math.max(offset - BROWSE_PAGE_SIZE, 0),
+                        })}
+                        aria-label={t("pagerPrevious")}
+                        className={PAGER_EDGE_CLASS}
+                      >
+                        <PagerChevron direction="previous" />
+                      </Link>
+                    ) : (
+                      <PagerEdgeOff direction="previous" />
+                    )
+                  }
+                  next={
+                    page.nextOffset !== null ? (
+                      <Link
+                        to="/services"
+                        // The server's own number, never
+                        // `offset + items.length`: a row dropped for being
+                        // unrenderable still occupied a position in the
+                        // underlying order, and stepping by the shorter
+                        // number would fetch it again forever.
+                        activeOptions={EXACT_MATCH}
+                        search={browseSearch(current, { offset: page.nextOffset })}
+                        aria-label={t("pagerNext")}
+                        className={PAGER_EDGE_CLASS}
+                      >
+                        <PagerChevron direction="next" />
+                      </Link>
+                    ) : (
+                      <PagerEdgeOff direction="next" />
+                    )
+                  }
                 />
               </>
             )}

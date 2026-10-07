@@ -59,8 +59,6 @@
     "SERVICE_MEMBER_CANNOT_PERFORM": "That person no longer offers this service."
   },
   "servicesSubtitle": "Everything the platform's providers offer.",
-  "servicesPrevious": "← Previous",
-  "servicesNext": "Next →",
   "servicesAllCategories": "All",
   "filtersTitle": "Filters",
   "filterWhere": "Where it happens",
@@ -81,8 +79,6 @@
   "providersAllCategories": "All",
   "providersFound": "{{count}} business found",
   "providersFound_other": "{{count}} businesses found",
-  "providersPrevious": "Previous",
-  "providersNext": "Next",
   "providerVerified": "Verified",
   "favouriteSave": "Save",
   "favouriteSaved": "Saved",
@@ -182,7 +178,7 @@
   "packagesUnavailableNotice": "This service doesn't currently have a bookable package. Please check back soon.",
   "titleServices": "Services ready to book",
   "titleServicesCategory": "{{category}} services",
-  "titleServicesCity": "Services ready to book in {{city}}",
+  "titleServicesCity": "Services in {{city}}",
   "titleServicesCategoryCity": "{{category}} services in {{city}}",
   "titleProviders": "Verified providers",
   "titleProvidersCategory": "{{category}} providers",
@@ -294,5 +290,10 @@
   "providersHeroSubtitle": "Compare businesses and professionals by their customers' reviews and the price they start from.",
   "providerSearchQuestion": "Which provider are you looking for?",
   "providerSearchHint": "E.g. business or professional name...",
-  "filterMore": "More filters"
+  "topRatedLabel": "Top rated",
+  "topRatedAction": "View details",
+  "topRatedVerified": "Verified provider",
+  "filterAction": "Filter",
+  "pagerPrevious": "Previous page",
+  "pagerNext": "Next page"
 }

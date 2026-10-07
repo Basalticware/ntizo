@@ -59,8 +59,6 @@
     "SERVICE_MEMBER_CANNOT_PERFORM": "Diese Person bietet diese Leistung nicht mehr an."
   },
   "servicesSubtitle": "Everything the platform's providers offer.",
-  "servicesPrevious": "← Previous",
-  "servicesNext": "Next →",
   "servicesAllCategories": "All",
   "filtersTitle": "Filters",
   "filterWhere": "Where it happens",
@@ -81,8 +79,6 @@
   "providersAllCategories": "Alle",
   "providersFound": "{{count}} Betrieb gefunden",
   "providersFound_other": "{{count}} Betriebe gefunden",
-  "providersPrevious": "Zurück",
-  "providersNext": "Weiter",
   "providerVerified": "Verifiziert",
   "favouriteSave": "Merken",
   "favouriteSaved": "Gemerkt",
@@ -182,7 +178,7 @@
   "packagesUnavailableNotice": "Für diesen Dienst ist derzeit kein buchbares Paket verfügbar. Bitte schauen Sie bald wieder vorbei.",
   "titleServices": "Sofort buchbare Leistungen",
   "titleServicesCategory": "Leistungen für {{category}}",
-  "titleServicesCity": "Sofort buchbare Leistungen in {{city}}",
+  "titleServicesCity": "Leistungen in {{city}}",
   "titleServicesCategoryCity": "Leistungen für {{category}} in {{city}}",
   "titleProviders": "Geprüfte Anbieter",
   "titleProvidersCategory": "Anbieter für {{category}}",
@@ -294,5 +290,10 @@
   "providersHeroSubtitle": "Vergleichen Sie Betriebe und Profis nach den Bewertungen ihrer Kunden und dem Preis, ab dem sie arbeiten.",
   "providerSearchQuestion": "Welchen Anbieter suchen Sie?",
   "providerSearchHint": "z. B. Name des Betriebs oder der Fachkraft...",
-  "filterMore": "Weitere Filter"
+  "topRatedLabel": "Am besten bewertet",
+  "topRatedAction": "Details ansehen",
+  "topRatedVerified": "Verifizierter Anbieter",
+  "filterAction": "Filtern",
+  "pagerPrevious": "Vorherige Seite",
+  "pagerNext": "Nächste Seite"
 }

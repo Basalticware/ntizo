@@ -42,11 +42,9 @@
   "loadError": "Nous n'avons pas pu ouvrir cette réservation. Vérifiez votre connexion et réessayez.",
   "storageBlockedTitle": "Ce navigateur ne conserve pas vos informations",
   "storageBlockedBody": "Nous devons conserver vos informations dans cet onglet jusqu'à l'envoi de la demande, et ce navigateur ne le permet pas. Ouvrez la page dans une fenêtre normale (non privée) ou autorisez les données du site. Votre horaire reste réservé.",
-  "viewBookingAction": "Voir ma réservation",
-  "browseMoreAction": "Voir d'autres services",
+  "viewBookingAction": "Voir la réservation",
+  "browseMoreAction": "Retour aux services",
   "sentTitle": "Demande envoyée",
-  "sentBody": "Nous avons envoyé votre demande à {{provider}}. Il a jusqu'à {{time}} le {{date}} pour confirmer, et vous ne payez qu'après cela.",
-  "sentBodyNoDeadline": "Nous avons envoyé votre demande à {{provider}}. Nous vous préviendrons dès qu'il répondra, et vous ne payez qu'après cela.",
   "unansweredTitle": "Le prestataire n'a pas répondu à temps",
   "unansweredBody": "Le délai pour confirmer est écoulé et la demande a été close. Rien n'a été débité. Vous pouvez choisir un autre horaire.",
   "unansweredAction": "Choisir un autre horaire",
@@ -107,5 +105,22 @@
   "holdRemainingLabel": "Temps restant pour terminer la réservation",
   "availableTimes": "Horaires disponibles",
   "chooseWhenLede": "Sélectionnez la date et l'heure qui vous conviennent le mieux.",
-  "railPlaceLabel": "Lieu"
+  "railPlaceLabel": "Lieu",
+  "outcome": {
+    "sentLede": "Nous avons envoyé votre demande à {{provider}}. La réservation n'est pas encore confirmée, et rien n'a été débité.",
+    "nextTitle": "Et maintenant",
+    "next1Title": "{{provider}} confirme la demande",
+    "next1Body": "Le prestataire a jusqu'à {{time}} le {{date}} pour accepter ou refuser. Nous vous prévenons dès qu'il répond.",
+    "next1BodyNoDeadline": "Nous vous prévenons dès qu'il répond.",
+    "next2Title": "Vous payez par M-Pesa",
+    "next2Body": "Une fois la demande acceptée, une demande de paiement M-Pesa arrive sur votre téléphone. Confirmez-la avec votre code PIN avant la fin du délai.",
+    "next3Title": "Le service a lieu",
+    "next3Body": "{{provider}} réalise le service au jour et à l'heure convenus.",
+    "summaryTitle": "Récapitulatif de la demande",
+    "date": "Date",
+    "time": "Heure",
+    "place": "Lieu",
+    "price": "Prix",
+    "verified": "Prestataire vérifié"
+  }
 }

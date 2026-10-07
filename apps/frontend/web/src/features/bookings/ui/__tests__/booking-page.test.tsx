@@ -109,6 +109,12 @@ async function renderBooking(bookingId = "bk-1") {
   return { router };
 }
 
+/** The hops of the status card's timeline, and nothing else on the page that is a list — the breadcrumb is one too. */
+async function timelineSteps() {
+  const list = await screen.findByRole("list", { name: "Como vai isto" });
+  return within(list).getAllByRole("listitem");
+}
+
 /**
  * The locale is pinned, not inherited: every assertion here reads Portuguese
  * copy and the suite's default resolves to English (`test/setup.ts`).
@@ -145,7 +151,7 @@ describe("BookingPage", () => {
     );
     await renderBooking();
 
-    const steps = await screen.findAllByRole("listitem");
+    const steps = await timelineSteps();
     // Three hops the server sent, then the one still ahead of them. The last
     // is the page's own addition and carries no date, because it has none to
     // give — see `upcomingSteps`.
@@ -177,7 +183,7 @@ describe("BookingPage", () => {
       }),
     );
     await renderBooking();
-    expect((await screen.findAllByRole("listitem")).map((s) => s.textContent)).toEqual([
+    expect((await timelineSteps()).map((s) => s.textContent)).toEqual([
       expect.stringContaining("Pedido enviado"),
       expect.stringContaining("A aguardar resposta do prestador"),
       "Pagamento",
@@ -210,13 +216,13 @@ describe("BookingPage", () => {
       }),
     );
     await renderBooking();
-    expect((await screen.findAllByRole("listitem")).map((s) => s.textContent)).toEqual([
+    expect((await timelineSteps()).map((s) => s.textContent)).toEqual([
       expect.stringContaining("Pedido enviado"),
       expect.stringContaining("Pagamento confirmado"),
     ]);
   });
 
-  // "1800,00 MTn", not "1 800 MZN" — `formatAmount` (shared with the list's
+  // "1 800,00 MTn", not "1 800 MZN" — `formatAmount` (shared with the list's
   // own price cell and with checkout's rail, so every price on this page
   // agrees with the row it was opened from and with what was approved) leaves
   // `currencyDisplay` at its default, which is `pt-MZ`'s own narrow symbol
@@ -230,41 +236,101 @@ describe("BookingPage", () => {
    * would put it back silently.
    */
   describe("the layout a phone gets", () => {
-    it("puts the money and the timeline above the record, and back beside it on a laptop", async () => {
-      // One column stacks in source order, and source order is the two-column
-      // layout's: the record first, the rail second. Stacked, that buried
-      // "quanto pago" and "onde é que isto está" under the address, the
-      // duration and the customer's own note — three blocks they wrote
-      // themselves.
-      setDetail(bookingFixture());
+    it("puts the actions first, and in the rail beside the record from xl", async () => {
+      // One column stacks in source order, so the actions are written first:
+      // a Pagar that has to be scrolled to is a Pagar that gets put off. From
+      // `xl` the grid moves them to the rail on the right.
+      setDetail(bookingFixture({ status: "PENDING_PAYMENT" }));
       await renderBooking();
-      await screen.findByRole("heading", { level: 1 });
 
-      const rail = document.querySelector("aside")!;
-      expect(rail.className).toContain("order-1");
-      expect(rail.className).toContain("lg:order-2");
+      const actions = (await screen.findByRole("heading", { name: "O que pode fazer" })).closest(
+        "section",
+      )!;
+      const details = screen.getByRole("heading", { name: "Detalhes" }).closest("section")!;
+      expect(
+        actions.compareDocumentPosition(details) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(actions.className).toContain("xl:col-start-2");
     });
 
-    it("gives Cancelar and Pagar the whole width, stacked, until there is room for a row", async () => {
-      // Wrapping under the header at whatever width their words gave them
-      // left Pagar as a half-width button beside Cancelar on a 360px screen:
-      // neither an easy target, and the destructive one exactly as prominent
-      // as the action being waited for.
+    it("stacks Pagar and Cancelar full width on a phone and in the rail, in a row between", async () => {
+      // Wrapping at whatever width their words gave them left Pagar as a
+      // half-width button beside Cancelar on a 360px screen: neither an easy
+      // target, and the destructive one exactly as prominent as the action
+      // being waited for.
       setDetail(bookingFixture({ status: "PENDING_PAYMENT" }));
       await renderBooking();
 
       const group = await screen.findByRole("group", { name: "Ações" });
       expect(group.className).toContain("flex-col");
       expect(group.className).toContain("sm:flex-row");
+      expect(group.className).toContain("xl:flex-col");
       // Written in their real order, so what is read and what is tabbed
-      // agree with what is on the screen — no `flex-col-reverse`. Pagar
-      // lands at the bottom of the pair, where a thumb already is.
+      // agree with what is on the screen — no `flex-col-reverse`.
       expect(group.className).not.toContain("flex-col-reverse");
-      for (const button of within(group).getAllByRole("button")) {
+      for (const name of [/^Pagar/, "Cancelar reserva"]) {
+        const button = within(group).getByRole("button", { name });
         expect(button.className).toContain("w-full");
         expect(button.className).toContain("sm:w-auto");
       }
     });
+  });
+
+  it("leads back through Início and the list, and names the service last", async () => {
+    setDetail(bookingFixture({ serviceName: "Canalização" }));
+    await renderBooking();
+
+    const crumbs = await screen.findByRole("navigation", { name: "Onde está" });
+    expect(within(crumbs).getByRole("link", { name: "Início" })).toHaveAttribute("href", "/");
+    expect(within(crumbs).getByRole("link", { name: "Minhas reservas" })).toHaveAttribute(
+      "href",
+      "/bookings",
+    );
+    // The page it is on is text, not a link to itself.
+    expect(within(crumbs).getByText("Canalização").closest("a")).toBeNull();
+  });
+
+  it("puts the status beside the service name", async () => {
+    setDetail(bookingFixture({ status: "CONFIRMED", paidAt: "2026-09-01T14:07:00Z" }));
+    await renderBooking();
+
+    const title = await screen.findByRole("heading", { level: 1, name: "Canalização" });
+    expect(title.parentElement).toHaveTextContent("Confirmada");
+  });
+
+  it("says, while the provider decides, that nothing has been charged", async () => {
+    // Never "pagamento garantido" or "retido": the platform holds nothing.
+    // The customer pays by M-Pesa once the provider accepts.
+    setDetail(bookingFixture({ status: "AWAITING_PROVIDER" }));
+    await renderBooking();
+
+    expect(await screen.findByText(/Não foi cobrado nada/)).toBeInTheDocument();
+    expect(screen.queryByText(/garantid|retid/i)).not.toBeInTheDocument();
+  });
+
+  it("tells a customer whose provider accepted that the M-Pesa prompt is on their phone", async () => {
+    setDetail(bookingFixture({ status: "PENDING_PAYMENT" }));
+    await renderBooking();
+
+    expect(await screen.findByText(/pedido de pagamento M-Pesa/)).toBeInTheDocument();
+  });
+
+  it("does not print the customer's address as the place of a job at the provider's", async () => {
+    // Step 2 asks every customer for an address; on an `at_provider` service
+    // it is not where the work happens.
+    setDetail(bookingFixture({ locationType: "at_provider" }));
+    await renderBooking();
+
+    expect(await screen.findByText("No espaço dele")).toBeInTheDocument();
+    expect(screen.queryByText(/Julius Nyerere/)).not.toBeInTheDocument();
+  });
+
+  it("shows the customer's own note in the details", async () => {
+    setDetail(bookingFixture({ description: "Portão azul" }));
+    await renderBooking();
+
+    expect(await screen.findByText("Portão azul")).toBeInTheDocument();
+    expect(screen.getByText("Notas")).toBeInTheDocument();
   });
 
   it("points at the provider's public page, by the slug this read already carried", async () => {
@@ -290,7 +356,7 @@ describe("BookingPage", () => {
     await renderBooking();
 
     expect(
-      await screen.findByRole("button", { name: /Mensagem/ }),
+      await screen.findByRole("button", { name: /Falar com o prestador/ }),
     ).toBeInTheDocument();
   });
 
@@ -317,7 +383,7 @@ describe("BookingPage", () => {
     setDetail(bookingFixture({ priceMinor: 180_000, currency: "MZN" }));
     await renderBooking();
 
-    expect(await screen.findByText("1800,00 MTn")).toBeInTheDocument();
+    expect(await screen.findByText(/^1\s800,00\sMTn$/)).toBeInTheDocument();
     expect(screen.queryByText(/comiss/i)).not.toBeInTheDocument();
   });
 
@@ -332,12 +398,12 @@ describe("BookingPage", () => {
     );
     await renderBooking();
 
-    expect(await screen.findByText("1800,50 MTn")).toBeInTheDocument();
+    expect(await screen.findByText(/^1\s800,50\sMTn$/)).toBeInTheDocument();
     // `toHaveTextContent`, not `getByRole`'s own `name` — that one compares
     // the accessible name with no normalizer at all, and `Intl.NumberFormat`
     // separates the amount from its currency symbol with U+00A0.
     expect(screen.getByRole("button", { name: /^Pagar/ })).toHaveTextContent(
-      "Pagar 1800,50 MTn",
+      /^Pagar 1\s800,50\sMTn$/,
     );
     expect(screen.queryByText(/1 801/)).not.toBeInTheDocument();
   });
@@ -404,7 +470,9 @@ describe("BookingPage", () => {
     await screen.findByText(/Pago a/);
     expect(screen.queryByRole("button", { name: "Cancelar reserva" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^Pagar/ })).not.toBeInTheDocument();
-    expect(screen.getByText("Precisa de mudar ou desmarcar?")).toBeInTheDocument();
+    expect(
+      screen.getByText("Para mudar ou desmarcar uma reserva confirmada, fale com o suporte."),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Falar com o suporte" })).toBeInTheDocument();
   });
 

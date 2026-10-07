@@ -59,8 +59,6 @@
     "SERVICE_MEMBER_CANNOT_PERFORM": "Deze persoon biedt deze dienst niet meer aan."
   },
   "servicesSubtitle": "Everything the platform's providers offer.",
-  "servicesPrevious": "← Previous",
-  "servicesNext": "Next →",
   "servicesAllCategories": "All",
   "filtersTitle": "Filters",
   "filterWhere": "Where it happens",
@@ -81,8 +79,6 @@
   "providersAllCategories": "Alle",
   "providersFound": "{{count}} bedrijf gevonden",
   "providersFound_other": "{{count}} bedrijven gevonden",
-  "providersPrevious": "Vorige",
-  "providersNext": "Volgende",
   "providerVerified": "Geverifieerd",
   "favouriteSave": "Bewaren",
   "favouriteSaved": "Bewaard",
@@ -182,7 +178,7 @@
   "packagesUnavailableNotice": "Deze dienst heeft momenteel geen boekbaar pakket. Kom binnenkort terug.",
   "titleServices": "Direct boekbare diensten",
   "titleServicesCategory": "Diensten voor {{category}}",
-  "titleServicesCity": "Direct boekbare diensten in {{city}}",
+  "titleServicesCity": "Diensten in {{city}}",
   "titleServicesCategoryCity": "Diensten voor {{category}} in {{city}}",
   "titleProviders": "Geverifieerde aanbieders",
   "titleProvidersCategory": "Aanbieders voor {{category}}",
@@ -294,5 +290,10 @@
   "providersHeroSubtitle": "Vergelijk bedrijven en vakmensen op de beoordelingen van hun klanten en de prijs waarvoor ze beginnen.",
   "providerSearchQuestion": "Welke aanbieder zoekt u?",
   "providerSearchHint": "Bijv. naam van het bedrijf of de vakman...",
-  "filterMore": "Meer filters"
+  "topRatedLabel": "Best beoordeeld",
+  "topRatedAction": "Details bekijken",
+  "topRatedVerified": "Geverifieerde aanbieder",
+  "filterAction": "Filteren",
+  "pagerPrevious": "Vorige pagina",
+  "pagerNext": "Volgende pagina"
 }

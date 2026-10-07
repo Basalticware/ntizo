@@ -42,11 +42,9 @@
   "loadError": "Não foi possível abrir esta reserva. Verifique a ligação e tente de novo.",
   "storageBlockedTitle": "Este navegador não guarda os seus dados",
   "storageBlockedBody": "Precisamos de guardar os seus dados neste separador até enviar o pedido, e este navegador não permite. Abra a página numa janela normal (não anónima) ou permita os dados do site. A hora continua reservada para si.",
-  "viewBookingAction": "Ver a minha reserva",
-  "browseMoreAction": "Ver outros serviços",
+  "viewBookingAction": "Ver a reserva",
+  "browseMoreAction": "Voltar aos serviços",
   "sentTitle": "Pedido enviado",
-  "sentBody": "Enviámos o seu pedido a {{provider}}. Tem até às {{time}} de {{date}} para confirmar, e só paga depois disso.",
-  "sentBodyNoDeadline": "Enviámos o seu pedido a {{provider}}. Avisamos-lhe assim que responder, e só paga depois disso.",
   "unansweredTitle": "O prestador não respondeu a tempo",
   "unansweredBody": "O tempo para confirmar terminou e o pedido foi encerrado. Não foi cobrado nada. Pode escolher outra hora.",
   "unansweredAction": "Escolher outra hora",
@@ -107,5 +105,22 @@
   "holdRemainingLabel": "Tempo restante para concluir a reserva",
   "availableTimes": "Horários disponíveis",
   "chooseWhenLede": "Selecione a data e o horário mais conveniente para si.",
-  "railPlaceLabel": "Local"
+  "railPlaceLabel": "Local",
+  "outcome": {
+    "sentLede": "Enviámos o seu pedido a {{provider}}. A reserva ainda não está confirmada, e não foi cobrado nada.",
+    "nextTitle": "O que acontece agora",
+    "next1Title": "{{provider}} confirma o pedido",
+    "next1Body": "Tem até às {{time}} de {{date}} para aceitar ou recusar. Avisamos assim que responder.",
+    "next1BodyNoDeadline": "Avisamos assim que responder.",
+    "next2Title": "Paga por M-Pesa",
+    "next2Body": "Depois de o prestador aceitar, chega-lhe um pedido de pagamento M-Pesa ao telemóvel. Confirme-o com o PIN antes de o prazo terminar.",
+    "next3Title": "O serviço acontece",
+    "next3Body": "{{provider}} faz o serviço no dia e à hora marcados.",
+    "summaryTitle": "Resumo do pedido",
+    "date": "Data",
+    "time": "Hora",
+    "place": "Local",
+    "price": "Preço",
+    "verified": "Prestador verificado"
+  }
 }

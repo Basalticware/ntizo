@@ -42,11 +42,9 @@
   "loadError": "Non siamo riusciti ad aprire questa prenotazione. Controlla la connessione e riprova.",
   "storageBlockedTitle": "Questo browser non conserva i tuoi dati",
   "storageBlockedBody": "Dobbiamo conservare i tuoi dati in questa scheda finché la richiesta non viene inviata, e questo browser non lo consente. Apri la pagina in una finestra normale (non in incognito) o consenti i dati del sito. Il tuo orario resta riservato.",
-  "viewBookingAction": "Vedi la mia prenotazione",
-  "browseMoreAction": "Vedi altri servizi",
+  "viewBookingAction": "Vedi la prenotazione",
+  "browseMoreAction": "Torna ai servizi",
   "sentTitle": "Richiesta inviata",
-  "sentBody": "Abbiamo inviato la tua richiesta a {{provider}}. Ha tempo fino alle {{time}} di {{date}} per confermare, e paghi solo dopo.",
-  "sentBodyNoDeadline": "Abbiamo inviato la tua richiesta a {{provider}}. Ti avvisiamo appena risponde, e paghi solo dopo.",
   "unansweredTitle": "Il professionista non ha risposto in tempo",
   "unansweredBody": "Il tempo per confermare è scaduto e la richiesta è stata chiusa. Non è stato addebitato nulla. Puoi scegliere un altro orario.",
   "unansweredAction": "Scegli un altro orario",
@@ -107,5 +105,22 @@
   "holdRemainingLabel": "Tempo rimanente per completare la prenotazione",
   "availableTimes": "Orari disponibili",
   "chooseWhenLede": "Seleziona la data e l'orario più comodi per te.",
-  "railPlaceLabel": "Luogo"
+  "railPlaceLabel": "Luogo",
+  "outcome": {
+    "sentLede": "Abbiamo inviato la tua richiesta a {{provider}}. La prenotazione non è ancora confermata e non è stato addebitato nulla.",
+    "nextTitle": "Cosa succede ora",
+    "next1Title": "{{provider}} conferma la richiesta",
+    "next1Body": "Ha tempo fino alle {{time}} di {{date}} per accettare o rifiutare. Ti avvisiamo appena risponde.",
+    "next1BodyNoDeadline": "Ti avvisiamo appena risponde.",
+    "next2Title": "Paghi con M-Pesa",
+    "next2Body": "Quando il fornitore accetta, ricevi sul telefono una richiesta di pagamento M-Pesa. Confermala con il PIN prima della scadenza.",
+    "next3Title": "Il servizio si svolge",
+    "next3Body": "{{provider}} esegue il servizio nel giorno e all'ora concordati.",
+    "summaryTitle": "Riepilogo della richiesta",
+    "date": "Data",
+    "time": "Ora",
+    "place": "Luogo",
+    "price": "Prezzo",
+    "verified": "Fornitore verificato"
+  }
 }

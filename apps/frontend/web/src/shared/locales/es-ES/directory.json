@@ -59,8 +59,6 @@
     "SERVICE_MEMBER_CANNOT_PERFORM": "Esa persona ya no ofrece este servicio."
   },
   "servicesSubtitle": "Everything the platform's providers offer.",
-  "servicesPrevious": "← Previous",
-  "servicesNext": "Next →",
   "servicesAllCategories": "All",
   "filtersTitle": "Filters",
   "filterWhere": "Where it happens",
@@ -81,8 +79,6 @@
   "providersAllCategories": "Todas",
   "providersFound": "{{count}} negocio encontrado",
   "providersFound_other": "{{count}} negocios encontrados",
-  "providersPrevious": "Anterior",
-  "providersNext": "Siguiente",
   "providerVerified": "Verificado",
   "favouriteSave": "Guardar",
   "favouriteSaved": "Guardado",
@@ -182,7 +178,7 @@
   "packagesUnavailableNotice": "Actualmente este servicio no tiene ningún paquete disponible para reservar. Vuelve a comprobarlo pronto.",
   "titleServices": "Servicios listos para reservar",
   "titleServicesCategory": "Servicios de {{category}}",
-  "titleServicesCity": "Servicios listos para reservar en {{city}}",
+  "titleServicesCity": "Servicios en {{city}}",
   "titleServicesCategoryCity": "Servicios de {{category}} en {{city}}",
   "titleProviders": "Profesionales verificados",
   "titleProvidersCategory": "Profesionales de {{category}}",
@@ -294,5 +290,10 @@
   "providersHeroSubtitle": "Compara negocios y profesionales por las reseñas de sus clientes y el precio desde el que trabajan.",
   "providerSearchQuestion": "¿Qué proveedor buscas?",
   "providerSearchHint": "Ej.: nombre del negocio o del profesional...",
-  "filterMore": "Más filtros"
+  "topRatedLabel": "Mejor valorado",
+  "topRatedAction": "Ver detalles",
+  "topRatedVerified": "Proveedor verificado",
+  "filterAction": "Filtrar",
+  "pagerPrevious": "Página anterior",
+  "pagerNext": "Página siguiente"
 }
