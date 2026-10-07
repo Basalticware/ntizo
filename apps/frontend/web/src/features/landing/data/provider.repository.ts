@@ -6,12 +6,13 @@ import { publicGraphql } from "@/shared/lib/graphql/public-graphql";
  * Only what the landing's compact card draws.
  *
  * Deliberately narrower than the directory's `PROVIDER_FIELDS`: this card has
- * no description, no trade tags and no service count, and asking for them
- * would put a payload on the home page's first paint that nothing renders.
+ * no description and no trade tags, and asking for them would put a payload
+ * on the home page's first paint that nothing renders. `serviceCount` is in:
+ * the home's card prints "2 serviços" beside the rating.
  */
 const CARD_FIELDS = `
   id name slug city district logoUrl photoUrls
-  verified ratingAverage reviewCount fromAmountMinor fromCurrency
+  verified ratingAverage reviewCount fromAmountMinor fromCurrency serviceCount
   categories { code name }`;
 
 const POPULAR = `

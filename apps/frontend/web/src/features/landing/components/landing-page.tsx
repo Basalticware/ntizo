@@ -2,6 +2,8 @@ import { Hero } from "@/features/landing/ui/hero";
 import { CategoryGrid } from "@/features/landing/ui/category-grid";
 import { PopularServices } from "@/features/landing/ui/popular-services";
 import { VerifiedProviders } from "@/features/landing/ui/verified-providers";
+import { HomeBanner } from "@/features/landing/ui/home-banner";
+import { TrustBand } from "@/features/landing/ui/trust-band";
 import { CustomerReviews } from "@/features/landing/ui/customer-reviews";
 import { ProviderBand } from "@/features/landing/ui/provider-band";
 import { Footer } from "@/features/landing/ui/footer";
@@ -15,11 +17,11 @@ import { PUBLIC_PAGE_CLASS } from "@/features/landing/ui/public-page";
  * nothing else on the site used; every colour here is now a token every other
  * page shares, so there is nothing to carry.
  *
- * The order is an argument: what we sell, what you can browse, what it costs,
- * who does it, what they were like, and then — once — the offer to the person
- * who might do the work. "How it works" was here, between the price and the
- * providers; the client asked for it gone outright, not just reworked, once
- * the page went live.
+ * The order is the October 2026 home mockup's: the offer and the search on a
+ * photograph, what you can get done, what it costs, the household trades,
+ * who does it, why it is safe to book, what customers said, and then — once
+ * — the offer to the person who might do the work. "How it works" stays
+ * gone; the client asked for it removed outright once the page went live.
  *
  * `PUBLIC_PAGE_CLASS` is `/services`' inset, so the header, every section
  * and the footer start on the line the listings start on.
@@ -32,10 +34,12 @@ export function LandingPage() {
       <Hero />
       <CategoryGrid />
       <PopularServices />
+      <HomeBanner />
       <VerifiedProviders />
+      <TrustBand />
       <CustomerReviews />
       <ProviderBand />
-      <Footer />
+      <Footer flush />
     </main>
   );
 }

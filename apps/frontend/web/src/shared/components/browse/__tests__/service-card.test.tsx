@@ -56,7 +56,12 @@ function service(over: Partial<ServiceDTO> = {}): ServiceDTO {
 
 const option = service().defaultOption!;
 
-function renderCard(dto: ServiceDTO, locale = "en-US", favourite?: ReactNode) {
+function renderCard(
+  dto: ServiceDTO,
+  locale = "en-US",
+  favourite?: ReactNode,
+  variant?: "grid" | "feature",
+) {
   const rootRoute = createRootRoute();
   const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -64,7 +69,7 @@ function renderCard(dto: ServiceDTO, locale = "en-US", favourite?: ReactNode) {
     component: () => (
       <ul>
         <li>
-          <ServiceCard service={dto} locale={locale} favourite={favourite} />
+          <ServiceCard service={dto} locale={locale} favourite={favourite} variant={variant} />
         </li>
       </ul>
     ),
@@ -196,5 +201,35 @@ describe("ServiceCard", () => {
       await screen.findByRole("listitem");
       expect(screen.queryByRole("button")).toBeNull();
     });
+  });
+});
+
+/**
+ * The home page's layout of the same card: the category named on the
+ * photograph, the name before the provider, and every fact the grid card
+ * prints still printed.
+ */
+describe("ServiceCard, feature layout", () => {
+  it("names the category on the photograph and keeps the price, the length and where", async () => {
+    renderCard(service(), "en-US", undefined, "feature");
+    await screen.findByRole("listitem");
+    const media = screen.getByRole("article").firstElementChild as HTMLElement;
+    expect(within(media).getByText("Hair & beauty")).toBeInTheDocument();
+    expect(screen.getByText("MZN 800")).toBeInTheDocument();
+    expect(screen.getByText("45 min")).toBeInTheDocument();
+    expect(screen.getByText("At their place")).toBeInTheDocument();
+  });
+
+  it("puts the service's name before its provider's", async () => {
+    renderCard(service(), "en-US", undefined, "feature");
+    const title = await screen.findByRole("heading", { name: "Corte de cabelo" });
+    const byline = screen.getByText("Estúdio Mavalane");
+    expect(title.compareDocumentPosition(byline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("draws no category tag on the listings' own card", async () => {
+    renderCard(service());
+    await screen.findByRole("listitem");
+    expect(screen.queryByText("Hair & beauty")).toBeNull();
   });
 });

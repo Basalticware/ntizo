@@ -47,7 +47,12 @@ function provider(over: Partial<ProviderPublicDTO> = {}): ProviderPublicDTO {
   };
 }
 
-function renderCard(dto: ProviderPublicDTO, locale = "en-US", favourite?: ReactNode) {
+function renderCard(
+  dto: ProviderPublicDTO,
+  locale = "en-US",
+  favourite?: ReactNode,
+  variant?: "grid" | "feature",
+) {
   const rootRoute = createRootRoute();
   const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -55,7 +60,7 @@ function renderCard(dto: ProviderPublicDTO, locale = "en-US", favourite?: ReactN
     component: () => (
       <ul>
         <li>
-          <ProviderCard provider={dto} locale={locale} favourite={favourite} />
+          <ProviderCard provider={dto} locale={locale} favourite={favourite} variant={variant} />
         </li>
       </ul>
     ),
@@ -147,5 +152,24 @@ describe("ProviderCard", () => {
       await screen.findByRole("link", { name: /Estúdio Mavalane/ });
       expect(screen.queryByRole("button")).toBeNull();
     });
+  });
+});
+
+/** The home page's layout: the trade and the place on lines of their own. */
+describe("ProviderCard, feature layout", () => {
+  it("prints the trade, the place, the service count and the lowest price", async () => {
+    renderCard(provider(), "en-US", undefined, "feature");
+    await screen.findByRole("link", { name: /Estúdio Mavalane/ });
+    expect(screen.getByText("Hair & beauty")).toBeInTheDocument();
+    expect(screen.getByText("Mavalane, Maputo")).toBeInTheDocument();
+    expect(screen.getByText("6 services")).toBeInTheDocument();
+    expect(screen.getByText("MZN 800")).toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+  });
+
+  it("leaves out the count for a business with no services", async () => {
+    renderCard(provider({ serviceCount: 0 }), "en-US", undefined, "feature");
+    await screen.findByRole("link", { name: /Estúdio Mavalane/ });
+    expect(screen.queryByText(/services?$/)).toBeNull();
   });
 });

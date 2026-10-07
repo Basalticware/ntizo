@@ -62,13 +62,13 @@ describe("LandingPage", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: /at the price you see/i }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Search services")).toBeInTheDocument();
+    expect(screen.getByRole("search")).toBeInTheDocument();
   });
 
   it("makes the offer to the other reader", async () => {
     await renderPage();
     expect(
-      await screen.findByRole("link", { name: "Create a provider account" }),
+      await screen.findByRole("link", { name: "Become a provider" }),
     ).toBeInTheDocument();
   });
 
@@ -91,7 +91,7 @@ describe("LandingPage", () => {
   // tick too early and catches them mid-flight.
   it("shows no empty section headings when there is nothing to put in them", async () => {
     await renderPage();
-    await screen.findByRole("link", { name: "Create a provider account" });
+    await screen.findByRole("link", { name: "Become a provider" });
     // Four assertions that something is absent all pass — vacuously — on a
     // completely blank document, and this tree has no Error Boundary
     // anywhere: if any section threw while rendering, React would unmount
@@ -101,11 +101,11 @@ describe("LandingPage", () => {
     // call to action again — not data-driven, and further down the tree than
     // anything being asserted absent — alongside the four negatives.
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Create a provider account" })).toBeInTheDocument();
-      expect(screen.queryByRole("heading", { name: "Browse by category" })).toBeNull();
+      expect(screen.getByRole("link", { name: "Become a provider" })).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "What do you need done?" })).toBeNull();
       expect(screen.queryByRole("heading", { name: "Popular services" })).toBeNull();
-      expect(screen.queryByRole("heading", { name: "Verified providers" })).toBeNull();
-      expect(screen.queryByRole("heading", { name: "What customers say" })).toBeNull();
+      expect(screen.queryByRole("heading", { name: "People you can trust" })).toBeNull();
+      expect(screen.queryByRole("heading", { name: "What our customers say" })).toBeNull();
     });
   });
 

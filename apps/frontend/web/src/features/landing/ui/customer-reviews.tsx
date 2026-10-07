@@ -3,183 +3,149 @@ import { useTranslation } from "react-i18next";
 import { Star } from "lucide-react";
 import { Skeleton, cn } from "@ntizo/frontend-ui";
 import { initialsOf } from "@/shared/domain/initials";
-import { ScrollRail } from "@/shared/components/browse/scroll-rail";
 import { TILE_TITLE_LINK_CLASS } from "@/shared/components/browse/result-tile";
 import { useFeaturedReviews } from "@/features/landing/viewmodel/use-featured-reviews";
+import { usePopularServices } from "@/features/landing/viewmodel/use-popular-services";
+import { usePopularProviders } from "@/features/landing/viewmodel/use-popular-providers";
 import { useLocale } from "@/features/landing/viewmodel/use-locale";
 import { SectionHead } from "@/features/landing/ui/section-head";
+import { LANDING_SERVICES } from "@/features/landing/ui/popular-services";
+import { LANDING_PROVIDERS } from "@/features/landing/ui/verified-providers";
 
-/** How many reviews the section draws. */
-export const LANDING_STORIES = 3;
+/** How many featured reviews the section draws: the mockup's one row. */
+export const LANDING_STORIES = 1;
 
 /**
- * What customers wrote, on the card the rest of the page is built from.
+ * "O que dizem os nossos clientes": a featured review and the platform's
+ * numbers beside it.
  *
- * Nothing here is translated and nothing should be: a review is what one
- * person wrote, in the language they wrote it, and rendering it in the
- * reader's language would make it no longer a quotation. Only the month is
- * formatted, from `createdAt`, in the reader's locale.
+ * Nothing in the review is translated and nothing should be: it is what one
+ * person wrote, in the language they wrote it. Only the date is formatted, in
+ * the reader's locale.
  *
- * **This was the only section on the home page without a card.** The services
- * above it and the businesses above those are both drawn on a bordered tile —
- * a shape the client asked for here first and then asked to see everywhere —
- * while the reviews stayed bare items under a hairline, with a second hairline
- * inside each one for the business row. Two rules cut every review into three
- * bands, and the quotes this platform actually has are short enough that the
- * section ended up taller than what it said. It is a card now, filling the
- * same four slots its neighbours fill:
+ * **Only numbers the page can actually fetch.** The mockup's tiles were
+ * "4,8 / 5", "1 200+ serviços concluídos" and "300+ prestadores
+ * verificados"; none of those is a figure anything serves. What is real:
  *
- * - the **eyebrow** names the business, where `ServiceCard`'s names the
- *   provider. It is also the card's link, which is what moved: the business
- *   used to be a row at the very bottom behind its own rule, so the one thing
- *   a reader could act on sat furthest from the words that made them want to.
- * - the **title** is the quote. It is the reason the card exists, so it takes
- *   the weight a service's name takes on its own card — and the type is what
- *   has to carry it, since a review has no photograph and this is the one card
- *   on the page that opens with words instead of a picture.
- * - the **meta** line is the score, still drawn star by star rather than as
- *   `RatingMark`'s single number: a testimonial is read, not compared, and
- *   five marks say "somebody rated this" at a glance where "4,0" reads as a
- *   statistic.
- * - the **bottom row** is who wrote it and when.
+ * - the count of published services — `serviceAll`'s `total` with no
+ *   filter, which is the same number `/services` shows. It is read from the
+ *   popular services' own query (same key, so no second request).
+ * - the count of verified providers — `providerList`'s `total` with
+ *   `verifiedOnly`, read from the popular providers' query the same way.
  *
- * `p-6`, the system's card padding, rather than the `p-4` the other two
- * cards use: a photograph gives
- * those cards their top mass for nothing, and a card made only of words has
- * to buy the same presence with its margins. The gaps are no longer this
- * section's own to pick — `ScrollRail` supplies them, which is what finally
- * lines these columns up with the rows above.
- *
- * **The alignment is still the feature.** Reviews are different lengths, so
- * the reviewer block takes `margin-top: auto` inside a flex column and every
- * card is stretched by its row — the flex rail below `sm`, the grid above it,
- * both of which stretch a child by default — so the reviewer's row lands on
- * one baseline across all three however long the quote runs. Three footers at
- * three different heights is what made the block this replaces read as
- * unfinished, and a border around each one would have made it read as broken.
+ * There is no platform-wide average rating in any public read model, so that
+ * tile is not drawn rather than averaged from four cards. A count that has
+ * not arrived, or is zero, draws no tile either; with no review and no
+ * number the section is not drawn at all.
  */
 export function CustomerReviews() {
   const { t } = useTranslation("landing"); // t:CustomerReviews
   const locale = useLocale();
-  const { data, isLoading } = useFeaturedReviews(LANDING_STORIES);
-  const stories = data ?? [];
+  const reviews = useFeaturedReviews(LANDING_STORIES);
+  const services = usePopularServices(LANDING_SERVICES);
+  const providers = usePopularProviders(LANDING_PROVIDERS);
+  const stories = reviews.data ?? [];
+  const stats = [
+    { key: "services", value: services.data?.total ?? 0, label: "home.statServices" },
+    { key: "providers", value: providers.data?.total ?? 0, label: "home.statProviders" },
+  ].filter((s) => s.value > 0);
 
-  if (!isLoading && stories.length === 0) return null;
+  if (!reviews.isLoading && stories.length === 0 && stats.length === 0) return null;
 
-  const month = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" });
+  const date = new Intl.DateTimeFormat(locale, { dateStyle: "long" });
+  const number = new Intl.NumberFormat(locale);
 
   return (
-    <section className="public-inset pt-14">
+    <section className="public-inset pt-10">
       <SectionHead title={t("home.storiesTitle")} blurb={t("home.storiesBlurb")} />
-      {/* Below `sm` this is `ScrollRail`'s sideways row, like the two sections
-          above it: once the reviews are cards, three of them stacked down a
-          390px screen is three full-width boxes to scroll past before the
-          page continues, and the rail was already the answer the rest of the
-          home page gives to exactly that.
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto]">
+        {reviews.isLoading ? (
+          <div className="grid grid-cols-[56px_minmax(0,1fr)] items-center gap-4 rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
+            <Skeleton className="h-14 w-14 rounded-full" />
+            <span className="grid gap-2">
+              <Skeleton className="h-[14px] w-1/3" />
+              <Skeleton className="h-[16px] w-4/5" />
+            </span>
+          </div>
+        ) : (
+          stories.map((s) => (
+            // `group` and `relative` are what the whole-card link resolves
+            // against: `TILE_TITLE_LINK_CLASS` stretches the business's
+            // anchor over this box with an `::after`, so the card is one tab
+            // stop leading to the business.
+            <article
+              key={s.id}
+              className="group relative grid items-center gap-x-5 gap-y-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] p-5 text-[var(--color-card-foreground)] sm:grid-cols-[56px_auto_minmax(0,1fr)]"
+            >
+              <span className="hidden h-14 w-14 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[16px] font-bold text-[var(--color-primary)] sm:grid">
+                {s.authorName ? initialsOf(s.authorName) : "—"}
+              </span>
+              <span className="min-w-0">
+                <b className="block truncate text-[15px] font-bold text-[var(--color-headline)]">
+                  {s.authorName ?? t("storyAnonymous")}
+                </b>
+                <span
+                  className="mt-1 flex gap-0.5"
+                  role="img"
+                  aria-label={t("storyRating", { rating: s.rating })}
+                >
+                  {Array.from({ length: 5 }, (_, star) => (
+                    <Star
+                      key={star}
+                      aria-hidden="true"
+                      className={
+                        star < s.rating
+                          ? "h-4 w-4 fill-[var(--color-star)] text-[var(--color-star)]"
+                          : "h-4 w-4 text-[color-mix(in_srgb,var(--color-muted-foreground)_40%,transparent)]"
+                      }
+                    />
+                  ))}
+                </span>
+              </span>
+              <span className="min-w-0 sm:pl-3">
+                <span className="block text-[13px] text-[var(--color-muted-foreground)]">
+                  {date.format(new Date(s.createdAt))}
+                </span>
+                {/* Clamped at two lines: the card is one row beside the
+                    numbers, and a long review would push them apart. */}
+                <blockquote className="mt-1 line-clamp-2 text-[16px] leading-[1.4] font-medium text-[var(--color-headline)]">
+                  “{s.comment}”
+                </blockquote>
+                <Link
+                  to="/providers/$slug"
+                  params={{ slug: s.providerSlug }}
+                  className={cn(
+                    "mt-1 block text-[13px] text-[var(--color-muted-foreground)] group-hover:underline group-focus-within:underline",
+                    TILE_TITLE_LINK_CLASS,
+                  )}
+                >
+                  {s.providerName}
+                </Link>
+              </span>
+            </article>
+          ))
+        )}
 
-          `cardWidth="78%"` is `VerifiedProviders`' own width rather than
-          `PopularServices`' 72%. The two sections that end in three desktop
-          columns should come to rest in the same rhythm on a phone, and this
-          card has no photograph to give it height — a narrower card only
-          spends the difference on wrapping the quote onto more lines. */}
-      <ScrollRail as="ul" columns={2} cardWidth="78%" className="lg:grid-cols-3">
-        {isLoading
-          ? Array.from({ length: LANDING_STORIES }, (_, i) => (
-              <li key={i}>
-                {/* The same shape as the card it stands in for — a padded body
-                    with an eyebrow, two lines of quote, a score and a bottom
-                    row — so a cold load does not reflow the moment the real
-                    card replaces it. The same choice `PopularServices`'
-                    skeleton documents for the same reason. */}
-                <div className="flex h-full flex-col rounded-[var(--radius-card)] border border-[var(--color-border)] p-6">
-                  <Skeleton className="h-[15px] w-1/3" />
-                  <Skeleton className="mt-2.5 h-[17px] w-full" />
-                  <Skeleton className="mt-1.5 h-[17px] w-4/5" />
-                  <Skeleton className="mt-3.5 h-[15px] w-[86px]" />
-                  <div className="mt-[18px] grid grid-cols-[36px_minmax(0,1fr)] items-center gap-3">
-                    <Skeleton className="h-9 w-9 rounded-full" />
-                    <span className="grid gap-1.5">
-                      <Skeleton className="h-[14px] w-2/3" />
-                      <Skeleton className="h-[12px] w-1/2" />
-                    </span>
-                  </div>
-                </div>
-              </li>
-            ))
-          : stories.map((s) => (
-              <li key={s.id}>
-                {/* `group` and `relative` are what the whole-card link resolves
-                    against: `TILE_TITLE_LINK_CLASS` stretches the eyebrow's
-                    anchor over this box with an `::after`, so the card is one
-                    tab stop leading to the business — the same construction
-                    `ServiceCard` and `ProviderCard` use, rather than an anchor
-                    wrapped around everything. */}
-                <article className="group relative flex h-full flex-col rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] p-6 text-[var(--color-card-foreground)]">
-                  <p className="text-[13px] text-[var(--color-muted-foreground)]">
-                    <Link
-                      to="/providers/$slug"
-                      params={{ slug: s.providerSlug }}
-                      className={cn(
-                        "font-semibold text-[var(--color-muted-foreground)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline",
-                        TILE_TITLE_LINK_CLASS,
-                      )}
-                    >
-                      {s.providerName}
-                    </Link>
-                  </p>
-
-                  {/* Clamped at four lines, as it was before the card: the
-                      cards in a row are compared with each other, and one
-                      review running to nine lines beside two of three is the
-                      ragged column the grid's `items-stretch` exists to
-                      prevent. */}
-                  <blockquote className="mt-2 line-clamp-4 text-[17px] leading-[1.4] font-bold tracking-[-0.01em] text-[var(--color-headline)]">
-                    {s.comment}
-                  </blockquote>
-
-                  <span
-                    className="mt-3.5 flex gap-0.5"
-                    role="img"
-                    aria-label={t("storyRating", { rating: s.rating })}
-                  >
-                    {Array.from({ length: 5 }, (_, star) => (
-                      <Star
-                        key={star}
-                        aria-hidden="true"
-                        className={
-                          star < s.rating
-                            ? "h-4 w-4 fill-[var(--color-star)] text-[var(--color-star)]"
-                            : "h-4 w-4 text-[color-mix(in_srgb,var(--color-muted-foreground)_40%,transparent)]"
-                        }
-                      />
-                    ))}
-                  </span>
-
-                  {/* `margin-top: auto` as an inline style, not a class: the
-                      test asserts the declared value, because jsdom does no
-                      layout and a class name proves nothing about where this
-                      lands. */}
-                  <div
-                    data-testid="review-footer"
-                    style={{ marginTop: "auto" }}
-                    className="grid grid-cols-[36px_minmax(0,1fr)] items-center gap-3 pt-[18px]"
-                  >
-                    <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[13px] font-bold text-[var(--color-primary)]">
-                      {s.authorName ? initialsOf(s.authorName) : "—"}
-                    </span>
-                    <span className="min-w-0">
-                      <b className="block truncate text-sm font-semibold text-[var(--color-headline)]">
-                        {s.authorName ?? t("storyAnonymous")}
-                      </b>
-                      <span className="text-[13px] text-[var(--color-muted-foreground)]">
-                        {month.format(new Date(s.createdAt))}
-                      </span>
-                    </span>
-                  </div>
-                </article>
-              </li>
+        {stats.length > 0 ? (
+          <dl
+            data-testid="home-stats"
+            className="grid grid-flow-col divide-x divide-[var(--color-border)] rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] xl:auto-cols-[200px]"
+          >
+            {stats.map((s) => (
+              <div key={s.key} className="flex flex-col justify-center px-6 py-5">
+                {/* The term first in the document, as `<dl>` requires; the
+                    figure is drawn above it. */}
+                <dt className="mt-2 text-[14px] text-[var(--color-muted-foreground)]">
+                  {t(s.label, { count: s.value })}
+                </dt>
+                <dd className="order-first text-[28px] leading-none font-extrabold tracking-[-0.01em] text-[var(--color-headline)] tabular-nums">
+                  {number.format(s.value)}
+                </dd>
+              </div>
             ))}
-      </ScrollRail>
+          </dl>
+        ) : null}
+      </div>
     </section>
   );
 }
