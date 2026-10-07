@@ -354,28 +354,25 @@ describe("DirectoryPage", () => {
     });
   });
 
-  it("the header's search bar says it searches businesses, not services", async () => {
-    // Its own accessible name, not the services one it inherits by default:
-    // the placeholder tells the eye what to type and says nothing at all to a
-    // screen reader, which announced "Search services" over this list.
+  it("leaves the header without a search; the page's own bar asks for a business", async () => {
     renderPage("/providers", { items: [provider()], total: 1 });
     await screen.findByRole("heading", { level: 1 });
-    expect(within(screen.getByRole("banner")).getByRole("searchbox")).toHaveAccessibleName(
-      "Search providers",
-    );
+    expect(within(screen.getByRole("banner")).queryByRole("searchbox")).not.toBeInTheDocument();
+    expect(screen.getByRole("search", { name: "Which provider are you looking for?" })).toBeInTheDocument();
   });
 
-  it("shows the current term in both bars", async () => {
+  it("shows the current term in the page's search bar", async () => {
     // A results page whose search box is empty tells the reader they searched
     // for nothing, and a second search from it starts from scratch.
     renderPage("/providers?q=mavalane", { items: [provider()], total: 1 });
     await screen.findByRole("heading", { level: 1 });
+    // One bar: the header carries no search since 7 October 2026.
     const boxes = screen.getAllByRole("searchbox");
-    expect(boxes).toHaveLength(2);
-    for (const box of boxes) expect(box).toHaveValue("mavalane");
+    expect(boxes).toHaveLength(1);
+    expect(boxes[0]).toHaveValue("mavalane");
   });
 
-  it("searching from a narrowed list keeps the narrowing, from either bar", async () => {
+  it("searching from a narrowed list keeps the narrowing", async () => {
     // The bars are controls on this page like any other, so they change one
     // part of the URL and keep the rest. Submitting used to write `?q=` and
     // nothing else: a reader who had asked for verified businesses in Maputo
@@ -396,17 +393,6 @@ describe("DirectoryPage", () => {
         verified: true,
         city: "Maputo",
         q: "mavalane",
-      });
-    });
-
-    const headerBar = within(screen.getByRole("banner")).getByRole("search");
-    fireEvent.change(within(headerBar).getByRole("searchbox"), { target: { value: "estudio" } });
-    fireEvent.submit(headerBar);
-    await waitFor(() => {
-      expect(router.state.location.search).toEqual({
-        verified: true,
-        city: "Maputo",
-        q: "estudio",
       });
     });
   });

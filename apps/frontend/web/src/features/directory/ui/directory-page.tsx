@@ -188,16 +188,7 @@ export function DirectoryPage() {
           and the sort when a name is typed, and resets the page. The city is
           not one of the bar's own fields: that is the "City" filter pill
           below, where a narrowing belongs. */}
-      <SiteHeader
-        current="providers"
-        search={{
-          to: "/providers",
-          placeholder: t("searchFieldProviderEmpty"),
-          label: t("searchLabelProviders"),
-          search: (q) => directorySearch(current, { q, offset: undefined }),
-          initialValue: current.q ?? "",
-        }}
-      />
+      <SiteHeader current="providers" />
 
       <main className="mx-auto max-w-[1440px]">
         {/* The hero's headline until the reader narrows the list; then what

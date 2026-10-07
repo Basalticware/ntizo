@@ -1,18 +1,8 @@
-import type { ComponentProps } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { ChevronDown } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  cn,
-} from "@ntizo/frontend-ui";
+import { cn } from "@ntizo/frontend-ui";
 import { HeaderActions } from "@/shared/components/header-actions";
-import { ServiceSearch } from "@/shared/components/service-search";
 import { PUBLIC_NAV } from "@/shared/lib/public-nav";
-import { useServiceCities } from "@/features/directory/services/viewmodel/use-browse-services";
 
 /**
  * A destination in the header, as the October 2026 mockups draw it
@@ -38,41 +28,6 @@ function navLinkClassName(active: boolean, overlay: boolean): string {
   );
 }
 
-/**
- * "Cidades ▾": the cities that actually have services, each opening the
- * services list narrowed to it.
- *
- * Read from the same facet the list's own City pill offers, so the header
- * can never name a city whose list is empty. Nothing at all until there are
- * two — a menu with one city in it is a link pretending to be a choice.
- */
-function CitiesMenu({ className }: { className: string }) {
-  const { t } = useTranslation("landing");
-  const navigate = useNavigate();
-  const cities = useServiceCities();
-  if (cities.length < 2) return null;
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <button type="button" className={className}>
-          {t("nav.cities")}
-          <ChevronDown className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56">
-        {cities.map((c) => (
-          <DropdownMenuItem
-            key={c.city}
-            onSelect={() => void navigate({ to: "/services", search: { city: c.city } })}
-          >
-            {c.city}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 /**
  * The header every public page wears — `client/public.css`'s `.ph.ph-search`.
@@ -104,8 +59,6 @@ function CitiesMenu({ className }: { className: string }) {
 export function SiteHeader({
   overlay = false,
   current = "explore",
-  search = {},
-  withSearch = true,
 }: {
   overlay?: boolean;
   /**
@@ -114,25 +67,6 @@ export function SiteHeader({
    * `endsWith("none")` matches no nav key, which is the whole mechanism.
    */
   current?: "explore" | "categories" | "services" | "providers" | "none";
-  /**
-   * What the bar asks for and what a submit does with it.
-   *
-   * Passed straight through to `ServiceSearch` rather than re-declared as
-   * four props here, which keeps that component's rule that `to`,
-   * `placeholder`, `label` and `search` arrive together or not at all — each
-   * one alone is a bug it has already shipped.
-   *
-   * Omitted is the landing hero's behaviour: ask for a service, and a submit
-   * starts a fresh search. A list page passes its own so that a typed term
-   * keeps the category, the filters, the city and the sort underneath it.
-   */
-  search?: ComponentProps<typeof ServiceSearch>;
-  /**
-   * `false` on the home page only, whose hero carries the big search bar (the
-   * October 2026 home mockup draws the header without one there). Every other
-   * page keeps the field in the bar.
-   */
-  withSearch?: boolean;
 }) {
   const { t } = useTranslation("landing");
   const { t: ta } = useTranslation("auth");
@@ -145,23 +79,21 @@ export function SiteHeader({
           : "sticky top-0 z-20 border-b border-[var(--color-line-2)] bg-[var(--color-background)]"
       }
     >
-      {/* A wrapping flex below `md`: the logo and the account controls on the
-          first row, the search on a row of its own — `order-last` plus
-          `w-full` is what puts it there. One element moved by the layout,
-          rather than a second copy per breakpoint, which would put two
-          searchboxes and two identical labels in the document. From `md` it
-          is the mockup's single row. */}
+      {/* One header for every page: the logo, the destinations centred in
+          the window, the account on the right. A three-track grid with equal
+          outer tracks is what keeps the destinations at the true centre
+          whatever the two sides measure. Searching happens on the pages
+          (the home, services and providers heroes), not in the bar. */}
       <div
         className={cn(
-          "public-inset flex flex-wrap items-center gap-x-2.5 gap-y-3 py-3 text-sm font-medium whitespace-nowrap md:h-[67px] md:flex-nowrap md:py-0",
+          "public-inset grid h-16 grid-cols-[1fr_auto] items-center gap-x-4 text-sm font-medium whitespace-nowrap md:h-[67px] lg:grid-cols-[1fr_auto_1fr]",
           overlay ? "text-white" : "text-[var(--color-ink-2)]",
         )}
       >
         {/* `max-w-none` undoes Tailwind's preflight, which caps every `img`
-            at `max-width: 100%` — in a row that is short of room that cap
-            lets the wordmark shrink instead of the search field. A logo that
-            changes size with the window is not a logo. */}
-        <Link to="/" className="shrink-0">
+            at `max-width: 100%`. A logo that changes size with the window is
+            not a logo. */}
+        <Link to="/" className="justify-self-start">
           <img
             src={overlay ? "/brand/logo-white.svg" : "/brand/logo-primary.svg"}
             alt="Ntizo"
@@ -169,22 +101,7 @@ export function SiteHeader({
           />
         </Link>
 
-        {/* `min-w-0` so the field gives way before anything else does: the
-            destinations and the account controls are `nowrap` and keep their
-            width, and the field is the one thing in the row that still works
-            narrower. 190px plus the button is the mockup's width. */}
-        {withSearch ? (
-          <div className="order-last w-full min-w-0 md:order-none md:ml-[26px] md:w-auto md:max-w-[315px] md:flex-1">
-            <ServiceSearch {...search} className="w-full" />
-          </div>
-        ) : null}
-
-        <nav
-          className={cn(
-            "hidden h-full items-center lg:flex",
-            withSearch ? "ml-3 gap-4" : "ml-[52px] gap-7",
-          )}
-        >
+        <nav className="hidden h-full items-center gap-8 lg:flex">
           {PUBLIC_NAV.map((item) => (
             <Link
               key={item.key}
@@ -194,10 +111,9 @@ export function SiteHeader({
               {t(item.key)}
             </Link>
           ))}
-          <CitiesMenu className={navLinkClassName(false, overlay)} />
         </nav>
 
-        <div className="ml-auto flex h-full shrink-0 items-center">
+        <div className="flex h-full items-center justify-self-end">
           <HeaderActions
             onDark={overlay}
             signedOutAction={
