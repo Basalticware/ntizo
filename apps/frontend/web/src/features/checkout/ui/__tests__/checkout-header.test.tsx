@@ -12,12 +12,8 @@ import { CheckoutHeader } from "../checkout-header";
 import type { CheckoutStep } from "../checkout-steps";
 
 /**
- * The top of every checkout page, on its own: the site's header, then the way
- * back and the steps.
- *
- * A `QueryClient` because the site header reads the session and the service
- * cities; left unseeded, both settle on nothing — nobody signed in, no cities
- * menu — which is all these tests need.
+ * The top of every checkout page, on its own: a bar with the logo, then the
+ * way back and the steps.
  */
 async function renderHeader(current: CheckoutStep, back?: React.ReactNode) {
   const root = createRootRoute({
@@ -69,17 +65,17 @@ describe("CheckoutHeader", () => {
   });
 
   /**
-   * The October 2026 mockups put the public header over the checkout, so the
-   * site's own destinations are here — superseding the stripped bar that kept
-   * a customer with a slot on hold from wandering off. A hold that lapses is
-   * already handled: step 1 says so and offers the time again.
+   * A focused space (the user, 2026-10-07): the steps and the way back. The
+   * site's destinations, the language picker and the account stay out.
    */
-  it("wears the site's header, destinations and all", async () => {
+  it("carries no site navigation", async () => {
     await renderHeader("when");
 
-    for (const name of [/^explorar$/i, /^serviços$/i, /^prestadores$/i]) {
-      expect(await screen.findByRole("link", { name })).toBeInTheDocument();
+    await screen.findByRole("link", { name: "Ntizo" });
+    for (const name of [/^explorar$/i, /^serviços$/i, /^prestadores$/i, /^entrar$/i, /^criar conta$/i]) {
+      expect(screen.queryByRole("link", { name })).toBeNull();
     }
+    expect(screen.queryByRole("button", { name: /idioma|language/i })).toBeNull();
   });
 
   it("puts the page's way back beside the steps", async () => {
