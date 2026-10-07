@@ -284,14 +284,14 @@ export function SettingsPage() {
               buttons onto a second line and the bar grew upward over the page
               it was anchored to. The message truncates instead. From `xl` it
               sits under the two buttons, where there is room for it. */}
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 py-3.5 pr-16 2xl:pr-0 2xl:flex-col-reverse 2xl:items-stretch 2xl:gap-2.5 2xl:py-0">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 py-3.5 pr-16 xl:pr-0 xl:flex-col-reverse xl:items-stretch xl:gap-2.5 xl:py-0">
             <div className="hidden min-w-0 sm:block">
-              <p className="type-body-medium truncate font-semibold 2xl:text-[13.5px] 2xl:font-medium 2xl:text-[var(--color-muted-foreground)]">
+              <p className="type-body-medium truncate font-semibold xl:text-[13.5px] xl:font-medium xl:text-[var(--color-muted-foreground)]">
                 {statusLine}
               </p>
               {/* Hidden on narrow screens rather than allowed to wrap: it is a
                   hint, and the bar's height is load-bearing. */}
-              <p className="type-caption hidden truncate text-[var(--color-muted-foreground)] sm:block 2xl:hidden">
+              <p className="type-caption hidden truncate text-[var(--color-muted-foreground)] sm:block xl:hidden">
                 {t("settingsSaveHint")}
               </p>
             </div>
@@ -304,14 +304,14 @@ export function SettingsPage() {
                   setDraft(saved);
                   setMessage(null);
                 }}
-                className="h-[46px] rounded-[9px] px-4 text-[15px] sm:px-5 font-semibold text-[var(--color-ink-2)] 2xl:w-[112px]"
+                className="h-[46px] rounded-[9px] px-4 text-[15px] sm:px-5 font-semibold text-[var(--color-ink-2)] xl:w-[112px]"
               >
                 {t("settingsDiscard")}
               </Button>
               <Button
                 disabled={!dirty || updateMut.isPending}
                 onClick={() => void save()}
-                className="h-[46px] gap-[11px] rounded-[9px] px-4 text-[15px] sm:px-5 font-semibold 2xl:flex-1 2xl:px-2"
+                className="h-[46px] gap-[11px] rounded-[9px] px-4 text-[15px] sm:px-5 font-semibold xl:flex-1 xl:px-2"
               >
                 <Save className="h-[18px] w-[18px]" />
                 {updateMut.isPending ? t("settingsSaving") : t("settingsSave")}
