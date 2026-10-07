@@ -36,8 +36,8 @@
       "body": "An ID card, passport or driving licence, so we can confirm you are who you say."
     },
     "payout": {
-      "title": "A way to be paid",
-      "body": "An M-Pesa number, where your earnings go."
+      "title": "M-Pesa number",
+      "body": "We ask for your M-Pesa number when you sign up."
     },
     "terms": {
       "title": "Accept the terms",

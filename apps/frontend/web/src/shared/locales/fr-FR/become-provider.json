@@ -36,8 +36,8 @@
       "body": "Une carte d'identité, un passeport ou un permis de conduire, pour que nous puissions confirmer qui vous êtes."
     },
     "payout": {
-      "title": "Un moyen d'être payé",
-      "body": "Un numéro M-Pesa, où vont vos revenus."
+      "title": "Numéro M-Pesa",
+      "body": "Nous vous demandons votre numéro M-Pesa lors de l'inscription."
     },
     "terms": {
       "title": "Accepter les conditions",
