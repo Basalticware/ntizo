@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { addDays } from "@ntizo/shared/datetime";
-import { AlertTriangle, Check, ChevronLeft, ChevronRight, Info, Loader2 } from "lucide-react";
-import { Button, Input, Select } from "@ntizo/frontend-ui";
+import { ChevronLeft, ChevronRight, Info, Loader2 } from "lucide-react";
+import { Button, Input, Select, cn } from "@ntizo/frontend-ui";
 import { usePageHeader } from "@/shared/lib/page-header";
 import { useActiveProvider } from "@/features/provider/viewmodel/use-active-provider";
 import { useCurrentUser } from "@/features/user/viewmodel/use-current-user";
@@ -18,14 +18,8 @@ import {
   type AvailabilityMember,
   type WeeklyRuleDraft,
 } from "../domain/types";
-import {
-  WEEKDAY_ORDER,
-  compareRules,
-  formatDayList,
-  formatHours,
-  patternMinutes,
-} from "../domain/week";
-import { busiestDay, weekTotals } from "../domain/grid";
+import { compareRules, formatHours, patternMinutes, workingDayCount } from "../domain/week";
+import { weekTotals } from "../domain/grid";
 import { mondayOf, nowInZone } from "../domain/clock";
 import { offerFromOption, previewSlots } from "../domain/slot-preview";
 import {
@@ -130,6 +124,8 @@ function AvailabilityBoard({
   const [mondayIso, setMondayIso] = useState<string>(() => mondayOf(todayIso));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [density, setDensity] = useState<PreviewDensity>("hours");
+  /** Which of the dated changes the side card shows; falls back to the first it offers. */
+  const [sideTab, setSideTab] = useState<"exceptions" | "closures">("exceptions");
 
   /**
    * Who the week belongs to — one control, not two.
@@ -201,10 +197,6 @@ function AvailabilityBoard({
         : [];
 
   const totals = weekTotals(previewDays);
-  const busiest = busiestDay(previewDays);
-  const workingWeekdays = WEEKDAY_ORDER.filter((w) =>
-    previewDays.some((d) => d.weekday === w && d.intervals.length > 0),
-  );
 
   /**
    * What the *usual* week is worth, against what this one turned out to be.
@@ -269,195 +261,277 @@ function AvailabilityBoard({
     }
   }
 
-  return (
-    <div className="mx-auto grid w-full max-w-[86rem] gap-3">
-      {/* Context and scope. The timezone was a section with a heading, a
-          paragraph, a field and a button, for a value that changes once in a
-          workspace's life; here it is a line that opens a field when asked. */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3">
-        {/* `min-w-0 flex-1`: the picker scrolls sideways within itself, but a
-            flex item defaults to `min-width: auto` and would refuse to shrink
-            below its content, pushing the whole strip past the viewport. */}
-        {showPeople ? (
-          <div className="min-w-0 flex-1">
-          <PeoplePicker
-            ariaLabel={t("availabilityScopeLegend")}
-            value={scope}
-            onChange={setScope}
-            people={config.members.map((m) => ({
-              value: m.memberId,
-              // `||`, not `??`: a member who signed up without a display name
-              // carries `""` rather than `null`, and an empty pill with an
-              // initials badge reading "?" is worse than the raw id.
-              name: m.name?.trim() || m.userId,
-              // The same three names the People page prints, from the same
-              // key — a member whose role reads "Owner" there must not read
-              // "owner" here.
-              role: t(`peopleRoles.${m.role}`, { defaultValue: m.role }),
-            }))}
-            team={{
-              value: TEAM,
-              label: t("availabilityPreviewScopeTeam"),
-              hint: t("availabilityTeamHint"),
-            }}
-          />
-          </div>
-        ) : (
-          <TimezoneContext
-            providerId={provider.id}
-            timezone={config.timezone}
-            canManage={canManage}
-          />
-        )}
+  /**
+   * The headline: how many days the usual week is worked, and what it adds
+   * up to. The pattern rather than this particular week — closures and
+   * exceptions are dated, and the preview below says what they take out.
+   * Summed across everybody in the team view, the same way its preview is.
+   */
+  const patternDays =
+    scope === TEAM
+      ? workingDayCount(config.members.flatMap((m) => m.weekly))
+      : workingDayCount(draft);
+  const summary =
+    pattern > 0
+      ? t("availabilitySummary", { count: patternDays, hours: formatHours(pattern, locale) })
+      : t("availabilitySummaryNone");
 
-        {/* Full width on a phone, where it is its own row and the date label is
-            the widest thing on the page; auto beside the picker above `sm`. */}
-        <div className="flex w-full items-center gap-1.5 sm:ml-auto sm:w-auto">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setMondayIso((d) => addDays(d, -7))}
-            aria-label={t("availabilityPreviousWeek")}
-            className={`${OUTLINE_BUTTON} w-10 px-0`}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            // `title`, not `aria-label`: an accessible name of "Today" would
-            // replace the date range this button *is*, leaving a screen-reader
-            // user with no way to hear which week they are looking at.
-            title={t("availabilityToday")}
-            onClick={() => setMondayIso(mondayOf(todayIso))}
-            className={`${OUTLINE_BUTTON} min-w-0 flex-1 truncate px-4 tabular-nums sm:flex-none`}
-          >
-            {weekLabel(mondayIso, locale)}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setMondayIso((d) => addDays(d, 7))}
-            aria-label={t("availabilityNextWeek")}
-            className={`${OUTLINE_BUTTON} w-10 px-0`}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+  const sideTabs = [
+    ...(selectedMember
+      ? [{ key: "exceptions" as const, label: t("availabilityExceptionsTitle"), count: selectedMember.exceptions.length }]
+      : []),
+    ...(canManage
+      ? [{ key: "closures" as const, label: t("availabilityClosuresTitle"), count: config.closures.length }]
+      : []),
+  ];
+  const activeSide = sideTabs.find((tab) => tab.key === sideTab) ?? sideTabs[0] ?? null;
+
+  return (
+    <div className="mx-auto grid w-full max-w-[86rem] gap-5">
+      {/* The answer first: is this person reachable, and for how long. Then
+          whose week it is and in which zone — context, kept to one line. */}
+      <section className="grid gap-4 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] px-5 py-5 sm:px-6">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <h2 className="m-0 min-w-0 text-[20px] leading-tight font-bold text-[var(--color-headline)] tabular-nums sm:text-[22px]">
+            {summary}
+          </h2>
+          <div className="sm:ml-auto">
+            <TimezoneContext providerId={provider.id} timezone={config.timezone} canManage={canManage} />
+          </div>
         </div>
+        {showPeople && (
+          // `min-w-0`: the picker scrolls sideways within itself, but a grid
+          // item defaults to `min-width: auto` and would refuse to shrink
+          // below its content, pushing the whole card past the viewport.
+          <div className="min-w-0 border-t border-[var(--color-line-2)] pt-4">
+            <PeoplePicker
+              ariaLabel={t("availabilityScopeLegend")}
+              value={scope}
+              onChange={setScope}
+              people={config.members.map((m) => ({
+                value: m.memberId,
+                // `||`, not `??`: a member who signed up without a display name
+                // carries `""` rather than `null`, and an empty pill with an
+                // initials badge reading "?" is worse than the raw id.
+                name: m.name?.trim() || m.userId,
+                // The same three names the People page prints, from the same
+                // key — a member whose role reads "Owner" there must not read
+                // "owner" here.
+                role: t(`peopleRoles.${m.role}`, { defaultValue: m.role }),
+              }))}
+              team={{
+                value: TEAM,
+                label: t("availabilityPreviewScopeTeam"),
+                hint: t("availabilityTeamHint"),
+              }}
+            />
+          </div>
+        )}
+      </section>
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start">
+        {/* The usual week, as seven rows. */}
+        <section className="min-w-0 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] px-4 pt-5 pb-2 sm:px-6">
+          <h2 className="m-0 text-[17px] leading-tight font-bold text-[var(--color-headline)]">
+            {t("availabilityWeekTitle")}
+          </h2>
+          {selectedMember ? (
+            // Keyed on the member so a switch clears the previous person's
+            // open drawer along with the draft above.
+            <div className="mt-2">
+              <WeekRules
+                key={selectedMember.memberId}
+                canEdit={canEditSelected}
+                locale={locale}
+                rules={draft}
+                onChange={(next) => {
+                  setDraft(next);
+                  setSaveError(null);
+                }}
+              />
+            </div>
+          ) : (
+            // Nothing here is editable in the team view — it is a union of
+            // several people's weeks, and there is no single member's rules
+            // underneath it to change. Saying so beats a list that quietly
+            // disappears.
+            <div className="mt-4 mb-4">
+              <Note>{t("availabilityTeamNote")}</Note>
+            </div>
+          )}
+        </section>
+
+        {/* The dated changes to that week — secondary, so one card with a tab
+            each rather than two more panels competing with the week. */}
+        {activeSide && (
+          <section className="@container min-w-0 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-5 sm:p-6">
+            {sideTabs.length > 1 ? (
+              <div
+                role="tablist"
+                aria-label={t("availabilityDatesLegend")}
+                className="mb-5 grid grid-cols-2 gap-1 rounded-[12px] bg-[var(--color-line-2)] p-1 dark:bg-[var(--color-muted)]"
+              >
+                {sideTabs.map((tab) => {
+                  const selected = tab.key === activeSide.key;
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      role="tab"
+                      id={`availability-tab-${tab.key}`}
+                      aria-selected={selected}
+                      aria-controls={`availability-panel-${tab.key}`}
+                      onClick={() => setSideTab(tab.key)}
+                      className={cn(
+                        "inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-[9px] px-2 text-[14px] font-semibold transition-colors",
+                        selected
+                          ? "bg-[var(--color-card)] text-[var(--color-headline)] shadow-sm"
+                          : "text-[var(--color-muted-foreground)] hover:text-[var(--color-headline)]",
+                      )}
+                    >
+                      <span className="truncate">{tab.label}</span>
+                      {tab.count > 0 && (
+                        <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[var(--color-blue-soft)] px-1.5 text-[12px] text-[var(--color-primary)] tabular-nums">
+                          {tab.count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <h2 className="m-0 mb-4 text-[17px] leading-tight font-bold text-[var(--color-headline)]">
+                {activeSide.label}
+              </h2>
+            )}
+
+            <div
+              {...(sideTabs.length > 1
+                ? {
+                    role: "tabpanel",
+                    id: `availability-panel-${activeSide.key}`,
+                    "aria-labelledby": `availability-tab-${activeSide.key}`,
+                  }
+                : {})}
+              className="grid gap-3"
+            >
+              {activeSide.key === "exceptions" && selectedMember ? (
+                <ExceptionsPanel providerId={provider.id} member={selectedMember} canEdit={canEditSelected} />
+              ) : (
+                // Closures govern the whole workspace, not one member's
+                // calendar — offered only to whoever runs it. Hiding this is
+                // not the guard: `availability.addClosure` and `removeClosure`
+                // refuse a caller who is neither owner nor admin regardless.
+                <>
+                  <ClosuresPanel providerId={provider.id} closures={config.closures} />
+                  <Note>{t("availabilityClosurePrecedence")}</Note>
+                </>
+              )}
+            </div>
+          </section>
+        )}
       </div>
 
-      {/* The timezone keeps its own line once the people picker has taken the
-          strip above — two unrelated controls sharing one row read as a pair. */}
-      {showPeople && (
-        <div className="px-1">
-          <TimezoneContext
-            providerId={provider.id}
-            timezone={config.timezone}
-            canManage={canManage}
-          />
-        </div>
-      )}
-
-      {/* The answer, before the drawing. "How much work is this" is the question
-          people bring to this page, and the old screen answered it only by
-          making them count rectangles. */}
-      <div className="flex flex-wrap items-center gap-x-7 gap-y-3 rounded-[14px] border border-[var(--color-blue-soft)] bg-[var(--color-blue-softer)] px-6 py-5">
-        <div className="grid gap-0.5">
-          <p className="font-display text-[1.75rem] leading-none font-extrabold tracking-[-0.02em] text-[var(--color-headline)] tabular-nums">
-            {totals.totalMinutes > 0
-              ? t("availabilityWeekTotalLine", {
-                  total: formatHours(totals.totalMinutes, locale),
-                })
-              : t("availabilityNothingThisWeek")}
-          </p>
-          {workingWeekdays.length > 0 && (
-            <p className="type-caption text-[var(--color-muted-foreground)]">
-              {formatDayList(locale, workingWeekdays, "long")}
-            </p>
-          )}
-        </div>
-
-        {busiest && (
-          <div className="grid gap-0.5">
-            <p className="type-body-medium font-semibold tabular-nums">
-              {formatDayList(locale, [busiest.day.weekday])} ·{" "}
-              {formatHours(busiest.minutes, locale)}
-            </p>
-            <p className="type-caption text-[var(--color-muted-foreground)]">
-              {t("availabilityBusiestDay")}
+      {/* What that week, these dates, actually produce. */}
+      <section className="grid min-w-0 gap-4 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-5 sm:p-6">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <div className="grid min-w-0 gap-1">
+            <h2 className="m-0 text-[17px] leading-tight font-bold text-[var(--color-headline)]">
+              {t("availabilityPreviewTitle")}
+            </h2>
+            <p className="m-0 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[14px] text-[var(--color-muted-foreground)] tabular-nums">
+              {totals.totalMinutes > 0
+                ? t("availabilityThisWeek", { total: formatHours(totals.totalMinutes, locale) })
+                : t("availabilityNothingThisWeek")}
+              {/* Nothing to compare against on a week with no pattern at all —
+                  a "0 hours less than usual" on a brand-new workspace is
+                  noise. The difference is exactly what closures and
+                  exceptions took out. */}
+              {pattern > 0 && delta !== 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--color-warning)_14%,transparent)] px-2 py-0.5 text-[12.5px] font-semibold text-[color-mix(in_srgb,var(--color-warning)_60%,var(--color-foreground))]">
+                  {t("availabilityVsPattern", {
+                    delta: `${delta < 0 ? "−" : "+"}${formatHours(Math.abs(delta), locale)}`,
+                    pattern: formatHours(pattern, locale),
+                  })}
+                </span>
+              )}
             </p>
           </div>
-        )}
 
-        {/* Nothing to compare against on a week with no pattern at all — a
-            "0 hours less than usual" on a brand-new workspace is noise. */}
-        {pattern > 0 && (
-          <p
-            className={`type-caption ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-medium ${
-              delta === 0
-                ? "border-[color-mix(in_srgb,var(--color-success)_30%,transparent)] bg-[color-mix(in_srgb,var(--color-success)_10%,transparent)] text-[color-mix(in_srgb,var(--color-success)_65%,var(--color-foreground))]"
-                : "border-[color-mix(in_srgb,var(--color-warning)_34%,transparent)] bg-[color-mix(in_srgb,var(--color-warning)_14%,transparent)] text-[color-mix(in_srgb,var(--color-warning)_60%,var(--color-foreground))]"
-            }`}
-          >
-            {delta === 0 ? (
+          {/* Full width on a phone, where it is its own row and the date label
+              is the widest thing on the page. */}
+          <div className="flex w-full items-center gap-1.5 sm:ml-auto sm:w-auto">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setMondayIso((d) => addDays(d, -7))}
+              aria-label={t("availabilityPreviousWeek")}
+              className={`${OUTLINE_BUTTON} w-10 px-0`}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              // `title`, not `aria-label`: an accessible name of "Today" would
+              // replace the date range this button *is*, leaving a
+              // screen-reader user with no way to hear which week they are
+              // looking at.
+              title={t("availabilityToday")}
+              onClick={() => setMondayIso(mondayOf(todayIso))}
+              className={`${OUTLINE_BUTTON} min-w-0 flex-1 truncate px-4 tabular-nums sm:flex-none`}
+            >
+              {weekLabel(mondayIso, locale)}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setMondayIso((d) => addDays(d, 7))}
+              aria-label={t("availabilityNextWeek")}
+              className={`${OUTLINE_BUTTON} w-10 px-0`}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {selectedMember && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-[var(--color-line-2)] pt-4">
+            {publishedServices.length > 0 ? (
               <>
-                <Check aria-hidden="true" className="h-3.5 w-3.5" />
-                {t("availabilitySamePattern")}
+                <label
+                  htmlFor="availability-preview-service"
+                  className="text-[13.5px] text-[var(--color-muted-foreground)]"
+                >
+                  {t("availabilityPreviewFor")}
+                </label>
+                <Select
+                  id="availability-preview-service"
+                  value={activeService?.id ?? ""}
+                  onChange={setSelectedServiceId}
+                  options={publishedServices.map((s) => ({
+                    value: s.id,
+                    label: ownerName(s, locale),
+                  }))}
+                  triggerClassName="type-caption inline-flex h-8 items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-background)] px-3"
+                />
+                {slotPreview && (
+                  <p className="m-0 text-[13.5px] text-[var(--color-muted-foreground)] tabular-nums">
+                    {t("availabilityPreviewCount", {
+                      slots: slotPreview.totalSlots,
+                      seats: slotPreview.totalSeats,
+                    })}
+                  </p>
+                )}
               </>
             ) : (
-              <>
-                <AlertTriangle aria-hidden="true" className="h-3.5 w-3.5" />
-                {t("availabilityVsPattern", {
-                  delta: `${delta < 0 ? "−" : "+"}${formatHours(Math.abs(delta), locale)}`,
-                  pattern: formatHours(pattern, locale),
-                })}
-              </>
+              <p className="m-0 text-[13.5px] text-[var(--color-muted-foreground)]">
+                {t("availabilityPreviewNoService")}
+              </p>
             )}
-          </p>
-        )}
-      </div>
-
-      <div className="grid gap-3 lg:grid-cols-[21rem_minmax(0,1fr)] lg:items-start">
-        {/* The week comes first in the DOM below `lg`: on a phone the answer
-            matters more than the controls that produced it. */}
-        <div className="order-first grid gap-3 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-4 lg:order-last lg:p-5">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            {selectedMember &&
-              (publishedServices.length > 0 ? (
-                <>
-                  <label
-                    htmlFor="availability-preview-service"
-                    className="type-caption text-[var(--color-muted-foreground)]"
-                  >
-                    {t("availabilityPreviewFor")}
-                  </label>
-                  <Select
-                    id="availability-preview-service"
-                    value={activeService?.id ?? ""}
-                    onChange={setSelectedServiceId}
-                    options={publishedServices.map((s) => ({
-                      value: s.id,
-                      label: ownerName(s, locale),
-                    }))}
-                    triggerClassName="type-caption inline-flex h-8 items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-background)] px-3"
-                  />
-                  {slotPreview && (
-                    <p className="type-caption text-[var(--color-muted-foreground)]">
-                      {t("availabilityPreviewCount", {
-                        slots: slotPreview.totalSlots,
-                        seats: slotPreview.totalSeats,
-                      })}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="type-caption text-[var(--color-muted-foreground)]">
-                  {t("availabilityPreviewNoService")}
-                </p>
-              ))}
 
             {/* Offered only when there is something to reveal. Without a
                 service there are no starts to draw, and a toggle whose other
@@ -477,81 +551,27 @@ function AvailabilityBoard({
               </div>
             )}
           </div>
+        )}
 
-          <WeekPreview
-            days={previewDays}
-            locale={locale}
-            slotsByDate={slotPreview?.byDate}
-            density={density}
-            now={nowThisWeek}
-          />
-        </div>
-
-        {/* `@container`, so the forms inside measure themselves against this
-            pane rather than against the viewport. A `sm:` breakpoint here is a
-            lie: the window is wide, the column is not, and a two-column form in
-            300px overflowed its own panel. */}
-        <div className="@container grid content-start gap-3">
-          {selectedMember && (
-            <Panel title={t("availabilityWeekTitle")}>
-              {/* Keyed on the member so a switch clears the previous person's
-                  open drawer along with the draft above. */}
-              <WeekRules
-                key={selectedMember.memberId}
-                canEdit={canEditSelected}
-                locale={locale}
-                rules={draft}
-                onChange={(next) => {
-                  setDraft(next);
-                  setSaveError(null);
-                }}
-              />
-            </Panel>
-          )}
-
-          {/* Nothing on this rail is editable in the team view — it is a union
-              of several people's weeks, and there is no single member's rules
-              underneath it to change. Saying so beats three panels that quietly
-              disappear. */}
-          {!selectedMember && (
-            <Note>{t("availabilityTeamNote")}</Note>
-          )}
-
-          {selectedMember && (
-            <Panel title={t("availabilityExceptionsTitle")}>
-              <ExceptionsPanel
-                providerId={provider.id}
-                member={selectedMember}
-                canEdit={canEditSelected}
-              />
-            </Panel>
-          )}
-
-          {/* Closures govern the whole workspace, not one member's calendar —
-              visible only to whoever runs it. Hiding this is not the guard:
-              `availability.addClosure` and `removeClosure` refuse a caller who
-              is neither owner nor admin regardless of what this screen shows. */}
-          {canManage && (
-            <Panel title={t("availabilityClosuresTitle")}>
-              <ClosuresPanel providerId={provider.id} closures={config.closures} />
-              <Note>{t("availabilityClosurePrecedence")}</Note>
-            </Panel>
-          )}
-        </div>
-      </div>
+        <WeekPreview
+          days={previewDays}
+          locale={locale}
+          slotsByDate={slotPreview?.byDate}
+          density={density}
+          now={nowThisWeek}
+        />
+      </section>
 
       {/* Only when there is something to save. A button that is always there
           asserts there is always pending work, which trains people to ignore
-          it — and then to miss the once it mattered. Tinted, so it reads as a
-          state the page is in rather than as another row of furniture. */}
+          it — and then to miss the once it mattered. */}
       {dirty && (
-        <div className="sticky bottom-0 z-20 -mx-1 flex flex-wrap items-center gap-2.5 rounded-[14px] border border-[color-mix(in_srgb,var(--color-primary)_22%,var(--color-border))] bg-[color-mix(in_srgb,var(--color-primary)_5%,var(--color-background))] px-4 py-3 shadow-[0_-2px_12px_-6px_rgba(19,23,27,0.25)] backdrop-blur">
+        <div className="sticky bottom-0 z-20 flex flex-wrap items-center gap-2.5 rounded-[14px] border border-[var(--color-blue-line)] bg-[var(--color-card)] px-5 py-3.5 shadow-[0_-4px_18px_-10px_rgba(0,36,76,0.35)]">
           <p
-            className={
-              saveError
-                ? "type-caption mr-auto text-[var(--color-destructive)]"
-                : "type-caption mr-auto text-[var(--color-foreground)]"
-            }
+            className={cn(
+              "m-0 mr-auto text-[14px] font-medium",
+              saveError ? "text-[var(--color-bad-fg)]" : "text-[var(--color-headline)]",
+            )}
           >
             {saveError ?? t("availabilityUnsaved")}
           </p>
@@ -574,18 +594,6 @@ function AvailabilityBoard({
         </div>
       )}
     </div>
-  );
-}
-
-/** One titled section of the control rail. */
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="grid gap-3.5 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-4 lg:p-5">
-      <h2 className="text-base leading-[21px] font-bold text-[var(--color-headline)]">
-        {title}
-      </h2>
-      {children}
-    </section>
   );
 }
 

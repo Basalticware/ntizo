@@ -1,11 +1,14 @@
 {
   "title": "Ofereça os seus serviços.",
-  "titleAccent": "Define o preço.",
-  "subtitle": "Encontre clientes em Moçambique. Sem mensalidade: a plataforma fica com uma percentagem fixa de cada reserva, e o resto é seu.",
+  "titleAccent": "Defina o preço.",
+  "lede": "Mostre o que faz, publique os seus preços e receba reservas de clientes em Moçambique.",
   "cta": "Começar",
   "trustFree": "Inscrição gratuita",
   "trustPaid": "Pagamento por M-Pesa",
   "trustLocal": "Clientes da sua zona",
+  "whyTitle": "O seu trabalho, o seu preço",
+  "why1": "Não há mensalidade nem nada a pagar para se inscrever. A plataforma fica com uma percentagem fixa de cada reserva, que sai do preço que define, e o resto é seu.",
+  "why2": "Os clientes encontram-no pelo serviço e pela zona, reservam uma das horas que abriu e pagam por M-Pesa assim que confirma a hora.",
   "stepsTitle": "Como funciona",
   "step": {
     "apply": {
@@ -22,7 +25,7 @@
     },
     "earn": {
       "title": "Receba",
-      "body": "O cliente paga por M-Pesa depois de confirmar a hora. A comissão sai do valor."
+      "body": "O cliente paga por M-Pesa assim que confirma a hora. A comissão sai do valor."
     }
   },
   "requirementsTitle": "O que precisa de ter",

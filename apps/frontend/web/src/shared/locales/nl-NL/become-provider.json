@@ -1,11 +1,14 @@
 {
   "title": "Bied je diensten aan.",
   "titleAccent": "Jij bepaalt de prijs.",
-  "subtitle": "Vind klanten in heel Mozambique. Geen maandelijkse kosten: het platform houdt een vast percentage van elke boeking, de rest is voor jou.",
+  "lede": "Laat zien wat je doet, publiceer je prijzen en krijg boekingen van klanten in Mozambique.",
   "cta": "Aan de slag",
   "trustFree": "Gratis aanmelden",
   "trustPaid": "Betaling via M-Pesa",
   "trustLocal": "Klanten bij jou in de buurt",
+  "whyTitle": "Jouw werk, jouw prijs",
+  "why1": "Geen maandelijkse kosten en niets te betalen om je aan te melden. Het platform houdt een vast percentage van elke boeking, dat van de prijs afgaat die jij bepaalt, en de rest is voor jou.",
+  "why2": "Klanten vinden je op dienst en buurt, boeken een van de tijden die je hebt opengezet en betalen via M-Pesa zodra jij de tijd bevestigt.",
   "stepsTitle": "Zo werkt het",
   "step": {
     "apply": {

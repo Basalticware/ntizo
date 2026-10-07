@@ -1,5 +1,5 @@
 import type { WeeklyRuleDraft } from "./types";
-import { weekdayDisplayIndex } from "@/shared/domain/week-format";
+import { WEEKDAY_ORDER, weekdayDisplayIndex } from "@/shared/domain/week-format";
 
 export {
   WEEKDAY_ORDER,
@@ -143,4 +143,83 @@ export function overlaps(rules: readonly WeeklyRuleDraft[], candidate: WeeklyRul
       rule.startMinute < candidate.endMinute &&
       candidate.startMinute < rule.endMinute,
   );
+}
+
+/** One weekday's rows, earliest first — what a day's row in the week editor lists. */
+export function rulesOn(rules: readonly WeeklyRuleDraft[], weekday: number): WeeklyRuleDraft[] {
+  return rules.filter((r) => r.weekday === weekday).sort(compareRules);
+}
+
+/**
+ * The draft minus exactly one row, matched on every field.
+ *
+ * Rows carry no id (see `WeeklyRuleDraft`), so the row's whole content is its
+ * identity. Two identical rows on one day are the same instruction twice, and
+ * removing one of them removes the instruction — which is why every match
+ * goes, not just the first.
+ */
+export function withoutRule(
+  rules: readonly WeeklyRuleDraft[],
+  target: WeeklyRuleDraft,
+): WeeklyRuleDraft[] {
+  return rules.filter(
+    (r) =>
+      !(
+        r.weekday === target.weekday &&
+        r.startMinute === target.startMinute &&
+        r.endMinute === target.endMinute &&
+        r.bufferMinutes === target.bufferMinutes &&
+        r.slotIntervalMinutes === target.slotIntervalMinutes &&
+        r.capacity === target.capacity
+      ),
+  );
+}
+
+/** The hours a day starts with when nothing else in the week suggests better. */
+export const DEFAULT_DAY = { startMinute: 9 * 60, endMinute: 17 * 60 } as const;
+
+/**
+ * What switching a day on gives it: the nearest earlier working day's rows,
+ * moved onto this weekday, or 09:00–17:00 when the week is still empty.
+ *
+ * Copying is the guess most people want — turning Saturday on after a
+ * Monday-to-Friday week usually means "the same again" — and it carries each
+ * row's own shape along, so a copied rule sells what the original did rather
+ * than quietly falling back to the defaults. "Earlier" walks back through the
+ * Monday-first display order and wraps, so Monday copies Sunday when Sunday is
+ * the only day set.
+ */
+export function seedDay(rules: readonly WeeklyRuleDraft[], weekday: number): WeeklyRuleDraft[] {
+  const at = weekdayDisplayIndex(weekday);
+  for (let step = 1; step < 7; step++) {
+    const donor = WEEKDAY_ORDER[(at - step + 7) % 7]!;
+    const rows = rulesOn(rules, donor);
+    if (rows.length > 0) return rows.map((r) => ({ ...r, weekday }));
+  }
+  return [
+    { weekday, ...DEFAULT_DAY, bufferMinutes: null, slotIntervalMinutes: null, capacity: null },
+  ];
+}
+
+/**
+ * The hours offered to a new interval on a day that already has some: from
+ * the first whole hour after the day's last one ends — a lunch-sized gap after
+ * a morning ending on the hour — for up to four hours, never past midnight.
+ * A day with nothing set, or with no room left, is offered the default.
+ */
+export function nextIntervalOn(
+  rules: readonly WeeklyRuleDraft[],
+  weekday: number,
+): { startMinute: number; endMinute: number } {
+  const rows = rulesOn(rules, weekday);
+  if (rows.length === 0) return { ...DEFAULT_DAY };
+  const lastEnd = rows.reduce((max, r) => Math.max(max, r.endMinute), 0);
+  const startMinute = (Math.floor(lastEnd / 60) + 1) * 60;
+  if (startMinute >= 24 * 60) return { ...DEFAULT_DAY };
+  return { startMinute, endMinute: Math.min(startMinute + 4 * 60, 24 * 60) };
+}
+
+/** How many weekdays the pattern works at all. */
+export function workingDayCount(rules: readonly Pick<WeeklyRuleDraft, "weekday">[]): number {
+  return new Set(rules.map((r) => r.weekday)).size;
 }

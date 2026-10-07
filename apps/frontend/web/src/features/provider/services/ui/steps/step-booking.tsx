@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
-import { ChoiceChips } from "@ntizo/frontend-ui";
+import { FileText, Lock, Tag } from "lucide-react";
+import { ChoiceCards } from "../choice-cards";
 import type { ServiceDraft } from "../../domain/service-draft";
 import type { ServiceBookingMode } from "../../domain/types";
 
@@ -32,35 +33,36 @@ export function StepBooking({
   const { t } = useTranslation("provider");
 
   return (
-    <div className="grid gap-2">
-      <ChoiceChips
+    <div className="grid gap-4">
+      <ChoiceCards
         name="service-booking-mode"
         legend={t("serviceBookingModeQuestion")}
-        showLegend
         value={draft.bookingMode}
         onChange={(v) => setDraft((d) => ({ ...d, bookingMode: v as ServiceBookingMode }))}
         options={[
           {
             value: "priced",
             label: t("serviceBookingMode.priced"),
+            hint: t("serviceBookingModeCardHint.priced"),
+            icon: Tag,
             disabled: !canChangeBookingMode,
           },
           {
             value: "quote",
             label: t("serviceBookingMode.quote"),
+            hint: t("serviceBookingModeCardHint.quote"),
+            icon: FileText,
             disabled: !canChangeBookingMode,
           },
         ]}
       />
-      <p className="m-0 text-sm leading-[1.45] text-[var(--color-muted-foreground)]">
-        {canChangeBookingMode
-          ? t(
-              draft.bookingMode === "priced"
-                ? "serviceBookingModeHint"
-                : "serviceBookingModeQuoteHint",
-            )
-          : t("serviceBookingModeLocked")}
-      </p>
+      {/* Only the lock needs saying: each card already carries its own line. */}
+      {canChangeBookingMode ? null : (
+        <p className="m-0 flex items-start gap-2.5 rounded-[12px] bg-[var(--color-blue-softer)] px-4 py-3 text-[14px] leading-[1.45] text-[var(--color-ink-2)]">
+          <Lock className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-primary)]" aria-hidden="true" />
+          {t("serviceBookingModeLocked")}
+        </p>
+      )}
     </div>
   );
 }

@@ -10,7 +10,7 @@ import { PUBLIC_PAGE_CLASS } from "@/features/landing/ui/public-page";
  * (`PageIntro`) and end on a "see also" strip of three cards. The strip
  * repeated the footer right under it, and one opening for five pages is what
  * made them read as a template — so each page now brings its own, on the
- * home page's pieces (`company-sections.tsx`).
+ * home page's pieces (`shared/components/photo-sections.tsx`).
  */
 export function CompanyPage({ children }: { children: ReactNode }) {
   return (

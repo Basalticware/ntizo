@@ -10,7 +10,7 @@ import {
   SPLIT_BODY_CLASS,
   SPLIT_TITLE_CLASS,
   SoftBand,
-} from "./company-sections";
+} from "@/shared/components/photo-sections";
 
 interface Principle {
   title: string;

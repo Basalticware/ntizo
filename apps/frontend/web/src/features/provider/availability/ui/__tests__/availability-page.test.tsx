@@ -165,7 +165,32 @@ function preview() {
 afterEach(() => vi.restoreAllMocks());
 
 describe("AvailabilityPage", () => {
-  it("a rule saved in the drawer appears in the preview without a reload", async () => {
+  it("the week is seven rows, Monday first, each with its own switch", async () => {
+    renderPage(config([rule(0, 540, 1020), rule(1, 540, 1020)]));
+
+    await waitFor(() => expect(preview()).toBeInTheDocument());
+    expect(screen.getAllByRole("switch").map((s) => s.getAttribute("aria-label"))).toEqual([
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ]);
+    expect(screen.getByRole("switch", { name: "Monday" })).toBeChecked();
+    expect(screen.getByRole("switch", { name: "Tuesday" })).not.toBeChecked();
+    expect(screen.getByRole("switch", { name: "Sunday" })).toBeChecked();
+  });
+
+  it("says at a glance how many days and hours the usual week holds", async () => {
+    renderPage(config([rule(1, 540, 1020), rule(2, 540, 780)]));
+
+    await waitFor(() => expect(preview()).toBeInTheDocument());
+    expect(screen.getByRole("heading", { name: /^Available 2 days a week · / })).toBeInTheDocument();
+  });
+
+  it("switching a day on draws it in the preview without a reload", async () => {
     const user = userEvent.setup();
     const spy = vi.spyOn(client, "sessionGraphql");
     renderPage(config());
@@ -176,29 +201,51 @@ describe("AvailabilityPage", () => {
     await waitFor(() => expect(preview()).toBeInTheDocument());
     expect(within(preview()).queryByText("09:00–17:00")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Add hours" }));
-    await user.click(screen.getByRole("checkbox", { name: "Monday" }));
-    await user.click(screen.getByRole("button", { name: "Done" }));
+    // Nothing else in the week to copy, so the day starts on the default.
+    await user.click(screen.getByRole("switch", { name: "Monday" }));
 
-    // The card is on the left… scoped to it, because the block drawn in the
-    // week now prints its span the same way, which is the point of the next
-    // assertion rather than a collision to design around.
-    expect(within(screen.getByRole("group")).getByText("09:00 – 17:00")).toBeInTheDocument();
-    // …and the week on the right already agrees, with nothing sent anywhere.
+    expect(screen.getByRole("button", { name: "Edit Monday, 09:00 – 17:00" })).toBeInTheDocument();
+    // …and the week below already agrees, with nothing sent anywhere.
     expect(within(preview()).getByText("09:00–17:00")).toBeInTheDocument();
     expect(spy).not.toHaveBeenCalled();
   });
 
-  it("the week is displayed Monday first while the stored weekday stays 0 for Sunday", async () => {
+  it("an interval added from a day's row starts after that day's last one", async () => {
+    const user = userEvent.setup();
+    renderPage(config([rule(1, 480, 720)]));
+
+    await waitFor(() => expect(preview()).toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: "Add interval — Monday" }));
+
+    // Monday is already ticked, and the hours follow the morning's 12:00 end.
+    expect(screen.getByRole("checkbox", { name: "Monday" })).toBeChecked();
+    expect(screen.getByLabelText("Start")).toHaveValue("13:00");
+    expect(screen.getByLabelText("End")).toHaveValue("17:00");
+    await user.click(screen.getByRole("button", { name: "Done" }));
+
+    expect(screen.getByRole("button", { name: "Edit Monday, 13:00 – 17:00" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit Monday, 08:00 – 12:00" })).toBeInTheDocument();
+  });
+
+  it("switching a day off clears it", async () => {
+    const user = userEvent.setup();
+    renderPage(config([rule(1, 540, 1020)]));
+
+    await waitFor(() => expect(preview()).toBeInTheDocument());
+    await user.click(screen.getByRole("switch", { name: "Monday" }));
+
+    expect(screen.getByRole("switch", { name: "Monday" })).not.toBeChecked();
+    expect(within(preview()).queryByText("09:00–17:00")).not.toBeInTheDocument();
+  });
+
+  it("the stored weekday stays 0 for Sunday whatever order the week is drawn in", async () => {
     const user = userEvent.setup();
     const spy = vi.spyOn(client, "sessionGraphql").mockResolvedValue({} as never);
     renderPage(config([rule(0, 540, 1020), rule(1, 540, 1020)]));
 
     // The preview's own columns run Monday to Sunday…
     await waitFor(() => expect(preview()).toBeInTheDocument());
-    const headers = within(preview()).getAllByText(
-      /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/,
-    );
+    const headers = within(preview()).getAllByText(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/);
     expect(headers.map((h) => h.textContent)).toEqual([
       "Mon",
       "Tue",
@@ -209,20 +256,10 @@ describe("AvailabilityPage", () => {
       "Sun",
     ]);
 
-    // …and so does the card that groups the two rows: Monday leads, Sunday
-    // closes, which is display order and not the 0-for-Sunday storage order
-    // asserted a few lines below.
-    expect(screen.getByRole("group")).toHaveAccessibleName("Monday and Sunday, 09:00 – 17:00");
-
-    // What goes over the wire is the storage numbering, untouched: Sunday is 0.
-    //
     // The week has to actually differ from the fetched one before there is
     // anything to save — the save bar only exists when there are unsaved
-    // changes, so a save of untouched data is no longer reachable, which is
-    // the pointless round trip that was the point of removing it. Both rows
-    // share one card, so editing its end time keeps the weekdays this test is
-    // about exactly as they were.
-    await user.click(screen.getByRole("button", { name: "Edit 09:00 – 17:00" }));
+    // changes. Editing Monday's end time keeps both weekdays in the draft.
+    await user.click(screen.getByRole("button", { name: "Edit Monday, 09:00 – 17:00" }));
     await user.clear(screen.getByLabelText("End"));
     await user.type(screen.getByLabelText("End"), "18:00");
     await user.click(screen.getByRole("button", { name: "Done" }));
@@ -230,26 +267,29 @@ describe("AvailabilityPage", () => {
     await user.click(screen.getByRole("button", { name: "Save week" }));
     await waitFor(() => expect(spy).toHaveBeenCalled());
     const variables = spy.mock.calls[0]?.[1] as { input: { rules: { weekday: number }[] } };
+    // What goes over the wire is the storage numbering, untouched: Sunday is 0.
     expect(variables.input.rules.map((r) => r.weekday)).toEqual([1, 0]);
   });
 
-  it("a rule added after another is still sent in the week's own order", async () => {
+  it("a day switched on copies the nearest earlier working day, and is still sent in week order", async () => {
     const user = userEvent.setup();
     const spy = vi.spyOn(client, "sessionGraphql").mockResolvedValue({} as never);
-    renderPage(config([rule(3, 840, 1080)]));
+    renderPage(config([rule(3, 840, 1080, { capacity: 2 })]));
 
-    // Wednesday afternoon is already there; Monday morning is typed second.
-    await user.click(await screen.findByRole("button", { name: "Add hours" }));
-    await user.click(screen.getByRole("checkbox", { name: "Monday" }));
-    await user.clear(screen.getByLabelText("End"));
-    await user.type(screen.getByLabelText("End"), "13:00");
-    await user.click(screen.getByRole("button", { name: "Done" }));
+    // Wednesday afternoon is already there; Monday is switched on second, and
+    // walking back from Monday the first working day it meets is Wednesday.
+    await user.click(await screen.findByRole("switch", { name: "Monday" }));
+    expect(screen.getByRole("button", { name: /^Edit Monday, 14:00 – 18:00/ })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Save week" }));
     await waitFor(() => expect(spy).toHaveBeenCalled());
-    const variables = spy.mock.calls[0]?.[1] as { input: { rules: { weekday: number }[] } };
-    // Typing order is not week order — what leaves the browser is the week.
+    const variables = spy.mock.calls[0]?.[1] as {
+      input: { rules: { weekday: number; capacity: number | null }[] };
+    };
+    // Switching order is not week order — what leaves the browser is the week.
     expect(variables.input.rules.map((r) => r.weekday)).toEqual([1, 3]);
+    // The copy carries the original's shape, not the defaults.
+    expect(variables.input.rules[0]?.capacity).toBe(2);
   });
 
   // The regression this task exists for. `setWeeklyPattern` replaces a
@@ -274,12 +314,12 @@ describe("AvailabilityPage", () => {
     await waitFor(() => expect(preview()).toBeInTheDocument());
 
     // Opening Monday's own card shows what was actually saved…
-    await user.click(screen.getByRole("button", { name: "Edit 09:00 – 17:00" }));
+    await user.click(screen.getByRole("button", { name: "Edit Monday, 09:00 – 17:00" }));
     expect(screen.getByLabelText("Capacity")).toHaveValue("3");
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 
     // …and so does Wednesday's, on its own field.
-    await user.click(screen.getByRole("button", { name: "Edit 08:00 – 12:00" }));
+    await user.click(screen.getByRole("button", { name: "Edit Wednesday, 08:00 – 12:00" }));
     expect(screen.getByRole("radio", { name: "No slots" })).toBeChecked();
 
     // Change only Wednesday's end time — its grid choice is left alone, not retyped.
@@ -312,14 +352,14 @@ describe("AvailabilityPage", () => {
     expect(screen.queryByText("Whole team")).not.toBeInTheDocument();
   });
 
-  it("removing a card empties the week it drew", async () => {
+  it("removing an interval empties the week it drew", async () => {
     const user = userEvent.setup();
     renderPage(config([rule(1, 540, 1020)]));
 
     await waitFor(() => expect(preview()).toBeInTheDocument());
     expect(within(preview()).getByText("09:00–17:00")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Remove 09:00 – 17:00" }));
+    await user.click(screen.getByRole("button", { name: "Remove Monday, 09:00 – 17:00" }));
 
     expect(within(preview()).queryByText("09:00–17:00")).not.toBeInTheDocument();
   });

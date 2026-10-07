@@ -9,7 +9,7 @@ import {
   SPLIT_BODY_CLASS,
   SPLIT_TITLE_CLASS,
   SoftBand,
-} from "./company-sections";
+} from "@/shared/components/photo-sections";
 
 /**
  * Who Ntizo is, told through what the product does — mission, the three

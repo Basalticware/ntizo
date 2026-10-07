@@ -1,9 +1,18 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
-import { ChoiceChips, Input, Select, type SelectOption } from "@ntizo/frontend-ui";
+import { House, MapPin, Shuffle, Store, Video } from "lucide-react";
+import { Input, Select, type SelectOption } from "@ntizo/frontend-ui";
 import { Field } from "@/shared/components/wizard/wizard-chrome";
+import { ChoiceCards } from "../choice-cards";
 import { IN_PERSON_LOCATION_TYPES, type ServiceDraft } from "../../domain/service-draft";
 import type { ServiceLocationType } from "../../domain/types";
+
+const LOCATION_ICON: Record<ServiceLocationType, typeof Store> = {
+  remote: Video,
+  at_provider: Store,
+  at_customer: House,
+  flexible: Shuffle,
+};
 
 /**
  * Step 1: name, category and where it happens.
@@ -34,7 +43,7 @@ export function StepBasics({
   const { t } = useTranslation("provider");
 
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-7">
       <Field label={t("serviceName")} htmlFor="service-name">
         <Input
           id="service-name"
@@ -90,10 +99,9 @@ export function StepBasics({
           whenever the value isn't "remote", which is also true of the
           unanswered state and would show both steps at once before either
           has been picked. */}
-      <ChoiceChips
+      <ChoiceCards
         name="service-location-choice"
         legend={t("serviceLocationQuestion")}
-        showLegend
         value={locationChoice || null}
         onChange={(choice) => {
           const next = choice as "remote" | "in_person";
@@ -102,21 +110,22 @@ export function StepBasics({
           else setDraft((d) => ({ ...d, locationType: "" }));
         }}
         options={[
-          { value: "remote", label: t("serviceLocationRemote") },
-          { value: "in_person", label: t("serviceLocationInPerson") },
+          { value: "remote", label: t("serviceLocationRemote"), icon: Video },
+          { value: "in_person", label: t("serviceLocationInPerson"), icon: MapPin },
         ]}
       />
 
       {locationChoice === "in_person" && (
-        <ChoiceChips
+        <ChoiceCards
           name="service-location-type"
           legend={t("serviceWhereQuestion")}
-          showLegend
+          columns={3}
           value={draft.locationType || null}
           onChange={(v) => setDraft((d) => ({ ...d, locationType: v as ServiceLocationType }))}
           options={IN_PERSON_LOCATION_TYPES.map((v) => ({
             value: v,
             label: t(`serviceLocationType.${v}`),
+            icon: LOCATION_ICON[v],
           }))}
         />
       )}

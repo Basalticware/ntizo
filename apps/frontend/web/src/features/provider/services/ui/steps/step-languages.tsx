@@ -68,7 +68,7 @@ export function StepLanguages({
   }
 
   return (
-    <div className="grid content-start gap-5">
+    <div className="grid content-start gap-6">
       <p className="type-body text-[var(--color-muted-foreground)]">{t("translationsHint")}</p>
 
       <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t("servicesLanguages")}>
@@ -86,9 +86,9 @@ export function StepLanguages({
                 setError(null);
               }}
               className={cn(
-                "inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm transition-colors",
+                "inline-flex h-11 cursor-pointer items-center gap-2 rounded-[10px] border px-4 text-[14.5px] font-medium transition-colors",
                 selected
-                  ? "border-[var(--color-blue-line)] bg-[var(--color-blue-soft)] font-semibold text-[var(--color-primary)]"
+                  ? "border-[var(--color-primary)] bg-[var(--color-blue-softer)] font-semibold text-[var(--color-primary)]"
                   : "border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-ink-2)] hover:border-[var(--color-blue-line)]",
               )}
             >
@@ -206,7 +206,7 @@ function LanguageForm({
   }
 
   return (
-    <div className="grid gap-5 rounded-[var(--radius-card)] border border-[var(--color-border)] p-4">
+    <div className="grid gap-6 rounded-[14px] border border-[var(--color-border)] p-5 sm:p-6">
       {/* One column, and the original as the field's own hint line — the same
           label-hint-input shape every other step in this wizard uses. An
           earlier version put the original in a second column, which needed a
