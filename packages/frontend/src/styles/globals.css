@@ -84,10 +84,11 @@
    * Corner radii, by what they are for rather than by size — so a card is
    * `rounded-card` everywhere and changing the system changes one line.
    */
-  --radius-field: 8px;
-  --radius-card-sm: 12px;
-  --radius-card: 16px;
-  --radius: 16px;
+  /* October 2026 mockups: fields and buttons 10px, cards 14px. */
+  --radius-field: 10px;
+  --radius-card-sm: 10px;
+  --radius-card: 14px;
+  --radius: 14px;
 
   /*
    * The ground the browse surfaces sit on.
