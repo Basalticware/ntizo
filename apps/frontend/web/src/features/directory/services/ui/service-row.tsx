@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { Clock, MapPin } from "lucide-react";
 import { BrandImage } from "@/shared/components/brand-image";
-import { buttonVariants } from "@ntizo/frontend-ui";
 import {
   formatHeadlinePrice,
   optionDurationMinutes,
@@ -83,8 +83,8 @@ export function ServiceRow({
     // price/CTA column drops its own explicit position at the same
     // breakpoint so it stacks under the body instead of squeezing the name
     // into whatever width is left.
-    <li className="grid grid-cols-[72px_minmax(0,1fr)] items-start gap-5 border-b border-[var(--color-border)] py-6 first:border-t sm:grid-cols-[112px_minmax(0,1fr)_auto]">
-      <div className="aspect-square w-full overflow-hidden rounded-[var(--radius-card-sm)] bg-[var(--color-muted)]">
+    <li className="grid grid-cols-[91px_minmax(0,1fr)] items-center gap-x-5 gap-y-3 rounded-[10px] border border-[#edf1f7] px-5 py-3.5 sm:grid-cols-[91px_minmax(0,1fr)_auto]">
+      <div className="h-[68px] w-[91px] overflow-hidden rounded-md bg-[var(--color-muted)]">
         {/* Decorative: the service's
             name is already adjacent link text, so a non-empty alt would
             have a screen reader announce it twice per row — once here,
@@ -100,23 +100,44 @@ export function ServiceRow({
         <Link
           to="/services/$id"
           params={{ id: service.id }}
-          className="font-display font-semibold text-[17px]"
+          className="text-base font-bold text-[var(--color-headline)] hover:underline"
         >
           {service.name}
         </Link>
         {service.description && (
-          <p className="type-body-medium mt-1.5 line-clamp-2 max-w-[52ch] text-[var(--color-muted-foreground)]">
+          <p className="mt-[5px] line-clamp-2 max-w-[52ch] text-sm text-[#616c94]">
             {service.description}
           </p>
         )}
-        <p className="type-caption mt-2 text-[var(--color-muted-foreground)]">
-          {[durationLabel, whereLabel].filter(Boolean).join(" · ")}
-          {pricingModeLabel && (
-            <>
-              {durationLabel || whereLabel ? " · " : ""}
-              <span className="font-semibold text-[var(--color-success)]">{pricingModeLabel}</span>
-            </>
-          )}
+        {/* One line, three facts, each led by its glyph and parted by a dot,
+            as `client/prestador-detalhe.html` draws it; the pricing mode is
+            the green one. */}
+        <p className="mt-2 flex flex-wrap items-center gap-[7px] text-[13px] text-[#4b5781]">
+          {[
+            durationLabel && (
+              <span key="d" className="flex items-center gap-[7px]">
+                <Clock className="h-3.5 w-3.5 text-[#1f2b5a]" strokeWidth={2.1} aria-hidden="true" />
+                {durationLabel}
+              </span>
+            ),
+            whereLabel && (
+              <span key="w" className="flex items-center gap-[7px]">
+                <MapPin className="h-3.5 w-3.5 text-[#1f2b5a]" strokeWidth={2.1} aria-hidden="true" />
+                {whereLabel}
+              </span>
+            ),
+            pricingModeLabel && (
+              <span key="p" className="text-[#22b25b]">
+                {pricingModeLabel}
+              </span>
+            ),
+          ]
+            .filter(Boolean)
+            .flatMap((fact, i) =>
+              i === 0
+                ? [fact]
+                : [<i key={`dot-${i}`} aria-hidden="true" className="mx-1 h-[3px] w-[3px] rounded-full bg-[#4b5781]" />, fact],
+            )}
         </p>
       </div>
 
@@ -125,7 +146,7 @@ export function ServiceRow({
           overridden at `sm`) drops it under the body on a narrow one, which
           is also why the text-alignment flips from left to right at the
           same breakpoint. */}
-      <div className="col-start-2 mt-3 flex flex-col items-start gap-2 text-left sm:col-start-3 sm:mt-0 sm:items-end sm:text-right">
+      <div className="col-start-2 flex flex-col items-start gap-2 text-left sm:col-start-3 sm:items-end sm:text-right">
         {price}
         {cta}
       </div>
@@ -161,7 +182,7 @@ function servicePriceAndCta({
 }): { price: ReactNode; cta: ReactNode } {
   if (cell.kind === "quote") {
     return {
-      price: <p className="type-h3 text-[var(--color-muted-foreground)]">{t("quotePrice")}</p>,
+      price: <p className={`${PRICE_CLASS} text-[var(--color-muted-foreground)]`}>{t("quotePrice")}</p>,
       // The request page, not the service's own: a quote service has no
       // priced option to book and `booking.create` takes one, so there was
       // never a calendar this button could open. It used to land on the
@@ -174,7 +195,7 @@ function servicePriceAndCta({
         <Link
           to="/quote/$serviceId"
           params={{ serviceId }}
-          className={buttonVariants({ variant: "outline", size: "sm" })}
+          className={ROW_CTA_CLASS}
         >
           {t("quoteAction")}
         </Link>
@@ -184,7 +205,7 @@ function servicePriceAndCta({
 
   if (cell.kind === "unavailable") {
     return {
-      price: <p className="type-h3 text-[var(--color-muted-foreground)]">{t("priceUnavailable")}</p>,
+      price: <p className={`${PRICE_CLASS} text-[var(--color-muted-foreground)]`}>{t("priceUnavailable")}</p>,
       cta: null,
     };
   }
@@ -192,7 +213,7 @@ function servicePriceAndCta({
   if (cell.kind === "from") {
     return {
       price: (
-        <p className="type-h3">
+        <p className={PRICE_CLASS}>
           {t("priceFrom", { amount: formatHeadlinePrice(cell.amountMinor, cell.currency, locale) })}
         </p>
       ),
@@ -209,7 +230,7 @@ function servicePriceAndCta({
   const suffix = cell.option.pricingMode === "hourly" ? ` ${t("priceHourlySuffix")}` : "";
   return {
     price: (
-      <p className="type-h3">
+      <p className={PRICE_CLASS}>
         {amount}
         {suffix}
       </p>
@@ -217,6 +238,12 @@ function servicePriceAndCta({
     cta: <CheckAvailabilityLink serviceId={serviceId} label={t("availabilityCheckAction")} />,
   };
 }
+
+const PRICE_CLASS = "text-[17px] font-bold text-[var(--color-headline)] tabular-nums";
+
+/** The row's one action: a 165 × 42 outlined button, the mockup's "Ver disponibilidade". */
+const ROW_CTA_CLASS =
+  "grid h-[42px] w-[165px] place-items-center rounded-[9px] border-[1.5px] border-[#3b7dfb] bg-[var(--color-background)] text-[14.5px] font-semibold text-[#0b5bf7] hover:bg-[var(--color-blue-soft)]";
 
 /**
  * The row's call to action: step 1 of checkout, as a link.
@@ -230,7 +257,7 @@ function servicePriceAndCta({
  */
 function CheckAvailabilityLink({ serviceId, label }: { serviceId: string; label: string }) {
   return (
-    <Link to="/book/$serviceId" params={{ serviceId }} className={buttonVariants({ size: "sm" })}>
+    <Link to="/book/$serviceId" params={{ serviceId }} className={ROW_CTA_CLASS}>
       {label}
     </Link>
   );

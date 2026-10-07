@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notificações · Prestador</title>
+<link rel="stylesheet" href="../shared.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* This mockup is drawn a touch smaller than reservas.png: shell re-measured. */
+  /* Shell values are pinned here: shared.css is still being tuned against reservas.png.
+     Spacing pass (Oct 2026): the list has more room than the mockup and the page scrolls;
+     the top bar and the rail stay put. */
+  .console { grid-template-rows: 85px 1fr; }
+  .topbar { position: sticky; top: 0; z-index: 5; }
+  .rail { position: sticky; top: 85px; height: calc(100vh - 85px); align-self: start; overflow: hidden; }
+  .topbar .brand { width: 295px; padding-left: 38px; }
+  .topbar .search { width: 733px; height: 45px; }
+  .topbar .brand img { height: 38.5px; }
+  .topbar .right { padding-right: 41px; }
+  .topbar .loc { padding-right: 28px; }
+  .topbar .bell { padding: 0 32px 0 36px; }
+  .topbar .bell::after { top: -8px; right: 26px; width: 13px; height: 13px; }
+  .topbar .me { padding-left: 23px; }
+  .topbar .me { gap: 16px; }
+  .topbar .me img { width: 57px; height: 57px; }
+  .topbar .me b { font-size: 17px; }
+  .topbar .me span { font-size: 15.7px; margin-top: 1px; }
+  .topbar .me svg { margin-left: 7px; stroke-width: 2.6; }
+  .body { grid-template-columns: 287px 1fr; }
+  .rail { padding: 23px 13px 17px 17px; }
+  .rail .biz { padding: 0 0 18px 1px; gap: 16px; }
+  .rail .biz img { width: 63px; height: 63px; }
+  .rail .biz span { font-size: 14.2px; }
+  .rail .biz svg { margin-right: 5px; stroke-width: 2.6; }
+  .nav { gap: 2.4px; flex-shrink: 0; }
+  .nav a { height: 48px; padding: 0 20px; gap: 28px; font-size: 17px; }
+  .nudge { margin-left: 7px; padding: 12px 20px 12px; }
+  .nudge .crown { width: 27px; height: 24px; display: block; }
+  .nudge a svg { width: 18px; height: 18px; }
+  .nudge b { font-size: 17px; line-height: 19px; margin-top: 8px; }
+  .nudge p { font-size: 15.3px; line-height: 21px; margin: 6.5px 0 9.5px; }
+  .nudge a { font-size: 15.5px; line-height: 20px; }
+
+  .main { padding: 22px 22px 48px 24px; }
+  .page-title { font-size: 41px; line-height: 1.05; }
+  .page-sub { margin-top: 6px; font-size: 17px; }
+
+  .toolbar { margin-top: 24px; gap: 0; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: var(--r-tab); height: 47px; background: #fff; }
+  .seg .tab { height: 45px; border: 0; border-left: 1px solid var(--line); border-radius: 0; justify-content: center; gap: 14px; padding: 0; }
+  .seg .tab:first-child { border-left: 0; }
+  .seg .tab.on { margin: -1px 0 -1px -1px; height: 47px; border: 1px solid var(--blue-line); border-radius: var(--r-tab); padding: 0; }
+  .seg .chip:not(.red) { background: #e9eff8; }
+  .seg .tab.on .chip { background: var(--blue); }
+  .toolbar .field { margin-left: auto; width: 318px; height: 47px; gap: 16px; }
+  .toolbar .btn-outline { margin-left: 18px; width: 120px; padding: 0; justify-content: center; gap: 14px; }
+
+  .group-h {
+    height: 40px; margin-top: 24px; padding: 0 22px 0 20px; border-radius: 10px;
+    background: #eff3f8; display: flex; align-items: center; justify-content: space-between;
+    font-size: 16px; font-weight: 700; color: var(--ink);
+  }
+  .group-h span { font-size: 14.5px; font-weight: 400; color: var(--muted); }
+  .group-h + .list { margin-top: 8px; }
+  .list + .group-h { margin-top: 24px; }
+  .list { display: grid; gap: 0; }
+  .note {
+    display: grid; grid-template-columns: 57px 90px 1fr 140px 145px 90px; column-gap: 0; align-items: center;
+    border: 1px solid var(--line); border-top-width: 0; background: #fff;
+    min-height: 66px; padding: 12px 0;
+  }
+  .note:first-child { border-top-width: 1px; border-radius: 10px 10px 0 0; }
+  .note:last-child { border-radius: 0 0 10px 10px; }
+  .note:only-child { border-radius: 10px; }
+  .note.new { background: var(--blue-soft); border-color: #e2edfb; }
+  .note.new + .note.new { margin-top: 4px; border-top-width: 1px; }
+  .note.new.solo { border-radius: 10px; border-top-width: 1px; }
+  .note .unread { justify-self: center; margin-left: 2px; width: 11px; height: 11px; border-radius: 50%; background: #0668fe; }
+  .note .ic { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; margin-left: 0; }
+  .note .ic svg { width: 23px; height: 23px; stroke-width: 2.1; }
+  .note .ic img { width: 50px; height: 50px; border-radius: 50%; }
+  .ic.blue { background: #e1eefd; color: #1a64f0; }
+  .ic.violet { background: #f1eafe; color: #7646e0; }
+  .ic.green { background: #dff5e4; color: #0e9a2a; }
+  .ic.grey { background: #ebf0f6; color: var(--ink-2); }
+  .ic.amber { background: #fef1d6; color: #fb9a00; }
+  .note .txt b { display: flex; align-items: center; gap: 18px; font-size: 16px; font-weight: 700; color: var(--ink); line-height: 20px; }
+  .note .txt p { margin: 3px 0 0; font-size: 15px; line-height: 1.45; color: var(--muted); }
+  .note .tag { height: 21px; padding: 0 12px; border-radius: 11px; background: #ddf7e3; color: #13923a; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; }
+  .note .time { justify-self: end; font-size: 14.5px; color: var(--muted); padding-right: 43px; white-space: nowrap; }
+  .note .act {
+    width: 145px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid #5c94fc; border-radius: 7px; background: #fff; color: var(--blue); font-size: 14.5px; font-weight: 700;
+  }
+  .note .dots { justify-self: start; margin-left: 40px; width: 22px; height: 22px; stroke-width: 3; color: var(--ink); }
+
+  /* The sidebar is sticky at window height; its colour and edge are painted
+     down the whole page behind it, so a long page does not end in white. */
+  .body { background: linear-gradient(to right, var(--rail) 0 286px, var(--line) 286px 287px, #fff 287px); }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:18px;height:18px"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/notificacoes-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Prestador verificado</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <div class="biz"><img src="../assets/notificacoes-biz.png" alt=""><div><b>Joaquim Serviços</b><span>Canalização • Maputo</span></div><i data-lucide="chevron-down"></i></div>
+      <nav class="nav">
+        <a href="home.html"><i data-lucide="house"></i>Visão geral</a>
+        <a href="servicos.html"><i data-lucide="layout-grid"></i>Serviços</a>
+        <a href="#"><i data-lucide="calendar"></i>Disponibilidade</a>
+        <a href="reservas.html"><i data-lucide="calendar-plus"></i>Reservas</a>
+        <a href="orcamentos.html"><i data-lucide="file-text"></i>Orçamentos</a>
+        <a href="mensagens.html"><i data-lucide="message-square-text"></i>Mensagens<span class="count">3</span></a>
+        <a href="carteira.html"><i data-lucide="wallet"></i>Carteira</a>
+        <a href="#"><i data-lucide="star"></i>Avaliações</a>
+        <a class="on" href="notificacoes.html"><i data-lucide="bell"></i>Notificações</a>
+        <a href="definicoes.html"><i data-lucide="settings"></i>Definições</a>
+      </nav>
+      <div class="nudge">
+        <i data-lucide="crown" class="crown"></i>
+        <b>Seja um prestador<br>de referência</b>
+        <p>Complete o seu perfil e<br>receba mais reservas.</p>
+        <a href="#">Ver dicas <i data-lucide="arrow-right"></i></a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <h1 class="page-title">Notificações</h1>
+      <p class="page-sub">Fique a par de todas as actividades relacionadas com o seu negócio na Ntizo.</p>
+
+      <div class="toolbar">
+        <div class="seg">
+          <button class="tab on" style="width:136px">Todas <span class="chip">12</span></button>
+          <button class="tab" style="width:150px">Não lidas <span class="chip red">4</span></button>
+          <button class="tab" style="width:153px">Reservas <span class="chip">4</span></button>
+          <button class="tab" style="width:165px">Mensagens <span class="chip">3</span></button>
+          <button class="tab" style="width:143px">Sistema <span class="chip">1</span></button>
+        </div>
+        <div class="field"><i data-lucide="search"></i>Pesquisar notificações...</div>
+        <button class="btn-outline"><i data-lucide="filter"></i>Filtros</button>
+      </div>
+
+      <div id="groups"></div>
+    </main>
+  </div>
+</div>
+
+<script>
+// [mockup row height (unused since the spacing pass), unread dot, tinted, icon, tone, title, tag, text, time, action]
+const groups = [
+  ["Hoje", "4 notificações", [
+    [57, 1, 1, "calendar", "blue", "Nova reserva confirmada", "Confirmada", "Silvia Nhampossa confirmou a reserva para Corte de cabelo amanhã, 11 Out às 10:00.", "10:24", "Ver reserva"],
+    [65, 1, 1, "img:../assets/notificacoes-silvia.png", "", "Nova mensagem de Silvia Nhampossa", "", "Olá Joaquim! Boa tarde. Queria confirmar se ainda está mantida a visita de amanhã para o corte de cabelo.", "09:12", "Abrir conversa"],
+    [57, 0, 0, "file-spreadsheet", "blue", "Novo pedido de orçamento", "", "Tomás Guambe solicitou um orçamento para Instalação de termoacumulador na Polana.", "08:45", "Ver pedido"],
+    [57, 0, 0, "user-plus", "violet", "Novo membro na sua equipa", "", "Rui Massango foi adicionado como técnico à sua equipa.", "07:30", "Ver membros"],
+  ]],
+  ["Ontem", "3 notificações", [
+    [52, 0, 0, "wallet", "green", "Pagamento recebido", "", "Recebeu 2 500 MTn referente ao serviço de Substituição de torneira.", "Ontem, 16:20", "Ver carteira"],
+    [52, 0, 0, "calendar", "blue", "Reserva concluída", "", "Carlos Massango marcou como concluído o serviço de Reparação de fuga de água.", "Ontem, 14:18", "Ver detalhes"],
+    [53, 1, 0, "msg-check", "blue", "Nova mensagem de Carla Sitoe", "", "Muito obrigada pelo serviço! Ficou tudo ótimo.", "Ontem, 11:06", "Abrir conversa"],
+  ]],
+  ["Esta semana", "5 notificações", [
+    [42, 0, 0, "settings", "grey", "Actualização da plataforma", "", "Novas funcionalidades de relatórios já estão disponíveis na sua conta.", "9 Out, 10:30", "Ver novidades"],
+    [41, 0, 0, "calendar", "blue", "Lembrete de reserva", "", "Tem uma reserva amanhã, 12 Out às 08:00 com António Matusse.", "9 Out, 09:15", "Ver reserva"],
+    [41, 0, 0, "star", "amber", "Nova avaliação recebida", "", "Beatriz Langa deixou uma avaliação de 5 estrelas no serviço de Limpeza de ar condicionado.", "8 Out, 18:40", "Ver avaliação"],
+  ]],
+];
+// Lucide has no message-square-check; this is message-square with a tick inside.
+const msgCheck = '<svg class="lucide" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="m8.5 9 3.5 3 3.5-3"/></svg>';
+document.getElementById("groups").innerHTML = groups.map(([label, count, notes]) => `
+  <div class="group-h">${label}<span>${count}</span></div>
+  <div class="list">${notes.map(([h, dot, tint, icon, tone, title, tag, text, time, action]) => `
+    <div class="note${tint ? " new" : ""}">
+      <div>${dot ? '<div class="unread"></div>' : ""}</div>
+      <div class="ic ${tone}">${icon === "msg-check" ? msgCheck : icon.startsWith("img:") ? `<img src="${icon.slice(4)}" alt="">` : `<i data-lucide="${icon}"></i>`}</div>
+      <div class="txt"><b>${title}${tag ? `<span class="tag">${tag}</span>` : ""}</b><p>${text}</p></div>
+      <div class="time">${time}</div>
+      <a class="act" href="#">${action}</a>
+      <div><i data-lucide="ellipsis" class="dots"></i></div>
+    </div>`).join("")}
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

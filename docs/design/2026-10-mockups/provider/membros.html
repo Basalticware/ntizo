@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Membros · Prestador</title>
+<link rel="stylesheet" href="../shared.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* Membro.png is drawn smaller than reservas.png: the shell is re-measured and pinned here. */
+  /* Spacing pass (Oct 2026): the page has more room than the mockup and scrolls;
+     the top bar, the rail and the drawer stay put. */
+  .console { grid-template-rows: 75px 1fr; }
+  .body { grid-template-columns: 253px 1fr; }
+  .topbar { position: sticky; top: 0; z-index: 5; }
+  .rail { position: sticky; top: 75px; height: calc(100vh - 75px); align-self: start; overflow: hidden; }
+  .topbar .brand { width: 248px; padding-left: 34px; }
+  .topbar .brand img { height: 34.5px; }
+  .topbar .search { margin-left: 10px; width: 668px; height: 44px; font-size: 15px; gap: 16px; padding: 0 16px; }
+  .topbar .search svg { width: 21px; height: 21px; }
+  .topbar .right { padding-right: 246px; }
+  .topbar .loc { font-size: 13.2px; gap: 6px; padding-right: 26px; }
+  .topbar .loc svg { width: 19px; height: 19px; }
+  .topbar .sep { height: 38px; }
+  .topbar .bell { padding: 0 25px 0 27px; }
+  .topbar .bell svg { width: 24px; height: 24px; }
+  .topbar .bell::after { top: -7px; right: 19px; width: 12px; height: 12px; }
+  .topbar .me { gap: 12px; padding-left: 17px; }
+  .topbar .me img { width: 48px; height: 48px; }
+  .topbar .me b { font-size: 13px; }
+  .topbar .me span { font-size: 13.1px; margin-top: 2px; }
+  .topbar .me svg { width: 18px; height: 18px; margin-left: 18px; stroke-width: 2.6; }
+  .topbar .me svg { margin-left: 6px; }
+
+  .rail { padding: 23px 14px 21px 14px; }
+  .rail .biz { gap: 14px; padding: 0 0 16px 0; }
+  .rail .biz img { width: 57px; height: 57px; }
+  .rail .biz b { font-size: 15px; }
+  .rail .biz span { font-size: 13px; margin-top: 2px; }
+  .rail .biz svg { width: 18px; height: 18px; margin-right: 4px; stroke-width: 2.6; }
+  .nav { gap: 1.9px; flex-shrink: 0; }
+  .nav a { height: 45px; padding: 0 16px; gap: 20px; font-size: 15px; }
+  .nav a svg { width: 22px; height: 22px; }
+  .nav a .count { width: 24px; height: 24px; font-size: 13px; margin-right: -10px; }
+  .nudge { margin-left: 8px; padding: 14px 18px 12px; }
+  .nudge .crown { width: 26px; height: 22px; display: block; }
+  .nudge b { font-size: 15.5px; line-height: 19px; margin-top: 9px; }
+  .nudge p { font-size: 14px; line-height: 18px; margin: 4px 0 12px; }
+  .nudge a { font-size: 14.5px; line-height: 20px; }
+  .nudge a svg { width: 17px; height: 17px; }
+
+  .main { padding: 0 0 48px 28px; display: grid; grid-template-columns: 922px 1fr; }
+  .content { padding-top: 40px; }
+  .eyebrow { font-size: 13px; letter-spacing: .1em; line-height: 16px; }
+  .page-title { font-size: 44px; line-height: 50px; margin-top: 12px; }
+  .page-sub { font-size: 16.5px; margin-top: 6px; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .head .btn { margin-top: 29px; padding: 0 24px; height: 48px; border-radius: 9px; font-size: 15.5px; gap: 12px; white-space: nowrap; }
+  .head .btn svg { width: 24px; height: 24px; }
+
+  .toolbar { margin-top: 43px; justify-content: space-between; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: var(--r-tab); height: 51px; background: #fff; }
+  .seg .tab { height: 49px; border: 0; border-left: 1px solid var(--line); border-radius: 0; justify-content: center; gap: 16px; padding: 0 26px; font-size: 15px; }
+  .seg .tab:first-child { border-left: 0; }
+  .seg .tab.on { margin: -1px 0 -1px -1px; height: 51px; border: 0; border-radius: var(--r-tab) 0 0 var(--r-tab); background: #e8f2fe; }
+  .seg .chip { min-width: 26px; height: 26px; background: #edf2f9; }
+  .seg .tab.on .chip { background: var(--blue); min-width: 26px; }
+  .toolbar .btn-outline { height: 44px; padding: 0 20px; justify-content: center; gap: 10px; font-size: 15px; border-color: #b0cdfc; margin-top: 0; }
+  .toolbar .btn-outline svg { width: 19px; height: 19px; }
+
+  .members { margin-top: 28px; border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; background: #fff; }
+  .members .row { display: grid; grid-template-columns: 212px 118px 158px 138px 160px 1fr 36px; align-items: center; border-top: 1px solid var(--line-2); min-height: 82px; padding: 10px 0; }
+  .members .th { min-height: 52px; padding: 0; border-top: 0; background: #f6fafd; font-size: 14px; color: var(--ink-2); }
+  .members .th > div:first-child { padding-left: 16px; font-size: 14.5px; font-weight: 600; }
+  .members .who { display: flex; align-items: center; gap: 15px; padding-left: 12px; }
+  .members .who img { width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0; }
+  .members .who b { display: block; font-size: 15px; font-weight: 700; color: var(--ink); line-height: 20px; }
+  .members .you { display: inline-flex; margin-top: 6px; height: 22px; padding: 0 9px; align-items: center; border-radius: 6px; background: #e6f1fe; color: var(--blue); font-size: 13px; font-weight: 600; }
+  .role { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 15px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .role.admin { background: #eceffe; color: #3544d1; }
+  .role.att { background: #e6f1fe; color: #1a6af0; }
+  .role.pro { background: #dbebfe; color: #1a5fe0; }
+  .role.fin { background: #ece4fe; color: #7a3fe0; }
+  .contact { font-size: 15px; color: var(--ink); line-height: 1.45; }
+  .contact span { display: block; color: var(--muted); font-size: 14px; }
+  .svc { font-size: 13.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 5px; align-items: center; }
+  .svc .tag { height: 27px; padding: 0 11px; border-radius: 14px; background: #edf4fe; color: var(--ink-2); font-size: 13px; display: inline-flex; align-items: center; }
+  .svc .more { height: 27px; min-width: 32px; padding: 0 8px; border-radius: 14px; border: 1px solid var(--line); color: var(--muted); font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+  .state { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px; border-radius: 15px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .state::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .state.on { background: #e1f7e8; color: #13923a; }
+  .state.on::before { background: #0eaa50; }
+  .state.wait { background: #fef1da; color: #f07a00; }
+  .access { font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+  .members .dots { justify-self: start; stroke-width: 2.6; color: var(--ink-2); }
+
+  /* Drawer: sits on the right from the top bar down and grows with its form, so the
+     page scrolls rather than the drawer clipping. */
+  .drawer {
+    position: absolute; right: 0; top: 76px; width: 423px; min-height: calc(100vh - 76px); z-index: 4;
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: -8px 0 24px rgba(16, 40, 90, .05);
+    display: flex; flex-direction: column;
+  }
+  .drawer .in { padding: 24px 24px 24px 26px; flex: 1; }
+  .drawer h2 { margin: 0; font-size: 23.5px; font-weight: 800; line-height: 30px; display: flex; justify-content: space-between; align-items: center; }
+  .drawer h2 svg { width: 22px; height: 22px; color: var(--ink-2); margin-right: 1px; }
+  .drawer .lead { margin: 14px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+  .drawer label { display: block; margin: 24px 0 0; font-size: 14.5px; font-weight: 700; color: var(--ink); line-height: 20px; }
+  .drawer .input { margin: 8px 0 0; height: 46px; border: 1px solid var(--line); border-radius: 9px; display: flex; align-items: center; padding: 0 16px; font-size: 14.5px; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .roles { margin: 10px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .roles .opt { border: 1px solid var(--line); border-radius: 10px; padding: 16px 12px 16px 15px; position: relative; }
+  .roles .opt.on { border: 1.5px solid #5d93fb; background: #eaf3fe; }
+  .roles .opt b { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; padding-right: 20px; }
+  .roles .opt b svg { width: 22px; height: 22px; color: var(--blue); }
+  .roles .opt p { margin: 8px 0 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
+  .roles .radio { position: absolute; right: 10px; top: 12px; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #b8c3d6; background: #fff; }
+  .roles .on .radio { border: 0; background: var(--blue); box-shadow: inset 0 0 0 4px var(--blue), inset 0 0 0 6px #fff; }
+  .perms { margin-top: 12px; }
+  .perm { display: grid; grid-template-columns: 23px 1fr; column-gap: 18px; align-items: start; }
+  .perm + .perm { margin-top: 18px; }
+  .perm .box { width: 23px; height: 23px; border-radius: 5px; background: var(--blue); color: #fff; display: grid; place-items: center; margin-top: 4px; }
+  .perm .box svg { width: 16px; height: 16px; stroke-width: 3; }
+  .perm b { display: block; font-size: 15px; font-weight: 500; line-height: 20px; }
+  .perm span { display: block; font-size: 13.5px; color: var(--muted); line-height: 1.45; margin-top: 2px; }
+  .drawer .foot { border-top: 1px solid var(--line-2); padding: 20px 24px 20px 26px; display: flex; gap: 16px; }
+  .drawer .foot > * { flex: 1; height: 48px; border-radius: 9px; font-size: 15.5px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 14px; }
+  .drawer .cancel { border: 1px solid #b0cdfc; color: var(--blue); background: #fff; }
+  .drawer .send { background: var(--blue); color: #fff; }
+  .drawer .send svg { width: 22px; height: 22px; }
+
+  /* The sidebar is sticky at window height; its colour and edge are painted
+     down the whole page behind it, so a long page does not end in white. */
+  /* On the page, not on .body: the open drawer is taller than .body. */
+  body { background: linear-gradient(to right, var(--rail) 0 252px, var(--line) 252px 253px, #fff 253px); }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:16px;height:16px;stroke-width:2.6"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/membros-me.png" alt=""><div><b>Joaquim Cuna</b><span>Prestador verificado</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <div class="biz"><img src="../assets/membros-biz.png" alt=""><div><b>Joaquim Serviços</b><span>Canalização • Maputo</span></div><i data-lucide="chevron-down"></i></div>
+      <nav class="nav">
+        <a href="home.html"><i data-lucide="house"></i>Visão geral</a>
+        <a href="servicos.html"><i data-lucide="layout-grid"></i>Serviços</a>
+        <a href="#"><i data-lucide="calendar"></i>Disponibilidade</a>
+        <a href="reservas.html"><i data-lucide="calendar-plus"></i>Reservas</a>
+        <a href="orcamentos.html"><i data-lucide="file-text"></i>Orçamentos</a>
+        <a href="mensagens.html"><i data-lucide="message-square-text"></i>Mensagens<span class="count">3</span></a>
+        <a href="carteira.html"><i data-lucide="wallet"></i>Carteira</a>
+        <a class="on" href="membros.html"><i data-lucide="users"></i>Membros</a>
+        <a href="#"><i data-lucide="star"></i>Avaliações</a>
+        <a href="notificacoes.html"><i data-lucide="bell"></i>Notificações</a>
+        <a href="definicoes.html"><i data-lucide="settings"></i>Definições</a>
+      </nav>
+      <div class="nudge">
+        <i data-lucide="crown" class="crown"></i>
+        <b>Seja um prestador<br>de referência</b>
+        <p>Complete o seu perfil e<br>receba mais reservas.</p>
+        <a href="#">Ver dicas <i data-lucide="arrow-right"></i></a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="content">
+        <div class="head">
+          <div>
+            <div class="eyebrow">Equipa</div>
+            <h1 class="page-title">Lista de membros</h1>
+            <p class="page-sub">Gerencie a sua equipa e convide pessoas para colaborar no seu negócio.</p>
+          </div>
+          <a class="btn" href="#"><i data-lucide="circle-plus"></i>Convidar membro</a>
+        </div>
+
+        <div class="toolbar">
+          <div class="seg">
+            <button class="tab on">Todos <span class="chip">6</span></button>
+            <button class="tab">Ativos <span class="chip">4</span></button>
+            <button class="tab">Convites pendentes <span class="chip">2</span></button>
+          </div>
+          <button class="btn-outline"><i data-lucide="filter"></i>Filtrar<i data-lucide="chevron-down" style="width:17px;height:17px;stroke-width:2.4"></i></button>
+        </div>
+
+        <div class="members">
+          <div class="row th"><div>Nome</div><div>Função</div><div>Contacto</div><div>Serviços</div><div>Estado</div><div>Acesso</div><div></div></div>
+          <div id="rows"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<aside class="drawer">
+  <div class="in">
+    <h2>Convidar membro <i data-lucide="x"></i></h2>
+    <p class="lead">Adicione um novo membro à sua equipa. Ele receberá um convite para se juntar ao seu negócio na Ntizo.</p>
+    <label>Nome completo</label>
+    <div class="input">Ex.: Pedro Matusse</div>
+    <label>E-mail ou WhatsApp</label>
+    <div class="input">Ex.: pedro@exemplo.co.mz ou 84 123 4567</div>
+    <label>Função / Tipo</label>
+    <div class="roles">
+      <div class="opt on"><b><i data-lucide="crown"></i>Administrador</b><span class="radio"></span><p>Acesso total à conta e a todas as funcionalidades.</p></div>
+      <div class="opt"><b><i data-lucide="wrench"></i>Prestador</b><span class="radio"></span><p>Executa os serviços, geri disponibilidade e vê reservas.</p></div>
+      <div class="opt"><b><i data-lucide="message-square"></i>Atendimento</b><span class="radio"></span><p>Responde a mensagens e gerencia reservas.</p></div>
+      <div class="opt"><b><i data-lucide="chart-column-increasing"></i>Financeiro</b><span class="radio"></span><p>Acesso a orçamentos, pagamentos e carteira.</p></div>
+    </div>
+    <label>Permissões</label>
+    <div class="perms">
+      <div class="perm"><span class="box"><i data-lucide="check"></i></span><div><b>Pode gerir reservas</b><span>Permite ver, aprovar e gerir reservas.</span></div></div>
+      <div class="perm"><span class="box"><i data-lucide="check"></i></span><div><b>Pode responder a mensagens</b><span>Permite ver e responder a mensagens de clientes.</span></div></div>
+      <div class="perm"><span class="box"><i data-lucide="check"></i></span><div><b>Pode editar disponibilidade</b><span>Permite gerir os horários e a disponibilidade de serviços.</span></div></div>
+    </div>
+  </div>
+  <div class="foot">
+    <a class="cancel" href="#">Cancelar</a>
+    <a class="send" href="#"><i data-lucide="send"></i>Enviar convite</a>
+  </div>
+</aside>
+
+<script>
+// [mockup row height (unused since the spacing pass), avatar, name, you, role class, role, phone, email, services, state, access]
+const rows = [
+  [72, "joaquim", "Joaquim Cuna", 1, "admin", "Administrador", "84 123 4567", "joaquim@ntizo.co.mz", "Todos os serviços", "on", "Acesso total"],
+  [74, "silvia", "Sílvia Nhampossa", 0, "att", "Atendimento", "84 567 8901", "silvia@ntizo.co.mz", "Todos os serviços", "on", "Reservas<br>Mensagens"],
+  [78, "tomas", "Tomás Guambe", 0, "pro", "Prestador", "84 987 6543", "tomas@ntizo.co.mz", ["Canalização", "Manutenção", "+1"], "on", "Reservas<br>Disponibilidade"],
+  [78, "carla", "Carla Sitoe", 0, "fin", "Financeiro", "84 321 0987", "carla@ntizo.co.mz", "Todos os serviços", "on", "Orçamentos<br>Pagamentos"],
+  [77, "pedro", "Pedro Matusse", 0, "pro", "Prestador", "84 456 7890", "pedro@ntizo.co.mz", ["Desentupimento", "Instalação"], "wait", "Limitado"],
+  [77, "ana", "Ana Munguambe", 0, "att", "Atendimento", "84 222 3344", "ana@ntizo.co.mz", "Todos os serviços", "wait", "Limitado"],
+];
+document.getElementById("rows").innerHTML = rows.map(([h, img, name, you, rc, role, phone, mail, svc, st, access]) => `
+  <div class="row">
+    <div class="who"><img src="../assets/membros-${img}.png" alt=""><div><b>${name}</b>${you ? '<span class="you">Você</span>' : ""}</div></div>
+    <div><span class="role ${rc}">${role}</span></div>
+    <div class="contact">${phone}<span>${mail}</span></div>
+    <div class="svc">${Array.isArray(svc) ? svc.map(s => s.startsWith("+") ? `<span class="more">${s}</span>` : `<span class="tag">${s}</span>`).join("") : svc}</div>
+    <div><span class="state ${st}">${st === "on" ? "Ativo" : "Convite pendente"}</span></div>
+    <div class="access">${access}</div>
+    <div><i data-lucide="ellipsis" class="dots"></i></div>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

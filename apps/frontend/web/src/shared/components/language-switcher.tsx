@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, Globe, X } from "lucide-react";
+import { Check, ChevronDown, Globe, X } from "lucide-react";
 import { Dialog, DialogContent, cn, regionalFlag } from "@ntizo/frontend-ui";
 import { SUPPORTED_LOCALES } from "@/shared/lib/i18n";
 
@@ -126,13 +126,15 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         onClick={() => setOpen(true)}
         aria-label={t("changeLanguage")}
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm",
-          "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]",
+          "inline-flex items-center gap-2 rounded-md py-1.5 text-sm font-medium",
+          "text-[var(--color-muted-foreground)] hover:text-[var(--color-headline)]",
           className,
         )}
       >
-        <Globe className="h-4 w-4" />
+        {/* Globe, the short code, a chevron: the October mockups' "PT ▾". */}
+        <Globe className="h-[17px] w-[17px]" aria-hidden="true" />
         <span>{short}</span>
+        <ChevronDown className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
       </button>
       <LanguageDialog open={open} onOpenChange={setOpen} />
     </>

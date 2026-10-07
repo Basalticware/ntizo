@@ -34,34 +34,41 @@ const ACCEPTED_FORMATS_LABEL = ACCEPTED_ATTACHMENT_TYPES.map((type) =>
  * accessible name. `accept={ACCEPT_ATTR}` is a hint to the file dialog only;
  * `useAttachments`' own `validate` (via `add`) makes the real check, the
  * same "every check made again" split the upload route documents.
+ *
+ * Drawn as two pieces the composer places apart — the paperclip at the head
+ * of its one row (`part="button"`), the strip of picked files above that row
+ * (`part="list"`) — or both together, which is what it used to be.
  */
 export function AttachmentPicker({
   files,
   onAdd,
   onRemove,
   disabled = false,
+  part = "all",
 }: {
   files: readonly PendingAttachment[];
   onAdd: (file: File) => void;
   onRemove: (id: string) => void;
   disabled?: boolean;
+  part?: "all" | "button" | "list";
 }) {
   const { t } = useTranslation("messaging");
   const atLimit = files.length >= MAX_ATTACHMENTS;
 
   return (
-    <div className="grid gap-2">
+    <div className={cn("grid gap-2", part === "list" && files.length === 0 && !atLimit && "hidden")}>
+      {part !== "list" && (
       <div className="flex items-center gap-2">
         <label
           htmlFor="message-attachment-input"
           className={cn(
-            "type-body-medium flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-field)] border border-[var(--color-border)] transition-colors",
+            "flex h-[50px] w-[52px] shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-[var(--color-border)] text-[var(--color-primary)] transition-colors",
             disabled || atLimit
               ? "cursor-not-allowed opacity-50"
-              : "hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]",
+              : "hover:border-[var(--color-primary)]",
           )}
         >
-          <Paperclip className="h-4 w-4" />
+          <Paperclip className="h-[22px] w-[22px]" />
           <span className="sr-only">{t("attachmentPickerLabel")}</span>
         </label>
         <input
@@ -80,14 +87,22 @@ export function AttachmentPicker({
             picked.forEach(onAdd);
           }}
         />
-        {atLimit && (
+        {atLimit && part === "all" && (
           <p className="type-caption text-[var(--color-muted-foreground)]">
             {t("attachmentsLimitReached", { max: MAX_ATTACHMENTS })}
           </p>
         )}
       </div>
+      )}
 
-      {files.length > 0 && (
+      {/* With the paperclip drawn apart, the limit is said over the list. */}
+      {part === "list" && atLimit && (
+        <p className="type-caption text-[var(--color-muted-foreground)]">
+          {t("attachmentsLimitReached", { max: MAX_ATTACHMENTS })}
+        </p>
+      )}
+
+      {part !== "button" && files.length > 0 && (
         <ul className="grid list-none gap-1.5 p-0">
           {files.map((pending) => (
             <li

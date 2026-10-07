@@ -242,7 +242,7 @@ describe("ServiceDetailPage's right column", () => {
     // A link into checkout's step 1 since the availability sheet became a
     // routed page — the rail's primary is still a calendar, but it is now a
     // place rather than a dialog.
-    expect(screen.getByRole("link", { name: "See availability" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Book this service" })).toHaveAttribute(
       "href",
       expect.stringContaining("/book/svc-1"),
     );
@@ -312,7 +312,7 @@ describe("ServiceDetailPage's body", () => {
     );
     // The provider's price, unmarked up: 50000 -> 500; 90000 -> 900.
     expect(await screen.findByTestId("booking-total")).toHaveTextContent(/500/);
-    expect(screen.getByRole("link", { name: "See availability" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Book this service" })).toHaveAttribute(
       "href",
       expect.stringContaining("optionId=opt-1"),
     );
@@ -322,7 +322,7 @@ describe("ServiceDetailPage's body", () => {
     // total *and* the link checkout reads its package from. Assert only the
     // total and the two can drift — which is exactly how a customer came to
     // agree to 900 and be booked for 500.
-    expect(screen.getByRole("link", { name: "See availability" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Book this service" })).toHaveAttribute(
       "href",
       expect.stringContaining("optionId=opt-2"),
     );
@@ -356,7 +356,8 @@ describe("ServiceDetailPage's body", () => {
   it("states the four facts about the service", async () => {
     renderPage(detailService());
     await screen.findByRole("heading", { level: 1 });
-    expect(factLabels()).toEqual(["Duration", "Works", "Pricing", "Category"]);
+    // "Typical length" is the mockup's "Duração média".
+    expect(factLabels()).toEqual(["Typical length", "Works", "Pricing", "Category"]);
     expect(within(facts()).getByText("60 min")).toBeInTheDocument();
     expect(within(facts()).getByText("At their place")).toBeInTheDocument();
     expect(within(facts()).getByText("Fixed price")).toBeInTheDocument();
@@ -373,7 +374,7 @@ describe("ServiceDetailPage's body", () => {
     ).not.toBeInTheDocument();
     // The two things the rail does offer, so the absence above is "nothing
     // claims a reservation" and not "no controls rendered at all".
-    expect(screen.getByRole("link", { name: "See availability" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Book this service" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Send message" })).toBeInTheDocument();
   });
 
@@ -393,10 +394,11 @@ describe("ServiceDetailPage's body", () => {
 });
 
 describe("ServiceDetailPage's second read, the provider behind the service", () => {
-  it("shows the provider's usual week in the rail", async () => {
+  it("shows the provider's usual week beside the description", async () => {
+    // The mockup's "about" panel, one line for the whole week.
     renderPage(detailService(), detailProvider());
     expect(await screen.findByText("Availability")).toBeInTheDocument();
-    expect(screen.getByText("08:00 – 18:00")).toBeInTheDocument();
+    expect(screen.getByText(/08:00 – 18:00/)).toBeInTheDocument();
   });
 
   it("claims verification only when the provider is actually verified", async () => {

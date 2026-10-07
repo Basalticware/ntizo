@@ -83,7 +83,7 @@ describe("consoleNav: shape", () => {
   it("follows the mockups' order in a workspace — what is offered, when, then the work it brings", () => {
     expect(allItems(consoleNav("workspace")).map((i) => i.key)).toEqual([
       "overview", "services", "availability", "bookings", "quotes", "messages",
-      "wallet", "members", "notifications", "activity", "settings",
+      "wallet", "members", "notifications", "settings",
     ]);
   });
 

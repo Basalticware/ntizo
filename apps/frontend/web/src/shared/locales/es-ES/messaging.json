@@ -52,5 +52,15 @@
     "TOO_MANY_ATTACHMENTS": "Un mensaje puede llevar como máximo {{max}} archivos.",
     "ATTACHMENT_NOT_AVAILABLE": "Uno de estos archivos ya no está disponible. Quítalo e inténtalo de nuevo.",
     "GENERIC": "No se pudo enviar el mensaje. Inténtalo de nuevo."
-  }
+  },
+  "providerSubtitle": "Hable con sus clientes, responda a solicitudes y siga todas sus conversaciones.",
+  "providerTab": {
+    "all": "Todas",
+    "unread": "No leídas",
+    "customers": "Clientes"
+  },
+  "providerTabEmptyTitle": "Nada en esta pestaña",
+  "providerTabEmptyBody": "Las conversaciones que coincidan aparecerán aquí.",
+  "read": "Leído",
+  "sent": "Enviado"
 }

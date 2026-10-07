@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Check } from "lucide-react";
+import { Check, Clock3 } from "lucide-react";
 import { BrandImage } from "@/shared/components/brand-image";
 import { RatingMark, TILE_TITLE_LINK_CLASS } from "@/shared/components/browse/result-tile";
 import { formatRating } from "@/shared/domain/rating";
@@ -58,13 +58,13 @@ export function ServiceCard({
   const where = t(`filterWhereOption.${service.locationType}`, { defaultValue: "" });
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-card-foreground)]">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-[10px] border border-[#edf0f6] bg-[var(--color-card)] text-[var(--color-card-foreground)]">
       {/* `relative` is the positioning context the heart resolves against, and
           this box rather than the `<article>` is the slot's home for the same
           reason `TileMedia` was before it: it is the same box whether the
           listing has a photograph or the site's placeholder, so the control
           does not move depending on whether a provider uploaded a picture. */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--color-muted)]">
+      <div className="relative aspect-[272/127] w-full overflow-hidden bg-[var(--color-muted)]">
         <BrandImage
           src={service.imageUrls[0] ?? null}
           alt=""
@@ -72,31 +72,36 @@ export function ServiceCard({
         />
         {favourite}
       </div>
-      <div className="flex flex-1 flex-col gap-1 p-4">
-        <p className="flex min-w-0 items-center gap-1.5 text-[12.5px] text-[var(--color-muted-foreground)]">
+      <div className="flex flex-1 flex-col px-[18px] pt-3.5 pb-4">
+        <p className="flex min-w-0 items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
           <span className="min-w-0 truncate">{service.providerName}</span>
           {service.providerVerified && (
             <span
-              className="grid h-[14px] w-[14px] shrink-0 place-items-center rounded-full bg-[var(--color-navy-surface)]"
+              className="grid h-[13px] w-[13px] shrink-0 place-items-center rounded-full bg-[var(--color-navy-surface)]"
               aria-label={t("providerVerified")}
             >
               <Check className="h-2.5 w-2.5 text-[var(--color-navy-on)]" aria-hidden="true" strokeWidth={3.4} />
             </span>
           )}
         </p>
-        <h3 className="line-clamp-2 text-[15.5px] font-bold leading-snug text-[var(--color-foreground)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline">
+        <h3 className="mt-1 truncate text-base leading-[1.2] font-extrabold text-[var(--color-headline)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline">
           <Link to="/services/$id" params={{ id: service.id }} className={TILE_TITLE_LINK_CLASS}>
             {service.name}
           </Link>
         </h3>
         {(metaText || where) && (
-          <p className="flex flex-wrap items-center gap-1 text-[13px] text-[var(--color-muted-foreground)]">
+          <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
+            {/* The clock only beside a length — the same line can carry a
+                count of packages or a quote's hint instead. */}
+            {metaText && line.meta?.key.endsWith("Minutes") && (
+              <Clock3 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
+            )}
             {metaText && <span className="whitespace-nowrap">{metaText}</span>}
-            {metaText && where && <span aria-hidden="true">·</span>}
+            {metaText && where && <span aria-hidden="true" className="mx-[3px]">·</span>}
             {where && <span className="whitespace-nowrap">{where}</span>}
           </p>
         )}
-        <div className="mt-auto flex items-baseline justify-between gap-3 pt-2.5">
+        <div className="mt-auto flex items-center justify-between gap-3 pt-3">
           {service.providerRatingAverage === null ? (
             // Not a zero: a provider nobody has reviewed yet is new, the same
             // rule every caller of this card follows for the same reason.
@@ -114,7 +119,7 @@ export function ServiceCard({
               })}
             />
           )}
-          <b className="text-right text-[15.5px] font-bold text-[var(--color-headline)]">
+          <b className="text-right text-base font-extrabold whitespace-nowrap text-[#000a5c]">
             {line.amount.kind === "words" ? (
               <span className="text-[14px] font-semibold">{t(line.amount.key)}</span>
             ) : (

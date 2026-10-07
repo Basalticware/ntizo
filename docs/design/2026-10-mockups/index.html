@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ntizo · Mockups em HTML</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  body { background: #f4f7fb; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 34px; font-weight: 800; margin: 0; }
+  .lede { color: var(--muted); margin: 8px 0 32px; font-size: 16px; line-height: 1.5; max-width: 760px; }
+  h2 { font-size: 20px; margin: 32px 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .item { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .item img { width: 100%; aspect-ratio: 16/10; object-fit: cover; object-position: top left; border-bottom: 1px solid var(--line); }
+  .item .meta { padding: 12px 14px 14px; display: grid; gap: 8px; }
+  .item b { font-size: 15px; }
+  .item .acts { display: flex; gap: 14px; font-size: 14px; }
+  .item .acts a { color: var(--blue); font-weight: 600; }
+  /* Side-by-side view */
+  #view { display: none; position: fixed; inset: 0; background: #0b1035ee; z-index: 10; overflow: auto; }
+  #view.on { display: block; }
+  #view .bar { position: sticky; top: 0; display: flex; gap: 16px; align-items: center; padding: 12px 20px; background: #0b1035; color: #fff; font-size: 14px; }
+  #view .bar b { font-size: 16px; }
+  #view .bar button, #view .bar a { color: #fff; border: 1px solid #ffffff55; border-radius: 8px; padding: 6px 12px; }
+  #view .bar .sp { flex: 1; }
+  #view .panes { display: flex; gap: 16px; padding: 16px 20px; align-items: flex-start; }
+  #view .pane { background: #fff; transform-origin: top left; }
+  #view .pane img { display: block; }
+  #view iframe { border: 0; display: block; background: #fff; }
+  #view .lbl { color: #fff; font-size: 13px; margin: 0 0 6px; opacity: .8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mockups em HTML</h1>
+  <p class="lede">Cada ecrã dos mockups de Outubro, refeito em HTML com as mesmas medidas, cores, textos e dados. "Comparar" mostra o PNG original e o HTML lado a lado, ao mesmo tamanho. Isto é a referência para a aplicação.</p>
+  <div id="groups"></div>
+</div>
+
+<div id="view">
+  <div class="bar"><b id="vt"></b><span class="sp"></span>
+    <label>Zoom <select id="zoom"><option value="0.5">50%</option><option value="0.6" selected>60%</option><option value="0.75">75%</option><option value="1">100%</option></select></label>
+    <a id="vopen" target="_blank">Abrir HTML</a><button id="vclose">Fechar</button></div>
+  <div class="panes">
+    <div><p class="lbl">Mockup (PNG)</p><div class="pane" id="pm"></div></div>
+    <div><p class="lbl">HTML</p><div class="pane" id="ph"></div></div>
+  </div>
+</div>
+
+<script>
+// page, original, title, viewport rect inside the PNG [x0,y0,x1,y1]
+const SCREENS = {
+  "Cliente": [
+    ["client/servicos.html", "client-servicos", "Lista de serviços", [39,47,1410,1086]],
+    ["client/servico-detalhe.html", "client-servico-detalhe", "Detalhe do serviço", [42,43,1415,1086]],
+    ["client/prestador-detalhe.html", "client-prestador-detalhe", "Detalhe do prestador", [46,51,1403,1086]],
+    ["client/reserva.html", "client-reserva", "Reserva — dia e hora", [35,94,1413,1063]],
+  ],
+  "Prestador": [
+    ["provider/home.html", "provider-home", "Visão geral", [32,69,1417,1068]],
+    ["provider/servicos.html", "provider-servicos", "Serviços", [3,51,1660,941]],
+    ["provider/reservas.html", "provider-reservas", "Reservas", [0,49,1672,941]],
+    ["provider/orcamentos.html", "provider-orcamentos", "Orçamentos", [2,47,1664,941]],
+    ["provider/mensagens.html", "provider-mensagens", "Mensagens", [2,49,1650,941]],
+    ["provider/carteira.html", "provider-carteira", "Carteira", [24,47,1648,939]],
+    ["provider/membros.html", "provider-membros", "Membros", [2,44,1652,936]],
+    ["provider/notificacoes.html", "provider-notificacoes", "Notificações", [2,49,1652,939]],
+    ["provider/definicoes.html", "provider-definicoes", "Definições", [0,0,1672,941]],
+  ],
+  "Admin": [
+    ["admin/prestadores.html", "admin-prestadores", "Prestadores", [0,44,1672,941]],
+    ["admin/prestador-detalhe.html", "admin-prestador-detalhe", "Detalhe do prestador", [0,44,1672,941]],
+    ["admin/utilizadores.html", "admin-utilizadores", "Utilizadores", [0,44,1672,941]],
+    ["admin/reservas.html", "admin-reservas", "Reservas", [0,0,1672,941]],
+    ["admin/reserva-detalhe.html", "admin-reserva-detalhe", "Detalhe da reserva", [0,0,1672,941]],
+    ["admin/contactos.html", "admin-contactos", "Contactos", [0,44,1672,941]],
+    ["admin/avaliacoes.html", "admin-avaliacoes", "Avaliações", [0,0,1672,941]],
+    ["admin/atividade.html", "admin-atividade", "Atividade", [0,0,1672,941]],
+    ["admin/categorias.html", "admin-categorias", "Categorias", [0,0,1672,941]],
+  ],
+};
+const groups = document.getElementById("groups");
+for (const [name, list] of Object.entries(SCREENS)) {
+  groups.insertAdjacentHTML("beforeend", `<h2>${name}</h2><div class="grid">${list.map(([page, orig, title], i) => `
+    <div class="item"><img src="originals/${orig}.jpg" alt="">
+      <div class="meta"><b>${title}</b><div class="acts">
+        <a href="${page}">Abrir HTML</a><a href="#" data-g="${name}" data-i="${i}">Comparar</a><a href="originals/${orig}.jpg">PNG</a>
+      </div></div></div>`).join("")}</div>`);
+}
+const view = document.getElementById("view"), pm = document.getElementById("pm"), ph = document.getElementById("ph");
+let current = null;
+function show() {
+  const [page, orig, title, rect] = current;
+  const z = Number(document.getElementById("zoom").value);
+  const img = new Image();
+  img.onload = () => {
+    const [x0, y0, x1, y1] = rect ?? [0, 0, img.naturalWidth, img.naturalHeight];
+    const w = x1 - x0, h = y1 - y0;
+    pm.innerHTML = ""; ph.innerHTML = "";
+    const clip = document.createElement("div");
+    clip.style.cssText = `width:${w * z}px;height:${h * z}px;overflow:hidden;position:relative`;
+    img.style.cssText = `position:absolute;left:${-x0 * z}px;top:${-y0 * z}px;width:${img.naturalWidth * z}px`;
+    clip.append(img); pm.append(clip);
+    // The HTML side shows the whole page: with the extra spacing it is
+    // taller than the mockup, and cutting it at the mockup's height would
+    // hide exactly what changed.
+    const f = document.createElement("iframe");
+    f.src = page; f.width = w; f.height = h;
+    f.style.cssText = `transform:scale(${z});transform-origin:top left`;
+    const box = document.createElement("div");
+    box.style.cssText = `width:${w * z}px;height:${h * z}px;overflow:hidden`;
+    f.onload = () => {
+      // Chrome treats each file:// page as its own origin and refuses the
+      // read; fall back to half again the mockup's height, which covers the
+      // spacing pass on every page.
+      let full = Math.round(h * 1.5);
+      try { full = f.contentDocument.documentElement.scrollHeight; } catch {}
+      f.height = full; box.style.height = `${full * z}px`;
+    };
+    box.append(f); ph.append(box);
+  };
+  img.src = `originals/${orig}.jpg`;
+  document.getElementById("vt").textContent = title;
+  document.getElementById("vopen").href = page;
+}
+groups.addEventListener("click", (e) => {
+  const a = e.target.closest("a[data-g]"); if (!a) return;
+  e.preventDefault(); current = SCREENS[a.dataset.g][a.dataset.i]; view.classList.add("on"); show();
+});
+document.getElementById("zoom").onchange = () => current && show();
+document.getElementById("vclose").onclick = () => view.classList.remove("on");
+</script>
+</body>
+</html>

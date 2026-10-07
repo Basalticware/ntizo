@@ -6,6 +6,7 @@ import { availabilityErrorMessage, type HouseClosure } from "../domain/types";
 import { useAddClosure, useRemoveClosure } from "../viewmodel/use-availability";
 
 import { DateBadge, EmptyState } from "./entry";
+import { OUTLINE_BUTTON } from "./console-styles";
 
 /** `YYYY-MM-DD`, read as a UTC instant so the browser's own timezone never shifts it to the day before or after. */
 function formatDate(iso: string, locale: string): string {
@@ -117,7 +118,7 @@ export function ClosuresPanel({ providerId, closures }: { providerId: string; cl
 
       {!adding && (
         <div>
-          <Button type="button" variant="outline" size="sm" onClick={() => setAdding(true)}>
+          <Button type="button" variant="outline" size="sm" className={OUTLINE_BUTTON} onClick={() => setAdding(true)}>
             <Plus className="h-4 w-4" />
             {t("availabilityClosureAdd")}
           </Button>
@@ -125,10 +126,10 @@ export function ClosuresPanel({ providerId, closures }: { providerId: string; cl
       )}
 
       {adding && (
-      <div className="grid gap-3 rounded-[var(--radius-card-sm)] bg-[var(--color-muted)] p-3.5">
+      <div className="grid gap-3 rounded-[10px] bg-[var(--color-blue-softer)] p-3.5">
         <div className="grid gap-3 @sm:grid-cols-2">
           <div className="grid gap-1.5">
-            <span className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
+            <span className="text-[13.5px] font-semibold text-[var(--color-headline)]">
               {t("availabilityClosureFrom")}
             </span>
             <DatePicker
@@ -145,7 +146,7 @@ export function ClosuresPanel({ providerId, closures }: { providerId: string; cl
             />
           </div>
           <div className="grid gap-1.5">
-            <span className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
+            <span className="text-[13.5px] font-semibold text-[var(--color-headline)]">
               {t("availabilityClosureTo")}
             </span>
             <DatePicker

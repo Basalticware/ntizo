@@ -19,21 +19,21 @@
  */
 :root {
   /* Brand Blue — logo, CTAs, active links, hero */
-  --color-primary: #006ffd;
+  --color-primary: #005cfe;
   --color-primary-foreground: #ffffff;
-  --color-accent: #006ffd;
+  --color-accent: #005cfe;
   --color-accent-foreground: #ffffff;
-  --color-ring: #006ffd;
+  --color-ring: #005cfe;
 
   /* Dark Text — headings, body copy, icons */
   --color-foreground: #13171b;
 
   /* Grey Text — secondary copy, captions */
-  --color-muted-foreground: #71727a;
+  --color-muted-foreground: #4a5785;
 
   /* Border — dividers, card and header outlines */
-  --color-border: #e5e5e5;
-  --color-input: #e5e5e5;
+  --color-border: #e6edf6;
+  --color-input: #e6edf6;
 
   /* Tint Blue BG — soft grounds, highlighted sections */
   --color-muted: #f2f8fe;
@@ -61,14 +61,14 @@
   --color-popover-foreground: #13171b;
 
   /* Kept: the sidebar components read these by name. */
-  --color-sidebar: #ffffff;
+  --color-sidebar: #f9fbfe;
   --color-sidebar-foreground: #13171b;
-  --color-sidebar-primary: #006ffd;
+  --color-sidebar-primary: #005cfe;
   --color-sidebar-primary-foreground: #ffffff;
   --color-sidebar-accent: #f2f8fe;
   --color-sidebar-accent-foreground: #13171b;
-  --color-sidebar-border: #e5e5e5;
-  --color-sidebar-ring: #006ffd;
+  --color-sidebar-border: #e6edf6;
+  --color-sidebar-ring: #005cfe;
 
   /*
    * The four brand aliases predate the system and are still imported by name
@@ -77,8 +77,8 @@
    */
   --color-brand-navy: #13171b;
   --color-brand-ink: #13171b;
-  --color-brand-accent: #006ffd;
-  --color-brand-sky: #006ffd;
+  --color-brand-accent: #005cfe;
+  --color-brand-sky: #005cfe;
 
   /*
    * Corner radii, by what they are for rather than by size — so a card is
@@ -121,7 +121,7 @@
    * is invisible and a navy fill is indistinguishable from the page, so each
    * role needs its own dark value.
    */
-  --color-headline: #00244c;
+  --color-headline: #0b1035;
   --color-navy-surface: #00244c;
   --color-navy-on: #ffffff;
 
@@ -136,6 +136,28 @@
   --shadow-sm: 0 1px 3px rgba(19, 23, 27, 0.06), 0 6px 16px -10px rgba(19, 23, 27, 0.14);
   --shadow-lift: 0 2px 4px rgba(19, 23, 27, 0.06), 0 16px 34px -18px rgba(19, 23, 27, 0.24);
   --shadow-float: 0 10px 34px -14px rgba(13, 32, 64, 0.22), 0 2px 6px rgba(19, 23, 27, 0.05);
+
+  /*
+   * October 2026 mockups (docs/design/2026-10-mockups/shared.css), measured
+   * off the PNGs. The console and the public pages are built from these.
+   */
+  --color-ink-2: #1f2a5c;          /* table header labels, strong secondary */
+  --color-faint: #8a94b2;          /* placeholders */
+  --color-rail: #f9fbfe;           /* the console sidebar's ground */
+  --color-thead: #f7fafd;          /* a table's header row */
+  --color-line-2: #eef3f9;         /* row dividers inside a table */
+  --color-blue-soft: #ebf4fe;      /* chosen tab, soft buttons */
+  --color-blue-softer: #f0f7fe;    /* nudge cards, info panels */
+  --color-blue-line: #b9d3fb;      /* chosen tab's border */
+  --color-blue-outline: #8db6fd;   /* outline buttons (Filtrar) */
+  --color-blue-edge: #428afd;      /* a row's "Ver detalhes" */
+  --color-alert: #fd2328;          /* count badges, the bell's dot */
+  --color-warn-bg: #fef2dc;  --color-warn-fg: #e07800;  --color-warn-chip: #8a5300;
+  --color-ok-bg: #d9fbe3;    --color-ok-fg: #13923a;
+  --color-info-bg: #e2f1fe;  --color-info-fg: #1a56db;
+  --color-bad-bg: #fee5e5;   --color-bad-fg: #e5262c;
+  --color-violet-bg: #efe9fe; --color-violet-fg: #6d3fd8;
+  --color-star: #ff9900;
 }
 
 .dark {
@@ -193,6 +215,37 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 6px 16px -10px rgba(0, 0, 0, 0.6);
   --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.5), 0 16px 34px -18px rgba(0, 0, 0, 0.7);
   --shadow-float: 0 10px 34px -14px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.5);
+
+  --color-ink-2: #c7cde0;
+  --color-faint: #6c7489;
+  --color-rail: #0d1119;
+  --color-thead: #121722;
+  --color-line-2: #1a1f2b;
+  --color-blue-soft: #13213d;
+  --color-blue-softer: #111b30;
+  --color-blue-line: #2a4475;
+  --color-blue-outline: #3a6fd6;
+  --color-blue-edge: #4d8dff;
+  --color-alert: #ff4b4f;
+  --color-warn-bg: #3a2a0c;  --color-warn-fg: #ffb34d;  --color-warn-chip: #ffc777;
+  --color-ok-bg: #0f2e1b;    --color-ok-fg: #4cd681;
+  --color-info-bg: #12233f;  --color-info-fg: #7aa8ff;
+  --color-bad-bg: #3a1416;   --color-bad-fg: #ff7377;
+  --color-violet-bg: #251a45; --color-violet-fg: #b59bff;
+  --color-star: #ffaa33;
+}
+
+/*
+ * The admin mockups draw a deeper, more saturated navy than the provider's.
+ * The admin shell sets `data-zone="platform"`; light theme only, dark keeps
+ * its own near-white headings.
+ */
+:root:not(.dark) [data-zone="platform"] {
+  --color-headline: #03055a;
+  --color-ink-2: #354793;
+  --color-muted-foreground: #5f6eac;
+  --color-faint: #99a6d0;
+  --color-primary: #1862fe;
 }
 
 @theme inline {
@@ -201,6 +254,29 @@
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
 
   --color-headline: var(--color-headline);
+  --color-ink-2: var(--color-ink-2);
+  --color-faint: var(--color-faint);
+  --color-rail: var(--color-rail);
+  --color-thead: var(--color-thead);
+  --color-line-2: var(--color-line-2);
+  --color-blue-soft: var(--color-blue-soft);
+  --color-blue-softer: var(--color-blue-softer);
+  --color-blue-line: var(--color-blue-line);
+  --color-blue-outline: var(--color-blue-outline);
+  --color-blue-edge: var(--color-blue-edge);
+  --color-alert: var(--color-alert);
+  --color-warn-bg: var(--color-warn-bg);
+  --color-warn-fg: var(--color-warn-fg);
+  --color-warn-chip: var(--color-warn-chip);
+  --color-ok-bg: var(--color-ok-bg);
+  --color-ok-fg: var(--color-ok-fg);
+  --color-info-bg: var(--color-info-bg);
+  --color-info-fg: var(--color-info-fg);
+  --color-bad-bg: var(--color-bad-bg);
+  --color-bad-fg: var(--color-bad-fg);
+  --color-violet-bg: var(--color-violet-bg);
+  --color-violet-fg: var(--color-violet-fg);
+  --color-star: var(--color-star);
   --color-navy-surface: var(--color-navy-surface);
   --color-navy-on: var(--color-navy-on);
 
@@ -307,12 +383,7 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family:
-      ui-sans-serif,
-      system-ui,
-      -apple-system,
-      "Segoe UI",
-      Roboto,
-      sans-serif;
+    /* Figtree everywhere, as the mockups and the brand manual set it. */
+    font-family: var(--font-sans);
   }
 }

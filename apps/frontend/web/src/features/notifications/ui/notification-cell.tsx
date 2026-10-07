@@ -1,53 +1,53 @@
 import type { MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
-import { Check } from "lucide-react";
-import { cn } from "@ntizo/frontend-ui";
+import { Ellipsis } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  cn,
+} from "@ntizo/frontend-ui";
 import type { NotificationDTO } from "@ntizo/shared/read-models";
-import { presentationFor } from "@/features/notifications/domain/notification-presentation";
+import {
+  presentationFor,
+  type NotificationTone,
+} from "@/features/notifications/domain/notification-presentation";
 import { targetFor, type InboxZone } from "@/features/notifications/domain/notification-target";
 import { detailFor } from "@/features/notifications/domain/notification-detail";
 import { formatWhen, type InboxGroupKey } from "@/features/notifications/domain/inbox-groups";
 
-/**
- * Navy where the listings refresh has landed, the ordinary ink where it has
- * not: `--color-headline` arrives with that branch, and until it merges the
- * fallback keeps this page on the palette it ships with rather than on a
- * token that resolves to nothing.
- *
- * Written out in full at every use rather than interpolated from one
- * constant: Tailwind generates a utility only for class strings it can read
- * verbatim in the source, and `bg-[${HEADLINE}]` is not one — the dot it
- * was meant to paint rendered as nothing at all, and the disc only looked
- * right because an unstyled border inherits the ink. The repetition is the
- * price of the classes existing.
- */
-const HEADLINE_TEXT = "text-[var(--color-headline,var(--color-foreground))]";
-const HEADLINE_BORDER = "border-[var(--color-headline,var(--color-foreground))]";
-const HEADLINE_BG = "bg-[var(--color-headline,var(--color-foreground))]";
-const HEADLINE_HOVER_BORDER = "hover:border-[var(--color-headline,var(--color-foreground))]";
+/** The icon's round ground, by what the row is about (see `presentationFor`). */
+const TONE: Record<NotificationTone, string> = {
+  blue: "bg-[var(--color-info-bg)] text-[var(--color-primary)]",
+  violet: "bg-[var(--color-violet-bg)] text-[var(--color-violet-fg)]",
+  green: "bg-[var(--color-ok-bg)] text-[var(--color-ok-fg)]",
+  grey: "bg-[color-mix(in_srgb,var(--color-ink-2)_8%,var(--color-background))] text-[var(--color-ink-2)]",
+  amber: "bg-[var(--color-warn-bg)] text-[var(--color-star)]",
+};
 
 /**
  * One row.
  *
- * **Unread is a dot and a heavier sentence, not a ground.** The list used to
- * tint every unread row, and an inbox where most rows are unread — every new
- * account's — read as one pale error state. The dot column is present on
- * every row and empty on read ones, so the sentences stay on one vertical
- * line whatever the mix.
+ * **Unread is a dot and the soft blue ground**, as the mockup draws it. The
+ * dot column is present on every row and empty on read ones, so the icons and
+ * sentences stay on one vertical line whatever the mix.
  *
  * **The whole row opens the thing it is about.** `targetFor` decides where;
  * when it has nowhere to send the reader the row is a button that only marks
- * itself read, which is what every row used to be. The link itself wraps the
- * sentence only and is stretched over the row with a pseudo-element — the
- * accessible name of a row is therefore its sentence, not the sentence plus
- * the detail plus the time read out as one run.
+ * itself read. The link itself wraps the sentence only and is stretched over
+ * the row with a pseudo-element — the accessible name of a row is therefore
+ * its sentence, not the sentence plus the detail plus the time read out as one
+ * run. The outlined "Ver reserva" / "Abrir conversa" at the end is the same
+ * destination drawn where the mockup puts the row's action, kept out of the
+ * tab order so a keyboard meets each destination once.
  *
- * **Mark-as-read is a sibling of the link, not a child.** An interactive
- * element inside another is invalid, and a control that also opened the
- * booking would defeat its point: it exists for the reader who wants to clear
- * a row without going anywhere. It sits above the stretched link (`z-10`) and
- * shows on hover and on focus, so a keyboard reaches it too.
+ * **Mark-as-read lives in the row's "…" menu, a sibling of the link.** An
+ * interactive element inside another is invalid, and a control that also
+ * opened the booking would defeat its point: it exists for the reader who
+ * wants to clear a row without going anywhere. The menu is drawn only on an
+ * unread row — on a read one it would hold nothing.
  *
  * `todayIso` and `group` arrive as props rather than being derived here: the
  * day a row belongs to is what `groupByDay`'s tests pin down, and the time it
@@ -68,7 +68,7 @@ export function NotificationCell({
 }) {
   const { t, i18n } = useTranslation("notifications");
   const locale = i18n.resolvedLanguage ?? i18n.language;
-  const { icon: Icon, key } = presentationFor(notification.type);
+  const { icon: Icon, key, tone } = presentationFor(notification.type);
   const target = targetFor(notification, zone);
   const unread = !notification.read;
 
@@ -97,33 +97,33 @@ export function NotificationCell({
   return (
     <li
       className={cn(
-        "group relative isolate grid grid-cols-[14px_36px_minmax(0,1fr)_auto] items-start gap-3.5 border-t border-[var(--color-border)] py-[15px] first:border-t-0",
-        // The hover ground bleeds a little past the hairlines rather than
-        // stopping at them, so it reads as a highlight over the row and not
-        // as a filled cell in a table.
-        "before:absolute before:inset-y-0 before:-inset-x-3 before:-z-10 before:rounded-xl before:content-['']",
-        "hover:before:bg-[var(--color-muted)] focus-within:before:bg-[var(--color-muted)]",
+        "group relative isolate grid min-h-[66px] grid-cols-[24px_58px_minmax(0,1fr)_auto] items-center border-t py-3 pr-4 first:border-t-0 md:grid-cols-[57px_90px_minmax(0,1fr)_140px_145px_90px] md:pr-0",
+        unread
+          ? "border-[color-mix(in_srgb,var(--color-blue-line)_45%,var(--color-background))] bg-[var(--color-blue-soft)]"
+          : "border-[var(--color-border)] hover:bg-[color-mix(in_srgb,var(--color-muted)_70%,transparent)]",
+        "focus-within:bg-[color-mix(in_srgb,var(--color-blue-soft)_70%,transparent)]",
       )}
     >
       <span
         aria-hidden="true"
-        className={cn("mt-[13px] h-2 w-2 justify-self-center rounded-full", unread && HEADLINE_BG)}
+        className={cn(
+          "h-[11px] w-[11px] justify-self-center rounded-full md:ml-0.5",
+          unread && "bg-[var(--color-primary)]",
+        )}
       />
 
       <span
         aria-hidden="true"
         className={cn(
-          "grid h-9 w-9 place-items-center rounded-full border bg-[var(--color-background)]",
-          unread
-            ? cn(HEADLINE_BORDER, HEADLINE_TEXT)
-            : "border-[var(--color-border)] text-[var(--color-muted-foreground)]",
+          "grid h-11 w-11 place-items-center rounded-full md:h-[50px] md:w-[50px]",
+          TONE[tone],
         )}
       >
-        <Icon className="h-[17px] w-[17px]" />
+        <Icon className="h-[21px] w-[21px] md:h-[23px] md:w-[23px]" strokeWidth={2.1} />
       </span>
 
-      <span className="grid min-w-0 gap-[3px] pt-px">
-        <span className={cn("type-body leading-[1.4]", unread ? "font-semibold" : "font-medium")}>
+      <span className="grid min-w-0 pr-4">
+        <span className="text-base leading-5 font-bold text-[var(--color-headline)]">
           {target ? (
             <Link
               to={target.to}
@@ -144,42 +144,55 @@ export function NotificationCell({
             rarely fit on one; a single truncated line from `sm`, where they
             do and a second line would only be the odd overflow. */}
         {detail && (
-          <span className="type-caption line-clamp-2 text-[13px] text-[var(--color-muted-foreground)] sm:line-clamp-none sm:truncate">
+          <span className="mt-[3px] line-clamp-2 text-[15px] leading-[1.45] text-[var(--color-muted-foreground)] sm:line-clamp-none sm:truncate">
             {detail}
           </span>
         )}
       </span>
 
-      <span className="flex items-center gap-3 pt-0.5">
-        {unread && (
-          <button
-            type="button"
-            aria-label={t("markRead")}
-            title={t("markRead")}
-            onClick={() => onMarkRead(notification.id)}
-            className={cn(
-              "relative z-10 grid h-[30px] w-[30px] place-items-center rounded-full border border-[var(--color-border)] bg-[var(--color-background)] transition-opacity",
-              HEADLINE_TEXT,
-              // Invisible AND untouchable until hovered or focused. Tailwind
-              // wraps `group-hover` in `@media (hover: hover)`, so on a phone
-              // this never becomes visible — and an invisible button that
-              // still catches taps would mark the row read instead of
-              // opening it. Without a hover it is out of the hit-test
-              // entirely; the whole row does what it always did on touch.
-              "pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100",
-              "focus-visible:pointer-events-auto focus-visible:opacity-100",
-              HEADLINE_HOVER_BORDER,
-            )}
+      <time
+        dateTime={notification.createdAt}
+        className="text-sm whitespace-nowrap text-[var(--color-muted-foreground)] tabular-nums md:justify-self-end md:pr-[43px] md:text-[14.5px]"
+      >
+        {formatWhen(notification.createdAt, group, locale, todayIso)}
+      </time>
+
+      {/* The row's action and its menu are a wide screen's. On a phone the
+          row itself is the way in, and a tap on it marks it read. */}
+      <span className="relative z-10 hidden md:block">
+        {target && (
+          <Link
+            to={target.to}
+            params={target.params}
+            search={target.search}
+            onClick={markIfUnread}
+            tabIndex={-1}
+            className="inline-flex h-[34px] w-[145px] items-center justify-center rounded-[7px] border border-[var(--color-blue-edge)] bg-[var(--color-card)] text-[14.5px] font-bold text-[var(--color-primary)] hover:bg-[color-mix(in_srgb,var(--color-primary)_6%,var(--color-card))]"
           >
-            <Check aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2.2} />
-          </button>
+            {t(target.kind === "thread" ? "actionThread" : "actionBooking")}
+          </Link>
         )}
-        <time
-          dateTime={notification.createdAt}
-          className="type-caption whitespace-nowrap text-[13px] tabular-nums text-[var(--color-muted-foreground)]"
-        >
-          {formatWhen(notification.createdAt, group, locale, todayIso)}
-        </time>
+      </span>
+
+      <span className="relative z-10 hidden md:block md:pl-10">
+        {unread && (
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <button
+                type="button"
+                aria-label={t("rowActions")}
+                className="grid h-8 w-8 place-items-center rounded-full text-[var(--color-headline)] hover:bg-[color-mix(in_srgb,var(--color-ink-2)_8%,transparent)]"
+              >
+                <Ellipsis className="h-[22px] w-[22px]" strokeWidth={3} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => onMarkRead(notification.id)}>
+                {t("markRead")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </span>
     </li>
   );

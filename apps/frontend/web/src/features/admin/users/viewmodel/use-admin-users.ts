@@ -8,6 +8,11 @@ export function useAdminUsers(input: { role?: string; search?: string }) {
   return useQuery(adminUserQueries.all(input));
 }
 
+/** One page of the list, and whether another follows — the list screen's read. */
+export function useAdminUsersPage(input: { role?: string; search?: string; offset: number }) {
+  return useQuery(adminUserQueries.page(input));
+}
+
 export function useAdminUserDetail(userId: string) {
   return useQuery(adminUserQueries.detail(userId));
 }

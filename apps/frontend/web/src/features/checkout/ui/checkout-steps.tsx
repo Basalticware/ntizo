@@ -54,19 +54,19 @@ export function CheckoutSteps({ current }: { current: CheckoutStep }) {
       <p className="sr-only">
         {t("stepOf", { current: currentIndex + 1, total: CHECKOUT_STEPS.length })}
       </p>
-      <ol className="flex list-none items-start p-0 md:items-center md:gap-2">
+      <ol className="flex list-none items-start p-0 md:items-center md:gap-3.5">
         {CHECKOUT_STEPS.map((step, index) => {
           const done = index < currentIndex;
           const active = index === currentIndex;
           const last = index === CHECKOUT_STEPS.length - 1;
           const lineClass = done
-            ? "bg-[var(--color-primary)]"
-            : "bg-[var(--color-border-strong)]";
+            ? "bg-[var(--color-blue-public)]"
+            : "bg-[#dfe6f1]";
 
           return (
             <li
               key={step}
-              className="relative flex flex-1 flex-col items-center gap-1.5 md:flex-none md:flex-row md:gap-2"
+              className="relative flex flex-1 flex-col items-center gap-1.5 md:flex-none md:flex-row md:gap-3.5"
             >
               {/* The phone's line to the next marker. `top` is the marker's
                   centre less half the line; the horizontal offsets are the
@@ -76,7 +76,7 @@ export function CheckoutSteps({ current }: { current: CheckoutStep }) {
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "absolute top-[13px] right-[calc(-50%+1.125rem)] left-[calc(50%+1.125rem)] h-0.5 rounded-full md:hidden",
+                    "absolute top-[19px] right-[calc(-50%+1.5rem)] left-[calc(50%+1.5rem)] h-0.5 rounded-full md:hidden",
                     lineClass,
                   )}
                 />
@@ -85,13 +85,9 @@ export function CheckoutSteps({ current }: { current: CheckoutStep }) {
               <span
                 aria-hidden="true"
                 className={cn(
-                  "grid h-7 w-7 shrink-0 place-items-center rounded-full text-[13px] font-bold tabular-nums",
-                  done && "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]",
-                  active &&
-                    "bg-[var(--color-primary)] text-[var(--color-primary-foreground)] ring-4 ring-[color:color-mix(in_srgb,var(--color-primary)_18%,transparent)]",
-                  !done &&
-                    !active &&
-                    "border-2 border-[var(--color-border-strong)] bg-[var(--color-background)] text-[var(--color-muted-foreground)]",
+                  "grid h-10 w-10 shrink-0 place-items-center rounded-full text-base font-medium tabular-nums",
+                  (done || active) && "bg-[var(--color-blue-public)] text-white",
+                  !done && !active && "bg-[#e9eff7] text-[var(--color-ink-2)]",
                 )}
               >
                 {done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : index + 1}
@@ -100,12 +96,8 @@ export function CheckoutSteps({ current }: { current: CheckoutStep }) {
               <span
                 aria-current={active ? "step" : undefined}
                 className={cn(
-                  "max-w-[7.5rem] text-center text-xs leading-tight md:max-w-none md:text-left md:text-sm",
-                  active
-                    ? "font-semibold text-[var(--color-foreground)]"
-                    : done
-                      ? "font-medium text-[var(--color-foreground)]"
-                      : "font-medium text-[var(--color-muted-foreground)]",
+                  "max-w-[7.5rem] text-center text-xs leading-tight font-medium whitespace-nowrap md:max-w-none md:text-left md:text-[15.5px]",
+                  active ? "text-[var(--color-blue-public)]" : "text-[#2f4a7a]",
                 )}
               >
                 {t(LABEL_KEY[step])}
@@ -116,7 +108,7 @@ export function CheckoutSteps({ current }: { current: CheckoutStep }) {
               {!last && (
                 <span
                   aria-hidden="true"
-                  className={cn("hidden h-0.5 w-8 rounded-full md:block lg:w-10", lineClass)}
+                  className="mx-1.5 hidden w-16 border-t-2 border-dotted border-[#dfe6f1] md:block lg:w-[126px]"
                 />
               )}
             </li>

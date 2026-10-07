@@ -56,5 +56,5 @@ export function timeLeftWording(deadlineIso: string, now: Date): string | null {
 /** Rows per page of the provider's bookings list; the repository and the UI's pager share it. */
 export const PROVIDER_BOOKINGS_PAGE_SIZE = 20;
 
-/** How many rows "Reservas recentes" shows. Eight is the wireframe's, and one screen's worth. */
-export const RECENT_BOOKINGS_LIMIT = 8;
+/** How many rows the dashboard's "Próximas reservas" shows — the mockup's four. */
+export const UPCOMING_PREVIEW_LIMIT = 4;

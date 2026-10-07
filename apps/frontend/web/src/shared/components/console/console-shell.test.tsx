@@ -162,7 +162,7 @@ describe("ConsoleShell · workspace", () => {
     await screen.findByText("Overview page");
     const links = sidebar().getAllByRole("link").map((a) => a.textContent?.trim());
     // The menu, then the profile card at the sidebar's foot, which leads to Settings.
-    expect(links).toEqual(["Overview", "Services", "Availability", "Bookings", "Quotes", "Messages", "Wallet", "Members", "Notifications", "Activity", "Settings", "Complete profile"]);
+    expect(links).toEqual(["Overview", "Services", "Availability", "Bookings", "Quotes", "Messages", "Wallet", "Members", "Notifications", "Settings", "Complete profile"]);
     expect(sidebar().getByRole("link", { name: "Messages" })).toHaveAttribute("href", "/provider/bela-vista/messages");
     expect(sidebar().getByRole("link", { name: "Notifications" })).toHaveAttribute("href", "/provider/bela-vista/notifications");
     expect(sidebar().getByRole("link", { name: "Overview" })).toHaveAttribute("data-active", "true");

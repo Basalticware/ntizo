@@ -67,19 +67,19 @@ export function ConsoleUserMenu({
           type="button"
           data-slot="console-account"
           aria-label={user?.name ?? user?.email ?? ""}
-          className="flex items-center gap-3 rounded-xl px-1.5 py-1 text-left hover:bg-[var(--color-muted)]"
+          className="flex items-center gap-[15px] rounded-xl text-left"
         >
-          <Avatar className="h-11 w-11">
+          <Avatar className="h-10 w-10 md:h-[58px] md:w-[58px]">
             {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt="" /> : null}
             <AvatarFallback className="text-sm">{initials}</AvatarFallback>
           </Avatar>
           {/* Name and role from `lg`: below that the bar has the search to
               keep, and the photo alone still opens the menu. */}
-          <span className="hidden max-w-[180px] leading-tight lg:grid">
-            <span className="truncate text-[15px] font-semibold text-[var(--color-headline)]">{user?.name ?? ""}</span>
-            <span className="truncate text-[13px] text-[var(--color-muted-foreground)]">{roleLabel}</span>
+          <span className="hidden max-w-[200px] lg:grid">
+            <span className="truncate text-base leading-tight font-bold text-[var(--color-headline)]">{user?.name ?? ""}</span>
+            <span className="mt-0.5 truncate text-[15px] leading-tight text-[var(--color-muted-foreground)]">{roleLabel}</span>
           </span>
-          <ChevronDown aria-hidden="true" className="hidden size-4 text-[var(--color-headline)] lg:block" />
+          <ChevronDown aria-hidden="true" className="ml-[22px] hidden size-5 text-[var(--color-headline)] lg:block" />
         </button>
       </DropdownMenuTrigger>
             <DropdownMenuContent className="w-64" align="end">

@@ -5,28 +5,23 @@ import { cn } from "../lib/utils";
 /**
  * Status pills — "Activa", "Confirmada", "Cancelada".
  *
- * The tones are semantic, not decorative: each maps to one of the system's
- * status colours, at a tint for the ground and full strength for the text.
- * Deriving both from the same token means a status can never end up with a
- * background from one colour and a label from another.
- *
- * `color-mix` for the tint rather than a second hardcoded hex per tone: eight
- * more values to keep in step with the four they are derived from is eight
- * more chances to drift.
+ * The tones are semantic, not decorative: each is one ground/text pair from
+ * the October 2026 mockups (`--color-*-bg` / `--color-*-fg` in globals.css),
+ * measured off the PNGs rather than mixed, because the mockups' grounds are
+ * not a fixed tint of their text colour.
  */
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] leading-none font-medium whitespace-nowrap",
+  // The October 2026 mockups' pill: 32px tall, 15px a side, 14px medium.
+  "inline-flex h-8 items-center gap-[7px] rounded-full px-[15px] text-sm leading-none font-medium whitespace-nowrap",
   {
     variants: {
       tone: {
-        info: "bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] text-[var(--color-primary)]",
-        success:
-          "bg-[color-mix(in_srgb,var(--color-success)_14%,transparent)] text-[var(--color-success)]",
-        danger:
-          "bg-[color-mix(in_srgb,var(--color-destructive)_12%,transparent)] text-[var(--color-destructive)]",
-        warning:
-          "bg-[color-mix(in_srgb,var(--color-warning)_18%,transparent)] text-[#8a5a00]",
-        neutral: "bg-[var(--color-muted)] text-[var(--color-muted-foreground)]",
+        info: "bg-[var(--color-info-bg)] text-[var(--color-info-fg)]",
+        success: "bg-[var(--color-ok-bg)] text-[var(--color-ok-fg)]",
+        danger: "bg-[var(--color-bad-bg)] text-[var(--color-bad-fg)]",
+        warning: "bg-[var(--color-warn-bg)] text-[var(--color-warn-fg)]",
+        violet: "bg-[var(--color-violet-bg)] text-[var(--color-violet-fg)]",
+        neutral: "bg-[color-mix(in_srgb,var(--color-ink-2)_8%,var(--color-background))] text-[var(--color-ink-2)]",
       },
     },
     defaultVariants: { tone: "neutral" },

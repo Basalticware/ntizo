@@ -1,10 +1,9 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  Activity,
   BarChart3,
   Bell,
   CalendarCheck,
-  CalendarDays,
+  Calendar,
   CalendarPlus,
   ContactRound,
   FileText,
@@ -79,10 +78,12 @@ const WORKSPACE: ConsoleNav = {
   ns: "provider",
   home: { key: "overview", titleKey: "nav.overview", url: "/provider/$slug/overview", icon: House },
   // The mockups' order: what the provider offers, then when, then the work
-  // that arrives against it.
+  // that arrives against it. Ten items, as the mockups draw them: the
+  // workspace's activity log is not one of them. Its page stays at
+  // `/provider/$slug/activity`; the redesigned overview links to it.
   work: [
     { key: "services", titleKey: "nav.services", shortKey: "navShort.services", url: "/provider/$slug/services", icon: LayoutGrid },
-    { key: "availability", titleKey: "nav.availability", shortKey: "navShort.availability", url: "/provider/$slug/availability", icon: CalendarDays },
+    { key: "availability", titleKey: "nav.availability", shortKey: "navShort.availability", url: "/provider/$slug/availability", icon: Calendar },
     { key: "bookings", titleKey: "nav.bookings", shortKey: "navShort.bookings", url: "/provider/$slug/bookings", icon: CalendarPlus, primary: true, count: "bookingRequests" },
     { key: "quotes", titleKey: "nav.quotes", shortKey: "navShort.quotes", url: "/provider/$slug/quotes", icon: FileText, primary: true, count: "quoteRequests" },
     { key: "messages", titleKey: "nav.messages", shortKey: "navShort.messages", url: "/provider/$slug/messages", icon: MessageSquareText, primary: true, count: "unreadThreads" },
@@ -91,7 +92,6 @@ const WORKSPACE: ConsoleNav = {
     { key: "wallet", titleKey: "nav.wallet", url: "/provider/$slug/wallet", icon: Wallet },
     { key: "members", titleKey: "nav.members", url: "/provider/$slug/members", icon: Users },
     { key: "notifications", titleKey: "nav.notifications", url: "/provider/$slug/notifications", icon: Bell },
-    { key: "activity", titleKey: "nav.activity", url: "/provider/$slug/activity", icon: Activity },
     { key: "settings", titleKey: "nav.settings", url: "/provider/$slug/settings", icon: Settings },
   ],
 };

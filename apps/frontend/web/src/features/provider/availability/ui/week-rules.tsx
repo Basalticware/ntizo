@@ -6,6 +6,7 @@ import { compareRules, groupRules, type WeekRuleGroup } from "../domain/week";
 import type { WeeklyRuleDraft } from "../domain/types";
 import { RuleCard } from "./rule-card";
 import { RuleDrawer } from "./rule-drawer";
+import { OUTLINE_BUTTON } from "./console-styles";
 
 /**
  * One member's working week as a short list of rules, each openable in a
@@ -68,7 +69,7 @@ export function WeekRules({
 
       {canEdit && (
         <div>
-          <Button type="button" variant="outline" size="sm" onClick={() => setEditing({ group: null })}>
+          <Button type="button" variant="outline" size="sm" className={OUTLINE_BUTTON} onClick={() => setEditing({ group: null })}>
             <Plus className="h-4 w-4" />
             {t("availabilityRuleAdd")}
           </Button>

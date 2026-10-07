@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   RouterProvider,
@@ -9,7 +10,30 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import type { ServiceDetailOptionDTO } from "@ntizo/shared/read-models";
-import { RailPriceSummary } from "../rail-price-summary";
+import { localDateAt } from "@ntizo/shared/datetime";
+
+/**
+ * The rail's days and times are the real calendar's. Mocked to one free
+ * start, today, so the picker has something to offer; the date is today's in
+ * the device's zone, which is how the rail asks for its five days.
+ */
+const TODAY = localDateAt(Intl.DateTimeFormat().resolvedOptions().timeZone, new Date());
+const START = { minuteOfDay: 1380, startsAt: "2099-01-01T21:00:00.000Z", maxMinutes: null, seatsLeft: 1, memberIds: ["mem-2", "mem-1"] };
+vi.mock("@/features/directory/availability/viewmodel/use-service-availability", () => ({
+  useServiceAvailability: () => ({
+    isPending: false,
+    data: {
+      serviceId: "svc-1",
+      timezone: "Africa/Maputo",
+      bookingMode: "priced",
+      pricingMode: "fixed",
+      memberIds: ["mem-1", "mem-2"],
+      days: [{ date: TODAY, starts: [START] }],
+    },
+  }),
+}));
+
+const { RailPriceSummary } = await import("../rail-price-summary");
 
 const FIXED: ServiceDetailOptionDTO = {
   id: "opt-1",
@@ -82,7 +106,7 @@ describe("RailPriceSummary", () => {
     // Awaited on a control that IS here, so the absence below is asserted
     // against a rendered card rather than an empty tree.
     renderRail(FIXED);
-    expect(await screen.findByRole("link", { name: "See availability" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Book this service" })).toBeInTheDocument();
     expect(screen.queryByText(/bookings aren't open/i)).not.toBeInTheDocument();
   });
 
@@ -91,7 +115,7 @@ describe("RailPriceSummary", () => {
     // The two controls the card does offer, awaited first, so the absence
     // below is asserted against a rendered card rather than an empty tree.
     // The primary starts checkout; it does not complete one.
-    expect(await screen.findByRole("link", { name: "See availability" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Book this service" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Send message" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^book$/i })).not.toBeInTheDocument();
   });
@@ -102,7 +126,7 @@ describe("RailPriceSummary", () => {
     // what a purchase cannot afford — a refresh or a trip through sign-in
     // lost the whole decision.
     renderRail(FIXED);
-    expect(await screen.findByRole("link", { name: "See availability" })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "Book this service" })).toHaveAttribute(
       "href",
       expect.stringContaining("/book/svc-1"),
     );
@@ -114,7 +138,7 @@ describe("RailPriceSummary", () => {
     // falls back to the service's default — the reader agrees to the total
     // printed above and is charged a different one, silently.
     renderRail(FIXED);
-    expect(await screen.findByRole("link", { name: "See availability" })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "Book this service" })).toHaveAttribute(
       "href",
       expect.stringContaining("optionId=opt-1"),
     );
@@ -142,5 +166,22 @@ describe("RailPriceSummary", () => {
   it("always says this is the final price", async () => {
     renderRail(FIXED);
     expect(await screen.findByText(/this is the final price/i)).toBeInTheDocument();
+  });
+
+  it("offers the calendar's own next days and times, and carries the one picked into checkout", async () => {
+    renderRail(FIXED);
+    const time = await screen.findByRole("button", { name: /^(23:00|11:00\sPM)$/ });
+    expect(screen.getByRole("link", { name: "Book this service" })).not.toHaveAttribute(
+      "href",
+      expect.stringContaining("startsAt"),
+    );
+    await userEvent.click(time);
+    expect(time).toHaveAttribute("aria-pressed", "true");
+    // The start, and the first of the people free at it — the same choice
+    // step 1 makes for a customer who names nobody.
+    const href = screen.getByRole("link", { name: "Book this service" }).getAttribute("href") ?? "";
+    expect(href).toContain("optionId=opt-1");
+    expect(href).toContain(`startsAt=${encodeURIComponent(START.startsAt)}`);
+    expect(href).toContain("memberId=mem-1");
   });
 });

@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visão geral · Prestador</title>
+<link rel="stylesheet" href="../shared.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* Home.png is drawn in a smaller floating window (viewport 1385x999), so the
+     shell is re-measured here. Spacing pass: the main column is normal flow. */
+  :root { --blue: #0066fd; }
+  .console { grid-template-rows: 81px 1fr; }
+  .topbar { position: relative; }
+  .topbar > *, .topbar .right > * { position: absolute; }
+  .topbar .brand { left: 35px; top: 0; height: 81px; width: auto; padding: 0; }
+  .topbar .brand img { height: 34px; margin-top: -8px; }
+  .topbar .search { left: 258px; top: 19px; margin: 0; width: 608px; height: 43px; padding: 0 15px; gap: 13px; font-size: 13.5px; padding-top: 3px; }
+  .topbar .search svg { width: 20px; height: 20px; }
+  .topbar .right { position: static; padding: 0; }
+  .topbar .loc { left: 916px; top: 32px; font-size: 14px; gap: 9px; padding: 0; }
+  .topbar .loc svg { width: 19px; height: 19px; }
+  .topbar .sep { top: 18px; height: 44px; }
+  .topbar .bell { left: 1066px; top: 28px; padding: 0; }
+  .topbar .bell svg { width: 23px; height: 23px; }
+  .topbar .bell::after { top: -6px; right: -5px; width: 11px; height: 11px; }
+  .topbar .me { left: 1138px; top: 16px; padding: 0; gap: 14px; }
+  .topbar .me img { width: 48px; height: 48px; }
+  .topbar .me b { font-size: 13px; }
+  .topbar .me span { font-size: 13px; margin-top: 1px; }
+  .topbar .me svg { width: 17px; height: 17px; margin-left: 4px; }
+
+  .body { grid-template-columns: 251px 1fr; align-items: start; }
+  /* the rail fills the window under the 81px bar and keeps the nudge at its foot */
+  .rail { position: sticky; top: 0; height: calc(100vh - 81px); min-height: 880px; padding: 32px 14px 22px 14px; border-right-color: #ebf1f8; }
+  .body { background: linear-gradient(to right, var(--rail) 250px, #ebf1f8 250px, #ebf1f8 251px, #fff 251px); }
+  .rail .biz { gap: 12px; padding: 0 0 28px 2px; }
+  .rail .biz img { width: 56px; height: 56px; }
+  .rail .biz b { font-size: 15px; }
+  .rail .biz span { font-size: 13px; margin-top: 2px; }
+  .rail .biz svg { width: 17px; height: 17px; margin-left: 14px; }
+  .nav { gap: 4px; }
+  .nav a { height: 46px; padding: 0 20px; gap: 21px; font-size: 15px; flex-shrink: 0; }
+  .nav a svg { width: 21px; height: 21px; }
+  .nav a .count { width: 22px; height: 22px; font-size: 13px; margin-right: -8px; }
+  .rail .nudge { margin: auto 6px 0; padding: 21px 23px 22px; background: #f3f9fe; }
+  .nudge .tile { width: 30px; height: 30px; border-radius: 7px; background: #fff; display: grid; place-items: center; }
+  .nudge .crown { width: 22px; height: 22px; }
+  .nudge b { font-size: 15.5px; line-height: 1.45; margin-top: 9px; }
+  .nudge p { font-size: 14.5px; line-height: 1.45; margin: 8px 0 14px; }
+  .nudge a { font-size: 14px; }
+  .nudge a svg { width: 16px; height: 16px; }
+
+  /* Main: normal flow */
+  .main { padding: 16px 22px 40px 26px; }
+  .intro { display: grid; grid-template-columns: 1fr 708px; }
+  .intro .text { padding-top: 36px; }
+  .intro .eyebrow { font-size: 13px; font-weight: 500; letter-spacing: .08em; }
+  .intro .page-title { font-size: 44px; letter-spacing: -0.02em; margin-top: 8px; }
+  .intro .page-sub { font-size: 16.5px; line-height: 1.45; margin-top: 8px; }
+  .art { position: relative; width: 708px; height: 189px; }
+  .art img { display: block; width: 708px; height: 189px; }
+  .quote { position: absolute; left: 526px; top: 37px; width: 172px; height: 116px; background: var(--sky); padding: 6px 0 0 13px;
+    font-size: 18.5px; line-height: 24px; color: #142a66; }
+
+  .stats { display: grid; grid-template-columns: 239fr 262fr 266fr 283fr; gap: 23px; margin-top: 16px; }
+  .stat { border: 1px solid var(--line); border-radius: 14px; background: #fff; padding: 20px 25px 22px; }
+  .stat .ic { width: 50px; height: 48px; border-radius: 10px; background: #e1f1fe; display: grid; place-items: center; color: var(--blue); }
+  .stat .ic svg { width: 22px; height: 22px; }
+  .stat .v { margin-top: 12px; font-size: 31px; line-height: 1.2; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; }
+  .stat .l { margin-top: 6px; font-size: 15px; color: var(--ink-2); }
+  .stat .d { margin-top: 22px; display: flex; align-items: center; min-height: 20px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .stat .d b { color: #16a34a; font-size: 14.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; padding-right: 10px; margin-right: 10px; border-right: 1px solid var(--line); height: 20px; }
+  .stat .d b svg { width: 16px; height: 16px; stroke-width: 2.6; }
+
+  .lower { display: grid; grid-template-columns: 1fr 346px; gap: 27px; margin-top: 40px; align-items: start; }
+  .sec-head { display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 2px; }
+  .h2 { font-size: 21.5px; font-weight: 800; color: var(--ink); line-height: 1.1; margin: 0; }
+  .more { font-size: 13.5px; font-weight: 600; color: var(--blue); display: flex; align-items: center; gap: 10px; line-height: 1; }
+  .more svg { width: 16px; height: 16px; stroke-width: 2.2; }
+
+  .list { margin-top: 20px; border: 1px solid #edf2f8; border-radius: 12px; background: #fff; }
+  .bk { display: grid; grid-template-columns: 60px 92px 1fr 150px 109px; column-gap: 0; align-items: center; padding: 19px 19px 19px 0; }
+  .bk + .bk { border-top: 1px solid #f0f4f9; }
+  .bk .dt { text-align: center; color: var(--muted); font-size: 13px; line-height: 1; }
+  .bk .dt b { display: block; font-size: 18px; font-weight: 700; color: var(--ink); margin: 6px 0 5px; }
+  .bk img { width: 92px; height: 75px; border-radius: 6px; margin-left: 10px; display: block; }
+  .bk .info { padding: 0 12px 0 27px; min-width: 0; }
+  .bk .t { font-size: 15.5px; font-weight: 700; color: var(--ink); }
+  .bk .m { display: flex; align-items: center; gap: 6px; margin-top: 7px; font-size: 13px; line-height: 1.45; color: var(--muted); white-space: nowrap; }
+  /* the place gives way (ellipsis); the bullet and time never wrap */
+  .bk .m .place { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .bk .m .time { flex-shrink: 0; }
+  .bk .m svg { width: 13px; height: 13px; color: var(--ink-2); }
+  .bk .m i.sep { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); margin: 0 3px; flex-shrink: 0; }
+  .bk .pp { align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; padding-right: 0; }
+  .bk .pill { height: 27px; padding: 0 14px; font-size: 13px; border-radius: 14px; }
+  .bk .pill.ok { color: #13923a; }
+  .bk .price { align-self: flex-end; font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .bk .btn-details { width: 109px; height: 39px; padding: 0; font-size: 14px; border-color: #9fc2fc; margin-left: 22px; }
+  .bk { grid-template-columns: 60px 102px 1fr 118px 131px; }
+
+  .side-col { display: grid; gap: 22px; }
+  .side { border: 1px solid #edf2f8; border-radius: 12px; background: #fff; padding: 22px 17px 24px 24px; }
+  .side .sec-head { padding: 0; }
+  .side .h2 { font-size: 17px; }
+  .side .tile { width: 45px; height: 45px; border-radius: 10px; background: #eff7fe; display: grid; place-items: center; color: var(--blue); flex-shrink: 0; }
+  .side .tile svg { width: 22px; height: 22px; }
+  .avail { display: flex; gap: 14px; align-items: center; margin-top: 16px; }
+  .av-date { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .av-st { display: flex; align-items: center; font-size: 14px; margin-top: 6px; }
+  .av-st .ok { color: #22a447; display: flex; align-items: center; gap: 6px; padding-right: 14px; border-right: 1px solid var(--line); height: 18px; }
+  .av-st .ok::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #22b14c; }
+  .av-st .hrs { color: var(--ink-2); padding-left: 14px; }
+  .block { margin-top: 16px; height: 40px; border-radius: 7px; background: #006afd; color: #fff;
+    display: flex; align-items: center; justify-content: center; gap: 11px; font-size: 14px; font-weight: 600; }
+  .block svg { width: 18px; height: 18px; }
+  .msgs { display: grid; gap: 12px; margin-top: 14px; }
+  .msg { display: grid; grid-template-columns: 44px 1fr auto; column-gap: 15px; align-items: center; position: relative; }
+  .msg img { width: 44px; height: 44px; border-radius: 50%; }
+  .msg > div { min-width: 0; }
+  .msg b { display: block; font-size: 14px; font-weight: 700; color: var(--ink); }
+  .msg span { display: block; font-size: 13px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msg time { align-self: start; margin-top: 3px; font-size: 13px; color: var(--muted); }
+  .msg .unread { position: absolute; right: -4px; top: 22px; width: 10px; height: 10px; border-radius: 50%; background: var(--blue); }
+  .msg.has-dot time { margin-right: 14px; }
+  .wallet { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+  .wallet .tile { width: 41px; height: 41px; }
+  .wal-amt { font-size: 18.5px; font-weight: 800; color: var(--ink); white-space: nowrap; }
+  .wal-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .wal-vr { width: 1px; align-self: stretch; background: var(--line); }
+  .levantar { flex: 1; height: 44px; border-radius: 7px; background: #e3f2fe; color: #1957d8;
+    display: grid; place-items: center; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:16px;height:16px"></i></div>
+      <div class="sep" style="left:1036px"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep" style="left:1118px"></div>
+      <div class="me"><img src="../assets/joaquim-cuna.png" alt=""><div><b>Joaquim Cuna</b><span>Prestador verificado</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <div class="biz"><img src="../assets/joaquim-servicos.png" alt=""><div><b>Joaquim Serviços</b><span>Canalização • Maputo</span></div><i data-lucide="chevron-down"></i></div>
+      <nav class="nav">
+        <a class="on" href="home.html"><i data-lucide="house"></i>Visão geral</a>
+        <a href="servicos.html"><i data-lucide="layout-grid"></i>Serviços</a>
+        <a href="#"><i data-lucide="calendar"></i>Disponibilidade</a>
+        <a href="reservas.html"><i data-lucide="calendar-plus"></i>Reservas</a>
+        <a href="orcamentos.html"><i data-lucide="file-text"></i>Orçamentos</a>
+        <a href="mensagens.html"><i data-lucide="message-square-text"></i>Mensagens<span class="count">3</span></a>
+        <a href="carteira.html"><i data-lucide="wallet"></i>Carteira</a>
+        <a href="#"><i data-lucide="star"></i>Avaliações</a>
+        <a href="notificacoes.html"><i data-lucide="bell"></i>Notificações</a>
+        <a href="definicoes.html"><i data-lucide="settings"></i>Definições</a>
+      </nav>
+      <div class="nudge">
+        <div class="tile"><i data-lucide="crown" class="crown"></i></div>
+        <b>Seja um prestador<br>de referência</b>
+        <p>Complete o seu perfil e<br>receba mais reservas.</p>
+        <a href="#">Ver dicas <i data-lucide="arrow-right"></i></a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="intro">
+        <div class="text">
+          <div class="eyebrow">Visão geral</div>
+          <h1 class="page-title">Olá, Joaquim!</h1>
+          <p class="page-sub">Aqui está um resumo da sua actividade na Ntizo.</p>
+        </div>
+        <div class="art">
+          <img src="../assets/home-hero.jpg" alt="">
+          <div class="quote">Serviços locais.<br>Pessoas reais.<br>Uma Moçambique<br>que avança.</div>
+        </div>
+      </section>
+
+      <section class="stats">
+        <div class="stat"><div class="ic"><i data-lucide="calendar"></i></div><div class="v">24</div><div class="l">Reservas este mês</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 33%</b>vs. mês anterior</div></div>
+        <div class="stat"><div class="ic"><i data-lucide="coins"></i></div><div class="v">18 600 MTn</div><div class="l">Receita este mês</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 21%</b>vs. mês anterior</div></div>
+        <div class="stat"><div class="ic"><i data-lucide="star"></i></div><div class="v">4,8</div><div class="l">Avaliação média</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 0,2</b>desde o mês passado</div></div>
+        <div class="stat"><div class="ic"><i data-lucide="message-square"></i></div><div class="v">95%</div><div class="l">Taxa de resposta</div><div class="d"><b><i data-lucide="chevron-up"></i>+ 5%</b>últimos 30 dias</div></div>
+      </section>
+
+      <section class="lower">
+        <div>
+          <div class="sec-head"><h2 class="h2">Próximas reservas</h2><a class="more" href="reservas.html">Ver todas <i data-lucide="arrow-right"></i></a></div>
+          <div class="list" id="list"></div>
+        </div>
+
+        <div class="side-col">
+          <div class="side">
+            <div class="sec-head"><h2 class="h2">Disponibilidade de hoje</h2><a class="more" href="#">Editar <i data-lucide="arrow-right"></i></a></div>
+            <div class="avail">
+              <div class="tile"><i data-lucide="calendar"></i></div>
+              <div><div class="av-date">Sábado, 11 de Outubro</div><div class="av-st"><span class="ok">Disponível</span><span class="hrs">08:00 – 18:00</span></div></div>
+            </div>
+            <div class="block"><i data-lucide="circle-plus"></i>Bloquear período</div>
+          </div>
+
+          <div class="side">
+            <div class="sec-head"><h2 class="h2">Mensagens</h2><a class="more" href="mensagens.html">Ver todas <i data-lucide="arrow-right"></i></a></div>
+            <div class="msgs">
+              <div class="msg has-dot"><img src="../assets/home-silvia.png" alt=""><div><b>Sílvia Nhampossa</b><span>Olá! O serviço ainda está disponível...</span></div><time>10:24</time><i class="unread"></i></div>
+              <div class="msg"><img src="../assets/home-tomas.png" alt=""><div><b>Tomás Guambe</b><span>Obrigado pelo serviço!</span></div><time>Ontem</time></div>
+              <div class="msg"><img src="../assets/home-carla.png" alt=""><div><b>Carla Sitoe</b><span>Podemos remarcar para amanhã?</span></div><time>Ontem</time></div>
+            </div>
+          </div>
+
+          <div class="side">
+            <div class="sec-head"><h2 class="h2">Saldo na carteira</h2><a class="more" href="carteira.html">Ver carteira <i data-lucide="arrow-right"></i></a></div>
+            <div class="wallet">
+              <div class="tile"><i data-lucide="wallet"></i></div>
+              <div><div class="wal-amt">18 600 MTn</div><div class="wal-sub">Saldo disponível</div></div>
+              <div class="wal-vr"></div>
+              <div class="levantar">Levantar fundos</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+// [day, date, title, place, time, client, tone, status, price]
+const rows = [
+  ["Sáb", "11", "Corte de cabelo", "Maputo, Polana", "10:00 – 11:00", "João Muciacua", "ok", "Confirmada", "600 MTn"],
+  ["Sáb", "11", "Avaria eléctrica urgente", "Maputo, Sommerschield", "14:00 – 16:00", "Carla Sitoe", "info", "Em curso", "1 200 MTn"],
+  ["Dom", "12", "Manutenção de canalização", "Maputo, Alto-Maé", "09:00 – 11:00", "Tomás Guambe", "warn", "Pendente", "800 MTn"],
+  ["Seg", "13", "Limpeza de ar condicionado", "Maputo, Central", "15:00 – 17:00", "Sílvia Nhampossa", "ok", "Confirmada", "1 500 MTn"],
+];
+document.getElementById("list").innerHTML = rows.map(([day, n, title, place, time, who, tone, status, price], i) => `
+  <div class="bk">
+    <div class="dt">${day}<b>${n}</b>Out</div>
+    <img src="../assets/home-r${i + 1}.jpg" alt="">
+    <div class="info">
+      <div class="t">${title}</div>
+      <div class="m"><i data-lucide="map-pin"></i><span class="place">${place}</span><i class="sep"></i><span class="time">${time}</span></div>
+      <div class="m"><i data-lucide="user"></i>${who}</div>
+    </div>
+    <div class="pp"><span class="pill ${tone}">${status}</span><div class="price">${price}</div></div>
+    <a class="btn-details" href="#">Ver detalhes</a>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

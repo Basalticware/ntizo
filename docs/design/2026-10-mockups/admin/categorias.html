@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Categorias · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* Measured on mockps/admin/criarcategoria.png, no browser chrome: viewport 0,0 → 1672x941.
+     This mockup draws the shell with a 76px bar and a 259px rail. */
+  .console { grid-template-rows: 77px 1fr; }
+  .topbar { border-bottom-color: #eff3fc; }
+  .topbar .brand { width: 274px; padding-left: 33px; padding-top: 14px; }
+  .topbar .brand img { width: 104px; height: auto; }
+  .topbar .brand .zone { font-size: 15.5px; color: #1a56f0; margin-top: 1px; }
+  .topbar .search { margin-left: 0; width: 802px; height: 47px; padding: 0 18px; gap: 16px; font-size: 15.5px; }
+  .topbar .search svg { width: 21px; height: 21px; }
+  .topbar .right { padding-right: 38px; }
+  .topbar .loc { gap: 13px; padding-right: 13px; font-size: 15.5px; }
+  .topbar .loc svg { width: 20px; height: 20px; }
+  .topbar .loc svg:last-child { margin-left: 0; width: 17px; height: 17px; }
+  .topbar .bell { padding: 0 32px 0 33px; }
+  .topbar .bell svg { width: 25px; height: 25px; }
+  .topbar .bell::after { top: -7px; right: 26px; width: 13px; height: 13px; }
+  .topbar .me { gap: 15px; padding-left: 27px; }
+  .topbar .me img { width: 52px; height: 52px; }
+  .topbar .me b { font-size: 16.5px; }
+  .topbar .me span { font-size: 15.5px; margin-top: 3px; }
+  .topbar .me > div { width: 148px; }
+  .topbar .me svg { margin-left: 0; width: 18px; height: 18px; }
+
+  .body { grid-template-columns: 259px 1fr; }
+  .rail { background: #f8fbfe; border-right-color: #f1f7fd; border-right-width: 2px; padding: 21px 12px 0 13px; }
+  .nav { gap: 2.2px; position: sticky; top: 21px; }
+  .nav a { height: 47px; padding: 0 0 0 20px; gap: 26px; font-size: 16.5px; }
+  .nav a svg { width: 24px; height: 24px; }
+  .nav a.on { background: #0a5cfe; }
+
+  /* spacing pass: normal flow, roomier rows and fields, the page scrolls */
+  .body { grid-template-columns: 259px minmax(0, 1fr); }
+  .main { padding: 8px 24px 48px 19px; overflow: visible; }
+  .phead { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+  .title { margin: 0; font-size: 36px; font-weight: 800; letter-spacing: -0.01em; color: #010147; }
+  .sub { margin: 6px 0 0; font-size: 16.5px; color: #677bb3; }
+  .new { margin-top: 16px; height: 48px; padding: 0 26px; border-radius: 8px; background: #005efd; color: #fff; display: flex; align-items: center; gap: 14px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 10px rgba(0, 94, 253, .18); white-space: nowrap; }
+  .new svg { width: 23px; height: 23px; }
+
+  .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; margin-top: 30px; align-items: start; }
+  .card { border: 1px solid #edf2fa; border-radius: 12px; background: #fff; padding: 20px 24px 24px; min-width: 0; }
+  .card h2 { margin: 0; font-size: 19px; font-weight: 700; color: #000046; }
+  .card .lead { margin: 6px 0 0; font-size: 14.5px; color: #7287bd; }
+
+  .tools { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 14px; margin-top: 18px; }
+  .fsearch { height: 42px; border: 1px solid #e3ebf7; border-radius: 7px; display: flex; align-items: center; gap: 14px; padding-left: 14px; font-size: 14.5px; color: #8590bf; }
+  .fsearch svg { width: 18px; height: 18px; color: #0a52fd; }
+  .fsel { height: 42px; border: 1px solid #e3ebf7; border-radius: 7px; display: flex; align-items: center; padding: 0 14px; font-size: 14px; color: #1d2265; white-space: nowrap; }
+  .fsel svg:first-child { width: 18px; height: 18px; color: #0a52fd; margin-right: 12px; }
+  .fsel svg:last-child { width: 15px; height: 15px; margin-left: auto; }
+
+  .tb { margin: 18px -6px 0; }
+  .tb .r { display: grid; grid-template-columns: minmax(0, 1fr) 80px 66px 84px 46px 22px; column-gap: 8px; align-items: center; min-height: 72px; padding: 0 6px; border-top: 1px solid #edf2fa; }
+  .tb .h { min-height: 42px; border-top: 0; background: #f6fafe; border-radius: 6px 6px 0 0; font-size: 13px; font-weight: 500; color: #23307a; }
+  .tb .h > :nth-child(n+2):nth-child(-n+3) { text-align: center; }
+  .cat { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .cat .ic { flex-shrink: 0; width: 50px; height: 50px; border-radius: 10px; display: grid; place-items: center; }
+  .cat .ic svg { width: 26px; height: 26px; stroke-width: 2; }
+  .cat > div { min-width: 0; }
+  .cat b { display: block; font-size: 15px; font-weight: 700; color: #000350; }
+  .cat span { display: block; margin-top: 4px; font-size: 13.5px; line-height: 1.35; color: #7c8ac1; }
+  .num { font-size: 14.5px; color: #051070; text-align: center; }
+  .tb .pill { height: 28px; padding: 0 14px; font-size: 13px; }
+  .tb .pill.ok { background: #defdeb; color: #1ba14a; }
+  .tb .pill.bad { background: #fee2e3; color: #f2121a; }
+  .ed { width: 42px; height: 42px; border: 1px solid #e3ebf7; border-radius: 8px; display: grid; place-items: center; color: #0a46f0; background: #fff; }
+  .ed svg { width: 18px; height: 18px; stroke-width: 2.3; }
+  .tb .dots { width: 20px; height: 20px; color: #23307a; }
+
+  .form { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 16px; margin-top: 22px; }
+  .form .full { grid-column: 1 / -1; }
+  .lab { display: block; margin-bottom: 8px; font-size: 14.5px; font-weight: 600; color: #00004d; }
+  .lab em { font-style: normal; color: #fe0318; }
+  .lab small { font-size: 14px; font-weight: 400; color: #7287bd; }
+  .in { min-height: 44px; border: 1px solid #e3ebf7; border-radius: 7px; background: #fff; display: flex; align-items: center; padding-left: 14px; font-size: 14.5px; color: #798bb9; }
+  .in svg { width: 17px; height: 17px; color: #0a46f0; margin-right: 14px; }
+  .help { display: block; margin-top: 8px; font-size: 13px; line-height: 1.45; color: #8690c0; }
+  .area { position: relative; height: 88px; align-items: flex-start; padding-top: 11px; }
+  .area .cnt { position: absolute; right: 12px; bottom: 8px; font-size: 13px; color: #5a67a6; }
+  .iconrow { display: flex; gap: 18px; align-items: flex-start; }
+  .iconbox { flex-shrink: 0; width: 60px; height: 58px; border-radius: 9px; background: #fee8ea; display: grid; place-items: center; color: #fd1a2b; }
+  .pick { height: 40px; padding: 0 16px; border: 1px solid #d9e5fb; border-radius: 7px; display: inline-flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 500; color: #0a3fe0; white-space: nowrap; }
+  .pick svg { width: 16px; height: 16px; }
+  .sws { display: flex; gap: 12px; height: 44px; align-items: center; padding-left: 2px; }
+  .sw { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; }
+  .sw.on { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #fd8d97; }
+  .sw svg { width: 16px; height: 16px; color: #fff; stroke-width: 3; }
+  .hash { width: 46px; align-self: stretch; display: grid; place-items: center; background: #f6f9fd; border-right: 1px solid #e3ebf7; border-radius: 7px 0 0 7px; color: #7d90c2; font-size: 15px; }
+  .chips { flex-wrap: wrap; gap: 8px; padding: 7px 0 7px 8px; }
+  .chipx { display: inline-flex; align-items: center; gap: 10px; height: 28px; padding: 0 9px 0 11px; border-radius: 5px; background: #e3effe; font-size: 13px; color: #13227a; white-space: nowrap; }
+  .chipx svg { width: 13px; height: 13px; color: #13227a; margin: 0; }
+  .chips .add { flex: 1; min-width: 170px; align-self: stretch; border-left: 1px solid #e3ebf7; padding-left: 12px; display: flex; align-items: center; color: #94a0cc; font-size: 14px; }
+
+  .prev { border-radius: 10px; background: #f7fbfe; padding: 16px 16px 16px; }
+  .prev .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .prev .tx b { display: block; font-size: 15.5px; font-weight: 700; color: #010154; }
+  .prev .tx span { display: block; margin-top: 4px; font-size: 14px; color: #758aca; }
+  .views { display: flex; flex-shrink: 0; }
+  .vbtn { height: 30px; display: flex; align-items: center; gap: 8px; padding: 0 11px; font-size: 13px; color: #13227a; border-radius: 5px; white-space: nowrap; }
+  .vbtn svg { width: 15px; height: 15px; }
+  .pcard { display: flex; align-items: center; gap: 22px; margin-top: 14px; padding: 8px 18px 8px 10px; border: 1px solid #e6edf7; border-radius: 9px; background: #fff; }
+  .pcard > div > b { display: block; font-size: 15.5px; font-weight: 700; color: #000057; }
+  .pcard > div > span { display: block; margin-top: 4px; font-size: 14px; color: #7a88c3; }
+  .btns { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; margin-top: 26px; }
+  .btns a { height: 46px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 15.5px; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="painel.html"><i data-lucide="house"></i>Painel</a>
+        <a href="prestadores.html"><i data-lucide="users"></i>Prestadores</a>
+        <a href="reservas.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="suporte.html"><i data-lucide="message-square"></i>Suporte</a>
+        <a href="contactos.html"><i data-lucide="square-activity"></i>Contactos</a>
+        <a href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a href="utilizadores.html"><i data-lucide="users"></i>Utilizadores</a>
+        <a href="atividade.html"><i data-lucide="activity"></i>Atividade</a>
+        <a class="on" href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="phead">
+        <div><h1 class="title">Categorias</h1><p class="sub">Criar, editar e organizar categorias e subcategorias de serviços.</p></div>
+        <a class="new" href="#"><i data-lucide="circle-plus"></i>Nova categoria</a>
+      </div>
+
+      <div class="cols">
+        <section class="card">
+          <h2>Lista de categorias</h2>
+          <div class="tools">
+            <div class="fsearch"><i data-lucide="search"></i>Pesquisar categorias...</div>
+            <div class="fsel"><i data-lucide="filter"></i>Todos os estados<i data-lucide="chevron-down"></i></div>
+          </div>
+          <div class="tb">
+            <div class="r h"><div style="padding-left:6px">Categoria</div><div>Prestadores</div><div>Serviços</div><div style="padding-left:10px">Estado</div><div>Ações</div><div></div></div>
+            <div id="rows"></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Criar categoria</h2>
+          <p class="lead">Preencha os detalhes da nova categoria de serviços.</p>
+          <div class="form">
+            <div><span class="lab">Nome da categoria <em>*</em></span><div class="in">Ex.: Beleza e Estética</div></div>
+            <div><span class="lab">Slug <em>*</em></span><div class="in"><i data-lucide="link"></i>ex.: beleza-estetica</div><span class="help">Usado no link da categoria. Apenas letras minúsculas, números e hífen.</span></div>
+
+            <div><span class="lab">Descrição</span><div class="in area">Descreva esta categoria de serviços...<span class="cnt">0/200</span></div></div>
+            <div><span class="lab">Ícone <em>*</em></span>
+              <div class="iconrow"><span class="iconbox"><i data-lucide="scissors" style="width:26px;height:26px;stroke-width:2"></i></span>
+                <div><a class="pick" href="#"><i data-lucide="circle-plus"></i>Escolher ícone</a><span class="help" style="font-size:13.5px;color:#7d90c2">Escolha um ícone que represente esta categoria.</span></div></div>
+            </div>
+
+            <div><span class="lab">Cor de destaque <em>*</em></span>
+              <div class="sws">
+                <span class="sw on" style="background:#fd5c69"><i data-lucide="check"></i></span>
+                <span class="sw" style="background:#fdce7a"></span><span class="sw" style="background:#70db98"></span><span class="sw" style="background:#6fb1fe"></span>
+                <span class="sw" style="background:#a087fc"></span><span class="sw" style="background:#fda2d5"></span><span class="sw" style="background:#b3c2db"></span>
+              </div>
+            </div>
+            <div><span class="lab">Ordem</span><div class="in" style="padding-left:0"><span class="hash">#</span><span style="margin-left:14px;color:#00004d">0</span></div><span class="help">Define a posição da categoria na listagem.</span></div>
+
+            <div class="full"><span class="lab">Estado</span><div class="in" style="color:#090d81"><span style="width:14px;height:14px;border-radius:50%;background:#16a34a;margin-right:12px"></span>Ativo<i data-lucide="chevron-down" style="margin:0 15px 0 auto;color:#1d2265;width:16px;height:16px"></i></div><span class="help">Categorias inativas não são exibidas para os utilizadores.</span></div>
+
+            <div class="full"><span class="lab">Subcategorias <small>(opcional)</small></span>
+              <div class="in chips">
+                <span class="chipx">Corte de cabelo<i data-lucide="x"></i></span>
+                <span class="chipx">Unhas<i data-lucide="x"></i></span>
+                <span class="chipx">Tratamentos faciais<i data-lucide="x"></i></span>
+                <span class="add">Adicionar subcategoria...</span>
+              </div>
+              <span class="help">Pressione Enter para adicionar. Estas subcategorias serão exibidas dentro desta categoria.</span></div>
+
+            <div class="full prev">
+              <div class="top"><div class="tx"><b>Pré-visualização</b><span>Assim a categoria será exibida para os utilizadores:</span></div>
+                <div class="views"><span class="vbtn" style="background:#edf4ff;border:1px solid #b8d0fb;color:#0a3fdb"><i data-lucide="layout-grid"></i>Vista em grelha</span><span class="vbtn"><i data-lucide="list"></i>Vista em lista</span></div></div>
+              <div class="pcard"><span class="iconbox" style="width:54px;height:54px"><i data-lucide="scissors" style="width:26px;height:26px;stroke-width:2"></i></span><div><b>Beleza e Estética</b><span>Cabelos, unhas, estética e mais</span></div><i data-lucide="chevron-right" style="margin-left:auto;width:18px;height:18px;color:#1d2265"></i></div>
+            </div>
+          </div>
+          <div class="btns">
+            <a href="#" style="border:1px solid #e3ebf7;color:#171a79">Cancelar</a>
+            <a href="#" style="background:#0562fe;font-weight:600;color:#fff"><i data-lucide="save" style="width:20px;height:20px"></i>Guardar categoria</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const rows = [
+  ["scissors", "#feebf2", "#fd1a2b", "Beleza e Estética", "Cabelos, unhas, estética e mais", 124, 342, 1],
+  ["wrench", "#eaf2fe", "#004af9", "Reparações", "Reparações e manutenção", 98, 276, 1],
+  ["brush", "#e5fdf0", "#00a52b", "Limpeza", "Limpeza residencial e comercial", 87, 215, 1],
+  ["snowflake", "#eeecfe", "#571cfb", "Ar condicionado", "Instalação e manutenção", 56, 134, 1],
+  ["zap", "#fef6e7", "#fe9500", "Electricidade", "Instalações e reparações eléctricas", 72, 198, 1],
+  ["droplet", "#e9f5fe", "#003ffd", "Canalização", "Reparações e instalações de água", 64, 167, 1],
+  ["paint-roller", "#fee9ef", "#fd1c39", "Pintura", "Pintura residencial e comercial", 51, 123, 1],
+  ["laptop", "#efe7fe", "#640ff4", "Informática", "Suporte e reparação de equipamentos", 38, 96, 1],
+  ["package", "#fef3e0", "#fc8a00", "Mudanças", "Transporte e mudanças", 29, 74, 0],
+  ["paw-print", "#ddfce9", "#02a72f", "Animais de Estimação", "Cuidados e serviços para pets", 23, 58, 1],
+];
+const fills = { zap: 1, "paw-print": 1 };
+document.getElementById("rows").innerHTML = rows.map(([icon, bg, fg, name, sub, p, s, on], k) => `
+  <div class="r">
+    <div class="cat"><span class="ic" style="background:${bg};color:${fg}"><i data-lucide="${icon}"${fills[icon] ? ` style="fill:${fg}"` : ""}></i></span><div><b>${name}</b><span>${sub}</span></div></div>
+    <div class="num">${p}</div><div class="num">${s}</div>
+    <div><span class="pill ${on ? "ok" : "bad"}">${on ? "Ativo" : "Inativo"}</span></div>
+    <div><a class="ed" href="#"><i data-lucide="pencil"></i></a></div>
+    <div><i data-lucide="ellipsis" class="dots"></i></div>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

@@ -250,7 +250,7 @@ describe("ProviderDetailPage", () => {
     expect(factLabels()).toEqual(["Category", "Works", "Services", "On Ntizo since"]);
     expect(within(facts()).getByText("Electricity")).toBeInTheDocument();
     expect(within(facts()).getByText("At your place")).toBeInTheDocument();
-    expect(within(facts()).getByText("3")).toBeInTheDocument();
+    expect(within(facts()).getByText("3 services")).toBeInTheDocument();
     expect(within(facts()).getByText("March 2025")).toBeInTheDocument();
   });
 
@@ -261,7 +261,7 @@ describe("ProviderDetailPage", () => {
     renderPage(provider({ serviceCount: 0 }));
     await screen.findByRole("heading", { level: 1, name: /Hélder Cossa/ });
     expect(factLabels()).toContain("Services");
-    expect(within(facts()).getByText("0")).toBeInTheDocument();
+    expect(within(facts()).getByText("0 services")).toBeInTheDocument();
   });
 
   it("names every place a provider works, never collapsing them into one word", async () => {
@@ -289,9 +289,10 @@ describe("ProviderDetailPage", () => {
   it("puts the cheapest price and the message button in the rail", async () => {
     renderPage(provider());
     expect(await screen.findByRole("button", { name: "Send message" })).toBeInTheDocument();
-    // Scoped to the rail: "from" is three letters, and `priceFrom` prints it
-    // again beside every service row on the same page.
-    expect(within(rail()).getByText("from")).toBeInTheDocument();
+    // Scoped to the rail: `priceFrom` prints "from" again beside every
+    // service row on the same page. "From" over the number, as the mockup
+    // reads.
+    expect(within(rail()).getByText("From")).toBeInTheDocument();
     // No count in that sentence, and the assertion pins its absence: the
     // price is a minimum over priced options, where `serviceCount` counts
     // published services, so a denominator here would overstate what the

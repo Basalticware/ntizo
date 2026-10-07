@@ -55,6 +55,8 @@ function rowFixture(over: Partial<AdminBookingRowDTO> = {}): AdminBookingRowDTO 
     timezone: "Africa/Maputo",
     markedDoneAt: null,
     threadId: null,
+    priceMinor: 60000,
+    currency: "MZN",
     ...over,
   };
 }
@@ -102,6 +104,11 @@ const CLOCK_ROW = rowFixture({
   markedDoneAt: twoDaysAgo(),
 });
 
+const STATS = {
+  disputed: 3, confirmedLast30: 0, completedLast30: 0, grossLast30Minor: 0, commissionLast30Minor: 0,
+  newProvidersLast30: 0, currency: "MZN", perDay: [],
+};
+
 type Page = { items: AdminBookingRowDTO[]; total: number; nextOffset: number | null };
 
 const page = (items: AdminBookingRowDTO[], over: Partial<Page> = {}): Page => ({
@@ -148,6 +155,10 @@ function renderQueue(at: string, options: Options = {}) {
   fakes.graphql.mockReset();
   fakes.graphql.mockImplementation(
     (document: string, variables: { input: Record<string, unknown> }) => {
+      // The disputes tab's count comes from the dashboard's stats read.
+      if (document.includes("bookingStatsForAdmin")) {
+        return Promise.resolve({ bookingStatsForAdmin: STATS });
+      }
       if (document.includes("bookingNeedsAttentionForAdmin")) {
         const input = variables.input as unknown as { tab: AdminBookingTab; offset: number };
         return Promise.resolve({
@@ -259,11 +270,17 @@ afterEach(async () => {
 });
 
 describe("AdminBookingsPage", () => {
-  it("offers the three queues in the shared filter panel, and no others", async () => {
+  it("offers the three queues as tabs and in the shared filter panel, and no others", async () => {
     renderQueue("/admin/bookings");
     await row("Ana");
-    // Nothing loose above the card: no tab row, no count sentence.
-    expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
+    // The tab row the mockups draw: the queue on screen counts its own
+    // total, the disputes tab the platform's open disputes, and the third
+    // carries no number rather than a guessed one.
+    const tabs = within(screen.getByRole("tablist")).getAllByRole("tab");
+    await waitFor(() =>
+      expect(tabs.map((tab) => tab.textContent)).toEqual(["Por fechar1", "Em janela", "Reclamações3"]),
+    );
+    expect(tabs.map((tab) => tab.getAttribute("aria-selected"))).toEqual(["true", "false", "false"]);
 
     await openQueuePicker();
     const options = screen.getAllByRole("option");
@@ -277,7 +294,7 @@ describe("AdminBookingsPage", () => {
     renderQueue("/admin/bookings");
     await row("Ana");
 
-    await userEvent.type(screen.getByPlaceholderText("Procurar por prestador, cliente ou serviço"), "Zita");
+    await userEvent.type(screen.getByPlaceholderText("Pesquisar por cliente, prestador ou serviço..."), "Zita");
 
     await waitFor(() =>
       expect(fakes.graphql).toHaveBeenCalledWith(expect.stringContaining("bookingNeedsAttentionForAdmin"), {
@@ -310,15 +327,14 @@ describe("AdminBookingsPage", () => {
    * the two that had nothing holding them. See `CLOCK_ROW` for what each
    * number rules out.
    */
-  it("prints the appointment in the booking's own zone, at its start, and dates the wait from the right instant", async () => {
+  it("prints the appointment in the booking's own zone, and dates the wait from the right instant", async () => {
     renderQueue("/admin/bookings?tab=in_window", { answer: page([CLOCK_ROW]) });
 
     const dina = await row("Dina");
-    const when = dina.getByText(/^terça, 1\/09 · /);
-    // 09:00 UTC in Africa/Maputo. Rendered in UTC this reads 09:00.
-    expect(when).toHaveTextContent("11:00");
-    // The start of the slot, not its end — which is 12:30 in that same zone.
-    expect(when).not.toHaveTextContent("12:30");
+    // 09:00–10:30 UTC is 11:00–12:30 in Africa/Maputo; rendered in UTC this
+    // would read 09:00 – 10:30. The day is the booking's too.
+    expect(dina.getByText("11:00 – 12:30")).toBeInTheDocument();
+    expect(dina.getByText(/^1 set\.? 2026$/i)).toBeInTheDocument();
     // Measured from `markedDoneAt`. From `endsAt` — a fixed date in 2026 — no
     // run of this test could ever read "2 dias".
     expect(dina.getByText("à espera há 2 dias")).toBeInTheDocument();
@@ -538,8 +554,9 @@ describe("AdminBookingsPage", () => {
    * Measured, not guessed: inside the real `AdminShell` the sidebar takes
    * 16rem from `md` up, so a 768px viewport leaves this card 462px while the
    * table it would draw is about 730 — every action button and the `ACÇÕES`
-   * header off the right edge, behind a scrollbar inside the card. Cards until
-   * `lg`, where the box is 718 and the table fits.
+   * header off the right edge, behind a scrollbar inside the card. The row is
+   * seven columns now, the price among them, so cards until `xl`, where the
+   * box is about 980 and the table fits.
    */
   it("stays a list of cards until there is room for its table", async () => {
     renderQueue("/admin/bookings");
@@ -549,9 +566,9 @@ describe("AdminBookingsPage", () => {
 
     // Which rendering the viewport gets is two Tailwind classes and nothing
     // else, and jsdom evaluates neither — so the classes are what is held.
-    expect(screen.getByRole("table").closest("div")).toHaveClass("lg:block");
+    expect(screen.getByRole("table").closest("div")).toHaveClass("xl:block");
     const cards = document.querySelector("ul.list-none")!;
-    expect(cards.closest("[data-slot='collection-cards']")).toHaveClass("lg:hidden");
+    expect(cards.closest("[data-slot='collection-cards']")).toHaveClass("xl:hidden");
   });
 
   /**
@@ -604,9 +621,9 @@ describe("AdminBookingsPage", () => {
 
     // Two different numbers, and the card must not print the page's where
     // the queue's belongs: one row is on screen out of twenty-one waiting.
-    expect(screen.getByText("1 de 21 mostradas")).toBeInTheDocument();
+    expect(screen.getByText("A mostrar 1–1 de 21 reservas")).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: "Seguinte" }));
+    await userEvent.click(screen.getByRole("button", { name: "Página seguinte" }));
 
     await row("Zita");
     expect(within(await screen.findByRole("table")).queryByText("Ana")).not.toBeInTheDocument();
@@ -705,6 +722,6 @@ describe("AdminBookingsPage", () => {
 
     // `total` is exactly one page, so a pager gated on `total > 20` would have
     // unmounted both buttons while the reader stands on the second page.
-    await waitFor(() => expect(screen.getByRole("button", { name: "Anterior" })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole("button", { name: "Página anterior" })).toBeInTheDocument());
   });
 });

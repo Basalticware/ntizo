@@ -1,13 +1,24 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Users } from "lucide-react";
+import { Calendar, Users } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { Avatar, AvatarFallback, Badge } from "@ntizo/frontend-ui";
-import { CollectionCard } from "@/shared/components/collection-card";
-import { initialsFrom } from "@/shared/lib/initials";
+import { Badge } from "@ntizo/frontend-ui";
+import { USER_ROLES } from "@ntizo/shared";
+import type { StatusTab } from "@/shared/components/status-tabs";
+import { DETAILS_BUTTON_CLASS } from "@/shared/components/list-cells";
 import { usePageHeader } from "@/shared/lib/page-header";
+import {
+  AdminFilterBar,
+  AdminListFoot,
+  AdminPerson,
+  AdminTable,
+  AdminTabs,
+  adminDate,
+  pageRange,
+} from "@/features/admin/shared/ui/admin-list";
+import { ADMIN_USERS_PAGE_SIZE } from "../data/admin-user.repository";
 import { UsersFilterSheet } from "./users-filters";
-import { useAdminUsers } from "../viewmodel/use-admin-users";
+import { useAdminUsersPage } from "../viewmodel/use-admin-users";
 import { displayName, type AdminUser } from "../domain/types";
 
 const STATUS_TONE: Record<string, "success" | "warning" | "danger" | "info"> = {
@@ -16,112 +27,115 @@ const STATUS_TONE: Record<string, "success" | "warning" | "danger" | "info"> = {
   suspended: "danger",
 };
 
+/** The role pill's colour: customers blue, providers amber, admins violet. */
+const ROLE_TONE: Record<string, "info" | "warning" | "violet"> = {
+  customer: "info",
+  individual_provider: "warning",
+  organization_owner: "warning",
+  admin: "violet",
+};
+
+/** `""` is everyone; the rest are the platform's roles, one tab each. */
+const TABS = ["", ...USER_ROLES] as const;
+type UserTab = (typeof TABS)[number];
+
 /**
  * Everyone on the platform.
  *
- * The same card as the provider queue — literally the same component, so the
- * header, the count, the search box, the table and the mobile cards cannot
- * drift apart between the two admin lists. What differs is the columns,
- * because the two lists answer different questions.
+ * The rows are `CollectionCard`'s at the admin measurements, as on the
+ * provider queue. The role is a tab here and a filter in the panel — one
+ * value behind both. The tabs carry no counts: the list read does not count,
+ * and a number on a tab nobody can check is worse than none. For the same
+ * reason the pager steps rather than numbering pages.
  */
 export function AdminUsersPage() {
   const { t, i18n } = useTranslation("admin");
   const locale = i18n.resolvedLanguage ?? i18n.language;
 
   const [search, setSearch] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRoleState] = useState<UserTab>("");
+  const [offset, setOffset] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const query = useAdminUsers({
-    ...(search.trim() ? { search: search.trim() } : {}),
+  const needle = search.trim();
+  const query = useAdminUsersPage({
+    ...(needle ? { search: needle } : {}),
     ...(role ? { role } : {}),
+    offset,
   });
 
   usePageHeader(t("usersTitle"), t("usersSubtitle"));
 
-  const rows = useMemo(() => query.data ?? [], [query.data]);
-  const dateFormat = new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-  const numberFormat = new Intl.NumberFormat(locale);
+  const setRole = (next: string) => {
+    setRoleState(next as UserTab);
+    setOffset(0);
+  };
+
+  const rows = useMemo(() => query.data?.items ?? [], [query.data]);
+  const { from, to } = pageRange(offset, rows.length);
+
+  const tabs: StatusTab<UserTab>[] = TABS.map((key) => ({
+    key,
+    label: key ? t(`usersTab.${key}`) : t("usersTab.all"),
+  }));
 
   return (
-    <div className="flex w-full max-w-[1400px] flex-col gap-4">
+    <div className="flex w-full max-w-[1400px] flex-col">
       {query.error && (
-        <p className="type-body text-[var(--color-destructive)]">
-          {t("usersError")}
-        </p>
+        <p className="type-body mb-4 text-[var(--color-destructive)]">{t("usersError")}</p>
       )}
 
-      <CollectionCard
-        title={t("usersTitle")}
-        shown={rows.length}
-        total={rows.length}
-        loading={query.isLoading}
+      <AdminTabs tabs={tabs} value={role} onChange={setRole} ariaLabel={t("usersRole")} />
+
+      <AdminFilterBar
+        className="mt-[27px]"
         search={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setOffset(0);
+        }}
         searchPlaceholder={t("usersSearchPlaceholder")}
         onOpenFilters={() => setFiltersOpen(true)}
         activeFilterCount={role ? 1 : 0}
-        columns={[
-          { key: "person", label: t("usersPerson"), className: "pl-5" },
-          { key: "role", label: t("usersRole"), skeletonWidth: "w-28" },
-          {
-            key: "status",
-            label: t("usersStatus"),
-            skeletonWidth: "w-20",
-            skeletonShape: "badge",
-          },
-          {
-            key: "workspaces",
-            label: t("usersWorkspaces"),
-            align: "right",
-            skeletonWidth: "w-8",
-          },
-          {
-            key: "joined",
-            label: t("usersJoined"),
-            align: "right",
-            className: "pr-5",
-            skeletonWidth: "w-24",
-          },
-        ]}
-        emptyText={t("usersEmpty")}
-        emptyTitle={t("usersEmptyTitle")}
-        emptyBadge={Users}
-        noMatchesText={t("usersNoMatches")}
-        noMatchesTitle={t("usersNoMatchesTitle")}
-        filtered={search.trim() !== "" || role !== ""}
-        rows={rows.map((user) => ({
-          key: user.id,
-          primary: <Person user={user} />,
-          cells: {
-            role: (
-              <span className="block max-w-[22ch] truncate">
-                {t(`userRole.${user.role}`, { defaultValue: user.role })}
-              </span>
-            ),
-            status: (
-              <Badge tone={STATUS_TONE[user.status] ?? "info"}>
-                {t(`userStatus.${user.status}`, { defaultValue: user.status })}
-              </Badge>
-            ),
-            workspaces: (
-              // Zero as an em dash. Most people on the platform are customers,
-              // and a column of "0" reads as data about them when it is really
-              // the absence of any.
-              <span className="tabular-nums">
-                {user.providerCount > 0 ? numberFormat.format(user.providerCount) : "—"}
-              </span>
-            ),
-            joined: (
-              <span className="tabular-nums text-[var(--color-muted-foreground)]">
-                {dateFormat.format(new Date(user.createdAt))}
-              </span>
-            ),
-          },
-        }))}
+      />
+
+      <div className="mt-[27px]">
+        <AdminTable
+          title={t("usersTitle")}
+          shown={rows.length}
+          total={rows.length}
+          loading={query.isLoading}
+          tableFrom="lg"
+          columns={[
+            { key: "person", label: t("usersPerson"), className: "w-[329px] pl-[22px]" },
+            { key: "role", label: t("usersRole"), skeletonWidth: "w-24", skeletonShape: "badge", className: "w-[210px] pl-0" },
+            { key: "contact", label: t("usersContact"), skeletonWidth: "w-28", className: "w-[200px] pl-0" },
+            { key: "joined", label: t("usersJoined"), skeletonWidth: "w-28", className: "w-[220px] pl-0" },
+            {
+              key: "status",
+              label: t("usersStatus"),
+              skeletonWidth: "w-20",
+              skeletonShape: "badge",
+              className: "w-[133px] pl-0",
+            },
+            { key: "actions", label: t("common:colActions"), className: "pl-0", hideOnCard: true },
+          ]}
+          emptyText={t("usersEmpty")}
+          emptyTitle={t("usersEmptyTitle")}
+          emptyBadge={Users}
+          noMatchesText={t("usersNoMatches")}
+          noMatchesTitle={t("usersNoMatchesTitle")}
+          filtered={needle !== "" || role !== ""}
+          rows={rows.map((user) => userRow(user, { t, locale }))}
+        />
+      </div>
+
+      <AdminListFoot
+        label={query.isLoading || rows.length === 0 ? null : t("listShowingRange", { from, to })}
+        offset={offset}
+        pageSize={ADMIN_USERS_PAGE_SIZE}
+        total={null}
+        hasNext={query.data?.hasMore ?? false}
+        onOffsetChange={setOffset}
       />
 
       <UsersFilterSheet
@@ -134,33 +148,60 @@ export function AdminUsersPage() {
   );
 }
 
-/** Who the row is about: the monogram, the name, and how to reach them. */
-function Person({ user }: { user: AdminUser }) {
+function userRow(
+  user: AdminUser,
+  ctx: { t: ReturnType<typeof useTranslation<"admin">>["t"]; locale: string },
+) {
+  const { t, locale } = ctx;
   const name = displayName(user);
-  return (
-    <div className="flex items-center gap-3">
-      <Avatar className="h-9 w-9 shrink-0">
-        <AvatarFallback className="text-xs">{initialsFrom(name)}</AvatarFallback>
-      </Avatar>
-      <div className="min-w-0">
-        {/* A link now that there is somewhere to go, as `ProviderRow` did when
-            the provider page arrived. */}
-        <Link
-          to="/admin/users/$userId"
-          params={{ userId: user.id }}
-          className="type-body-medium block truncate font-semibold hover:underline"
-        >
-          {name}
-        </Link>
-        {/* The email under the name, unless it is already the name — somebody
-            with no display name would otherwise get the same string twice.
-            The phone takes its place there, and where there is neither, one
-            line is the honest amount of what is known about them. */}
-        <p className="type-caption truncate text-[var(--color-muted-foreground)]">
-          {name === user.email ? (user.phoneNumber ?? "") : user.email}
-        </p>
-      </div>
-    </div>
-  );
+  const href = { to: "/admin/users/$userId", params: { userId: user.id } } as const;
+  return {
+    key: user.id,
+    primary: (
+      <AdminPerson
+        name={name}
+        // The column's width, so a long email truncates rather than running
+        // under the role beside it.
+        className="max-w-[296px]"
+        title={
+          <Link {...href} className="hover:underline">
+            {name}
+          </Link>
+        }
+        // The email under the name, unless it is already the name — somebody
+        // with no display name would otherwise get the same string twice.
+        sub={name === user.email ? null : <span className="truncate">{user.email}</span>}
+      />
+    ),
+    cells: {
+      role: (
+        <Badge tone={ROLE_TONE[user.role] ?? "info"} className="min-w-[93px] justify-center">
+          {t(`userRole.${user.role}`, { defaultValue: user.role })}
+        </Badge>
+      ),
+      contact: user.phoneNumber ? (
+        <span className="text-[15px] font-medium whitespace-nowrap text-[var(--color-headline)] tabular-nums">
+          {user.phoneNumber}
+        </span>
+      ) : (
+        "—"
+      ),
+      joined: (
+        <span className="flex items-center gap-[11px] text-[15px] font-medium whitespace-nowrap text-[var(--color-headline)] tabular-nums">
+          <Calendar aria-hidden="true" className="h-5 w-5 shrink-0 text-[var(--color-primary)]" />
+          {adminDate(user.createdAt, locale)}
+        </span>
+      ),
+      status: (
+        <Badge tone={STATUS_TONE[user.status] ?? "info"} className="min-w-[96px] justify-center">
+          {t(`userStatus.${user.status}`, { defaultValue: user.status })}
+        </Badge>
+      ),
+    },
+    actions: (
+      <Link {...href} className={`${DETAILS_BUTTON_CLASS} h-[38px] w-[137px] rounded-md px-0`} tabIndex={-1}>
+        {t("usersViewProfile")}
+      </Link>
+    ),
+  };
 }
-

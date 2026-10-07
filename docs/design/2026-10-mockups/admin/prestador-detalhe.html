@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prestador · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* From mockps/admin/detalheprestador.png (1672 wide), with the spacing pass:
+     normal flow, roomier cards and rows, the page scrolls. */
+  :root { --a-ink: #0c1158; --a-muted: #5a66a6; --a-line: #e8eff9; --a-head: #0a0f55; --a-soft: #6e7db8; }
+  body { color: var(--a-ink); }
+  .topbar .me b { font-size: 16px; }
+  .topbar .me span { font-size: 15.5px; margin-top: 3px; }
+  .topbar .me > div { width: 140px; }
+  .topbar .loc { padding-right: 29px; }
+
+  /* the page grows past the window and scrolls; the rail stays full height */
+  .body { grid-template-columns: 284px minmax(0, 1fr); }
+  .nav { gap: 2px; position: sticky; top: 26px; }
+  .nav a { height: 48px; }
+  .main { padding: 22px 28px 48px 26px; overflow: visible; }
+
+  .crumb { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #5d6da3; }
+  .crumb a { color: #104df8; }
+  .crumb svg { width: 14px; height: 14px; margin: 0 6px; }
+
+  .hero { display: grid; grid-template-columns: 136px minmax(0, 1fr) auto; gap: 26px; align-items: start; margin-top: 22px; }
+  .hero > img { width: 136px; height: 136px; border-radius: 50%; }
+  .hero h1 { margin: 0; font-size: 35.5px; font-weight: 800; letter-spacing: -0.01em; display: flex; align-items: center; flex-wrap: wrap; gap: 0 18px; color: var(--a-head); }
+  .hero h1 .badge { width: 25px; height: 25px; }
+  .hero h1 .pill { height: 30px; padding: 0 17px; font-size: 14.5px; font-weight: 500; background: #ddfce7; color: #17923e; letter-spacing: 0; margin-left: 6px; }
+  .hero .meta { display: flex; align-items: center; font-size: 16px; color: #5460a7; margin-top: 10px; }
+  .hero .meta svg { width: 19px; height: 19px; margin-right: 11px; }
+  .hero .meta .dot { margin: 0 15px; font-size: 14px; }
+  .hero p { margin: 12px 0 0; max-width: 690px; font-size: 16px; line-height: 1.5; color: var(--a-soft); }
+  .kpis { display: flex; margin-top: 24px; }
+  .kpi { position: relative; padding: 4px 22px 6px 20px; display: grid; grid-template-columns: auto auto; column-gap: 13px; row-gap: 7px; align-items: center; border-left: 1px solid #edf2fa; }
+  .kpi svg { width: 22px; height: 22px; }
+  .kpi b { font-size: 18.5px; font-weight: 700; color: var(--a-head); white-space: nowrap; }
+  .kpi b small { font-size: 17px; font-weight: 400; color: #7785b8; margin-left: 9px; }
+  .kpi span { grid-column: 2; font-size: 13px; color: #7785b8; white-space: nowrap; }
+  .kpi:last-child span { font-size: 14px; }
+
+  .ptabs { display: flex; gap: 40px; margin-top: 30px; border-bottom: 1px solid #e3ecf8; }
+  .ptab { position: relative; height: 52px; display: flex; align-items: center; gap: 16px; font-size: 16px; font-weight: 500; color: var(--a-ink); padding: 0 14px; }
+  .ptab svg { width: 21px; height: 21px; }
+  .ptab.on { color: #0a50f0; font-weight: 600; }
+  .ptab.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 4px; background: #0061fe; border-radius: 2px; }
+  .ptab small { font-size: 16px; font-weight: 400; color: var(--a-muted); }
+
+  .grid { display: grid; grid-template-columns: 356px minmax(0, 1fr) 344px; gap: 24px; margin-top: 24px; align-items: start; }
+  .col { display: grid; gap: 24px; min-width: 0; }
+  .c { border: 1px solid var(--a-line); border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(30, 70, 140, .025); padding: 20px 22px 24px; }
+  .c > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; }
+  .c h2 { margin: 0; font-size: 18px; font-weight: 700; color: var(--a-head); }
+  .ver { height: 32px; padding: 0 14px; display: grid; place-items: center; border: 1px solid #6ea2fb; border-radius: 6px; color: #0a50f0; font-size: 14px; font-weight: 500; white-space: nowrap; }
+
+  .list { display: grid; gap: 18px; margin-top: 20px; }
+  .li { display: flex; align-items: center; font-size: 15px; color: var(--a-muted); min-width: 0; }
+  .li svg { width: 21px; height: 21px; margin-right: 16px; color: #0340fb; }
+  .li.k svg { color: var(--a-ink); }
+  .li .lab { width: 130px; flex-shrink: 0; font-size: 14px; }
+  .li .val { font-size: 14.5px; color: #4e5c9b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .stbl { margin: 16px -12px 0; }
+  .stbl .h, .stbl .r { display: grid; grid-template-columns: minmax(0, 1fr) 84px 66px 88px 24px; align-items: center; padding: 0 12px; column-gap: 6px; }
+  .stbl .h { height: 40px; background: #f6f9fd; font-size: 14px; font-weight: 500; color: #3a467f; border-radius: 4px; }
+  .stbl .r { height: 72px; border-top: 1px solid #eef3f9; }
+  .stbl .h + .r { border-top: 0; }
+  .svc { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .svc img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; }
+  .svc > div { min-width: 0; }
+  .svc b, .svc span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .svc b { display: block; font-size: 15px; font-weight: 700; color: var(--a-head); }
+  .svc span { display: block; font-size: 14px; color: var(--a-soft); margin-top: 4px; }
+  .pr { font-size: 15px; font-weight: 700; color: var(--a-head); white-space: nowrap; }
+  .du { font-size: 14px; color: var(--a-soft); white-space: nowrap; }
+  .stbl .pill { height: 30px; width: 76px; justify-content: center; padding: 0; background: #dafbe4; color: #17923e; font-size: 14.5px; }
+  .stbl .dots { width: 20px; height: 20px; color: #3a467f; }
+
+  .docs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+  .doc { display: flex; flex-direction: column; align-items: flex-start; position: relative; border: 1px solid var(--a-line); border-radius: 9px; padding: 10px 9px 12px; }
+  .doc img { display: block; align-self: center; height: 52px; object-fit: cover; }
+  .doc b { display: block; margin-top: 10px; font-size: 14px; line-height: 1.3; font-weight: 700; color: var(--a-head); }
+  .doc .pill { margin: 8px 0 12px; height: 26px; padding: 0 12px; font-size: 13px; }
+  .doc .pill.ok { background: #dcfbe6; color: #17923e; }
+  .doc .pill.warn { background: #fef2da; color: #f07a0a; }
+  .doc footer { align-self: stretch; margin-top: auto !important; display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 12px; }
+  .doc .f { font-size: 13px; color: #7785b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .doc .eye { flex-shrink: 0; width: 24px; height: 24px; border: 1px solid #b9d0f6; border-radius: 5px; display: grid; place-items: center; color: #0a50f0; }
+  .doc .eye svg { width: 14px; height: 14px; }
+
+  .okbox { display: flex; gap: 18px; margin-top: 18px; padding: 14px 16px 16px; background: #e8fcf1; border-radius: 9px; }
+  .okbox .tick { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #22b45a; display: grid; place-items: center; color: #fff; }
+  .okbox .tick svg { width: 16px; height: 16px; stroke-width: 3; }
+  .okbox b { display: block; font-size: 15px; font-weight: 600; color: #128a3a; }
+  .okbox p { margin: 4px 0 0; font-size: 14px; line-height: 1.45; color: #2b9a55; }
+  .kvs { display: grid; gap: 14px; margin-top: 20px; }
+  .kv { display: flex; align-items: center; font-size: 14px; color: var(--a-soft); white-space: nowrap; }
+  .kv svg { width: 17px; height: 17px; color: var(--a-ink); margin-right: 18px; }
+  .kv .v { margin-left: auto; width: 112px; font-size: 15px; color: #4e5c9b; }
+  .kv .n { margin-left: auto; font-size: 15px; font-weight: 700; color: var(--a-head); }
+  .acts { display: grid; gap: 10px; margin-top: 22px; }
+  .act { height: 40px; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 15px; font-weight: 600; }
+  .act svg { width: 18px; height: 18px; }
+  .act.g { background: #24b960; color: #fff; }
+  .act.y { background: #fef6e5; border: 1px solid #f9cf74; color: #f08a10; }
+  .act.r { background: #fef5f6; border: 1px solid #f59ca1; color: #f2232a; }
+  .sel { height: 34px; border: 1px solid #e3ebf6; border-radius: 7px; display: flex; align-items: center; gap: 12px; padding: 0 12px 0 14px; font-size: 13.5px; color: #3a467f; white-space: nowrap; }
+  .sel svg { width: 15px; height: 15px; color: var(--a-ink); }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:17px;height:17px"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="painel.html"><i data-lucide="house"></i>Painel</a>
+        <a class="on" href="prestadores.html"><i data-lucide="users"></i>Prestadores</a>
+        <a href="reservas.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="suporte.html"><i data-lucide="headset"></i>Suporte</a>
+        <a href="contactos.html"><i data-lucide="list"></i>Contactos</a>
+        <a href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a href="utilizadores.html"><i data-lucide="users"></i>Utilizadores</a>
+        <a href="atividade.html"><i data-lucide="chart-column"></i>Atividade</a>
+        <a href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="crumb"><a href="prestadores.html">Prestadores</a><i data-lucide="chevron-right"></i>Sílvia Nhamopossa</div>
+
+      <section class="hero">
+        <img src="../assets/adm-prestador-silvia.png" alt="">
+        <div>
+          <h1>Sílvia Nhamopossa<i data-lucide="badge-check" class="badge" style="fill:#1f6bf2;color:#fff"></i><span class="pill">Prestadora verificada</span></h1>
+          <div class="meta"><i data-lucide="scissors"></i>Beleza<span class="dot">•</span>Corte de cabelo, manicure</div>
+          <div class="meta"><i data-lucide="map-pin"></i>Maputo, Central</div>
+          <p>Profissional de beleza com mais de 5 anos de experiência, especializada em cortes femininos, manicure e cuidados capilares. Atendimento ao domicílio e no salão.</p>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><i data-lucide="star" style="color:#fbb515;fill:#fbb515"></i><b>4,8<small>(61)</small></b><span>Avaliação média</span></div>
+          <div class="kpi"><i data-lucide="message-circle" style="color:#16b45a"></i><b>98%</b><span>Taxa de resposta</span></div>
+          <div class="kpi"><i data-lucide="calendar" style="color:#1c6cf5"></i><b>12 Jan 2024</b><span>Membro desde</span></div>
+        </div>
+      </section>
+
+      <nav class="ptabs">
+        <a class="ptab on" href="#"><i data-lucide="clock-3"></i>Visão geral</a>
+        <a class="ptab" href="#"><i data-lucide="layout-grid"></i>Serviços</a>
+        <a class="ptab" href="#"><i data-lucide="star"></i>Avaliações <small>(61)</small></a>
+        <a class="ptab" href="#"><i data-lucide="file-text"></i>Documentos</a>
+        <a class="ptab" href="#"><i data-lucide="chart-column"></i>Atividade</a>
+      </nav>
+
+      <div class="grid">
+        <div class="col">
+          <section class="c">
+            <header><h2>Informações de contacto</h2></header>
+            <div class="list">
+              <div class="li"><i data-lucide="phone"></i>+258 84 123 4567</div>
+              <div class="li"><i data-lucide="mail"></i>silvia.nhamopossa@gmail.com</div>
+              <div class="li"><i data-lucide="map-pin"></i>Maputo, Central</div>
+              <div class="li"><i data-lucide="message-circle" style="color:#16b45a"></i>Disponível no WhatsApp</div>
+            </div>
+          </section>
+          <section class="c">
+            <header><h2>Dados do prestador</h2></header>
+            <div class="list" style="gap:20px">
+              <div class="li k"><i data-lucide="user"></i><span class="lab">Nome completo</span><span class="val">Sílvia Nhamopossa</span></div>
+              <div class="li k"><i data-lucide="id-card"></i><span class="lab">BI</span><span class="val">110100123456B</span></div>
+              <div class="li k"><i data-lucide="file-text"></i><span class="lab">NUIT</span><span class="val">4001234567</span></div>
+              <div class="li k"><i data-lucide="calendar"></i><span class="lab">Data de nascimento</span><span class="val">12 Mar 1990</span></div>
+              <div class="li k"><svg class="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="6"/><path d="M14.5 9.5 20 4M15 4h5v5"/></svg><span class="lab">Género</span><span class="val">Feminino</span></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="col">
+          <section class="c">
+            <header><h2>Serviços oferecidos (3)</h2><a class="ver" href="#">Ver todos</a></header>
+            <div class="stbl">
+              <div class="h"><div>Serviço</div><div>Preço</div><div>Duração</div><div>Estado</div><div></div></div>
+              <div class="r"><div class="svc"><img src="../assets/adm-prestador-svc1.jpg" alt=""><div><b>Corte de cabelo</b><span>Corte feminino + lavagem</span></div></div><div class="pr">600 MTn</div><div class="du">1h</div><div><span class="pill">Activo</span></div><div><i data-lucide="ellipsis" class="dots"></i></div></div>
+              <div class="r"><div class="svc"><img src="../assets/adm-prestador-svc2.jpg" alt=""><div><b>Manicure</b><span>Manicure completa</span></div></div><div class="pr">500 MTn</div><div class="du">1h</div><div><span class="pill">Activo</span></div><div><i data-lucide="ellipsis" class="dots"></i></div></div>
+              <div class="r"><div class="svc"><img src="../assets/adm-prestador-svc3.jpg" alt=""><div><b>Hidratação capilar</b><span>Tratamento + finalização</span></div></div><div class="pr">800 MTn</div><div class="du">1h 30m</div><div><span class="pill">Activo</span></div><div><i data-lucide="ellipsis" class="dots"></i></div></div>
+            </div>
+          </section>
+          <section class="c">
+            <header><h2>Documentos de verificação</h2><a class="ver" href="#">Ver todos</a></header>
+            <div class="docs">
+              <div class="doc"><img src="../assets/adm-prestador-doc-bi.jpg" alt=""><b>BI</b><span class="pill ok">Completo</span><footer><span class="f">BI_silvia.pdf</span><span class="eye"><i data-lucide="eye"></i></span></footer></div>
+              <div class="doc"><img src="../assets/adm-prestador-doc-nuit.jpg" alt=""><b>NUIT</b><span class="pill ok">Completo</span><footer><span class="f">NUIT_silvia.pdf</span><span class="eye"><i data-lucide="eye"></i></span></footer></div>
+              <div class="doc"><img src="../assets/adm-prestador-doc-alvara.jpg" alt=""><b>Alvará</b><span class="pill warn">Pendente</span><footer><span class="f">Alvara_silvia.pdf</span><span class="eye"><i data-lucide="eye"></i></span></footer></div>
+              <div class="doc"><img src="../assets/adm-prestador-fotos.jpg" alt="" style="width:100%"><b>Fotos do trabalho</b><span class="pill ok">Completo</span><footer><span class="f">6 fotos</span><span class="eye"><i data-lucide="eye"></i></span></footer></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="col">
+          <section class="c">
+            <header><h2>Estado e aprovação</h2></header>
+            <div class="okbox"><span class="tick"><i data-lucide="check"></i></span><div><b>Prestadora verificada</b><p>Este prestador está aprovado e activo na plataforma.</p></div></div>
+            <div class="kvs">
+              <div class="kv"><i data-lucide="calendar"></i>Data de aprovação<span class="v">14 Jan 2024</span></div>
+              <div class="kv"><i data-lucide="user"></i>Aprovado por<span class="v">Joaquim Cuna</span></div>
+              <div class="kv"><i data-lucide="clock"></i>Última revisão<span class="v">14 Jan 2024</span></div>
+            </div>
+            <div class="acts">
+              <a class="act g" href="#"><i data-lucide="check"></i>Aprovar prestador</a>
+              <a class="act y" href="#"><i data-lucide="rotate-cw"></i>Colocar em revisão</a>
+              <a class="act r" href="#"><i data-lucide="x"></i>Rejeitar prestador</a>
+            </div>
+          </section>
+          <section class="c">
+            <header><h2>Estatísticas</h2><div class="sel">Últimos 30 dias<i data-lucide="chevron-down"></i></div></header>
+            <div class="kvs" style="gap:16px">
+              <div class="kv"><i data-lucide="calendar"></i>Reservas realizadas<span class="n">28</span></div>
+              <div class="kv"><i data-lucide="user"></i>Clientes únicos<span class="n">24</span></div>
+              <div class="kv"><i data-lucide="star"></i>Avaliação média<span class="n">4,8</span></div>
+              <div class="kv"><i data-lucide="message-circle" style="color:#16b45a"></i>Taxa de resposta<span class="n">98%</span></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>lucide.createIcons();</script>
+</body>
+</html>

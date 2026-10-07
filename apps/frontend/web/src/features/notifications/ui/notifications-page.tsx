@@ -1,8 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Bell, CheckCheck } from "lucide-react";
 import { cn } from "@ntizo/frontend-ui";
 import { EmptyCard } from "@/shared/components/empty-card";
+import { SegmentedTabs } from "@/shared/components/segmented-tabs";
+import type { StatusTab } from "@/shared/components/status-tabs";
 import {
   useInbox,
   type InboxScope,
@@ -31,6 +33,16 @@ const TEXT_ACTION = cn(
   HEADLINE_TEXT,
   "hover:border-current",
   "disabled:cursor-default disabled:opacity-60 disabled:hover:border-transparent",
+);
+
+/**
+ * "Marcar todas como lidas", outlined in the blue the console's Filtrar wears:
+ * it sits on the toolbar row now, beside the tabs, where the mockup puts its
+ * one button.
+ */
+const MARK_ALL = cn(
+  "inline-flex h-[47px] items-center gap-2.5 rounded-[10px] border border-[var(--color-blue-outline)] bg-[var(--color-card)] px-5 text-[15px] font-semibold text-[var(--color-primary)]",
+  "hover:bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)] disabled:cursor-default disabled:opacity-60",
 );
 
 /**
@@ -64,20 +76,47 @@ const TEXT_ACTION = cn(
  * `/activity`, `/provider/$slug/activity`, `/admin/activity` — so the column
  * was a second copy of a whole page, glued to an unrelated one. The dedicated
  * pages keep it; this one is the inbox.
+ *
+ * **Two tabs, because the server answers two questions.** "Todas" is the
+ * inbox's own total and "Não lidas" the badge's count. The unread tab filters
+ * the rows already fetched and keeps paging underneath — the end-of-list
+ * sentinel stays on screen while the filtered list is short, so it fetches on
+ * until the unread rows are all there. The mockup's Reservas / Mensagens /
+ * Sistema tabs, the search box and the Filtros button are left out: the inbox
+ * can neither count nor search by kind, and a tab whose number is only the
+ * rows that happen to be loaded is a guess.
+ *
+ * `ownHeading` is off where the zone's shell already prints the page's title
+ * (the provider console); the customer route has no such shell and keeps the
+ * heading here.
  */
-export function NotificationsPage({ scope, zone }: { scope: InboxScope; zone: InboxZone }) {
+export function NotificationsPage({
+  scope,
+  zone,
+  ownHeading = true,
+}: {
+  scope: InboxScope;
+  zone: InboxZone;
+  ownHeading?: boolean;
+}) {
   const { t } = useTranslation("notifications");
   const { page, isPending, isError, hasMore, isLoadingMore, loadMore } = useInbox(scope);
   const { markOne, markAll, isMarkingAll } = useMarkRead(scope);
   const unread = useUnreadCount(scope);
+  const [tab, setTab] = useState<"all" | "unread">("all");
+  const items = tab === "unread" ? page.items.filter((n) => !n.read) : page.items;
+  const tabs: StatusTab<"all" | "unread">[] = [
+    { key: "all", label: t("tabAll"), count: isPending ? null : page.total },
+    { key: "unread", label: t("tabUnread"), count: isPending ? null : unread, tone: "danger" },
+  ];
 
   // Armed only when there is a page to get and none already on its way, so a
   // sentinel that stays on screen while the fetch lands does not ask twice.
   const sentinel = useLoadOnScroll(hasMore && !isLoadingMore, loadMore);
 
   return (
-    <div className="flex min-w-0 flex-col gap-5">
-      <div className="flex flex-wrap items-end justify-between gap-x-5 gap-y-2">
+    <div className="flex min-w-0 flex-col gap-6">
+      {ownHeading && (
         <div>
           <h1 className={cn("type-h1", HEADLINE_TEXT)}>
             {scope.kind === "provider" ? t("providerTitle") : t("title")}
@@ -90,6 +129,10 @@ export function NotificationsPage({ scope, zone }: { scope: InboxScope; zone: In
             </p>
           )}
         </div>
+      )}
+
+      <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
+        <SegmentedTabs tabs={tabs} value={tab} onChange={setTab} ariaLabel={t("tabsLabel")} className="h-[47px]" />
         {/* Rendered only when it can do something. An action over a list it
             cannot change is a button that lies. */}
         {unread > 0 && (
@@ -97,9 +140,9 @@ export function NotificationsPage({ scope, zone }: { scope: InboxScope; zone: In
             type="button"
             disabled={isMarkingAll}
             onClick={() => markAll()}
-            className={TEXT_ACTION}
+            className={MARK_ALL}
           >
-            <CheckCheck aria-hidden="true" className="h-[15px] w-[15px]" strokeWidth={2.2} />
+            <CheckCheck aria-hidden="true" className="h-[19px] w-[19px]" strokeWidth={2.2} />
             {t("markAllRead")}
           </button>
         )}
@@ -116,12 +159,17 @@ export function NotificationsPage({ scope, zone }: { scope: InboxScope; zone: In
         <EmptyCard badge={Bell} title={t("emptyTitle")} body={t("emptyBody")} />
       ) : (
         <>
-          <InboxList
-            items={page.items}
-            todayIso={new Date().toISOString()}
-            zone={zone}
-            onMarkRead={markOne}
-          />
+          {items.length > 0 ? (
+            <InboxList
+              items={items}
+              todayIso={new Date().toISOString()}
+              zone={zone}
+              onMarkRead={markOne}
+              complete={!hasMore}
+            />
+          ) : (
+            !hasMore && <EmptyCard badge={Bell} title={t("unreadEmptyTitle")} body={t("unreadEmptyBody")} />
+          )}
           {/* The list stops at twenty and grows from the bottom as the reader
               reaches it. The button is the same element the observer watches,
               so scrolling here loads the next page and a keyboard or a screen

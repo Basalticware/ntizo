@@ -2,8 +2,15 @@
   "list": {
     "title": "Mis presupuestos",
     "blurb": "Lo que has pedido, lo que ya tiene respuesta y lo que todavía está en marcha.",
-    "tab": { "open": "Abiertos", "history": "Historial" },
-    "column": { "service": "Servicio", "status": "Estado", "price": "Precio" },
+    "tab": {
+      "open": "Abiertos",
+      "history": "Historial"
+    },
+    "column": {
+      "service": "Servicio",
+      "status": "Estado",
+      "price": "Precio"
+    },
     "emptyTitle": "Todavía no has pedido presupuestos",
     "emptyText": "En los servicios marcados «a presupuesto», cuenta lo que necesitas y el profesional responde con un precio y una fecha.",
     "emptyAction": "Ver servicios a presupuesto",
@@ -204,10 +211,19 @@
   },
   "provider": {
     "title": "Presupuestos",
-    "blurb": "{{count}} por responder · el más urgente caduca en {{left}}",
-    "blurbNone": "Nada esperando respuesta.",
-    "tab": { "toAnswer": "Por responder", "waiting": "Esperando al cliente", "history": "Historial" },
-    "column": { "customer": "Cliente", "service": "Servicio", "status": "Estado", "price": "Precio" },
+    "tab": {
+      "toAnswer": "Por responder",
+      "waiting": "Esperando al cliente",
+      "history": "Historial"
+    },
+    "column": {
+      "customer": "Cliente",
+      "service": "Servicio",
+      "status": "Estado",
+      "price": "Importe propuesto",
+      "description": "Descripción breve",
+      "deadline": "Plazo"
+    },
     "emptyTitle": "Sin solicitudes de presupuesto",
     "emptyText": "Marca un servicio como «a presupuesto» y las solicitudes aparecerán aquí.",
     "noMatchesTitle": "Nada en esta lista",
@@ -233,7 +249,14 @@
     "completedBookings_zero": "primera vez en Ntizo",
     "historyTitle": "Historial",
     "requestReceived": "Solicitud recibida",
-    "movedOn": "Esta solicitud ha cambiado mientras tanto. La hemos vuelto a cargar."
+    "movedOn": "Esta solicitud ha cambiado mientras tanto. La hemos vuelto a cargar.",
+    "eyebrow": "Presupuestos",
+    "heading": "Solicitudes de presupuesto",
+    "subtitle": "Estas son las solicitudes de presupuesto de clientes que necesitan sus servicios.",
+    "answer": "Responder",
+    "deadlineUntil": "hasta las {{time}}",
+    "deadlineIn": "dentro de {{left}}",
+    "deadlinePassed": "Expiró"
   },
   "propose": {
     "title": "Tu propuesta",

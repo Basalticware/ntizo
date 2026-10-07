@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ComponentType, type ReactNode, type SVGProps } from "react";
 import { ChevronDown } from "lucide-react";
 
 /**
@@ -18,8 +18,17 @@ export function FilterPill({
   label,
   active,
   clear,
+  icon: Icon,
+  id,
   children,
 }: {
+  /** On the `<details>`, so something else on the page can open this pill. */
+  id?: string;
+  /**
+   * A glyph in a soft blue disc at the pill's start — the mockups draw one on
+   * the first pill of the bar. Decoration: the label is the pill's name.
+   */
+  icon?: ComponentType<SVGProps<SVGSVGElement>>;
   label: string;
   /** The chosen option's label. Present means applied, and the pill fills. */
   active?: string | undefined;
@@ -62,7 +71,7 @@ export function FilterPill({
   const on = active != null;
   return (
     <div className="relative inline-flex">
-      <details ref={ref}>
+      <details ref={ref} id={id}>
         <summary
           /* Once applied, the pill draws the chosen option in place of the
              group's own name — "Fixed price", with "How you pay" gone — and a
@@ -75,15 +84,23 @@ export function FilterPill({
             // pill that turned semibold grew, and the pill after it moved.
             // Only the colours say which one is on — the same rule
             // `pagerPageClass` and `facetOptionClass` keep.
-            "flex h-[38px] cursor-pointer list-none items-center gap-[7px] rounded-full border px-3.5 text-[13.5px] font-medium transition-colors [&::-webkit-details-marker]:hidden",
+            "flex h-[38px] cursor-pointer list-none items-center gap-2 rounded-[19px] border pr-3.5 pl-4 text-[13px] font-medium whitespace-nowrap transition-colors [&::-webkit-details-marker]:hidden",
             on
-              ? "border-[var(--color-navy-surface)] bg-[var(--color-navy-surface)] text-[var(--color-navy-on)]"
-              : "border-[var(--color-border-strong)] bg-[var(--color-background)] text-[var(--color-foreground)] hover:border-[var(--color-headline)]",
+              ? "border-[var(--color-blue-line)] bg-[var(--color-blue-soft)] text-[#1f4fd0]"
+              : "border-[#e9eef6] bg-[var(--color-background)] text-[var(--color-ink-2)] hover:border-[var(--color-blue-line)]",
             clear ? "pr-9" : "",
           ].join(" ")}
         >
+          {Icon && (
+            <span
+              aria-hidden="true"
+              className="-ml-2.5 grid h-[26px] w-[26px] place-items-center rounded-full bg-[#dbecfe]"
+            >
+              <Icon className="h-[15px] w-[15px] text-[#0b5cfd]" strokeWidth={2} />
+            </span>
+          )}
           {active ?? label}
-          {!on && <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />}
+          {!on && <ChevronDown className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden="true" />}
         </summary>
         <div className="absolute top-[calc(100%+6px)] left-0 z-20 grid min-w-56 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-float)]">
           {children}
@@ -107,7 +124,7 @@ export function FilterPill({
  * goes back to. See `FilterPill`'s `clear` for why it is outside the summary.
  */
 export const PILL_CLEAR_CLASS =
-  "grid h-[18px] w-[18px] place-items-center rounded-full text-[var(--color-navy-on)] transition-colors hover:bg-white/20";
+  "grid h-[18px] w-[18px] place-items-center rounded-full text-[#1f4fd0] transition-colors hover:bg-[var(--color-blue-line)]";
 
 /**
  * The row the pills sit in, above the results and under the heading.
@@ -133,7 +150,7 @@ export const PILL_CLEAR_CLASS =
  */
 export function FilterBar({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-6 hidden flex-wrap items-center gap-2 border-b border-[var(--color-border)] pt-1.5 pb-5 lg:flex">
+    <div className="mt-5 hidden flex-wrap items-center gap-x-3 gap-y-2.5 lg:flex">
       {children}
     </div>
   );

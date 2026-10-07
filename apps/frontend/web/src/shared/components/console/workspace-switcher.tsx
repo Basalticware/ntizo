@@ -88,19 +88,19 @@ export function WorkspaceCard({ commission }: { commission: string | null }) {
         <button
           type="button"
           data-slot="workspace-card"
-          className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-[var(--color-muted)] group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+          className="flex w-full items-center gap-4 rounded-xl text-left group-data-[collapsible=icon]:justify-center"
         >
-          <Avatar className="h-12 w-12 shrink-0 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
+          <Avatar className="h-[60px] w-[60px] shrink-0 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
             {detail?.logo?.url ? <AvatarImage src={detail.logo.url} alt="" /> : null}
             <AvatarFallback className="bg-[color-mix(in_srgb,var(--color-primary)_14%,transparent)] text-sm font-semibold text-[var(--color-primary)]">
               {name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <span className="grid min-w-0 flex-1 leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="line-clamp-2 text-[15px] font-bold text-[var(--color-headline)]">{name}</span>
-            {place && <span className="truncate text-[13px] text-[var(--color-muted-foreground)]">{place}</span>}
+            <span className="truncate text-[17px] leading-tight font-bold text-[var(--color-headline)]">{name}</span>
+            {place && <span className="mt-[3px] truncate text-[15px] leading-tight text-[var(--color-muted-foreground)]">{place}</span>}
           </span>
-          <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-[var(--color-headline)] group-data-[collapsible=icon]:hidden" />
+          <ChevronDown aria-hidden="true" className="size-5 shrink-0 text-[var(--color-headline)] group-data-[collapsible=icon]:hidden" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64">

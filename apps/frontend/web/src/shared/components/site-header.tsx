@@ -1,90 +1,105 @@
 import type { ComponentProps } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  cn,
+} from "@ntizo/frontend-ui";
 import { HeaderActions } from "@/shared/components/header-actions";
 import { ServiceSearch } from "@/shared/components/service-search";
 import { PUBLIC_NAV } from "@/shared/lib/public-nav";
+import { useServiceCities } from "@/features/directory/services/viewmodel/use-browse-services";
 
 /**
- * A destination in the header: text, and nothing else.
+ * A destination in the header, as the October 2026 mockups draw it
+ * (`client/public.css`, `.ph nav a`): ink text, and the lit one blue and bold
+ * with a 3px bar on the header's bottom edge. The bar is drawn by `::after`
+ * on a link that is the header's full height, so it sits on the border rather
+ * than under the word.
  *
- * It was a pill group until 7 September 2026 — a muted capsule, an icon per
- * item, and the lit one filled with the site's blue. Beside the search bar
- * that is two enclosed shapes competing at the same size, and the blue read
- * as the page's primary action when the primary action is the search's own
- * button. Weight and colour carry the current page instead, which is all the
- * pill was ever saying.
- *
- * The icons went with the capsule. They were legible at pill size and are
- * noise beside bare words; the phone's bottom bar still draws them, where a
- * tab target wants a glyph and the labels are 10px.
- *
- * Navy rather than the blue for the lit one: `--color-headline` is what this
- * site makes things important with, and it leaves the blue meaning "this is
- * the button you press".
+ * This supersedes the bare navy text of 7 September 2026: the mockups the
+ * user approved light the current page in the public blue.
  */
 function navLinkClassName(active: boolean, overlay: boolean): string {
   if (overlay) {
     return active
-      ? "text-sm font-semibold text-white"
-      : "text-sm font-medium text-white/70 hover:text-white";
+      ? "flex h-full items-center gap-1.5 text-sm font-bold whitespace-nowrap text-white"
+      : "flex h-full items-center gap-1.5 text-sm font-medium whitespace-nowrap text-white/75 hover:text-white";
   }
-  return active
-    ? "text-sm font-semibold whitespace-nowrap text-[var(--color-headline)]"
-    : "text-sm font-medium whitespace-nowrap text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]";
+  return cn(
+    "relative flex h-full items-center gap-1.5 text-sm whitespace-nowrap",
+    active
+      ? "font-bold text-[#004bf4] after:absolute after:inset-x-[-8px] after:bottom-0 after:h-[3px] after:rounded-[2px] after:bg-[var(--color-blue-public)]"
+      : "font-medium text-[#2b3a66] hover:text-[var(--color-headline)]",
+  );
 }
 
 /**
- * The header every public page wears.
+ * "Cidades ▾": the cities that actually have services, each opening the
+ * services list narrowed to it.
  *
- * Two grounds, one structure. `overlay` puts it on top of the landing hero's
- * artwork — transparent, white logo, white controls; without it, it sits on
- * the page as a solid bar with the primary logo. The alternative was a header
- * per page, which is how the directory ended up with none at all: a public
- * page linked from the landing, with no way back and no account menu.
+ * Read from the same facet the list's own City pill offers, so the header
+ * can never name a city whose list is empty. Nothing at all until there are
+ * two — a menu with one city in it is a link pretending to be a choice.
+ */
+function CitiesMenu({ className }: { className: string }) {
+  const { t } = useTranslation("landing");
+  const navigate = useNavigate();
+  const cities = useServiceCities();
+  if (cities.length < 2) return null;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <button type="button" className={className}>
+          {t("nav.cities")}
+          <ChevronDown className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56">
+        {cities.map((c) => (
+          <DropdownMenuItem
+            key={c.city}
+            onSelect={() => void navigate({ to: "/services", search: { city: c.city } })}
+          >
+            {c.city}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/**
+ * The header every public page wears — `client/public.css`'s `.ph.ph-search`.
  *
- * **The search lives here, not on the pages.** It used to be drawn three
- * times — the landing hero's big field, and a 760px band under the header on
- * each of the two browse pages — which meant a reader who wanted a different
- * service had to be on one of those three pages to ask for it. One bar, in
- * the one place that is on every screen, and the pages below it are free to
- * begin with their own content.
+ * One 68px row, in the mockups' order: the logo; the site's search field and
+ * its "Pesquisar" button; the destinations; then the language, and "Entrar"
+ * with a blue "Criar conta" for a visitor — the bell and the avatar menu for
+ * somebody signed in.
  *
- * The three destinations moved to the right in the same change. They sit
- * beside the account controls rather than in a column of their own: two
- * clusters and a field reads as a bar, where three separated groups read as
- * three. They are bare text — see `navLinkClassName` for why the capsule and
- * the icons went. There are three and only three: the provider's door lives
- * in the footer's Company column, and a day spent in this row proved why —
- * see the header test that now keeps it out.
+ * **The search stays in the bar on every page.** The mockups draw the bar
+ * with a search on the service page and without one elsewhere; the user chose
+ * the search everywhere, so a reader who wants a different service never has
+ * to find their way back to a page that happens to have a field.
  *
- * **The bar is centred in the window, and the middle track's width is what
- * centres it.** Two earlier versions both read as a centring that had
- * failed, and for the same reason: they centred the bar in the space left
- * over between the logo and the right-hand cluster, and those are 87px and
- * 403px, so the middle of what is left sits well left of the middle of the
- * screen.
+ * **Two of the mockups' items are not here.** "Como funciona" has no page or
+ * section to land on — the home page's section of that name was removed — and
+ * a link that goes nowhere is worse than none. The location field ("Maputo
+ * ▾") is the services list's City filter again, so the list's own bar carries
+ * it. "Cidades" is here because the list can be narrowed to a city, and only
+ * once there are cities to choose between: see `CitiesMenu`.
  *
- * A bare `1fr` is `minmax(auto, 1fr)`: a track that cannot go below its own
- * content but takes an equal share of whatever is free. So the two outer
- * tracks come out the same width — and the bar exactly centred — for as long
- * as that equal share is at least the 403px the cluster needs. Which is a
- * sum: `shell − bar − 64px of gap ≥ 2 × 403`, and the shell is
- * `min(1320px, 100vw − 48px)`. Solve it for the bar and you get
- * `100vw − 918px`, capped at 450 where the shell stops growing.
+ * The side inset is the page's `--pw-pad`, through `.public-inset`, so the
+ * logo lines up with the content under it on every page.
  *
- * Hence `clamp(362px, calc(100vw - 918px), 450px)`. Measured: dead centre at
- * 768, 900, 1280, 1368, 1440, 1600 and 1920. The floor is what the band from
- * 1024 to 1279 costs — there the three destinations are showing and the
- * window is narrow, and exact centring would want a 234px field, so the bar
- * keeps 362px and sits left instead. A bar nobody can type in is worse than
- * a bar that is not quite centred.
- *
- * 450 rather than the 520 the bar had while it was anchored to the logo:
- * centring is bought with width, and that is the price. `minmax(0, …)` is a
- * maximum and not a floor, so the bar still gives way before either side
- * does — which is what keeps this honest in the languages whose three
- * destinations run wider than Portuguese's.
+ * `overlay` puts it on top of artwork — transparent, white logo, white
+ * controls. Nothing passes it today; it is kept so a page with a hero image
+ * does not need a second header.
  */
 export function SiteHeader({
   overlay = false,
@@ -113,94 +128,85 @@ export function SiteHeader({
   search?: ComponentProps<typeof ServiceSearch>;
 }) {
   const { t } = useTranslation("landing");
+  const { t: ta } = useTranslation("auth");
 
   return (
     <header
       className={
         overlay
           ? "absolute inset-x-0 top-0 z-20"
-          : "sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-background)]"
+          : "sticky top-0 z-20 border-b border-[#eef2f8] bg-[var(--color-background)]"
       }
     >
-      {/* A wrapping flex below `md`, the three-column grid above it. On a
-          phone the search takes a row of its own — a field between the logo
-          and the account controls has about 90px to live in — and
-          `order-last` plus `w-full` is what puts it there. One element moved
-          by the layout, rather than a second copy rendered per breakpoint,
-          which would put two searchboxes and two identical labels in the
-          document on every page. */}
-      <div className="page-shell flex flex-wrap items-center gap-x-4 gap-y-3 py-3.5 md:grid md:h-[84px] md:grid-cols-[1fr_minmax(0,clamp(362px,calc(100vw-918px),450px))_1fr] md:gap-x-6 md:py-0 lg:gap-x-8">
-        <Link to="/" className="shrink-0 md:justify-self-start">
-          {/* `max-w-none` undoes Tailwind's preflight, which caps every `img`
-              at `max-width: 100%`. That cap makes the logo's min-content
-              contribution nearly nothing, so the left track collapsed and
-              scaled the wordmark down — 87px to 59px at a 1024px viewport —
-              instead of the bar giving up the width it was told to give up.
-              A logo that changes size with the window is not a logo. */}
+      {/* A wrapping flex below `md`: the logo and the account controls on the
+          first row, the search on a row of its own — `order-last` plus
+          `w-full` is what puts it there. One element moved by the layout,
+          rather than a second copy per breakpoint, which would put two
+          searchboxes and two identical labels in the document. From `md` it
+          is the mockup's single row. */}
+      <div
+        className={cn(
+          "public-inset flex flex-wrap items-center gap-x-2.5 gap-y-3 py-3 text-sm font-medium whitespace-nowrap md:h-[67px] md:flex-nowrap md:py-0",
+          overlay ? "text-white" : "text-[#2b3a66]",
+        )}
+      >
+        {/* `max-w-none` undoes Tailwind's preflight, which caps every `img`
+            at `max-width: 100%` — in a row that is short of room that cap
+            lets the wordmark shrink instead of the search field. A logo that
+            changes size with the window is not a logo. */}
+        <Link to="/" className="shrink-0">
           <img
             src={overlay ? "/brand/logo-white.svg" : "/brand/logo-primary.svg"}
             alt="Ntizo"
-            className="h-7 max-w-none"
+            className="h-8 w-auto max-w-none"
           />
         </Link>
 
-        {/* `min-w-0` so the bar may shrink below its content's width. Without
-            it the middle track refuses to give ground and the account
-            controls are pushed off the right of the shell — which scrolls the
-            whole page sideways, not just the header. */}
-        <div className="order-last w-full min-w-0 md:order-none">
+        {/* `min-w-0` so the field gives way before anything else does: the
+            destinations and the account controls are `nowrap` and keep their
+            width, and the field is the one thing in the row that still works
+            narrower. 190px plus the button is the mockup's width. */}
+        <div className="order-last w-full min-w-0 md:order-none md:ml-[26px] md:w-auto md:max-w-[315px] md:flex-1">
           <ServiceSearch {...search} className="w-full" />
         </div>
 
-        {/* `ml-auto` is the phone's: it pushes the controls to the right of
-            the logo on the first row. From `md` the grid places them, and
-            `justify-self-end` holds them at the shell's right edge however
-            wide the track around them turns out to be. */}
-        <div className="ml-auto flex items-center gap-2 md:ml-0 md:justify-self-end lg:gap-3.5">
-          <nav className="hidden items-center gap-6 lg:flex">
-            {PUBLIC_NAV.map((item) => (
-              <Link
-                key={item.key}
-                to={item.to}
-                className={navLinkClassName(item.key.endsWith(current), overlay)}
-              >
-                {t(item.key)}
-              </Link>
-            ))}
-          </nav>
+        <nav className="ml-3 hidden h-full items-center gap-4 lg:flex">
+          {PUBLIC_NAV.map((item) => (
+            <Link
+              key={item.key}
+              to={item.to}
+              className={navLinkClassName(item.key.endsWith(current), overlay)}
+            >
+              {t(item.key)}
+            </Link>
+          ))}
+          <CitiesMenu className={navLinkClassName(false, overlay)} />
+        </nav>
 
-          {/* Only where the nav is. Below `lg` the cluster is the account
-              controls alone, and a rule with nothing on one side of it. */}
-          <span
-            aria-hidden="true"
-            className={
-              overlay
-                ? "hidden h-6 w-px bg-white/30 lg:block"
-                : "hidden h-6 w-px bg-[var(--color-border)] lg:block"
-            }
-          />
-
-          {/* `whitespace-nowrap` on everything in this cluster, and it is
-              load-bearing rather than cosmetic. The middle track is
-              `minmax(0, 450px)` precisely so the bar gives way before either
-              side does — but a track's floor is its *min-content*, and text
-              that may wrap has a min-content of its longest word. Left to
-              wrap, "Sign in" broke over two lines at 1024px while the bar
-              stayed at its full 450, which is the cluster being squeezed
-              instead of the thing that was meant to yield. */}
+        <div className="ml-auto flex h-full shrink-0 items-center">
           <HeaderActions
             onDark={overlay}
             signedOutAction={
-              <Link
-                to="/sign-in"
-                className={
-                  overlay
-                    ? "font-rounded rounded-full bg-white/95 px-5 py-2.5 text-sm font-bold whitespace-nowrap text-[#0e1f37]"
-                    : "font-rounded rounded-full bg-[var(--color-primary)] px-5 py-2.5 text-sm font-bold whitespace-nowrap text-white"
-                }
-              >
-                {t("signIn")}
-              </Link>
+              <>
+                <Link
+                  to="/sign-in"
+                  className={cn(
+                    "font-semibold whitespace-nowrap",
+                    overlay ? "text-white" : "text-[var(--color-blue-public)]",
+                  )}
+                >
+                  {t("signIn")}
+                </Link>
+                {/* The bar's one filled shape besides the search's own
+                    button. Hidden on a phone, where the row is the logo and
+                    two controls and the sign-in page offers the account. */}
+                <Link
+                  to="/sign-up"
+                  className="hidden h-[42px] items-center justify-center rounded-[10px] bg-[var(--color-blue-public)] px-[22px] font-semibold whitespace-nowrap text-white hover:opacity-90 sm:inline-flex"
+                >
+                  {ta("signUp")}
+                </Link>
+              </>
             }
           />
         </div>

@@ -81,9 +81,9 @@ const TABLE_AT: Record<CollectionBreakpoint, string> = {
 };
 /** The table's frame — only where there is a table; the phone's cards are their own boxes. */
 const FRAME_AT: Record<CollectionBreakpoint, string> = {
-  md: "md:overflow-hidden md:rounded-[var(--radius-card)] md:border md:border-[var(--color-border)] md:bg-[var(--color-card)]",
-  lg: "lg:overflow-hidden lg:rounded-[var(--radius-card)] lg:border lg:border-[var(--color-border)] lg:bg-[var(--color-card)]",
-  xl: "xl:overflow-hidden xl:rounded-[var(--radius-card)] xl:border xl:border-[var(--color-border)] xl:bg-[var(--color-card)]",
+  md: "md:overflow-hidden md:rounded-[14px] md:border md:border-[var(--color-border)] md:bg-[var(--color-card)]",
+  lg: "lg:overflow-hidden lg:rounded-[14px] lg:border lg:border-[var(--color-border)] lg:bg-[var(--color-card)]",
+  xl: "xl:overflow-hidden xl:rounded-[14px] xl:border xl:border-[var(--color-border)] xl:bg-[var(--color-card)]",
 };
 const CARDS_BELOW: Record<CollectionBreakpoint, string> = {
   md: "md:hidden",
@@ -298,10 +298,10 @@ export function CollectionCard({
   );
 
   return (
-    <section aria-label={title} className="grid min-w-0 gap-4">
+    <section aria-label={title} className="grid min-w-0 gap-7">
       {/* The toolbar sits above the frame, not inside it: tabs (or the
           section's own heading) on the left, search and Filtrar on the right. */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-[15px]">
         {/* A visible heading only for a section of a larger page — the
             overview's "Reservas recentes", which comes with its "Ver todas".
             A list that *is* the page already has the page's own title above
@@ -310,16 +310,16 @@ export function CollectionCard({
           <h2 className={action ? "text-xl font-bold text-[var(--color-headline)]" : "sr-only"}>{title}</h2>
         )}
 
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2.5">
+        <div className="flex flex-1 flex-wrap items-center justify-end gap-[15px]">
           {onSearchChange && searchPlaceholder !== undefined && (
-            <div className="relative min-w-[180px] flex-1 sm:max-w-[300px]">
-              <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]" />
+            <div className="relative min-w-[180px] flex-1 sm:max-w-[293px]">
+              <Search className="pointer-events-none absolute top-1/2 left-4 h-[21px] w-[21px] -translate-y-1/2 text-[color-mix(in_srgb,var(--color-primary)_80%,white)]" />
               <Input
                 value={search ?? ""}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
                 aria-label={searchPlaceholder}
-                className="h-11 rounded-[10px] pl-10"
+                className="h-[47px] rounded-[10px] pl-[49px] text-[15px] placeholder:text-[var(--color-faint)]"
               />
             </div>
           )}
@@ -334,9 +334,9 @@ export function CollectionCard({
               variant="outline"
               onClick={onOpenFilters}
               aria-label={t("peopleFilter")}
-              className="h-11 rounded-[10px] border-[color-mix(in_srgb,var(--color-primary)_45%,transparent)] px-4 font-semibold text-[var(--color-primary)] hover:bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)]"
+              className="h-[47px] gap-2.5 rounded-[10px] border-[var(--color-blue-outline)] px-6 text-base font-semibold text-[var(--color-primary)] hover:bg-[color-mix(in_srgb,var(--color-primary)_6%,transparent)]"
             >
-              <Filter className="h-4 w-4" />
+              <Filter className="h-[21px] w-[21px]" />
               <span className="hidden sm:inline">{t("peopleFilter")}</span>
               {activeFilterCount > 0 && (
                 <span className="ml-1 grid h-5 min-w-5 place-items-center rounded-full bg-[var(--color-primary)] px-1.5 text-[11px] font-semibold text-[var(--color-primary-foreground)]">
@@ -353,7 +353,7 @@ export function CollectionCard({
       <div data-slot="collection-table" className={TABLE_AT[tableFrom]}>
         <table className="w-full border-collapse">
           <thead>
-            <tr className="border-b border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-muted)_70%,transparent)]">
+            <tr className="h-[50px] bg-[var(--color-thead)]">
               {/* Deliberately unlabelled: a column header over a drag handle
                   would be read out on every row and names nothing. */}
               {reorder && <th className="w-8" aria-hidden="true" />}
@@ -361,7 +361,7 @@ export function CollectionCard({
                 <th
                   key={column.key}
                   className={cn(
-                    "py-3.5 pr-4 text-left text-sm font-medium text-[var(--color-muted-foreground)]",
+                    "pr-4 pl-6 text-left text-[15px] font-medium text-[var(--color-ink-2)]",
                     column.align === "right" && "text-right",
                     column.className,
                   )}
@@ -406,7 +406,7 @@ export function CollectionCard({
                     setDraggingKey(null);
                   }}
                   className={cn(
-                    "border-b border-[var(--color-border)] last:border-b-0",
+                    "h-[78px] border-t border-[var(--color-line-2)]",
                     draggingKey === row.key && "opacity-40",
                   )}
                 >
@@ -426,12 +426,12 @@ export function CollectionCard({
                       </span>
                     </td>
                   )}
-                  <td className="py-3 pl-5">{row.primary}</td>
+                  <td className="py-2.5 pl-6">{row.primary}</td>
                   {restColumns.map((column) => (
                     <td
                       key={column.key}
                       className={cn(
-                        "type-body py-3 pr-4 align-middle",
+                        "py-2.5 pr-4 pl-6 align-middle text-[15px]",
                         column.align === "right" && "text-right",
                         column.className,
                       )}

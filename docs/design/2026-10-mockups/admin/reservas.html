@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reservas · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* This mockup (listadereserbas.png) has no browser frame and draws the
+     shell a size smaller: 80px bar, 265px rail, 47px nav items. */
+  .console { grid-template-rows: 80px 1fr; }
+  .rail { min-height: calc(100vh - 80px); }
+  .topbar .brand { width: 265px; padding-left: 33px; padding-top: 18px; }
+  .topbar .brand img { height: 36px; }
+  .topbar .brand .zone { font-size: 16.5px; margin-top: 4px; }
+  .topbar .search { margin-left: 11px; width: 813px; height: 47px; padding: 0 19px; gap: 12px; font-size: 14.9px; }
+  .topbar .right { padding-right: 30px; }
+  .topbar .loc { gap: 13px; padding-right: 19.5px; }
+  .topbar .loc svg:last-child { margin-left: -5.5px; }
+  .topbar .sep { height: 31px; }
+  .topbar .bell { padding: 0 25.5px 0 31.5px; }
+  .topbar .bell svg { width: 30px; height: 30px; }
+  .topbar .me { padding-left: 23px; gap: 14px; }
+  .topbar .me img { width: 54px; height: 54px; }
+  .topbar .me b, .topbar .me span { font-size: 15.5px; }
+  .topbar .me > div { width: 135px; }
+  .topbar .me svg { width: 24px; height: 24px; margin-left: 15px; }
+
+  .body { grid-template-columns: 265px 1fr; }
+  .rail { padding: 24px 14px 0 13px; }
+  .nav { gap: 4.5px; }
+  .nav a { height: 47px; padding: 0 21px; gap: 25px; }
+  .nav a svg { width: 25px; height: 25px; }
+
+  .main { padding: 12px 26px 0 27px; }
+  .page-title { font-size: 42px; }
+  .page-sub { font-size: 18px; margin-top: 6px; }
+
+  .adm-tabs { gap: 21px; margin-top: 19px; }
+  .adm-tabs .tab, .adm-tabs .tab.on { height: 56px; padding: 3px 22px 0 24px; font-size: 16px; }
+  .adm-tabs .tab.on { padding-right: 26px; }
+  .adm-tabs .chip { margin-top: -2px; }
+  .adm-tabs .chip, .adm-tabs .tab.on .chip { height: 32px; padding: 0 12px; border-radius: 16px; font-size: 16px; }
+  .adm-tabs .tab.on .chip { padding: 0 13px; }
+  .adm-tabs .tab:nth-child(1) { width: 171px; }
+  .adm-tabs .tab:nth-child(2) { width: 177px; }
+  .adm-tabs .tab:nth-child(3) { width: 199px; }
+  .adm-tabs .tab:nth-child(4) { width: 186px; }
+  .adm-tabs .tab:nth-child(5) { width: 192px; }
+  .adm-tabs .chip.info { background: #e3effe; color: #1a56db; }
+
+  .adm-filters { gap: 21px; margin-top: 25px; }
+  .adm-filters .field { width: 452px; height: 55px; padding: 0 21px; gap: 13px; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .adm-filters .select { width: 226px; height: 55px; padding: 0 17px 0 16px; justify-content: flex-start; gap: 0; }
+  .select .lead { width: 22px; height: 22px; color: #0d1466; margin-right: 18px; }
+  .select .two-line { display: grid; gap: 3px; }
+  .select .two-line small { font-size: 14px; color: #6d7ab0; line-height: 1.1; }
+  .select .two-line span { font-size: 16px; font-weight: 500; color: var(--ink); line-height: 1.1; }
+  .select > svg:last-child { margin-left: auto; }
+  .adm-filters .btn-outline { width: 153px; height: 55px; justify-content: center; font-size: 18px; gap: 16px; }
+
+  .adm-table { margin-top: 26px; }
+  .adm-table .head { height: 44px; }
+  .adm-table .row { grid-template-columns: 277px 220px 236px 179px 125px 133px 133px 1fr; }
+  .adm-table .head > div { padding-left: 2px; }
+  .adm-table .head > div:first-child { padding-left: 18px; }
+  .adm-table .body-row { padding-top: 1px; }
+  .adm-table .body-row > :first-child { padding-left: 15px; }
+  .adm-table .person { gap: 22px; }
+  .adm-table .person.pro { gap: 15px; }
+  .adm-table .person img { width: 53px; height: 53px; }
+  .adm-table .person b, .adm-table .two b { font-size: 15px; }
+  .adm-table .person span, .adm-table .two span { font-size: 13.5px; margin-top: 6px; }
+  .adm-table .person span svg { width: 15px; height: 15px; color: #4d5fa4; }
+  .adm-table .person span .star { color: #ffb61e; fill: #ffb61e; stroke-width: 1; width: 17px; height: 17px; }
+  .adm-table .person.pro span { font-size: 14px; gap: 7px; }
+  .adm-table .two { padding-left: 2px; }
+  .adm-table .two b { font-size: 15px; }
+  .adm-table .two span { font-size: 13.5px; }
+  .adm-table .when { gap: 16px; align-items: center; padding-left: 0; margin-top: 4px; }
+  .adm-table .when svg { width: 22px; height: 22px; color: #0a50fb; margin: 0; transform: translateY(-4px); }
+  .adm-table .when b { font-size: 15px; font-weight: 500; color: var(--ink); }
+  .adm-table .when span { font-size: 14px; color: #5d6aa7; margin-top: 5px; }
+  .adm-table .money { font-size: 15.5px; padding-left: 1px; }
+  .adm-table .pill { width: 103px; padding: 0; margin-left: 1px; font-size: 14px; }
+  .adm-table .pill.warn { background: #fef4df; color: #f08a10; }
+  .adm-table .pill.ok { background: #dcfbe8; color: #18a046; }
+  .adm-table .pill.info { background: #e6f2fe; color: #1f5fe0; }
+  .adm-table .pill.bad { background: #feecec; color: #f2121a; }
+  .adm-table .btn-details { width: 118px; height: 39px; font-size: 14.5px; font-weight: 500; margin-left: 1px; }
+
+  .adm-foot { height: 48px; margin-top: 12px; font-size: 15px; }
+  .pager { gap: 0; }
+  .pager > * { width: 44px !important; }
+  .pager .prev, .pager .next { width: 39px !important; height: 38px; border: 1px solid #e3ecfb; border-radius: 9px; color: #4d6fd8; margin: 0; }
+  .pager .prev { margin-right: 9px; }
+  .pager .next { width: 40px !important; margin-left: 13px; color: #0d1466; }
+  .pager .on { width: 36px !important; height: 35px; background: #075cfe; color: #fff; border-radius: 6px; margin-right: 4px; }
+  .pager span { font-size: 16px; color: #24306f; }
+  .pager > :nth-child(8) { width: 51px !important; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"><span class="zone">Admin</span></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:18px;height:18px"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/adm-shell-joaquim.png" alt=""><div><b>Joaquim Cuna</b><span>Administrador</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <nav class="nav">
+        <a href="painel.html"><i data-lucide="house"></i>Painel</a>
+        <a href="prestadores.html"><i data-lucide="users"></i>Prestadores</a>
+        <a class="on" href="reservas.html"><i data-lucide="calendar"></i>Reservas</a>
+        <a href="suporte.html"><i data-lucide="message-square"></i>Suporte</a>
+        <a href="contactos.html"><i data-lucide="image"></i>Contactos</a>
+        <a href="avaliacoes.html"><i data-lucide="star"></i>Avaliações</a>
+        <a href="utilizadores.html"><i data-lucide="users"></i>Utilizadores</a>
+        <a href="atividade.html"><i data-lucide="activity"></i>Atividade</a>
+        <a href="categorias.html"><i data-lucide="layout-grid"></i>Categorias</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <h1 class="page-title">Reservas</h1>
+      <p class="page-sub">Gerir reservas, acompanhar estados e resolver casos que exigem intervenção.</p>
+
+      <div class="adm-tabs">
+        <button class="tab on">Todas <span class="chip">148</span></button>
+        <button class="tab">Por rever <span class="chip warn">12</span></button>
+        <button class="tab">Confirmadas <span class="chip ok">58</span></button>
+        <button class="tab">Concluídas <span class="chip info">61</span></button>
+        <button class="tab">Canceladas <span class="chip bad">17</span></button>
+      </div>
+
+      <div class="adm-filters">
+        <div class="field"><i data-lucide="search"></i>Pesquisar por cliente, prestador ou serviço...</div>
+        <div class="select"><i data-lucide="wallet" class="lead"></i><div class="two-line"><small>Estado</small><span>Todos</span></div><i data-lucide="chevron-down"></i></div>
+        <div class="select"><i data-lucide="calendar" class="lead"></i><div class="two-line"><small>Data</small><span>Todos</span></div><i data-lucide="chevron-down"></i></div>
+        <div class="select"><i data-lucide="map-pin" class="lead"></i><div class="two-line"><small>Cidade</small><span>Todas</span></div><i data-lucide="chevron-down"></i></div>
+        <button class="btn-outline"><i data-lucide="filter"></i>Filtrar</button>
+      </div>
+
+      <div class="adm-table">
+        <div class="row head"><div>Cliente</div><div>Prestador</div><div>Serviço</div><div>Quando</div><div>Preço</div><div>Estado</div><div>Ações</div><div></div></div>
+        <div id="rows"></div>
+      </div>
+
+      <div class="adm-foot">
+        <span>A mostrar 1–8 de 148 reservas</span>
+        <div class="pager">
+          <span class="prev"><i data-lucide="chevron-left"></i></span>
+          <span class="on">1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>...</span><span>19</span>
+          <span class="next"><i data-lucide="chevron-right"></i></span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const rows = [
+  ["silvia","Sílvia Nhamopossa","Maputo, Central","carla","Carla Sitoe","4.9 (128)","Corte de cabelo","Beleza e Estética","11 Out 2024","10:00 – 11:00","600 MZN","warn","Por rever"],
+  ["tomas","Tomás Guambe","Maputo, Sommershield","manuel","Manuel Cossa","4.8 (96)","Reparação de fuga","Canalização","11 Out 2024","14:00 – 16:00","1 200 MZN","ok","Confirmada"],
+  ["ana","Ana Mucaua","Maputo, Costa do Sol","carlos","Carlos Massango","4.7 (203)","Instalação de ar condicionado","Ar condicionado","12 Out 2024","09:00 – 12:00","2 500 MZN","ok","Confirmada"],
+  ["nelson","Nelson Chirindza","Maputo, Polana","jorge","Jorge Machava","4.9 (74)","Manutenção de computador","Informática","13 Out 2024","08:00 – 10:00","900 MZN","info","Concluída"],
+  ["beatriz","Beatriz Langa","Maputo, Malhangalene","sonia","Sónia Uamusse","4.8 (112)","Limpeza geral da casa","Limpeza","14 Out 2024","15:00 – 17:00","1 500 MZN","bad","Cancelada"],
+  ["antonio","António Matusse","Maputo, Matola","felix","Félix Nhantumbo","4.6 (87)","Instalação de termoacumulador","Canalização","15 Out 2024","09:00 – 12:00","2 000 MZN","ok","Confirmada"],
+  ["carlaj","Carla Jossias","Maputo, Central","tania","Tânia Mabjaia","4.9 (154)","Corte e hidratação","Beleza e Estética","16 Out 2024","10:00 – 11:30","700 MZN","info","Concluída"],
+  ["ivandro","Ivandro Chissano","Maputo, Costa do Sol","paulo","Paulo Dlhovo","4.7 (91)","Reparação de eletrodoméstico","Eletrodomésticos","17 Out 2024","14:00 – 16:00","1 100 MZN","warn","Por rever"],
+];
+const heights = [73, 70, 72, 73, 73, 73, 74, 74];
+document.getElementById("rows").innerHTML = rows.map(([ci,cn,cp,pi,pn,pr,svc,cat,day,time,price,tone,status], i) => `
+  <div class="row body-row" style="height:${heights[i]}px">
+    <div class="person"><img src="../assets/adm-reservas-${ci}.png" alt=""><div><b>${cn}</b><span><i data-lucide="map-pin"></i>${cp}</span></div></div>
+    <div class="person pro"><img src="../assets/adm-reservas-${pi}.png" alt=""><div><b>${pn}</b><span><i data-lucide="star" class="star"></i>${pr}</span></div></div>
+    <div class="two"><b>${svc}</b><span>${cat}</span></div>
+    <div class="when"><i data-lucide="calendar"></i><div><b>${day}</b><span>${time}</span></div></div>
+    <div class="money">${price}</div>
+    <div><span class="pill ${tone}">${status}</span></div>
+    <div><a class="btn-details" href="#">Ver detalhes</a></div>
+    <div><i data-lucide="ellipsis" class="dots"></i></div>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

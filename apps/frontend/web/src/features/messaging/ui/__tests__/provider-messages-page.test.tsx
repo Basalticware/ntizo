@@ -206,6 +206,18 @@ describe("ProviderMessagesPage: listing conversations", () => {
     expect(screen.queryByText("Studio Beleza")).toBeNull();
   });
 
+  it("counts the conversations on the tabs, and narrows the list to the unread", async () => {
+    renderPage("/provider/studio-beleza/messages");
+
+    const unread = await screen.findByRole("tab", { name: /Unread/ });
+    await waitFor(() => expect(unread).toHaveTextContent("1"));
+    expect(screen.getByRole("tab", { name: /All/ })).toHaveTextContent("2");
+
+    await userEvent.click(unread);
+    expect(screen.getByText("Ana Silva")).toBeInTheDocument();
+    expect(screen.queryByText("Carlos Mendes")).toBeNull();
+  });
+
   it("shows an unread count only for the other side's unread messages", async () => {
     // The fixture's own shape already carries this: t1 has 2 messages the
     // customer sent that this workspace has not yet read, t2 has none —
@@ -213,7 +225,8 @@ describe("ProviderMessagesPage: listing conversations", () => {
     // unread messages for the viewer, never the viewer's own sent ones.
     renderPage("/provider/studio-beleza/messages");
 
-    expect(await screen.findByText("2")).toBeInTheDocument();
+    // On the row itself — the tabs above carry counts of their own.
+    expect(await screen.findByLabelText(/^2 unread/)).toHaveTextContent("2");
     // The read thread has `unreadCount: 0` — no badge at all for it, not a
     // badge reading "0".
     expect(screen.queryByText("0")).toBeNull();

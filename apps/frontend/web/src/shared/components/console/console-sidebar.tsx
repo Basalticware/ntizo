@@ -24,13 +24,18 @@ export function ConsoleSidebar({
   footer?: ReactNode;
 }) {
   return (
-    // Starts under the 76px top bar rather than at the window's top edge.
-    <Sidebar collapsible="icon" className="top-[76px] h-[calc(100svh-76px)] border-r-[var(--color-border)]">
-      {header && <SidebarHeader className="px-4 pt-5 pb-2 group-data-[collapsible=icon]:px-2">{header}</SidebarHeader>}
-      <SidebarContent className="px-2 pt-3 group-data-[collapsible=icon]:px-0">
+    // Under the 91px top bar; the measures are
+    // docs/design/2026-10-mockups/provider/reservas.html's rail.
+    <Sidebar collapsible="icon" className="top-[91px] h-[calc(100svh-91px)] border-r-[var(--color-border)] [&_[data-slot=sidebar-inner]]:bg-[var(--color-rail)]">
+      {header && (
+        <SidebarHeader className="px-4 pt-[22px] pb-[22px] pl-[22px] group-data-[collapsible=icon]:px-2">{header}</SidebarHeader>
+      )}
+      <SidebarContent className="pr-4 pl-5 group-data-[collapsible=icon]:px-0">
         <ConsoleNavItems nav={nav} slug={slug} />
       </SidebarContent>
-      {footer && <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden">{footer}</SidebarFooter>}
+      {footer && (
+        <SidebarFooter className="pt-0 pr-4 pb-0 pl-5 group-data-[collapsible=icon]:hidden">{footer}</SidebarFooter>
+      )}
       <SidebarRail />
     </Sidebar>
   );

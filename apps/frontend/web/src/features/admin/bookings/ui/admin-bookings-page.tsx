@@ -2,12 +2,25 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { CalendarCheck, MessageSquareWarning } from "lucide-react";
-import type { AdminBookingTab } from "@ntizo/shared/read-models";
+import { ADMIN_BOOKING_TABS, type AdminBookingTab } from "@ntizo/shared/read-models";
 import { Button } from "@ntizo/frontend-ui";
-import { CollectionCard, type CollectionRow } from "@/shared/components/collection-card";
+import type { CollectionRow } from "@/shared/components/collection-card";
+import { WhenCell } from "@/shared/components/list-cells";
+import type { StatusTab } from "@/shared/components/status-tabs";
 import { usePageHeader } from "@/shared/lib/page-header";
+import { shortDate } from "@/shared/lib/relative-day";
 import { compactSlotWording } from "@/features/checkout/domain/slot-wording";
 import { BookingStatusBadge } from "@/features/provider/bookings/ui/booking-status-badge";
+import { formatMoneyShort } from "@/features/wallet/domain/money";
+import { useAdminStats } from "@/features/admin/dashboard/viewmodel/use-admin-dashboard";
+import {
+  AdminFilterBar,
+  AdminListFoot,
+  AdminPerson,
+  AdminTable,
+  AdminTabs,
+  pageRange,
+} from "@/features/admin/shared/ui/admin-list";
 import {
   ADMIN_BOOKINGS_PAGE_SIZE,
   type AdminBookingRowDTO,
@@ -21,17 +34,27 @@ import {
 } from "../viewmodel/use-admin-bookings";
 import { BookingsFilterSheet, DEFAULT_BOOKING_TAB } from "./bookings-filters";
 
+/** A row's action at the mockups' "Ver detalhes" size: outlined blue, 39px. */
+const ACTION_CLASS =
+  "h-[39px] rounded-md border-[var(--color-blue-edge)] text-[14.5px] font-medium text-[var(--color-primary)]";
+
+/** The chip's colour per queue: owed a close is amber, a complaint is red. */
+const TAB_TONE: Record<AdminBookingTab, StatusTab<AdminBookingTab>["tone"]> = {
+  unclosed: "warning",
+  in_window: "info",
+  disputed: "danger",
+};
+
 /**
  * The bookings an administrator has to look at, in the three tabs the queue
  * has: ones nobody closed, ones inside the customer's window, and complaints
  * waiting on a decision.
  *
- * The same card, search box and filter panel as every other list here. The
- * three queues are still tabs in substance — `bookingNeedsAttentionForAdmin`
- * answers a different result set per queue, not the same one narrowed — but
- * the control that picks one lives in the panel behind the card's Filter
- * button, where every other list keeps its filters, rather than in a row of
- * its own above the card.
+ * The admin list layout every admin list shares (`AdminTabs`, `AdminFilterBar`,
+ * `AdminTable`, `AdminListFoot`). The three queues are tabs again, as the
+ * October mockups draw them — `bookingNeedsAttentionForAdmin` answers a
+ * different result set per queue, not the same one narrowed — and the same
+ * pick stays in the panel behind Filtrar, so either control moves the other.
  *
  * **The queue and the page are both in the URL**, so a refresh keeps your
  * place and a link to "the second page of the disputes" is a link. The page
@@ -87,7 +110,7 @@ export function AdminBookingsPage() {
 
   const rows = query.data?.items ?? [];
   const total = query.data?.total ?? 0;
-  const nextOffset = query.data?.nextOffset ?? null;
+  const stats = useAdminStats();
 
   /**
    * The instant every wait on screen is measured from: the moment the page was
@@ -160,10 +183,29 @@ export function AdminBookingsPage() {
     actions.run(action);
   }
 
+  /**
+   * The tabs above the queue. Two numbers are known without a guess: the size
+   * of the tab on screen (while nothing is typed) and the platform's open
+   * disputes, which the dashboard's stats read already counts. The third tab
+   * shows none rather than an invented one.
+   */
+  const tabs: StatusTab<AdminBookingTab>[] = ADMIN_BOOKING_TABS.map((key) => ({
+    key,
+    label: t(`bookingsTab.${key}`),
+    tone: TAB_TONE[key],
+    count:
+      key === tab && query.data && !needle.trim()
+        ? query.data.total
+        : key === "disputed"
+          ? (stats.data?.disputed ?? null)
+          : null,
+  }));
+  const { from, to } = pageRange(offset, rows.length);
+
   return (
-    <div className="flex w-full max-w-[1400px] flex-col gap-4">
+    <div className="flex w-full max-w-[1400px] flex-col">
       {query.isError && (
-        <p role="alert" className="type-body text-[var(--color-destructive)]">
+        <p role="alert" className="type-body mb-4 text-[var(--color-destructive)]">
           {t("bookingsError")}{" "}
           <button type="button" className="underline" onClick={() => void query.refetch()}>
             {t("bookingsRetry")}
@@ -171,11 +213,15 @@ export function AdminBookingsPage() {
         </p>
       )}
 
-      <CollectionCard
-        title={t(`bookingsTab.${tab}`)}
-        shown={rows.length}
-        total={total}
-        loading={query.isLoading}
+      <AdminTabs
+        tabs={tabs}
+        value={tab}
+        onChange={(next) => go({ tab: next })}
+        ariaLabel={t("bookingsQueueLabel")}
+      />
+
+      <AdminFilterBar
+        className="mt-[27px]"
         search={needle}
         onSearchChange={(value) => {
           setNeedle(value);
@@ -187,50 +233,66 @@ export function AdminBookingsPage() {
         searchPlaceholder={t("bookingsSearchPlaceholder")}
         onOpenFilters={() => setFiltersOpen(true)}
         activeFilterCount={tab === DEFAULT_BOOKING_TAB ? 0 : 1}
-        columns={[
-          { key: "provider", label: t("bookingsCol.provider"), className: "pl-5" },
-          { key: "customer", label: t("bookingsCol.customer"), skeletonWidth: "w-24" },
-          { key: "service", label: t("bookingsCol.service"), skeletonWidth: "w-36" },
-          { key: "when", label: t("bookingsCol.when"), skeletonWidth: "w-32" },
-          {
-            key: "status",
-            label: t("bookingsCol.status"),
-            skeletonWidth: "w-28",
-            skeletonShape: "badge",
-          },
-          {
-            key: "actions",
-            label: t("bookingsCol.actions"),
-            align: "right",
-            className: "pr-5",
-            skeletonWidth: "w-40",
-          },
-        ]}
-        emptyTitle={t(`bookingsEmpty.${tab}.title`)}
-        emptyText={t(`bookingsEmpty.${tab}.body`)}
-        emptyBadge={CalendarCheck}
-        // Only the search narrows: a queue is a different question, not a
-        // narrowing of one, so an empty queue with nothing typed is genuinely
-        // empty and says so in that queue's own words.
-        noMatchesTitle={t("bookingsNoMatchesTitle")}
-        noMatchesText={t("bookingsNoMatches")}
-        filtered={needle.trim() !== ""}
-        /**
-         * Cards until a 1024px viewport, not the card's usual 768.
-         *
-         * Measured inside the real `AdminShell` rather than reasoned about,
-         * which is the whole difference: the sidebar takes 16rem from `md`
-         * up, so a 768px viewport leaves this card **462px** — and the table
-         * this row needs is about 730. At that width every action button and
-         * the `ACÇÕES` header sat off the right edge, reachable only by
-         * finding a horizontal scrollbar inside the card. Six columns, the
-         * last of them buttons, simply do not go into 462px; a stacked card
-         * shows all of it. From `lg` the box is 718 and the table fits.
-         */
-        tableFrom="lg"
-        rows={rows.map((b) =>
-          queueRow(b, { locale, now, t, act, actedOn, pending: actions.pending, failure: actions.failure }),
-        )}
+      />
+
+      <div className="mt-[27px]">
+        <AdminTable
+          title={t(`bookingsTab.${tab}`)}
+          shown={rows.length}
+          total={total}
+          loading={query.isLoading}
+          columns={[
+            { key: "customer", label: t("bookingsCol.customer"), className: "w-[230px] pl-[18px]" },
+            { key: "provider", label: t("bookingsCol.provider"), skeletonWidth: "w-32", className: "w-[230px] pl-0" },
+            { key: "service", label: t("bookingsCol.service"), skeletonWidth: "w-36", className: "w-[200px] pl-0" },
+            { key: "when", label: t("bookingsCol.when"), skeletonWidth: "w-32", className: "w-[175px] pl-0" },
+            { key: "price", label: t("bookingsCol.price"), skeletonWidth: "w-20", className: "w-[110px] pl-0" },
+            {
+              key: "status",
+              label: t("bookingsCol.status"),
+              skeletonWidth: "w-28",
+              skeletonShape: "badge",
+              className: "w-[160px] pl-0",
+            },
+            {
+              key: "actions",
+              label: t("bookingsCol.actions"),
+              className: "pr-5 pl-0",
+              skeletonWidth: "w-40",
+            },
+          ]}
+          emptyTitle={t(`bookingsEmpty.${tab}.title`)}
+          emptyText={t(`bookingsEmpty.${tab}.body`)}
+          emptyBadge={CalendarCheck}
+          // Only the search narrows: a queue is a different question, not a
+          // narrowing of one, so an empty queue with nothing typed is genuinely
+          // empty and says so in that queue's own words.
+          noMatchesTitle={t("bookingsNoMatchesTitle")}
+          noMatchesText={t("bookingsNoMatches")}
+          filtered={needle.trim() !== ""}
+          /**
+           * Cards until a 1280px viewport. Seven columns, the last of them
+           * buttons, need the ~1300px the admin shell leaves at the mockups'
+           * width; at 1024 the box is about 718 and the row is a stacked card,
+           * which shows all of it rather than pushing the actions off the
+           * right edge.
+           */
+          tableFrom="xl"
+          rows={rows.map((b) =>
+            queueRow(b, { locale, now, t, act, actedOn, pending: actions.pending, failure: actions.failure }),
+          )}
+        />
+      </div>
+
+      {/* Shown whenever there is anywhere to go, which is not the same
+          question as whether the queue is longer than a page — see
+          `AdminListFoot`. */}
+      <AdminListFoot
+        label={query.isLoading || rows.length === 0 ? null : t("bookingsShowing", { from, to, total })}
+        offset={offset}
+        pageSize={ADMIN_BOOKINGS_PAGE_SIZE}
+        total={total}
+        onOffsetChange={(next) => go({ tab, offset: next })}
       />
 
       <BookingsFilterSheet
@@ -239,32 +301,6 @@ export function AdminBookingsPage() {
         tab={tab}
         onTabChange={(next) => go({ tab: next })}
       />
-
-      {/* Shown whenever there is anywhere to go, which is not the same
-          question as whether the queue is longer than a page. Tied to
-          `total > PAGE_SIZE`, both buttons unmounted the moment the count fell
-          to exactly one page while the reader was standing on the second —
-          the pager disappearing at precisely the moment it was needed. */}
-      {(offset > 0 || nextOffset !== null) && (
-        <div className="flex items-center justify-between">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={offset === 0}
-            onClick={() => go({ tab, offset: Math.max(0, offset - ADMIN_BOOKINGS_PAGE_SIZE) })}
-          >
-            {t("bookingsPrevious")}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={nextOffset === null}
-            onClick={() => nextOffset !== null && go({ tab, offset: nextOffset })}
-          >
-            {t("bookingsNext")}
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
@@ -280,13 +316,12 @@ interface RowContext {
 }
 
 /**
- * One row of the queue: whose workspace, whose booking, what was sold, when it
- * was and how long it has been waiting for somebody here.
+ * One row of the queue: whose booking, whose workspace, what was sold, when
+ * it was, for how much, and how long it has been waiting for somebody here.
  *
- * The workspace is the row's identity rather than the customer's name — an
- * administrator is looking across every workspace on the platform, and "Ana,
- * corte de cabelo" names no one of them — and it is a link to that workspace,
- * because "who is this" is the first question a queue row raises.
+ * The workspace is a link to that workspace, because "who is this" is the
+ * first question a queue row raises about a provider. The customer is not —
+ * there is no admin page for one booking's customer to go to.
  */
 function queueRow(b: AdminBookingRowDTO, ctx: RowContext): CollectionRow {
   const { locale, now, t } = ctx;
@@ -294,68 +329,54 @@ function queueRow(b: AdminBookingRowDTO, ctx: RowContext): CollectionRow {
   const waited = waitedWording(waitingSince(b), now, locale);
   return {
     key: b.id,
-    primary: (
-      <Link
-        to="/admin/providers/$providerId"
-        params={{ providerId: b.providerId }}
-        // `pr-4` on the link rather than on the cell: `CollectionCard` gives
-        // the primary column `pl-5` and no right padding at all, which is
-        // invisible for the avatar-and-name blocks the other lists put there
-        // and not for a workspace's full name, which wraps in the table and
-        // otherwise ends flush against the customer's.
-        className="type-body-medium block pr-4 font-semibold hover:underline"
-      >
-        {b.providerName}
-      </Link>
-    ),
+    primary: <AdminPerson name={b.customerFirstName} title={b.customerFirstName} className="gap-[22px]" />,
     cells: {
-      customer: b.customerFirstName,
-      /**
-       * Truncated hardest exactly where the table is tightest.
-       *
-       * A service name is the longest free text on the row, and in the one
-       * band where the table has least room it was the widest column: 243px
-       * of the 718 a 1024 viewport leaves once the admin sidebar has taken
-       * its 16rem. Below `lg` the row is a card, where the value has a line
-       * of its own and 24ch costs nothing; from `xl` the table's box is 974
-       * and can afford it again. Only `lg`–`xl` is squeezed, so only that
-       * band pays.
-       */
+      provider: (
+        <AdminPerson
+          name={b.providerName}
+          className="gap-[15px]"
+          title={
+            <Link
+              to="/admin/providers/$providerId"
+              params={{ providerId: b.providerId }}
+              className="hover:underline"
+            >
+              {b.providerName}
+            </Link>
+          }
+        />
+      ),
       service: (
-        <span className="block max-w-[24ch] truncate lg:max-w-[14ch] xl:max-w-[24ch]">
+        <span className="block truncate pr-3 text-[15px] font-bold text-[var(--color-headline)]">
           {b.serviceName}
         </span>
       ),
       when: (
-        <span className="grid gap-0.5">
-          <span className="tabular-nums">
-            {slot.date} · {slot.start}
-          </span>
+        <WhenCell
+          day={shortDate(b.startsAt, b.timezone, locale, { year: true })}
+          time={`${slot.start} – ${slot.end}`}
+        />
+      ),
+      price: (
+        <span className="text-[15.5px] font-semibold whitespace-nowrap text-[var(--color-headline)] tabular-nums">
+          {formatMoneyShort(b.priceMinor, b.currency, locale)}
+        </span>
+      ),
+      /**
+       * The badge, and under it how long the row has waited and — on a
+       * dispute — the way into the complaint. Only a disputed row carries a
+       * thread, and the read model makes that structural: `threadId` is null
+       * on every other status precisely so this link cannot point somewhere
+       * wrong.
+       */
+      status: (
+        <span className="inline-grid justify-items-end gap-1 xl:justify-items-start">
+          <BookingStatusBadge status={b.status} />
           {waited && (
             <span className="type-caption text-[var(--color-muted-foreground)]">
               {t("bookingsWaiting", { duration: waited })}
             </span>
           )}
-        </span>
-      ),
-      /**
-       * The badge, and under it the way into the complaint.
-       *
-       * Under the status rather than under the workspace's name, which is
-       * where it started: on a phone `CollectionCard` gives the primary block
-       * whatever the action buttons leave — about 130px once "Dar razão ao
-       * cliente" has taken its width — and a two-line link wrapped under a
-       * three-line workspace name was the worst reading on the screen. The
-       * status cell is a full-width label/value row there, and the link is
-       * about this row's status anyway.
-       *
-       * Only a disputed row carries a thread, and the read model makes that
-       * structural rather than conventional: `threadId` is null on every other
-       * status precisely so this link cannot point somewhere wrong.
-       */
-      status: (
-        <span className="inline-grid justify-items-end gap-1 lg:justify-items-start">
-          <BookingStatusBadge status={b.status} />
           {b.threadId && (
             <Link
               to="/admin/support/$threadId"
@@ -412,26 +433,23 @@ function RowActions({ booking, ctx }: { booking: AdminBookingRowDTO; ctx: RowCon
 
   if (booking.status === "DISPUTED") {
     return (
-      <span className="grid justify-items-stretch gap-2 lg:justify-items-end">
-        {/* Two long labels, and four widths to keep them honest at — every one
-            of the four measured inside the real `AdminShell`, because
+      <span className="grid justify-items-stretch gap-2 xl:justify-items-start">
+        {/* Two long labels, and three widths to keep them honest at, because
             Tailwind's breakpoints are viewport widths and this row's box is
-            the viewport minus the sidebar's 16rem.
+            the viewport minus the sidebar.
 
             Stacked on a phone, where `CollectionCard` gives the actions
             whatever the card's primary block does not need and side by side
-            would leave the workspace's name thirty pixels. Side by side once
+            would leave the customer's name thirty pixels. Side by side once
             the card is wide (`sm`, and still no sidebar). Stacked again from
-            `md`, where the sidebar appears and the card's own width drops to
-            430. Side by side only from `xl`: at `lg` the row is a table in a
-            718px box, and these two stacked bring the table to 727 — abreast
-            they added a button's width again and pushed the second one off the
-            right edge, which is what a `lg:` switch was doing. */}
-        <span className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end md:flex-col md:items-stretch xl:flex-row xl:items-center xl:justify-end">
+            `md`, where the sidebar appears and the card narrows — and in the
+            table from `xl`, whose last column is the narrowest of the seven. */}
+        <span className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end md:flex-col md:items-stretch">
           <Button
             variant="outline"
             size="sm"
             disabled={disabled}
+            className={ACTION_CLASS}
             onClick={() => act({ kind: "resolveDispute", bookingId: booking.id, upheld: true })}
           >
             {t("bookingsDisputeAction.upheld")}
@@ -439,6 +457,7 @@ function RowActions({ booking, ctx }: { booking: AdminBookingRowDTO; ctx: RowCon
           <Button
             size="sm"
             disabled={disabled}
+            className="h-[39px] rounded-md text-[14.5px] font-medium"
             onClick={() => act({ kind: "resolveDispute", bookingId: booking.id, upheld: false })}
           >
             {t("bookingsDisputeAction.rejected")}
@@ -451,8 +470,14 @@ function RowActions({ booking, ctx }: { booking: AdminBookingRowDTO; ctx: RowCon
 
   const kind = booking.status === "MARKED_DONE" ? "complete" : "markDone";
   return (
-    <span className="grid justify-items-stretch gap-2 lg:justify-items-end">
-      <Button size="sm" disabled={disabled} onClick={() => act({ kind, bookingId: booking.id })}>
+    <span className="grid justify-items-stretch gap-2 xl:justify-items-start">
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={disabled}
+        className={ACTION_CLASS}
+        onClick={() => act({ kind, bookingId: booking.id })}
+      >
         {t(kind === "complete" ? "bookingsAction.completeNow" : "bookingsAction.markDone")}
       </Button>
       {notice}

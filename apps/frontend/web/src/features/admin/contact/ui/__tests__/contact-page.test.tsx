@@ -45,42 +45,41 @@ async function renderPage(items: ContactRequestAdminDTO[]) {
   return qc;
 }
 
-/**
- * `CollectionCard` renders every row twice — once into the desktop table,
- * once into the mobile card list — and jsdom evaluates neither the `hidden`
- * utility class nor the `md:` breakpoint (`window.matchMedia` is stubbed to
- * "nothing matches" in `src/test/setup.ts`), so both copies are visible to
- * queries at once. `collection-card.test.tsx` asserts this directly
- * (`getAllByText(...)` returns length 2). Scoping to the `<table>` — the one
- * region a row's facts appear in exactly once — resolves the ambiguity
- * without changing the page.
- */
-function table() {
-  return screen.getByRole("table");
+/** The inbox list on the left — every request once. */
+function inbox() {
+  return within(screen.getByRole("list", { name: "Contact" }));
+}
+
+/** The open request on the right, named by its topic. */
+function detail(topic: string) {
+  return within(screen.getByRole("region", { name: topic }));
 }
 
 beforeEach(() => fakes.setStatus.mockReset().mockResolvedValue(undefined));
 
 describe("AdminContactPage", () => {
-  it("lists a request with its kind, topic, who wrote, and the reference", async () => {
+  it("lists a request with who wrote and about what, and opens the first one", async () => {
     await renderPage([row()]);
-    const t = within(table());
-    expect(t.getByText("Joana Matola")).toBeInTheDocument();
-    // A regex, not the plain string: the email sits beside the locale in one
-    // `<p>{email} · {locale}</p>`, three sibling text nodes under one
-    // element, so the node's own text is "joana@exemplo.com · pt-MZ" and an
-    // exact-string match against just the email finds no element — the kind
-    // of "text is broken up by multiple elements" case Testing Library's own
-    // error names. A regex matches the substring instead.
-    expect(t.getByText(/joana@exemplo\.com/)).toBeInTheDocument();
-    expect(t.getByText("Partnership")).toBeInTheDocument();
-    expect(t.getByText("#7F3A2C")).toBeInTheDocument();
+    expect(inbox().getByText("Joana Matola")).toBeInTheDocument();
+    expect(inbox().getByText("Partnership")).toBeInTheDocument();
+
+    const open = detail("Partnership");
+    expect(open.getByText("joana@exemplo.com")).toBeInTheDocument();
+    expect(open.getByText("#7F3A2C")).toBeInTheDocument();
+    expect(open.getByText("Gostava de propor uma parceria com a minha escola.")).toBeInTheDocument();
   });
 
-  it("keeps its filters in the shared panel, and asks for resolved requests as a different list", async () => {
+  it("opens the request that is chosen in the list", async () => {
+    await renderPage([row(), row({ id: "r-2", reference: "9B8C7D", name: "Rui Tembe", topic: "press" })]);
+    await userEvent.click(inbox().getByRole("button", { name: /Rui Tembe/ }));
+    expect(detail("Press").getByText("#9B8C7D")).toBeInTheDocument();
+    expect(inbox().getByRole("button", { name: /Rui Tembe/ })).toHaveAttribute("aria-current", "true");
+  });
+
+  it("picks the status from the tabs and the shared panel alike, and asks for resolved requests as a different list", async () => {
     const qc = await renderPage([row()]);
-    // Nothing loose above the card: the only way to a filter is the card's own button.
-    expect(screen.queryByRole("button", { name: /^resolved$/i })).not.toBeInTheDocument();
+    const tabs = within(screen.getByRole("tablist"));
+    expect(tabs.getByRole("tab", { name: /^Open/ })).toHaveAttribute("aria-selected", "true");
 
     await userEvent.click(screen.getByRole("button", { name: /^filter/i }));
     const panel = screen.getByRole("dialog", { name: "Filter requests" });
@@ -89,11 +88,12 @@ describe("AdminContactPage", () => {
 
     expect(qc.getQueryData(["admin", "contact", { offset: 0, status: "resolved" }])).toBeUndefined();
     expect(within(screen.getByRole("button", { name: /^filter/i })).getByText("1")).toBeInTheDocument();
+    expect(tabs.getByRole("tab", { name: /^Resolved/ })).toHaveAttribute("aria-selected", "true");
   });
 
   it("offers a reply by email with the reference in the subject", async () => {
     await renderPage([row()]);
-    expect(within(table()).getByRole("link", { name: /reply by email/i })).toHaveAttribute(
+    expect(detail("Partnership").getByRole("link", { name: /^reply$/i })).toHaveAttribute(
       "href",
       "mailto:joana@exemplo.com?subject=%5BNtizo%20%237F3A2C%5D%20Partnership",
     );
@@ -102,20 +102,27 @@ describe("AdminContactPage", () => {
   it("marks a request resolved and refetches the queue", async () => {
     const qc = await renderPage([row()]);
     const spy = vi.spyOn(qc, "invalidateQueries");
-    await userEvent.click(within(table()).getByRole("button", { name: /mark resolved/i }));
+    await userEvent.click(detail("Partnership").getByRole("button", { name: /mark as resolved/i }));
     await waitFor(() => expect(fakes.setStatus).toHaveBeenCalledWith("7f3a2c9e-1b2d-4e5f-8a9b-0c1d2e3f4a5b", "resolved"));
     await waitFor(() => expect(spy).toHaveBeenCalledWith({ queryKey: ["admin", "contact"] }));
   });
 
-  it("says the queue is empty in words", async () => {
-    await renderPage([]);
-    expect(within(table()).getByText("Nothing to answer.")).toBeInTheDocument();
+  it("offers to reopen a resolved request", async () => {
+    await renderPage([row({ status: "resolved", resolvedAt: "2026-09-03T10:00:00.000Z" })]);
+    await userEvent.click(detail("Partnership").getByRole("button", { name: /reopen/i }));
+    await waitFor(() => expect(fakes.setStatus).toHaveBeenCalledWith("7f3a2c9e-1b2d-4e5f-8a9b-0c1d2e3f4a5b", "open"));
   });
 
-  it("expands a row to the whole message and where it came from", async () => {
+  it("says the queue is empty in words", async () => {
+    await renderPage([]);
+    expect(screen.getByText("Nothing to answer.")).toBeInTheDocument();
+  });
+
+  it("shows where a message came from, and its technical details on request", async () => {
     await renderPage([row({ kind: "feedback", topic: "problem", originPath: "/services/abc" })]);
-    await userEvent.click(within(table()).getByRole("button", { name: /show details/i }));
-    expect(within(table()).getByText("/services/abc")).toBeInTheDocument();
-    expect(within(table()).getByText("197.218.0.1")).toBeInTheDocument();
+    const open = detail("Something did not work");
+    await userEvent.click(open.getByRole("button", { name: /show details/i }));
+    expect(open.getAllByText(/\/services\/abc/).length).toBeGreaterThan(0);
+    expect(open.getByText("197.218.0.1")).toBeInTheDocument();
   });
 });

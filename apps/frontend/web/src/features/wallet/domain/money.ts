@@ -20,6 +20,23 @@ export function formatMoney(
 }
 
 /**
+ * An amount as the console's lists write it: "1 200 MTn" — no cents when there
+ * are none, and the thousands always grouped. `pt-MZ`'s default minimum
+ * grouping leaves four-digit amounts ungrouped ("1200"), which is not how the
+ * October 2026 mockups write a single price anywhere.
+ */
+export function formatMoneyShort(minor: number, currency: string, locale: string): string {
+  const whole = minor % 100 === 0;
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: whole ? 0 : 2,
+    maximumFractionDigits: whole ? 0 : 2,
+    useGrouping: "always",
+  }).format(minor / 100);
+}
+
+/**
  * What a ledger row did to the balance, as one signed number.
  *
  * The two deltas are separate in the database because one entry legitimately

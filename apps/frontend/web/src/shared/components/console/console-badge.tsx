@@ -5,4 +5,4 @@
  * caller's modifiers; the badge itself is this.
  */
 export const CONSOLE_BADGE =
-  "grid h-5 min-w-5 place-items-center rounded-full bg-[var(--color-destructive)] px-1.5 text-[11px] font-bold leading-none text-[var(--color-destructive-foreground)] tabular-nums";
+  "grid h-[26px] min-w-[26px] place-items-center rounded-full bg-[var(--color-destructive)] px-1.5 text-sm font-semibold leading-none text-[var(--color-destructive-foreground)] tabular-nums";

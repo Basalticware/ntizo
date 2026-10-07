@@ -25,40 +25,53 @@ import {
  * the whole inbox down over one unrecognised row. An unknown type renders as a
  * generic envelope with a generic sentence, which is the honest answer.
  */
-const PRESENTATION: Record<string, { icon: LucideIcon; key: string }> = {
-  WELCOME: { icon: Mail, key: "welcome" },
-  PROVIDER_WORKSPACE_WELCOME: { icon: Store, key: "providerWorkspaceWelcome" },
-  PROVIDER_VERIFIED: { icon: BadgeCheck, key: "providerVerified" },
-  PROVIDER_DOCUMENTS_REQUIRED: { icon: FileWarning, key: "providerDocumentsRequired" },
-  TEAM_INVITATION: { icon: UserPlus, key: "teamInvitation" },
+export type NotificationTone = "blue" | "violet" | "green" | "grey" | "amber";
+
+export interface NotificationPresentation {
+  icon: LucideIcon;
+  key: string;
+  /**
+   * The ground the icon sits on, by what the row is about — bookings and
+   * messages blue, money and verification green, the team violet, something
+   * to deal with amber, the platform's own news grey — as the mockup tints them.
+   */
+  tone: NotificationTone;
+}
+
+const PRESENTATION: Record<string, NotificationPresentation> = {
+  WELCOME: { icon: Mail, key: "welcome", tone: "grey" },
+  PROVIDER_WORKSPACE_WELCOME: { icon: Store, key: "providerWorkspaceWelcome", tone: "grey" },
+  PROVIDER_VERIFIED: { icon: BadgeCheck, key: "providerVerified", tone: "green" },
+  PROVIDER_DOCUMENTS_REQUIRED: { icon: FileWarning, key: "providerDocumentsRequired", tone: "amber" },
+  TEAM_INVITATION: { icon: UserPlus, key: "teamInvitation", tone: "violet" },
   // Messaging and support. `NEW_MESSAGE` has been raised since messaging
   // phase 1 and rendered as the generic envelope all along — it belongs in
   // this map as much as the four below.
-  NEW_MESSAGE: { icon: MessageSquare, key: "newMessage" },
-  SUPPORT_REQUEST_OPENED: { icon: LifeBuoy, key: "supportRequestOpened" },
-  SUPPORT_REQUEST_MESSAGE: { icon: LifeBuoy, key: "supportRequestMessage" },
-  SUPPORT_REPLY: { icon: LifeBuoy, key: "supportReply" },
-  SUPPORT_REQUEST_RESOLVED: { icon: CheckCircle2, key: "supportRequestResolved" },
+  NEW_MESSAGE: { icon: MessageSquare, key: "newMessage", tone: "blue" },
+  SUPPORT_REQUEST_OPENED: { icon: LifeBuoy, key: "supportRequestOpened", tone: "grey" },
+  SUPPORT_REQUEST_MESSAGE: { icon: LifeBuoy, key: "supportRequestMessage", tone: "grey" },
+  SUPPORT_REPLY: { icon: LifeBuoy, key: "supportReply", tone: "grey" },
+  SUPPORT_REQUEST_RESOLVED: { icon: CheckCircle2, key: "supportRequestResolved", tone: "grey" },
 
   // Bookings.
-  PROVIDER_BOOKING_RECEIVED: { icon: CalendarCheck, key: "providerBookingReceived" },
-  BOOKING_ACCEPTED: { icon: CircleDollarSign, key: "bookingAccepted" },
-  BOOKING_DECLINED: { icon: CalendarX, key: "bookingDeclined" },
-  BOOKING_CONFIRMED: { icon: CalendarCheck, key: "bookingConfirmed" },
-  PROVIDER_BOOKING_CONFIRMED: { icon: CalendarCheck, key: "providerBookingConfirmed" },
-  PROVIDER_BOOKING_CANCELLED_BY_CUSTOMER: { icon: CalendarX, key: "providerBookingCancelledByCustomer" },
+  PROVIDER_BOOKING_RECEIVED: { icon: CalendarCheck, key: "providerBookingReceived", tone: "blue" },
+  BOOKING_ACCEPTED: { icon: CircleDollarSign, key: "bookingAccepted", tone: "green" },
+  BOOKING_DECLINED: { icon: CalendarX, key: "bookingDeclined", tone: "grey" },
+  BOOKING_CONFIRMED: { icon: CalendarCheck, key: "bookingConfirmed", tone: "blue" },
+  PROVIDER_BOOKING_CONFIRMED: { icon: CalendarCheck, key: "providerBookingConfirmed", tone: "blue" },
+  PROVIDER_BOOKING_CANCELLED_BY_CUSTOMER: { icon: CalendarX, key: "providerBookingCancelledByCustomer", tone: "grey" },
 
   // Booking completion: mark done, keep open, close, dispute, resolve.
-  PROVIDER_BOOKING_CLOSE_REMINDER: { icon: CalendarCheck, key: "providerBookingCloseReminder" },
-  BOOKING_MARKED_DONE: { icon: CircleCheck, key: "bookingMarkedDone" },
-  PROVIDER_BOOKING_AUTO_CLOSED: { icon: CalendarCheck, key: "providerBookingAutoClosed" },
-  ADMIN_BOOKING_AUTO_CLOSED: { icon: CalendarCheck, key: "adminBookingAutoClosed" },
-  BOOKING_DISPUTED: { icon: TriangleAlert, key: "bookingDisputed" },
-  BOOKING_DISPUTE_RESOLVED: { icon: Gavel, key: "bookingDisputeResolved" },
+  PROVIDER_BOOKING_CLOSE_REMINDER: { icon: CalendarCheck, key: "providerBookingCloseReminder", tone: "blue" },
+  BOOKING_MARKED_DONE: { icon: CircleCheck, key: "bookingMarkedDone", tone: "blue" },
+  PROVIDER_BOOKING_AUTO_CLOSED: { icon: CalendarCheck, key: "providerBookingAutoClosed", tone: "blue" },
+  ADMIN_BOOKING_AUTO_CLOSED: { icon: CalendarCheck, key: "adminBookingAutoClosed", tone: "amber" },
+  BOOKING_DISPUTED: { icon: TriangleAlert, key: "bookingDisputed", tone: "amber" },
+  BOOKING_DISPUTE_RESOLVED: { icon: Gavel, key: "bookingDisputeResolved", tone: "blue" },
 };
 
-const FALLBACK = { icon: Mail, key: "unknown" } as const;
+const FALLBACK: NotificationPresentation = { icon: Mail, key: "unknown", tone: "grey" };
 
-export function presentationFor(type: string): { icon: LucideIcon; key: string } {
+export function presentationFor(type: string): NotificationPresentation {
   return PRESENTATION[type] ?? FALLBACK;
 }

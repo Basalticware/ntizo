@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orçamentos · Prestador</title>
+<link rel="stylesheet" href="../shared.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  /* This mockup is drawn a touch smaller than Reservas: the shell is re-measured here. */
+  :root { --blue: #1768fe; }
+  .console { grid-template-rows: 90px 1fr; }
+  .topbar { position: relative; }
+  .topbar .brand { width: 283px; padding-left: 40px; }
+  .topbar .brand img { transform: translateY(-3px); }
+  .topbar .brand img { height: 37px; }
+  .topbar .search { margin-left: 10px; width: 765px; height: 48px; font-size: 14.4px; gap: 11px; }
+  .topbar .right { position: absolute; left: 1110px; top: 0; bottom: 0; padding: 0; margin: 0; }
+  .topbar .loc { font-size: 15px; width: 133px; padding: 0; gap: 10px; }
+  .topbar .bell { padding: 0 29px 0 34px; }
+  .topbar .bell::after { right: 26px; }
+  .topbar .me { padding-left: 25px; gap: 16px; }
+  .topbar .me > div { width: 160px; }
+  .topbar .me img { width: 54px; height: 54px; }
+  .topbar .me b { font-size: 15px; }
+  .topbar .me span { font-size: 15px; margin-top: 1px; }
+  .topbar .me > svg { margin-left: 2px; }
+
+  .body { grid-template-columns: 270px 1fr; }
+  .rail { padding: 27px 17px 20px 20px; min-height: calc(100vh - 90px); }
+  /* the rail stretches with the page; its nudge card stays in view at the window's bottom */
+  .rail .nudge { position: sticky; bottom: 20px; }
+  .rail .biz { gap: 14px; padding: 0 0 12px 0; }
+  .rail .biz b { font-size: 16px; }
+  .rail .biz span { font-size: 14px; }
+  .rail .biz svg { margin-left: 4px; }
+  .nav { gap: 2px; }
+  .nav a { flex-shrink: 0; }
+  .nav a { height: 48px; padding: 0 19px; gap: 22px; font-size: 16px; }
+  .nav a .count { margin-right: -5px; }
+  .nudge { height: 184px; flex-shrink: 0; padding: 13px 22px 0; }
+  .nudge .crown { width: 28px; height: 28px; }
+  .nudge b { font-size: 17px; line-height: 23px; margin-top: 0; }
+  .nudge p { font-size: 16px; line-height: 23px; margin: 3px 0 13px; }
+  .nudge a { font-size: 16px; }
+
+  .main { padding: 24px 22px 0 23px; }
+  .eyebrow { font-size: 13px; letter-spacing: .09em; }
+  .page-title { font-size: 47.6px; margin-top: 9px; }
+  .page-sub { font-size: 17.9px; margin-top: 10px; }
+
+  .toolbar { margin-top: 40px; gap: 0; }
+  .seg {
+    width: 726px; height: 49px; display: grid; grid-template-columns: 242px 263px 1fr;
+    border: 1px solid var(--line); border-radius: 10px; position: relative;
+  }
+  .seg::after { content: ""; position: absolute; left: 503px; top: 12px; width: 1px; height: 26px; background: var(--line); }
+  .seg button { display: flex; align-items: center; justify-content: center; gap: 11px; font-size: 16px; font-weight: 500; color: var(--ink); border-radius: 9px; }
+  .seg button.on { background: #d9eafd; color: var(--blue); font-weight: 600; padding-left: 16px; margin: -1px 0 -1px -1px; }
+  .seg .chip { background: #eaf2fb; color: var(--ink-2); min-width: 29px; height: 29px; border-radius: 15px; font-size: 15px; }
+  .seg .on .chip { background: #fff; color: var(--blue); }
+  .toolbar .field { margin-left: auto; width: 344px; height: 48px; font-size: 14px; gap: 10px; }
+  .toolbar .field svg { width: 22px; height: 22px; color: var(--blue); }
+  .toolbar .btn-outline { margin-left: 24px; width: 146px; height: 48px; padding: 0 0 0 21px; gap: 12px; border-color: #b9d3fb; }
+  .toolbar .btn-outline svg { width: 22px; height: 22px; }
+  .toolbar .btn-outline .chev { width: 16px; height: 16px; margin-left: 1px; }
+
+  .table { margin-top: 28px; margin-bottom: 32px; }
+  .table .row { grid-template-columns: 250px 167px 257px 149px 144px 151px 230px; }
+  .table .row > * { padding-left: 19px; }
+  .table .head { height: 56px; background: #f9fcfe; font-size: 14px; }
+  .person { gap: 16px; }
+  .person img { width: 54px; height: 54px; }
+  .person b { font-size: 16px; }
+  .table .row:not(.head) { padding: 4px 0 13px; }
+  .person span { font-size: 13px; margin-top: 7px; white-space: nowrap; }
+  .svc { font-size: 15px; font-weight: 600; line-height: 22px; color: var(--ink); }
+  .desc { font-size: 14px; line-height: 21px; color: var(--muted); padding-right: 14px; }
+  .when { gap: 12px; align-items: flex-start; padding-left: 21px !important; }
+  .when svg { width: 21px; height: 21px; margin-top: -1px; }
+  .when b { font-size: 15px; font-weight: 600; }
+  .when span { font-size: 13px; margin-top: 6px; }
+  .when span.late { color: var(--bad); }
+  .dash { width: 13px; height: 1.6px; background: var(--ink-2); margin-left: 4px; }
+  .money { font-size: 18px; position: relative; top: 3px; }
+  .pill { height: 32px; padding: 0 15px; font-size: 13px; }
+  .actions { display: flex; align-items: center; gap: 0; }
+  .actions .btn-details { width: 137px; height: 40px; padding: 0; font-size: 15px; border-color: #1768fe; }
+  .actions .btn-details.solid { background: var(--blue); }
+  .actions .dots { margin-left: 27px; }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:18px;height:18px"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/joaquim-cuna.png" alt=""><div><b>Joaquim Cuna</b><span>Prestador verificado</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <div class="biz"><img src="../assets/joaquim-servicos.png" alt=""><div><b>Joaquim Serviços</b><span>Canalização • Maputo</span></div><i data-lucide="chevron-down"></i></div>
+      <nav class="nav">
+        <a href="home.html"><i data-lucide="house"></i>Visão geral</a>
+        <a href="servicos.html"><i data-lucide="layout-grid"></i>Serviços</a>
+        <a href="#"><i data-lucide="calendar"></i>Disponibilidade</a>
+        <a href="reservas.html"><i data-lucide="calendar-plus"></i>Reservas</a>
+        <a class="on" href="orcamentos.html"><i data-lucide="file-text"></i>Orçamentos</a>
+        <a href="mensagens.html"><i data-lucide="message-square-text"></i>Mensagens<span class="count">3</span></a>
+        <a href="carteira.html"><i data-lucide="wallet"></i>Carteira</a>
+        <a href="#"><i data-lucide="star"></i>Avaliações</a>
+        <a href="notificacoes.html"><i data-lucide="bell"></i>Notificações</a>
+        <a href="definicoes.html"><i data-lucide="settings"></i>Definições</a>
+      </nav>
+      <div class="nudge">
+        <i data-lucide="crown" class="crown"></i>
+        <b>Seja um prestador<br>de referência</b>
+        <p>Complete o seu perfil e<br>receba mais reservas.</p>
+        <a href="#">Ver dicas <i data-lucide="arrow-right"></i></a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="eyebrow">Orçamentos</div>
+      <h1 class="page-title">Pedidos de orçamento</h1>
+      <p class="page-sub">Estes são pedidos de orçamento enviados por clientes que precisam dos seus serviços.</p>
+
+      <div class="toolbar">
+        <div class="seg">
+          <button class="on">Por responder <span class="chip">3</span></button>
+          <button>À espera do cliente <span class="chip">4</span></button>
+          <button>Histórico <span class="chip">12</span></button>
+        </div>
+        <div class="field"><i data-lucide="search"></i>Pesquisar por cliente, serviço...</div>
+        <button class="btn-outline"><i data-lucide="filter"></i>Filtros<i data-lucide="chevron-down" class="chev"></i></button>
+      </div>
+
+      <div class="table">
+        <div class="row head"><div>Cliente</div><div>Serviço</div><div>Descrição curta</div><div>Prazo</div><div>Valor proposto</div><div>Estado</div><div>Ações</div></div>
+        <div id="rows"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const rows = [
+  [77,"silvia","Sílvia Nhampossa","Maputo, Central","Reparação de fuga<br>de água","Tenho uma fuga de água na<br>cozinha, debaixo do lava-louça....","Hoje","até 18:00","","","warn","Por responder",true],
+  [83,"tomas","Tomás Guambe","Maputo, Sommerschield","Instalação de<br>termoacumulador","Preciso de instalar um<br>termoacumulador de 80L<br>na minha casa....","Amanhã","12 Out","","","warn","Por responder",true],
+  [83,"carla","Carla Sitoe","Maputo, Polana","Limpeza de ar<br>condicionado","Quero fazer a limpeza de 2<br>aparelhos de ar condicionado<br>na minha casa....","15 Out","daqui a 3 dias","","","warn","Por responder",true],
+  [83,"antonio","António Matusse","Maputo, Alto-Maé","Manutenção de<br>canalização","Há pouca pressão de água<br>em toda a casa. Preciso de uma<br>avaliação e reparação....","17 Out","daqui a 5 dias","","1 800 MTn","info","Em conversa",false],
+  [84,"helena","Helena Macuácua","Maputo, Central","Substituição de<br>torneira","Preciso de substituir a torneira<br>da casa de banho por uma nova.<br>Já tenho a torneira....","20 Out","daqui a 8 dias","","2 500 MTn","ok","Aceite",false],
+  [81,"rui","Rui Massango","Maputo, Costa do Sol","Desentupimento<br>de esgoto","O esgoto da cozinha está<br>entupido e a água não está<br>a escoar....","09 Out","Expirou","late","","bad","Expirado",false],
+];
+document.getElementById("rows").innerHTML = rows.map(([h,img,name,place,svc,desc,day,sub,late,price,tone,status,reply]) => `
+  <div class="row" style="min-height:${h + 8}px">
+    <div class="person"><img src="../assets/orcamentos-${img}.png" alt=""><div><b>${name}</b><span><i data-lucide="map-pin"></i>${place}</span></div></div>
+    <div class="svc">${svc}</div>
+    <div class="desc">${desc.replace(/<br>/g, " ")}</div>
+    <div class="when"><i data-lucide="calendar"></i><div><b>${day}</b><span class="${late}">${sub}</span></div></div>
+    <div>${price ? `<span class="money">${price}</span>` : `<div class="dash"></div>`}</div>
+    <div><span class="pill ${tone}">${status}</span></div>
+    <div class="actions"><a class="btn-details${reply ? " solid" : ""}" href="#">${reply ? "Responder" : "Ver detalhes"}</a><i data-lucide="ellipsis" class="dots"></i></div>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

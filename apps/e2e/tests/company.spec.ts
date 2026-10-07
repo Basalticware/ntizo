@@ -81,16 +81,14 @@ test("a visitor writes to us, and an administrator resolves it", async ({ page, 
 
     await adminPage.goto("/admin/contact");
     await adminPage.waitForLoadState("networkidle");
-    await adminPage.getByPlaceholder(/search a name/i).fill(reference);
-    // `CollectionCard` renders the same rows twice — a `<table>` for wide
-    // screens and a stacked-card list for narrow ones, toggled by CSS
-    // breakpoint rather than JS, both present in the DOM at once (see its
-    // own doc comment). A bare `getByText` matches both and violates strict
-    // mode; scoping to the table (the one visible at this project's Desktop
-    // Chrome viewport) resolves to the single element actually on screen.
-    const row = adminPage.getByRole("table").getByText(`#${reference}`);
+    await adminPage.getByPlaceholder(/search by name/i).fill(reference);
+    // The inbox is two panes (the October 2026 mockups): the list of
+    // requests, and the open one beside it, which is the first row unless
+    // another is chosen. The reference is printed in that open pane, so a
+    // search for it that leaves one row shows "#<reference>" there.
+    const row = adminPage.getByText(`#${reference}`);
     await expect(row).toBeVisible();
-    await adminPage.getByRole("button", { name: /mark resolved/i }).first().click();
+    await adminPage.getByRole("button", { name: /mark as resolved/i }).first().click();
 
     // Open is the default filter, so a resolved request leaves the list.
     await expect(row).toBeHidden();

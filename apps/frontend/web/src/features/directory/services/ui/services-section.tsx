@@ -45,8 +45,12 @@ export function ProviderServicesSection({
   const items = data?.items ?? [];
 
   return (
-    <section id="servicos" className="mt-12 scroll-mt-[100px]">
-      <h2 className="type-h2">{t("servicesTitle")}</h2>
+    <section id="servicos" className="mt-9 scroll-mt-[84px]">
+      <h2 className="text-[22px] font-extrabold text-[var(--color-headline)]">
+        {isPending || isError
+          ? t("servicesTitle")
+          : t("servicesTitleCount", { count: data?.total ?? items.length })}
+      </h2>
 
       {isError ? (
         <p className="mt-3 text-[var(--color-destructive)]">
@@ -60,7 +64,7 @@ export function ProviderServicesSection({
           body={t("providerServicesEmpty")}
         />
       ) : (
-        <ul className="mt-6 list-none p-0">
+        <ul className="mt-4 grid list-none gap-4 p-0">
           {isPending
             ? Array.from({ length: 3 }, (_, i) => (
                 <ServiceRowSkeleton key={i} />
@@ -86,8 +90,8 @@ export function ProviderServicesSection({
  */
 function ServiceRowSkeleton() {
   return (
-    <li className="grid grid-cols-[72px_minmax(0,1fr)] items-start gap-5 border-b border-[var(--color-border)] py-6 first:border-t sm:grid-cols-[112px_minmax(0,1fr)_auto]">
-      <Skeleton className="aspect-square w-full rounded-[var(--radius-card-sm)]" />
+    <li className="grid grid-cols-[91px_minmax(0,1fr)] items-center gap-5 rounded-[10px] border border-[#edf1f7] px-5 py-3.5 sm:grid-cols-[91px_minmax(0,1fr)_auto]">
+      <Skeleton className="h-[68px] w-[91px] rounded-md" />
       <div className="min-w-0">
         <Skeleton className="h-4 w-1/2" />
         <Skeleton className="mt-2.5 h-3 w-3/4" />

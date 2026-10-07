@@ -37,5 +37,7 @@
   "menu": "Menu",
   "consoleSearch": "Cosa sta cercando?",
   "viewDetails": "Vedi dettagli",
-  "colActions": "Azioni"
+  "colActions": "Azioni",
+  "consoleCity": "Città di ricerca",
+  "consoleAllCities": "Tutte le città"
 }

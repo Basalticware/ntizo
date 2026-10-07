@@ -1,0 +1,112 @@
+/*
+ * Admin console shell, measured off mockps/admin/*.png (1672x941, app
+ * viewport 0,44 → 1672,941, so 1672x897). Same family as the provider
+ * shell in ../shared.css, a size smaller: 86px top bar, 284px rail, no
+ * business card and no nudge card, "Admin" under the wordmark.
+ *
+ * Link after shared.css. Page-specific CSS stays in each page.
+ */
+:root {
+  /* The admin mockups' navy is more saturated than the provider's. */
+  --ink: #03055a; --ink-2: #354793; --muted: #5f6eac; --faint: #99a6d0;
+}
+.console { grid-template-rows: 86px 1fr; min-height: 100vh; }
+.topbar { background: #fdfdfe; }
+.topbar .brand { width: 284px; padding-left: 35px; justify-content: flex-start; padding-top: 16px; align-self: stretch; }
+.topbar .brand img { height: 39px; }
+.topbar .brand .zone { color: #5a6cae; font-size: 14.5px; font-weight: 500; margin-top: 1px; line-height: 18px; }
+.topbar .search {
+  margin-left: 11px; width: 756px; height: 48px; gap: 14px; padding: 0 18px;
+  border-color: #e8f0fb; font-size: 15.5px; color: #6f7cae; background: #fff;
+}
+.topbar .search svg { width: 22px; height: 22px; color: #0a52fd; }
+.topbar .right { padding-right: 45px; }
+.topbar .loc { gap: 13px; padding-right: 24px; font-size: 16px; }
+.topbar .loc svg:last-child { margin-left: -7px; }
+.topbar .loc svg { width: 22px; height: 22px; }
+.topbar .sep { height: 33px; }
+.topbar .bell { padding: 0 26px 0 33px; }
+.topbar .bell svg { width: 29px; height: 29px; }
+.topbar .bell::after { top: -6px; right: 25px; width: 14px; height: 14px; }
+.topbar .me { gap: 16px; padding-left: 24px; }
+.topbar .me img { width: 55px; height: 55px; }
+.topbar .me b { font-size: 16.2px; }
+.topbar .me span { font-size: 16.2px; margin-top: 3px; color: #5d6eac; }
+.topbar .me > div { width: 144px; }
+.topbar .me svg { width: 20px; height: 20px; margin-left: 16px; }
+
+.body { grid-template-columns: 284px 1fr; }
+.rail { background: #f9fbfe; padding: 26px 15px 0 13px; min-height: calc(100vh - 86px); }
+.nav { gap: 2.4px; }
+.nav a { height: 50px; padding: 0 20px; gap: 23px; font-size: 16.6px; font-weight: 500; }
+.nav a svg { width: 26px; height: 26px; stroke-width: 1.7; }
+.nav a.on { background: #1862fe; }
+
+.main { padding: 17px 26px 40px 29px; }
+.page-title { font-size: 41.5px; margin-left: -1px; }
+.page-sub { font-size: 18.5px; margin-top: 7px; color: #5868a7; }
+
+/* Status tabs: fixed widths in the mockups, label left, count chip after. */
+.adm-tabs { display: flex; gap: 21px; margin-top: 27px; }
+.adm-tabs .tab { height: 50px; padding: 0 22px; gap: 0; justify-content: space-between; border-color: #edf3fc; font-size: 15.5px; padding-right: 28px; }
+.adm-tabs .tab.on { background: #ebf3fe; border-color: #d3e3fd; color: #0a3dfb; padding: 0 28px 0 22px; }
+.adm-tabs .chip { min-width: 0; height: 30px; padding: 0 12px; border-radius: 15px; font-size: 16px; font-weight: 500; }
+.adm-tabs .tab.on .chip { background: #0a5cfe; min-width: 0; padding: 0 12px; }
+.adm-tabs .chip.ok { background: #e2fbe9; color: #0a7d20; }
+.adm-tabs .chip.warn { background: #fef1d9; color: #dd5a00; }
+.adm-tabs .chip.bad { background: #fee5e5; color: #e5262c; }
+
+/* Search + select filters + Filtrar. */
+.adm-filters { display: flex; gap: 19px; margin-top: 27px; }
+.adm-filters .field { height: 47px; padding: 0 18px; gap: 18px; border-color: #e8f0fb; color: #9aa6cf; font-size: 15.5px; }
+.adm-filters .field svg { width: 22px; height: 22px; color: #0a52fd; }
+.select {
+  height: 47px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px 0 17px;
+  border: 1px solid #e8f0fb; border-radius: var(--r-tab); background: #fff; font-size: 15px; color: #0f1a6e;
+}
+.select svg { width: 19px; height: 19px; color: #1f2a5c; }
+.adm-filters .btn-outline { height: 47px; border-color: #8fb3fc; gap: 14px; padding: 0 22px; font-size: 17px; }
+.adm-filters .btn-outline svg { width: 22px; height: 22px; }
+
+/* Table card, a size smaller than the provider's. */
+.adm-table { margin-top: 27px; border: 1px solid #edf3fc; border-radius: 12px; overflow: hidden; background: #fff; }
+.adm-table .row { display: grid; align-items: center; border-top: 1px solid #edf3fc; }
+.adm-table .row > * { min-width: 0; }
+.adm-table .head { height: 43px; border-top: 0; background: #f6f9fd; font-size: 14.5px; font-weight: 500; color: #35478d; }
+.adm-table .person { gap: 25px; }
+.adm-table .person img { width: 54px; height: 54px; }
+.adm-table .person b, .adm-table .two b { font-size: 15.5px; }
+.adm-table .person span, .adm-table .two span { font-size: 14px; color: #6d7ab0; margin-top: 5px; gap: 6px; }
+.verified svg { width: 15px; height: 15px; color: #fff; fill: #0a55fc; stroke-width: 2.4; }
+.place { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #5d6aa7; white-space: nowrap; }
+.place svg { width: 17px; height: 17px; color: #4d5fa4; }
+.rating { display: flex; align-items: center; gap: 8px; font-size: 15.5px; white-space: nowrap; }
+.rating svg { width: 18px; height: 18px; color: #ffb61e; fill: #ffb61e; stroke-width: 1; }
+.rating b { font-weight: 600; color: var(--ink); }
+.rating span { color: #6a79b1; margin-left: 2px; }
+.adm-table .pill { height: 32px; font-size: 14.5px; justify-content: center; }
+.adm-table .pill.ok { background: #e2fbe9; color: #11872f; }
+.adm-table .pill.warn { background: #fef3d6; color: #e25e04; }
+.adm-table .pill.bad { background: #fee4e4; color: #f2121a; }
+.adm-table .btn-details { height: 37px; border-color: #5d94fc; border-radius: 6px; font-size: 15.5px; padding: 0; }
+.adm-table .dots { display: block; width: 24px; height: 24px; color: #334a99; }
+
+/* Footer: count on the left, pagination on the right. */
+.adm-foot { display: flex; align-items: center; justify-content: space-between; height: 46px; margin-top: 10px; font-size: 15.5px; color: #5868a7; }
+.pager { display: flex; align-items: center; }
+.pager > * { width: 35px; height: 36px; display: grid; place-items: center; font-size: 15.5px; color: #5e6fb0; }
+.pager .on { width: 37px; background: #dce9fe; border-radius: 8px; color: #0a3dfb; font-weight: 700; }
+.pager svg { width: 18px; height: 18px; }
+.pager .prev { width: 24px; margin-right: 9.5px; color: #c3cbe3; }
+.pager .next { width: 40px; }
+.pager > :nth-child(3), .pager > :nth-child(5), .pager > :nth-child(7) { width: 34px; }
+.pager > :nth-child(6) { width: 36px; }
+.pager > :nth-child(8) { width: 45px; }
+.pager .next svg, .pager .prev svg { width: 22px; height: 22px; }
+.pager .next { color: var(--blue); }
+
+.adm-table .person b { line-height: 18px; }
+.adm-table .person span { margin-top: 5px; }
+
+/* Spacing pass: long cell text ellipsizes instead of shrinking. */
+.adm-table .two b, .adm-table .two span, .adm-table .person b, .adm-table .person span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

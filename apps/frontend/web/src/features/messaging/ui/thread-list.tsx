@@ -1,22 +1,29 @@
 import { useTranslation } from "react-i18next";
 import { MessageSquare } from "lucide-react";
-import { Badge, Skeleton, cn } from "@ntizo/frontend-ui";
+import { Avatar, AvatarFallback, Badge, Skeleton, cn } from "@ntizo/frontend-ui";
 import { EmptyCard } from "@/shared/components/empty-card";
+import { initialsFrom } from "@/shared/lib/initials";
 import type { Thread } from "@/features/messaging/domain/types";
+import { lastMessageWhen } from "@/features/messaging/viewmodel/when";
 
 /**
  * A conversation list — a customer's own inbox (every provider they have
  * messaged) or a provider's own inbox (every customer who has messaged
  * them), newest last message first (the order `useThreads`/
  * `useProviderThreads` already hand back; this component does not re-sort).
- * Since Task 11 it renders both: `nameOf` decides which of a `Thread`'s two
- * names each row labels itself with — see that prop's own doc comment below.
+ * `nameOf` decides which of a `Thread`'s two names each row labels itself
+ * with — see that prop's own doc comment below.
  *
  * A dumb list, the same split `ActivityList` and `InboxList` make: this
  * component takes `threads` + `loading` as props rather than calling a query
  * hook itself, so the page rendering it (`customer-messages-page.tsx` or
  * `provider-messages-page.tsx`) is the one place that owns the query and
  * `selectedThreadId` can live beside it.
+ *
+ * The rows are the October mockup's: the person's monogram at 62px, their
+ * name over the last line said, the time and the unread count in the corner,
+ * and the open conversation on the soft blue ground. The mockup's presence
+ * dot is not drawn — nothing knows who is online.
  */
 export function ThreadList({
   threads,
@@ -30,6 +37,8 @@ export function ThreadList({
   emptyBody,
   nameOf,
   fallbackName,
+  heading = true,
+  className,
 }: {
   threads: readonly Thread[];
   loading: boolean;
@@ -59,20 +68,31 @@ export function ThreadList({
   nameOf?: (thread: Thread) => string;
   /** The word shown in place of a name the lookup missed. Defaults to `t("unknownProvider")`, matching `nameOf`'s default. */
   fallbackName?: string;
+  /** The "Conversas" caption over the rows. The console's inbox has tabs above it instead. */
+  heading?: boolean;
+  className?: string;
 }) {
   const { t } = useTranslation("messaging");
   const resolvedNameOf = nameOf ?? ((thread: Thread) => thread.providerName);
   const resolvedFallbackName = fallbackName ?? t("unknownProvider");
+  const now = new Date();
 
   return (
-    <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)]">
-      <div className="px-4 py-4 sm:px-5">
-        <p className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
-          {t("listTitle")}
-        </p>
-      </div>
+    <div
+      className={cn(
+        "flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)]",
+        className,
+      )}
+    >
+      {heading && (
+        <div className="border-b border-[var(--color-border)] px-4 py-4 sm:px-5">
+          <p className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
+            {t("listTitle")}
+          </p>
+        </div>
+      )}
 
-      <div className="border-t border-[var(--color-border)]">
+      <div className="flex-1">
         {loading ? (
           <ThreadListSkeleton />
         ) : threads.length === 0 ? (
@@ -82,13 +102,16 @@ export function ThreadList({
             body={emptyBody ?? t("emptyBody")}
           />
         ) : (
-          <ul className="grid list-none gap-0 p-0">
-            {threads.map((thread) => (
+          <ul className="m-0 grid list-none gap-0 px-[7px] py-5">
+            {threads.map((thread, i) => (
               <ThreadRow
                 key={thread.id}
                 thread={thread}
                 selected={thread.id === selectedThreadId}
-                locale={locale}
+                // The hairline above a row, except where the chosen row's own
+                // ground already marks the edge.
+                divided={i > 0 && thread.id !== selectedThreadId && threads[i - 1]!.id !== selectedThreadId}
+                when={lastMessageWhen(thread.lastMessageAt, now, locale)}
                 onSelect={onSelect}
                 name={resolvedNameOf(thread) || resolvedFallbackName}
               />
@@ -113,88 +136,75 @@ export function ThreadList({
 function ThreadRow({
   thread,
   selected,
-  locale,
+  divided,
+  when,
   onSelect,
   name,
 }: {
   thread: Thread;
   selected: boolean;
-  locale: string;
+  divided: boolean;
+  when: string;
   onSelect: (threadId: string) => void;
   /** Already resolved (which field, and the fallback) by `ThreadList` — this component draws it, it does not decide it. */
   name: string;
 }) {
   const { t } = useTranslation("messaging");
-  const when = new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(thread.lastMessageAt));
+  const unread = thread.unreadCount > 0;
 
   return (
-    <li>
+    <li className="relative">
+      {divided && (
+        <span aria-hidden="true" className="absolute top-0 right-[18px] left-[105px] h-px bg-[var(--color-line-2)]" />
+      )}
       <button
         type="button"
         aria-current={selected ? "true" : undefined}
         onClick={() => onSelect(thread.id)}
         className={cn(
-          "flex w-full items-start gap-3 border-t border-[var(--color-border)] px-4 py-3.5 text-left transition-colors first:border-t-0 sm:px-5",
-          selected
-            ? "bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)]"
-            : "hover:bg-[var(--color-muted)]",
+          "relative flex min-h-[85px] w-full items-center rounded-xl py-3 pr-[21px] pl-[22px] text-left transition-colors",
+          selected ? "bg-[var(--color-blue-soft)]" : "hover:bg-[var(--color-muted)]",
         )}
       >
-        <span
-          aria-hidden="true"
-          className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--color-muted)] text-[var(--color-muted-foreground)]"
-        >
-          <MessageSquare className="h-4 w-4" />
+        <Avatar className="h-[62px] w-[62px] shrink-0">
+          <AvatarFallback className="bg-[var(--color-info-bg)] text-base font-semibold text-[var(--color-primary)]">
+            {thread.support ? <MessageSquare aria-hidden="true" className="h-6 w-6" /> : initialsFrom(name)}
+          </AvatarFallback>
+        </Avatar>
+
+        <span className="ml-[21px] min-w-0 flex-1 pr-[58px]">
+          {thread.support ? (
+            <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="truncate text-[17px] font-bold text-[var(--color-headline)]">{thread.support.subject}</span>
+              <span className="type-caption shrink-0 text-[var(--color-muted-foreground)]">{t("supportSender")}</span>
+              <Badge tone={thread.support.status === "open" ? "info" : "neutral"} className="h-6 px-2.5 text-xs">
+                {t(`supportStatus.${thread.support.status}`)}
+              </Badge>
+            </span>
+          ) : (
+            <span className="block truncate text-[17px] font-bold text-[var(--color-headline)]">{name}</span>
+          )}
+          <span
+            className={cn(
+              "mt-[7px] block truncate text-sm text-[var(--color-muted-foreground)]",
+              unread && "font-medium text-[var(--color-ink-2)]",
+            )}
+          >
+            {thread.lastMessagePreview ||
+              (thread.lastMessageHasAttachment ? t("attachmentPreview") : t("noPreview"))}
+          </span>
         </span>
 
-        <span className="min-w-0 flex-1">
-          <span className="flex items-center justify-between gap-2">
-            {thread.support ? (
-              <span className="flex min-w-0 items-center gap-2">
-                <span className="type-body-medium truncate">{thread.support.subject}</span>
-                <span className="type-caption shrink-0 text-[var(--color-muted-foreground)]">
-                  {t("supportSender")}
-                </span>
-                <Badge tone={thread.support.status === "open" ? "info" : "neutral"}>
-                  {t(`supportStatus.${thread.support.status}`)}
-                </Badge>
-              </span>
-            ) : (
-              <span
-                className={cn(
-                  "type-body-medium truncate",
-                  thread.unreadCount > 0 && "font-semibold",
-                )}
-              >
-                {name}
-              </span>
-            )}
-            <time
-              dateTime={thread.lastMessageAt}
-              className="type-caption shrink-0 text-[var(--color-muted-foreground)]"
+        <span className="absolute top-[18px] right-[21px] text-right text-[14.5px] text-[var(--color-muted-foreground)]">
+          <time dateTime={thread.lastMessageAt}>{when}</time>
+          {unread && (
+            <span
+              aria-label={t("unreadBadge", { count: thread.unreadCount })}
+              className="absolute top-7 right-0 grid h-6 min-w-6 place-items-center rounded-full bg-[var(--color-primary)] px-1.5 text-[13px] font-semibold text-[var(--color-primary-foreground)]"
             >
-              {when}
-            </time>
-          </span>
-          <span className="mt-0.5 flex items-center justify-between gap-2">
-            <span className="type-caption truncate text-[var(--color-muted-foreground)]">
-              {thread.lastMessagePreview ||
-                (thread.lastMessageHasAttachment ? t("attachmentPreview") : t("noPreview"))}
+              {thread.unreadCount}
             </span>
-            {thread.unreadCount > 0 && (
-              <span
-                aria-label={t("unreadBadge", { count: thread.unreadCount })}
-                className="type-caption grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-[var(--color-primary)] px-1.5 font-semibold text-[var(--color-primary-foreground)]"
-              >
-                {thread.unreadCount}
-              </span>
-            )}
-          </span>
+          )}
         </span>
       </button>
     </li>
@@ -202,22 +212,18 @@ function ThreadRow({
 }
 
 /**
- * Sized to the row it stands in for — two lines of text beside a 36px disc —
- * so the list does not change height the moment the first page lands. Same
- * reasoning `ActivitySkeleton` gives for its own bars.
+ * Sized to the row it stands in for — two lines of text beside a 62px disc —
+ * so the list does not change height the moment the first page lands.
  */
 function ThreadListSkeleton() {
   return (
-    <ul className="grid list-none gap-0 p-0">
+    <ul className="m-0 grid list-none gap-0 px-[7px] py-5">
       {Array.from({ length: 5 }, (_, i) => (
-        <li
-          key={i}
-          className="flex items-start gap-3 border-t border-[var(--color-border)] px-4 py-3.5 first:border-t-0 sm:px-5"
-        >
-          <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
-          <div className="grid flex-1 gap-1.5">
-            <Skeleton className="h-[15px] w-32 max-w-full" />
-            <Skeleton className="h-[13px] w-44 max-w-full" />
+        <li key={i} className="flex min-h-[85px] items-center gap-[21px] pr-[21px] pl-[22px]">
+          <Skeleton className="h-[62px] w-[62px] shrink-0 rounded-full" />
+          <div className="grid flex-1 gap-2">
+            <Skeleton className="h-[17px] w-36 max-w-full" />
+            <Skeleton className="h-[14px] w-52 max-w-full" />
           </div>
         </li>
       ))}

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { BookingDeclineReason } from "@ntizo/shared/read-models";
-import { RECENT_BOOKINGS_LIMIT } from "../domain/status";
+import { UPCOMING_PREVIEW_LIMIT } from "../domain/status";
 import {
   acceptBooking,
   declineBooking,
@@ -33,15 +33,18 @@ export function useAwaitingCount(providerId: string | undefined) {
   return query.data ?? 0;
 }
 
-/** The dashboard's "Reservas recentes": the newest eight, whatever state they are in. */
-export function useRecentBookings(providerId: string) {
+/**
+ * The dashboard's "Próximas reservas": the next four on the calendar — the
+ * bookings list's own "upcoming" tab, soonest first, cut to the preview.
+ */
+export function useUpcomingBookings(providerId: string) {
   return useProviderBookings({
     providerId,
-    tab: "all",
+    tab: "upcoming",
     q: "",
     memberId: null,
     offset: 0,
-    limit: RECENT_BOOKINGS_LIMIT,
+    limit: UPCOMING_PREVIEW_LIMIT,
   });
 }
 

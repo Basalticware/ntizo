@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reservas · Prestador</title>
+<link rel="stylesheet" href="../shared.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  .table .row { grid-template-columns: 277px 289px 242px 142px 149px 160px 1fr; }
+  .toolbar .field { margin-left: auto; width: 293px; flex: 0 1 293px; min-width: 0; white-space: nowrap; overflow: hidden; }
+
+  /* Spacing pass: a little more room than the mockup (see spacing-spec). */
+  .rail { position: sticky; top: 0; height: calc(100vh - 91px); align-self: start; }
+  .nav { gap: 4px; flex-shrink: 0; }              /* 46px items on a 50px pitch */
+  .nudge { padding: 22px 24px 24px; }              /* 18/20 → 22/24 */
+  .nudge p { line-height: 1.45; margin: 6px 0 10px; }
+  .main { padding: 26px 32px 40px 30px; }          /* 22/26 → 26/30, room below the table */
+  .page-sub { margin-top: 7px; }                   /* title → subtitle 3 → 7 */
+  .toolbar { margin-top: 36px; gap: 15px; }        /* 30 → 36, 12 → 15 */
+  .tabs { gap: 15px; }                             /* 12 → 15 */
+  .tabs, .tab, .toolbar .btn-outline { flex-shrink: 0; white-space: nowrap; }
+  .table { margin-top: 28px; }                     /* 20 → 28 */
+  .table .head { height: 50px; }                   /* 46 → 50 */
+  .table .body-row { height: 78px; }               /* 69.5 → 78 */
+  .table .row > * { padding-left: 24px; }          /* 20 → 24 */
+
+  /* The sidebar is sticky at window height; its colour and edge are painted
+     down the whole page behind it, so a long page does not end in white. */
+  .body { background: linear-gradient(to right, var(--rail) 0 296px, var(--line) 296px 297px, #fff 297px); }
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand"><img src="../assets/logo.svg" alt="ntizo"></div>
+    <div class="search"><i data-lucide="search"></i>O que procura?</div>
+    <div class="right">
+      <div class="loc"><i data-lucide="map-pin"></i>Maputo<i data-lucide="chevron-down" style="width:18px;height:18px"></i></div>
+      <div class="sep"></div>
+      <div class="bell"><i data-lucide="bell"></i></div>
+      <div class="sep"></div>
+      <div class="me"><img src="../assets/joaquim-cuna.png" alt=""><div><b>Joaquim Cuna</b><span>Prestador verificado</span></div><i data-lucide="chevron-down"></i></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <div class="biz"><img src="../assets/joaquim-servicos.png" alt=""><div><b>Joaquim Serviços</b><span>Canalização • Maputo</span></div><i data-lucide="chevron-down"></i></div>
+      <nav class="nav">
+        <a href="home.html"><i data-lucide="house"></i>Visão geral</a>
+        <a href="servicos.html"><i data-lucide="layout-grid"></i>Serviços</a>
+        <a href="#"><i data-lucide="calendar"></i>Disponibilidade</a>
+        <a class="on" href="reservas.html"><i data-lucide="calendar-plus"></i>Reservas</a>
+        <a href="orcamentos.html"><i data-lucide="file-text"></i>Orçamentos</a>
+        <a href="mensagens.html"><i data-lucide="message-square-text"></i>Mensagens<span class="count">3</span></a>
+        <a href="carteira.html"><i data-lucide="wallet"></i>Carteira</a>
+        <a href="#"><i data-lucide="star"></i>Avaliações</a>
+        <a href="notificacoes.html"><i data-lucide="bell"></i>Notificações</a>
+        <a href="definicoes.html"><i data-lucide="settings"></i>Definições</a>
+      </nav>
+      <div class="nudge">
+        <i data-lucide="crown" class="crown"></i>
+        <b>Seja um prestador<br>de referência</b>
+        <p>Complete o seu perfil e<br>receba mais reservas.</p>
+        <a href="#">Ver dicas <i data-lucide="arrow-right"></i></a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <h1 class="page-title">Reservas</h1>
+      <p class="page-sub">Gerir todas as reservas de serviços feitas pelos seus clientes.</p>
+
+      <div class="toolbar">
+        <div class="tabs">
+          <button class="tab on">Todas <span class="chip">12</span></button>
+          <button class="tab">Por responder <span class="chip warn">3</span></button>
+          <button class="tab">Confirmadas <span class="chip ok">4</span></button>
+          <button class="tab">Concluídas <span class="chip info">4</span></button>
+          <button class="tab">Canceladas <span class="chip bad">1</span></button>
+        </div>
+        <div class="field"><i data-lucide="search"></i>Pesquisar por cliente ou serviço...</div>
+        <button class="btn-outline"><i data-lucide="filter"></i>Filtrar</button>
+      </div>
+
+      <div class="table">
+        <div class="row head"><div>Cliente</div><div>Serviço</div><div>Quando</div><div>Preço</div><div>Estado</div><div>Ações</div><div></div></div>
+        <div id="rows"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const rows = [
+  ["silvia","Sílvia Nhamopssa","Maputo, Central","Corte de cabelo","Corte feminino + lavagem","Hoje","11 Out • 10:00 – 11:00","600 MTn","warn","Por responder"],
+  ["tomas","Tomás Guambe","Maputo, Sommershield","Avaria eléctrica urgente","Não há corrente na sala","Hoje","11 Out • 14:00 – 16:00","1 200 MTn","ok","Confirmada"],
+  ["carla","Carla Sitoe","Maputo, Polana","Limpeza de ar condicionado","Limpeza completa de 2 aparelhos","Amanhã","12 Out • 09:00 – 12:00","1 500 MTn","ok","Confirmada"],
+  ["manuel","Manuel Cossa","Maputo, Malhangalene","Manutenção de canalização","Reparação de fuga na cozinha","13 Out 2024","13 Out • 08:00 – 10:00","1 800 MTn","info","Concluída"],
+  ["ana","Ana Mucaua","Maputo, Costa do Sol","Corte de cabelo","Corte + hidratação","14 Out 2024","14 Out • 15:00 – 16:00","700 MTn","bad","Cancelada"],
+  ["carlos","Carlos Massango","Maputo, Central","Instalação de termoacumulador","Instalar termoacumulador de 80L","15 Out 2024","15 Out • 09:00 – 12:00","2 500 MTn","warn","Por responder"],
+  ["beatriz","Beatriz Langa","Maputo, Polana","Limpeza geral da casa","Limpeza de apartamento T2","16 Out 2024","16 Out • 09:00 – 13:00","1 000 MTn","ok","Confirmada"],
+  ["antonio","António Matusse","Maputo, Matola","Avaria na canalização","Torneira a verter água","17 Out 2024","17 Out • 10:00 – 12:00","900 MTn","info","Concluída"],
+];
+document.getElementById("rows").innerHTML = rows.map(([img,name,place,svc,sub,day,time,price,tone,status]) => `
+  <div class="row body-row">
+    <div class="person"><img src="../assets/p-${img}.png" alt=""><div><b>${name}</b><span><i data-lucide="map-pin"></i>${place}</span></div></div>
+    <div class="two"><b>${svc}</b><span>${sub}</span></div>
+    <div class="when"><i data-lucide="calendar"></i><div><b>${day}</b><span>${time}</span></div></div>
+    <div class="money">${price}</div>
+    <div><span class="pill ${tone}">${status}</span></div>
+    <div><a class="btn-details" href="#">Ver detalhes</a></div>
+    <div><i data-lucide="ellipsis" class="dots"></i></div>
+  </div>`).join("");
+lucide.createIcons();
+</script>
+</body>
+</html>

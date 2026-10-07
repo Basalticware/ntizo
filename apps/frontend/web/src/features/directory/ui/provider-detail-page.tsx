@@ -1,14 +1,15 @@
 import { Link } from "@tanstack/react-router";
+import { CalendarDays, ChevronRight, List, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ProviderPublicDetailDTO } from "@ntizo/shared/read-models";
 import { useProviderDetail } from "@/features/directory/viewmodel/use-directory";
 import { formatMemberSince } from "@/features/directory/domain/member-since";
 import { ProviderServicesSection } from "@/features/directory/services/ui/services-section";
+import { useCategoryIcon } from "@/features/directory/services/ui/category-icon";
 import { DetailFacts } from "@/features/directory/ui/detail-facts";
 import { DetailGallery } from "@/features/directory/ui/detail-gallery";
 import { ProviderHero } from "@/features/directory/ui/provider-hero";
 import { ProviderRail } from "@/features/directory/ui/provider-rail";
-import { ProviderReviews } from "@/features/directory/ui/provider-reviews";
 import { SiteHeader } from "@/shared/components/site-header";
 
 /**
@@ -52,6 +53,7 @@ export function ProviderDetailPage({ slug }: { slug: string }) {
   const { t, i18n } = useTranslation("directory");
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const provider = useProviderDetail(slug, locale);
+  const CategoryIcon = useCategoryIcon(provider?.categories[0]?.code ?? "");
 
   if (!provider) {
     return (
@@ -72,89 +74,95 @@ export function ProviderDetailPage({ slug }: { slug: string }) {
   }
 
   return (
-    <>
+    // The mockup's 45px inset at its 1357px width.
+    <div className="[--pw-pad:clamp(16px,3.3vw,45px)]">
       <SiteHeader current="providers" />
 
-      <main className="page-shell py-8">
-        <Breadcrumb provider={provider} />
-
-        {/* `pb-10`, with no top padding: the collage is the first thing in
-            the left column now, so it starts straight under the breadcrumb
-            the way it used to when it spanned the whole shell. */}
-        <div className="grid gap-10 pb-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-          <div className="min-w-0">
-            {/* No verification badge over the photograph, though
-                `DetailGallery` offers the slot. `ProviderHero` badges the name
-                a few lines below this, and the rail states the same fact a
-                third time in words — three assertions of one boolean inside
-                one screen. The hero's is the one that survives, because it is
-                a fact about the name it sits beside and it renders for every
-                provider, where a gallery badge disappears for the majority who
-                have uploaded no photographs. */}
-            {/* Keyed by slug, like `service.id` keys the identical component
-                on the service page: the route reuses this page's instance
-                across slugs, and `DetailGallery` holds its own `open` dialog
-                state — without the key, navigating from one provider to
-                another with the photo dialog open leaves it open over a
-                different provider's photographs. */}
-            <DetailGallery key={provider.slug} images={provider.photoUrls} alt={provider.name} />
-
-            <ProviderHero provider={provider} />
-
-            <DetailFacts
-              facts={[
-                {
-                  label: t("factCategory"),
-                  value: provider.categories.map((category) => category.name).join(" · "),
-                },
-                { label: t("factWhere"), value: locationLabels(provider.serviceLocationTypes, t) },
-                // `String(0)` survives `DetailFacts`'s empty-value filter, and
-                // should: a provider with nothing published has published
-                // nothing, which is a fact worth stating beside a category and
-                // a join month. It is an empty *string* that means "we failed
-                // to read this", and only that gets dropped.
-                { label: t("servicesTitle"), value: String(provider.serviceCount) },
-                {
-                  label: t("factMemberSince"),
-                  // `formatMemberSince` returns null for a missing or
-                  // malformed value; the empty string is how this row asks
-                  // `DetailFacts` to drop the whole pair rather than print a
-                  // label with nothing under it.
-                  value: formatMemberSince(provider.memberSince, locale) ?? "",
-                },
-              ]}
-            />
-
-            {provider.description && (
-              <section className="mt-11">
-                <h2 className="type-h2">{t("aboutHeading")}</h2>
-                {/* `whitespace-pre-line`, so the paragraph breaks a provider
-                    typed into the field survive as paragraph breaks rather
-                    than collapsing into one wall of text. */}
-                <p className="type-body mt-3.5 max-w-[64ch] whitespace-pre-line">
-                  {provider.description}
-                </p>
-              </section>
-            )}
-
-            <ProviderServicesSection
-              providerId={provider.id}
-              providerImageUrl={provider.logoUrl}
-              locale={locale}
-            />
-
-            <ProviderReviews providerId={provider.id} />
-          </div>
-
-          {/* 100px, not 0: the site header is 84px and sticky, so a rail
-              pinned to the top of the viewport would slide under it. */}
-          <aside className="lg:sticky lg:top-[100px]">
-            <ProviderRail provider={provider} />
-          </aside>
+      <div className="public-inset grid gap-x-9 gap-y-6 pb-12 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-y-0">
+        <div className="lg:col-span-2">
+          <Breadcrumb provider={provider} />
         </div>
-      </main>
-    </>
+
+        <main className="min-w-0">
+          {/* Keyed by slug: the route reuses this page's instance across
+              slugs, and `DetailGallery` holds its own state — the photo
+              dialog and the photo it is showing — which must not follow the
+              reader to another provider. */}
+          <DetailGallery
+            key={provider.slug}
+            layout="provider"
+            images={provider.photoUrls}
+            alt={provider.name}
+          />
+
+          <ProviderHero provider={provider} />
+
+          <DetailFacts
+            facts={[
+              {
+                icon: CategoryIcon,
+                label: t("factCategory"),
+                value: provider.categories.map((category) => category.name).join(" · "),
+              },
+              {
+                icon: MapPin,
+                label: t("factWhere"),
+                value: locationLabels(provider.serviceLocationTypes, t),
+              },
+              // A count survives `DetailFacts`'s empty-value filter, and
+              // should: a provider with nothing published has published
+              // nothing, which is a fact worth stating.
+              {
+                icon: List,
+                label: t("servicesTitle"),
+                value: t("servicesCountValue", { count: provider.serviceCount }),
+              },
+              {
+                icon: CalendarDays,
+                label: t("factMemberSince"),
+                // `formatMemberSince` returns null for a missing or malformed
+                // value; the empty string drops the whole pair.
+                value: capitalise(formatMemberSince(provider.memberSince, locale) ?? ""),
+              },
+            ]}
+          />
+
+          {/* The mockup's four feature lines under "Sobre" ("Profissionais
+              experientes", …) are not drawn: nothing records them, and a
+              claim the business never made is not one this page can print
+              for it. */}
+          {provider.description && (
+            <section className="mt-7">
+              <h2 className="text-[22px] font-extrabold text-[var(--color-headline)]">{t("aboutHeading")}</h2>
+              {/* `whitespace-pre-line`, so the paragraph breaks a provider
+                  typed into the field survive as paragraph breaks. */}
+              <p className="mt-2 max-w-[800px] text-base leading-normal whitespace-pre-line text-[#55639a]">
+                {provider.description}
+              </p>
+            </section>
+          )}
+
+          <ProviderServicesSection
+            providerId={provider.id}
+            providerImageUrl={provider.logoUrl}
+            locale={locale}
+          />
+        </main>
+
+        {/* 84px, not 0: the site header is 68px and sticky, so a rail pinned
+            to the top of the viewport would slide under it. The reviews are
+            the rail's last card, as the mockup draws them. */}
+        <aside className="lg:sticky lg:top-[84px] lg:self-start">
+          <ProviderRail provider={provider} />
+        </aside>
+      </div>
+    </div>
   );
+}
+
+/** "agosto de 2026" → "Agosto de 2026": a value on a line of its own. */
+function capitalise(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /**
@@ -197,34 +205,40 @@ function locationLabels(
  *
  * The last crumb is text, not a link to the page you are already on.
  */
+const CRUMB_SEPARATOR = (
+  <li aria-hidden="true">
+    <ChevronRight className="h-3.5 w-3.5 text-[#2a3561]" strokeWidth={2.4} />
+  </li>
+);
+
 function Breadcrumb({ provider }: { provider: ProviderPublicDetailDTO }) {
   const { t } = useTranslation("directory");
   const category = provider.categories[0];
 
   return (
-    <nav aria-label={t("breadcrumbLabel")} className="type-caption mb-4">
-      <ol className="flex list-none flex-wrap items-center gap-1.5 p-0 text-[var(--color-muted-foreground)]">
+    <nav aria-label={t("breadcrumbLabel")} className="pt-5 pb-[18px] text-sm leading-[1.2]">
+      <ol className="flex list-none flex-wrap items-center gap-2.5 p-0 text-[#5d6a99]">
         <li>
-          <Link to="/providers" className="hover:text-[var(--color-foreground)] hover:underline">
+          <Link to="/providers" className="hover:text-[var(--color-headline)] hover:underline">
             {t("breadcrumbProviders")}
           </Link>
         </li>
         {category && (
           <>
-            <li aria-hidden="true">/</li>
+            {CRUMB_SEPARATOR}
             <li>
               <Link
                 to="/providers"
                 search={{ category: category.code }}
-                className="hover:text-[var(--color-foreground)] hover:underline"
+                className="hover:text-[var(--color-headline)] hover:underline"
               >
                 {category.name}
               </Link>
             </li>
           </>
         )}
-        <li aria-hidden="true">/</li>
-        <li className="text-[var(--color-foreground)]">{provider.name}</li>
+        {CRUMB_SEPARATOR}
+        <li className="font-semibold text-[var(--color-headline)]">{provider.name}</li>
       </ol>
     </nav>
   );

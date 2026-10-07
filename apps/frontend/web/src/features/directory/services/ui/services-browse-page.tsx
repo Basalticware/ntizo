@@ -24,6 +24,8 @@ import { useFavouriteMarks } from "@/features/favourites/viewmodel/use-favourite
 import { FavouriteButton } from "@/features/favourites/ui/favourite-button";
 import { SaveToListDialog } from "@/features/favourites/ui/save-to-list-dialog";
 import { ServiceCard } from "@/shared/components/browse/service-card";
+import { BrowseHero, BrowseSearchBar } from "@/features/directory/services/ui/browse-hero";
+import { PopularCategories, VerifiedBanner } from "@/features/directory/services/ui/browse-aside";
 import {
   MobileServiceFilters,
   ServiceFilters,
@@ -63,15 +65,11 @@ import { resultsScope, scopeValues } from "@/features/directory/domain/results-s
  * reorders what is left. Making all four a row of chips would say they were
  * peers.
  *
- * **Nothing in the results is blue.** The site's one blue goes where the site
- * always puts it — the header's sign-in and the search bar's button — and no
- * further down the page than that. The header's three destinations used to be
- * a third place and are not any more: they are bare text, and the lit one is
- * navy.
- * Everything below is headline navy, ink, grey and the amber star, which is
- * why the cards carry no button of their own: what the eye should land on
- * down a grid of results is the photographs and the prices, not twenty-four
- * identical calls to action.
+ * **Laid out as `client/servicos.html`** (October 2026): a hero, the list's
+ * own big search bar, the pills, the count and the sort, a three-column grid,
+ * and a side column of real categories. The cards still carry no button of
+ * their own: what the eye should land on down a grid of results is the
+ * photographs and the prices, not twenty-four identical calls to action.
  *
  * **Two bands, and nothing straddles them.** Header, then `main`: the search
  * band that used to sit between them is inside the header, and the category
@@ -173,16 +171,16 @@ export function ServicesBrowsePage() {
     current.maxPrice != null;
 
   return (
-    <>
+    // `--pw-pad` is this page's mockup inset, 100px at its 1371px width, and
+    // the header reads the same variable, so the logo, the hero's text and
+    // the results all start on one line.
+    <div className="[--pw-pad:clamp(16px,7.3vw,100px)]">
       {/* The site's search, not a search this page invented, and inside the
-          header rather than in a band of its own beneath it: it is the same
-          bar on every page, so it belongs to the chrome. What this page hands
-          it is what the bar should ask for and what a submit should keep —
-          `browseSearch`, like every other control here, which is what holds
-          on to the category, the filters, the city and the sort when a term
-          is typed, and resets the page. The city is not one of the bar's own
-          fields: that is the "City" filter pill below, where a narrowing
-          belongs. */}
+          header: it is the same bar on every page. What this page hands it is
+          what the bar should ask for and what a submit should keep —
+          `browseSearch`, like every other control here, which holds on to the
+          category, the filters, the city and the sort when a term is typed,
+          and resets the page. */}
       <SiteHeader
         current="services"
         search={{
@@ -194,161 +192,173 @@ export function ServicesBrowsePage() {
         }}
       />
 
+      <div className="mx-auto max-w-[1440px]">
+        {/* The mockup's headline until the reader narrows the list; then
+            what they asked for, which is what `browseTitle` is for. */}
+        <BrowseHero
+          title={title.key === "titleServices" ? t("browseHeroTitle") : t(title.key, title.values)}
+        />
 
-      {/* The floating capsule is `fixed` and covers whatever the page ends
-          with — which is the pager, so "Next →" was sitting behind it and
-          could not be pressed. The root layout's own `pb-14` clears
-          `MobileNav` and nothing more; this clears the capsule above it, and
-          stops at `lg`, where the capsule is hidden and the pills take over. */}
-      <main className="page-shell pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-14">
-        <div className="flex items-end justify-between gap-5 pt-6 pb-3.5">
-          <div>
-            <h1 className="text-[26px] leading-tight font-bold tracking-[-0.02em] text-[var(--color-headline)]">
-              {t(title.key, title.values)}
-            </h1>
-            {/* Two translated pieces, and the second is a whole clause per
-                scope — never "in" plus a name. That is what lets a language
-                order, inflect or case the category and the city as its own
-                grammar needs, instead of receiving them in the order English
-                happened to put them.
+        {/* The floating capsule is `fixed` and covers whatever the page ends
+            with — which is the pager, so "Next →" was sitting behind it and
+            could not be pressed. The root layout's own `pb-14` clears
+            `MobileNav` and nothing more; this clears the capsule above it,
+            and stops at `lg`, where the capsule is hidden and the pills take
+            over. */}
+        <div className="grid items-start gap-x-9 gap-y-10 pt-6 pr-[var(--pw-pad)] pb-[calc(7rem+env(safe-area-inset-bottom))] pl-[var(--pw-pad)] lg:grid-cols-[minmax(0,1fr)_327px] lg:pr-[clamp(16px,2.6vw,36px)] lg:pb-12">
+          <main className="min-w-0">
+            <BrowseSearchBar current={current} />
 
-                `scopeValues`, not the heading's: a typed term outranks the
-                category above, so reusing `title.values` printed "0 services
-                found in all categories" over a search inside a category whose
-                chip was lit two lines up. The clause names what is filtering. */}
-            <p className="mt-1 text-[14.5px] text-[var(--color-muted-foreground)]">
-              <b className="font-semibold text-[var(--color-foreground)]">
-                {t("servicesFound", { count: page.total })}
-              </b>{" "}
-              {t(`resultsScope.${resultsScope(scope)}`, scope)}
-            </p>
-          </div>
+            <ServiceFilters current={current} />
 
-          {/* One sort per width: the phone's copy rides in the floating
-              capsule (see `MobileServiceFilters`), so this one is drawn only
-              where that capsule is not. Both read the same list and write
-              through the same chooser, so they can never come to offer
-              different orders. */}
-          <SortDropdown
-            active={sort}
-            options={serviceSortOptions(t)}
-            sortLabel={t("sortTrigger")}
-            triggerClassName="hidden text-[var(--color-headline)] lg:inline-flex"
-            onChoose={chooseServiceSort(navigate, current)}
-          />
-        </div>
+            <div className="mt-[30px] flex flex-wrap items-center gap-3">
+              {/* Two translated pieces, and the second is a whole clause per
+                  scope — never "in" plus a name. That is what lets a language
+                  order, inflect or case the category and the city as its own
+                  grammar needs.
 
-        <ServiceFilters current={current} />
+                  `scopeValues`, not the heading's: a typed term outranks the
+                  category above, so reusing `title.values` printed "0 services
+                  found in all categories" over a search inside a category
+                  whose pill was lit above it. The clause names what is
+                  filtering. */}
+              <p className="text-xl text-[var(--color-headline)]">
+                <b className="font-extrabold">{t("servicesFound", { count: page.total })}</b>{" "}
+                <span className="text-[var(--color-muted-foreground)]">
+                  {t(`resultsScope.${resultsScope(scope)}`, scope)}
+                </span>
+              </p>
 
+              {/* One sort per width: the phone's copy rides in the floating
+                  capsule (see `MobileServiceFilters`), so this one is drawn
+                  only where that capsule is not. Both read the same list and
+                  write through the same chooser. */}
+              <SortDropdown
+                boxed
+                active={sort}
+                options={serviceSortOptions(t)}
+                sortLabel={t("sortTrigger")}
+                triggerClassName="ml-auto hidden lg:flex"
+                onChoose={chooseServiceSort(navigate, current)}
+              />
+            </div>
 
-        {page.items.length === 0 ? (
-          // Two different sentences, because they are two different
-          // situations. An empty platform is "nothing published yet"; an
-          // empty search is "nothing matches", and telling a reader who
-          // searched that the platform is empty is simply false. Only the
-          // first is an empty list, so only the first carries the mark.
-          isNarrowed ? (
-            <EmptyCard icon={SearchX} title={t("servicesNoMatch")} body={t("servicesNoMatchHint")} />
-          ) : (
-            <EmptyCard
-              badge={LayoutGrid}
-              title={t("servicesEmptyTitle")}
-              body={t("servicesEmpty")}
-            />
-          )
-        ) : (
-          <>
-            {/* Four across at `lg`, two at `sm`, one below it. The card is a
-                bordered object with its own edge, so — unlike the borderless
-                tile it replaces — it is separated from its neighbours by a
-                gap at every width, never a hairline: a divider between two
-                boxes that already draw their own border would be a third
-                separation doing the one job the gap already does. The row
-                gap is larger than the column gap on purpose, so equal gaps
-                do not read as a grid of unrelated things rather than as
-                rows. */}
-            <ul className="grid list-none grid-cols-1 gap-x-6 gap-y-8 p-0 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {page.items.map((service) => (
-                <li key={service.id}>
-                  <ServiceCard
-                    service={service}
-                    locale={locale}
-                    favourite={
-                      <FavouriteButton
-                        targetType="service"
-                        targetId={service.id}
-                        saved={marks.isMarked(service.id)}
-                        // Fires when the save answers, never on the press:
-                        // the lists come from the mutation's own data, so the
-                        // dialog opens already knowing which are ticked. A
-                        // press on an already-filled heart brings none, and
-                        // the dialog asks for itself.
-                        onSaved={({ listIds }) =>
-                          setFiling({ service, ...(listIds ? { listIds } : {}) })
+            {page.items.length === 0 ? (
+              // Two different sentences, because they are two different
+              // situations. An empty platform is "nothing published yet"; an
+              // empty search is "nothing matches", and telling a reader who
+              // searched that the platform is empty is simply false. Only the
+              // first is an empty list, so only the first carries the mark.
+              <div className="mt-5">
+                {isNarrowed ? (
+                  <EmptyCard icon={SearchX} title={t("servicesNoMatch")} body={t("servicesNoMatchHint")} />
+                ) : (
+                  <EmptyCard
+                    badge={LayoutGrid}
+                    title={t("servicesEmptyTitle")}
+                    body={t("servicesEmpty")}
+                  />
+                )}
+              </div>
+            ) : (
+              <>
+                {/* Three across from `md`, two at `sm`, one below it, 24px
+                    apart — the mockup's grid beside its side column. The card
+                    draws its own edge, so cards are separated by the gap at
+                    every width, never by a hairline. */}
+                <ul className="mt-5 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 md:grid-cols-3">
+                  {page.items.map((service) => (
+                    <li key={service.id}>
+                      <ServiceCard
+                        service={service}
+                        locale={locale}
+                        favourite={
+                          <FavouriteButton
+                            targetType="service"
+                            targetId={service.id}
+                            saved={marks.isMarked(service.id)}
+                            // Fires when the save answers, never on the press:
+                            // the lists come from the mutation's own data, so
+                            // the dialog opens already knowing which are
+                            // ticked. A press on an already-filled heart
+                            // brings none, and the dialog asks for itself.
+                            onSaved={({ listIds }) =>
+                              setFiling({ service, ...(listIds ? { listIds } : {}) })
+                            }
+                          />
                         }
                       />
-                    }
-                  />
-                </li>
-              ))}
-            </ul>
+                    </li>
+                  ))}
+                </ul>
 
-            <Pager
-              total={page.total}
-              pageSize={BROWSE_PAGE_SIZE}
-              offset={offset}
-              label={t("pagerLabel")}
-              renderPage={(slot) => (
-                <Link
-                  key={slot.page}
-                  to="/services"
-                  activeOptions={EXACT_MATCH}
-                  search={browseSearch(current, { offset: slot.offset })}
-                  aria-current={slot.current ? "page" : undefined}
-                  className={pagerPageClass(slot.current)}
-                >
-                  {slot.page}
-                </Link>
-              )}
-              {...(offset > 0
-                ? {
-                    previous: (
-                      <Link
-                        to="/services"
-                        activeOptions={EXACT_MATCH}
-                        search={browseSearch(current, {
-                          offset: Math.max(offset - BROWSE_PAGE_SIZE, 0),
-                        })}
-                        className={PAGER_EDGE_CLASS}
-                      >
-                        {t("servicesPrevious")}
-                      </Link>
-                    ),
-                  }
-                : {})}
-              {...(page.nextOffset !== null
-                ? {
-                    next: (
-                      <Link
-                        to="/services"
-                        // The server's own number, never
-                        // `offset + items.length`: a row dropped for
-                        // being unrenderable still occupied a position in
-                        // the underlying order, and stepping by the
-                        // shorter number would fetch it again forever.
-                        activeOptions={EXACT_MATCH}
-                        search={browseSearch(current, { offset: page.nextOffset })}
-                        className={PAGER_EDGE_CLASS}
-                      >
-                        {t("servicesNext")}
-                      </Link>
-                    ),
-                  }
-                : {})}
-            />
-          </>
-        )}
-      </main>
+                <Pager
+                  total={page.total}
+                  pageSize={BROWSE_PAGE_SIZE}
+                  offset={offset}
+                  label={t("pagerLabel")}
+                  renderPage={(slot) => (
+                    <Link
+                      key={slot.page}
+                      to="/services"
+                      activeOptions={EXACT_MATCH}
+                      search={browseSearch(current, { offset: slot.offset })}
+                      aria-current={slot.current ? "page" : undefined}
+                      className={pagerPageClass(slot.current)}
+                    >
+                      {slot.page}
+                    </Link>
+                  )}
+                  {...(offset > 0
+                    ? {
+                        previous: (
+                          <Link
+                            to="/services"
+                            activeOptions={EXACT_MATCH}
+                            search={browseSearch(current, {
+                              offset: Math.max(offset - BROWSE_PAGE_SIZE, 0),
+                            })}
+                            className={PAGER_EDGE_CLASS}
+                          >
+                            {t("servicesPrevious")}
+                          </Link>
+                        ),
+                      }
+                    : {})}
+                  {...(page.nextOffset !== null
+                    ? {
+                        next: (
+                          <Link
+                            to="/services"
+                            // The server's own number, never
+                            // `offset + items.length`: a row dropped for
+                            // being unrenderable still occupied a position in
+                            // the underlying order, and stepping by the
+                            // shorter number would fetch it again forever.
+                            activeOptions={EXACT_MATCH}
+                            search={browseSearch(current, { offset: page.nextOffset })}
+                            className={PAGER_EDGE_CLASS}
+                          >
+                            {t("servicesNext")}
+                          </Link>
+                        ),
+                      }
+                    : {})}
+                />
+              </>
+            )}
+          </main>
+
+          {/* The mockup's side column, less its map: services carry no
+              coordinates, so there is nothing to plot, and "Filtrar por zona"
+              would need a district facet the API does not have. What is left
+              is real — the platform's own categories — and one static note. */}
+          <aside className="hidden flex-col gap-7 lg:flex">
+            <PopularCategories />
+            <VerifiedBanner />
+          </aside>
+        </div>
+      </div>
 
       <MobileServiceFilters current={current} total={page.total} />
 
@@ -364,7 +374,7 @@ export function ServicesBrowsePage() {
           {...(filing.listIds ? { savedListIds: filing.listIds } : {})}
         />
       )}
-    </>
+    </div>
   );
 }
 
