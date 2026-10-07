@@ -15,6 +15,8 @@ import { formatMoneyShort } from "@/features/wallet/domain/money";
 import { useAdminStats } from "@/features/admin/dashboard/viewmodel/use-admin-dashboard";
 import {
   AdminFilterBar,
+  AdminToolbar,
+  TOOLBAR_SEARCH_CLASS,
   AdminListFoot,
   AdminPerson,
   AdminTable,
@@ -211,25 +213,27 @@ export function AdminBookingsPage() {
         </p>
       )}
 
-      <AdminTabs
-        tabs={tabs}
-        value={tab}
-        onChange={(next) => go({ tab: next })}
-        ariaLabel={t("bookingsQueueLabel")}
-      />
+      <AdminToolbar>
+        <AdminTabs
+          tabs={tabs}
+          value={tab}
+          onChange={(next) => go({ tab: next })}
+          ariaLabel={t("bookingsQueueLabel")}
+        />
 
-      <AdminFilterBar
-        className="mt-[27px]"
-        search={needle}
-        onSearchChange={(value) => {
-          setNeedle(value);
-          // A search is a new list, and page three of the old one is past
-          // the end of it. `replace`, because the reader did not choose the
-          // page they are being moved off — see `go`.
-          if (offset > 0) go({ tab, replace: true });
-        }}
-        searchPlaceholder={t("bookingsSearchPlaceholder")}
-      />
+        <AdminFilterBar
+          className={TOOLBAR_SEARCH_CLASS}
+          search={needle}
+          onSearchChange={(value) => {
+            setNeedle(value);
+            // A search is a new list, and page three of the old one is past
+            // the end of it. `replace`, because the reader did not choose the
+            // page they are being moved off — see `go`.
+            if (offset > 0) go({ tab, replace: true });
+          }}
+          searchPlaceholder={t("bookingsSearchPlaceholder")}
+        />
+      </AdminToolbar>
 
       <div className="mt-[27px]">
         <AdminTable
