@@ -84,7 +84,7 @@ export function SettingsNav({
   const current = useCurrentSection(ids);
 
   return (
-    <nav aria-label={title} className="hidden lg:block">
+    <nav aria-label={title} className="hidden 2xl:block">
       {/* One white box, as the section cards are; the current section on the
           soft blue ground with the brand bar on its left edge. */}
       <ul className="sticky top-6 grid gap-1 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] px-3 pt-2.5 pb-3">
