@@ -12,8 +12,12 @@ import {
 
 /**
  * Who Ntizo is, told through what the product does — mission, the three
- * steps, four principles, two audiences. No founding year, no city, no names:
- * the owner chose (2026-09-02) not to publish them.
+ * steps, two audiences. No founding year, no city, no names: the owner chose
+ * (2026-09-02) not to publish them.
+ *
+ * Four blocks since October 2026. "Four rules" went — each one restated a
+ * step or the mission — and so did the "see also" strip, which repeated the
+ * footer directly under it.
  *
  * Drawn on the home page's rules since 2026-09-07. The blue half-headline,
  * the blue `01`/`02`/`03`, the eyebrow over every block and the rounded
@@ -27,14 +31,16 @@ export function AboutPage() {
   return (
     <CompanyPage
       page="about"
+      seeAlso={false}
       title={`${t("about.heading")} ${t("about.headingAccent")}.`}
       lede={t("about.lede")}
     >
       {/* The mission statement is the heading. It used to sit under an
           eyebrow reading "Our mission", which said less than the sentence
-          below it did. */}
+          below it did. Two calm columns on the page itself, not a card: it
+          is the page's argument, not one item among several. */}
       <section className="public-inset pb-14">
-        <div className={`grid gap-8 md:grid-cols-[1.1fr_1fr] md:gap-14 ${PUBLIC_CARD_CLASS} md:p-8`}>
+        <div className="grid gap-6 md:grid-cols-[1fr_1fr] md:gap-14">
           <h2 className="max-w-[24ch] text-[24px] leading-[1.15] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[28px]">
             {t("about.missionTitle")}
           </h2>
@@ -64,23 +70,6 @@ export function AboutPage() {
             </li>
           ))}
         </ol>
-      </section>
-
-      {/* Four beliefs, and no order between them, so no numbers. Four
-          separate cards rather than four cells inside one bordered box: they
-          are four things to weigh one at a time, not a table. */}
-      <section className="public-inset pb-14">
-        <SectionHead title={t("about.principlesTitle")} />
-        <div className="grid gap-6 md:grid-cols-2">
-          {(["price", "verification", "payAfter", "local"] as const).map((key) => (
-            <article key={key} className={PUBLIC_CARD_CLASS}>
-              <h3 className={CARD_TITLE_CLASS}>{t(`about.principles.${key}.title`)}</h3>
-              <p className={`mt-1.5 ${CARD_BODY_CLASS}`}>
-                {t(`about.principles.${key}.body`)}
-              </p>
-            </article>
-          ))}
-        </div>
       </section>
 
       <section className="public-inset pb-14">

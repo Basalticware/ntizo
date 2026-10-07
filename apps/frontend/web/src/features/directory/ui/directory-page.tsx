@@ -26,9 +26,7 @@ import { useFavouriteMarks } from "@/features/favourites/viewmodel/use-favourite
 import { FavouriteButton } from "@/features/favourites/ui/favourite-button";
 import { SaveToListDialog } from "@/features/favourites/ui/save-to-list-dialog";
 import { ProviderCard } from "@/shared/components/browse/provider-card";
-import { VerifiedBanner } from "@/features/directory/services/ui/browse-aside";
 import { DirectoryHero, DirectorySearchBar } from "@/features/directory/ui/directory-hero";
-import { ProviderCategories } from "@/features/directory/ui/directory-aside";
 import {
   MobileProviderFilters,
   ProviderFilters,
@@ -203,7 +201,7 @@ export function DirectoryPage() {
             `MobileNav` and nothing more; this clears the capsule above it,
             and stops at `lg`, where the capsule is hidden and the pills take
             over. */}
-        <div className="grid items-start gap-x-9 gap-y-10 pt-6 pr-[var(--pw-pad)] pb-[calc(7rem+env(safe-area-inset-bottom))] pl-[var(--pw-pad)] lg:grid-cols-[minmax(0,1fr)_327px] lg:pr-[clamp(16px,2.6vw,36px)] lg:pb-12">
+        <div className="pt-6 pr-[var(--pw-pad)] pb-[calc(7rem+env(safe-area-inset-bottom))] pl-[var(--pw-pad)] lg:pb-12">
           <div className="min-w-0">
             <DirectorySearchBar current={current} />
 
@@ -258,12 +256,12 @@ export function DirectoryPage() {
               </div>
             ) : (
               <>
-                {/* `/services`' grid exactly — three across from `md`, two at
-                    `sm`, one below it, 24px apart — because the two pages are
-                    twins and a provider is drawn on the same card a service
-                    is. The card draws its own edge, so the gap is the only
-                    separation it needs. */}
-                <ul className="mt-5 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 md:grid-cols-3">
+                {/* `/services`' grid exactly — four across from `xl`, three
+                    from `lg`, two at `sm`, one below it, 24px apart — because
+                    the two pages are twins and a provider is drawn on the same
+                    card a service is. The card draws its own edge, so the gap
+                    is the only separation it needs. */}
+                <ul className="mt-5 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {page.items.map((provider) => (
                     <li key={provider.id}>
                       <ProviderCard
@@ -350,14 +348,6 @@ export function DirectoryPage() {
               </>
             )}
           </div>
-
-          {/* `/services`' side column, in the directory's terms: the
-              platform's categories, each opening the businesses in it, and
-              the same static note about what the platform checks. */}
-          <aside className="hidden flex-col gap-7 lg:flex">
-            <ProviderCategories />
-            <VerifiedBanner />
-          </aside>
         </div>
       </main>
 

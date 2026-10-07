@@ -31,7 +31,6 @@ import {
 import type { BrowseSort } from "@/features/directory/services/domain/types";
 import { useServiceCities } from "@/features/directory/services/viewmodel/use-browse-services";
 import { PriceRangeFilter } from "@/features/directory/services/ui/price-range-filter";
-import { CATEGORY_PILL_ID } from "@/features/directory/services/ui/browse-aside";
 import {
   CATEGORY_FILTER_LIMIT,
   useCategoryPreview,
@@ -246,6 +245,11 @@ function ClearAll({ current, onNavigate }: { current: BrowseSearch; onNavigate?:
  * Only the filters this data can honestly answer, and no "Verified" pill: the
  * services API has no such filter, only the directory does.
  *
+ * Four on the bar — category, price, where, city — and the rest behind
+ * "More filters": how you pay, who provides and the listing's language are
+ * the narrowings readers reach for least, and a second row of pills was the
+ * clutter the October 2026 pass removed. See `FilterBar`.
+ *
  * The option rows themselves are the `*Options` components below, shared with
  * `MobileServiceFilters` — one definition, two placements. A second copy for
  * the small screen is how the two stop offering the same filters, and how the
@@ -277,6 +281,13 @@ export function ServiceFilters({ current }: { current: BrowseSearch }) {
   const languageLabel = t("filterLanguage");
   const cityLabel = t("filterCity");
 
+  // What sits behind "More filters", and how many of those are on — the pill
+  // fills with the count so a narrowing it hides is never invisible.
+  const moreChips = [paymentChip, kindChip, languageChip].filter(
+    (c): c is FilterChip => c !== undefined,
+  );
+  const moreLabel = t("filterMore");
+
   return (
     <FilterBar>
       {/* First, because it is the widest narrowing on the bar: every other
@@ -286,7 +297,6 @@ export function ServiceFilters({ current }: { current: BrowseSearch }) {
       <FilterPill
         label={categoryLabel}
         icon={ShieldCheck}
-        id={CATEGORY_PILL_ID}
         active={categoryName}
         clear={
           current.category ? (
@@ -319,39 +329,6 @@ export function ServiceFilters({ current }: { current: BrowseSearch }) {
         <WhereOptions current={current} />
       </FilterPill>
 
-      <FilterPill
-        label={paymentLabel}
-        active={paymentChip ? t(paymentChip.label.key, paymentChip.label.values ?? {}) : undefined}
-        clear={paymentChip && <PillClear search={paymentChip.next} label={paymentLabel} />}
-      >
-        <PaymentOptions current={current} />
-      </FilterPill>
-
-      <FilterPill
-        label={kindLabel}
-        active={kindChip ? t(kindChip.label.key, kindChip.label.values ?? {}) : undefined}
-        clear={kindChip && <PillClear search={kindChip.next} label={kindLabel} />}
-      >
-        <KindOptions current={current} />
-      </FilterPill>
-
-      <FilterPill
-        label={languageLabel}
-        active={languageChip ? t(languageChip.label.key, languageChip.label.values ?? {}) : undefined}
-        clear={languageChip && <PillClear search={languageChip.next} label={languageLabel} />}
-      >
-        {/* "Listing language" is a phrase a reader can only read one of two
-            ways, and the wrong one — the language the provider speaks — is the
-            one they actually want. The sheet has said which it is since it was
-            built; the pill said nothing, so the same filter meant two
-            different things at two widths. Same placement as the city hint:
-            first line of the popover, above the options it is about. */}
-        <p className="type-caption pb-2 text-[var(--color-muted-foreground)]">
-          {t("filterLanguageHint")}
-        </p>
-        <LanguageOptions current={current} />
-      </FilterPill>
-
       {/* Only when there is more than one place to choose between. A city
           filter offering a single city narrows nothing and takes a pill of
           the bar to say so. Its `active` is `current.city` itself, not
@@ -378,6 +355,46 @@ export function ServiceFilters({ current }: { current: BrowseSearch }) {
           <CityOptions current={current} />
         </FilterPill>
       )}
+
+      {/* Everything else, stacked the way the phone's sheet stacks it. The
+          pill fills with how many of its filters are on, and its `×` takes
+          off exactly those — never the four pills beside it. */}
+      <FilterPill
+        label={moreLabel}
+        icon={SlidersHorizontal}
+        active={moreChips.length > 0 ? `${moreLabel} · ${String(moreChips.length)}` : undefined}
+        clear={
+          moreChips.length > 0 ? (
+            <PillClear
+              search={browseSearch(current, {
+                paymentMode: undefined,
+                providerType: undefined,
+                language: undefined,
+                offset: undefined,
+              })}
+              label={moreLabel}
+            />
+          ) : undefined
+        }
+        panelClassName="w-[min(520px,80vw)] grid-cols-2 gap-x-6 p-5"
+      >
+        <div>
+          <SheetGroup label={paymentLabel}>
+            <PaymentOptions current={current} />
+          </SheetGroup>
+          <SheetGroup label={kindLabel}>
+            <KindOptions current={current} />
+          </SheetGroup>
+        </div>
+        {/* "Listing language" is a phrase a reader can only read one of two
+            ways, and the wrong one — the language the provider speaks — is the
+            one they actually want, so the group says which it is. */}
+        <div>
+          <SheetGroup label={languageLabel} hint={t("filterLanguageHint")}>
+            <LanguageOptions current={current} />
+          </SheetGroup>
+        </div>
+      </FilterPill>
 
       {/* Nothing to clear is not a disabled link — it is no link, and the
           typed term is not one of the things it clears. See `ClearAll`. */}

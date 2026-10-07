@@ -25,7 +25,6 @@ import { FavouriteButton } from "@/features/favourites/ui/favourite-button";
 import { SaveToListDialog } from "@/features/favourites/ui/save-to-list-dialog";
 import { ServiceCard } from "@/shared/components/browse/service-card";
 import { BrowseHero, BrowseSearchBar } from "@/features/directory/services/ui/browse-hero";
-import { PopularCategories, VerifiedBanner } from "@/features/directory/services/ui/browse-aside";
 import {
   MobileServiceFilters,
   ServiceFilters,
@@ -65,10 +64,11 @@ import { resultsScope, scopeValues } from "@/features/directory/domain/results-s
  * reorders what is left. Making all four a row of chips would say they were
  * peers.
  *
- * **Laid out as `client/servicos.html`** (October 2026): a hero, the list's
- * own big search bar, the pills, the count and the sort, a three-column grid,
- * and a side column of real categories. The cards still carry no button of
- * their own: what the eye should land on down a grid of results is the
+ * **Laid out calm** (October 2026): a compact head, the list's own big
+ * search bar, four pills and "More filters", the count and the sort on one
+ * row, and a full-width grid. The photograph, the quote and the side column
+ * of categories are gone — the Category pill already does that job. The
+ * cards still carry no button of their own: what the eye should land on down a grid of results is the
  * photographs and the prices, not twenty-four identical calls to action.
  *
  * **Two bands, and nothing straddles them.** Header, then `main`: the search
@@ -196,7 +196,7 @@ export function ServicesBrowsePage() {
             `MobileNav` and nothing more; this clears the capsule above it,
             and stops at `lg`, where the capsule is hidden and the pills take
             over. */}
-        <div className="grid items-start gap-x-9 gap-y-10 pt-6 pr-[var(--pw-pad)] pb-[calc(7rem+env(safe-area-inset-bottom))] pl-[var(--pw-pad)] lg:grid-cols-[minmax(0,1fr)_327px] lg:pr-[clamp(16px,2.6vw,36px)] lg:pb-12">
+        <div className="pt-6 pr-[var(--pw-pad)] pb-[calc(7rem+env(safe-area-inset-bottom))] pl-[var(--pw-pad)] lg:pb-12">
           <main className="min-w-0">
             <BrowseSearchBar current={current} />
 
@@ -253,11 +253,12 @@ export function ServicesBrowsePage() {
               </div>
             ) : (
               <>
-                {/* Three across from `md`, two at `sm`, one below it, 24px
-                    apart — the mockup's grid beside its side column. The card
-                    draws its own edge, so cards are separated by the gap at
-                    every width, never by a hairline. */}
-                <ul className="mt-5 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 md:grid-cols-3">
+                {/* The full width, with no side column: four across from
+                    `xl`, three from `lg`, two at `sm`, one below it, 24px
+                    apart — so a page of 24 fills its rows at every width. The
+                    card draws its own edge, so cards are separated by the gap
+                    at every width, never by a hairline. */}
+                <ul className="mt-5 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {page.items.map((service) => (
                     <li key={service.id}>
                       <ServiceCard
@@ -339,15 +340,6 @@ export function ServicesBrowsePage() {
               </>
             )}
           </main>
-
-          {/* The mockup's side column, less its map: services carry no
-              coordinates, so there is nothing to plot, and "Filtrar por zona"
-              would need a district facet the API does not have. What is left
-              is real — the platform's own categories — and one static note. */}
-          <aside className="hidden flex-col gap-7 lg:flex">
-            <PopularCategories />
-            <VerifiedBanner />
-          </aside>
         </div>
       </div>
 

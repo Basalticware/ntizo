@@ -47,25 +47,6 @@
         "body": "Solo cuando el proveedor confirma la hora recibes la solicitud de pago en el móvil. Antes de eso no se cobra nada."
       }
     },
-    "principlesTitle": "Cuatro reglas que no cambian, sea cual sea el servicio.",
-    "principles": {
-      "price": {
-        "title": "El precio es el precio.",
-        "body": "El importe que ves en el anuncio es el importe que pagas. La comisión de la plataforma sale de la parte del proveedor, nunca de la tuya."
-      },
-      "verification": {
-        "title": "Verificación antes de visibilidad.",
-        "body": "Ningún proveedor aparece en los resultados sin haber enviado un documento de identidad y sin que una persona de Ntizo lo haya revisado."
-      },
-      "payAfter": {
-        "title": "Pagar solo después del sí.",
-        "body": "La solicitud de pago solo llega después de que el proveedor confirme la hora. Si no confirma, o si la rechaza, no hay nada que cobrar."
-      },
-      "local": {
-        "title": "Hecho para aquí, listo para crecer.",
-        "body": "M-Pesa, portugués, las ciudades donde vivimos. Y una plataforma pensada para servir a otros países cuando llegue el momento."
-      }
-    },
     "customersTitle": "Encuentra, reserva y paga en un solo sitio.",
     "customersBody": "Sin llamadas para saber el precio, sin esperar una respuesta que no llega. Cada reserva tiene una hora, un importe y un registro.",
     "customersCta": "Explorar servicios",

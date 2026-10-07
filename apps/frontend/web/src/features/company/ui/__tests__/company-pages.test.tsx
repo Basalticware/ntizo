@@ -17,16 +17,19 @@ function stripHrefs() {
 }
 
 describe("AboutPage", () => {
-  it("leads with the title, the mission, the three steps and the four principles", async () => {
+  it("leads with the title, the mission and the three steps, and no longer the four rules", async () => {
     await renderCompanyPage(AboutPage, "/about");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Local services you can trust.");
     expect(screen.getByText("Make hiring a service as simple and as safe as buying in a shop.")).toBeInTheDocument();
     for (const step of ["Search and compare", "Book the time", "Pay after confirmation"]) {
       expect(screen.getByRole("heading", { name: step })).toBeInTheDocument();
     }
+    // "Four rules" restated the steps and the mission; it went in October 2026.
     for (const rule of ["The price is the price.", "Verification before visibility.", "Pay only after the yes.", "Built for here, ready to grow."]) {
-      expect(screen.getByRole("heading", { name: rule })).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: rule })).toBeNull();
     }
+    // Nor the section itself, under its untranslated key.
+    expect(document.body.textContent).not.toContain("about.principles");
   });
 
   it("sends customers to services and providers to the pitch", async () => {
@@ -40,9 +43,12 @@ describe("AboutPage", () => {
     expect(within(providers).getByRole("link", { name: /become a provider/i })).toHaveAttribute("href", "/become-provider");
   });
 
-  it("offers contact, feedback and help at the bottom — and not itself", async () => {
+  it("ends on its two doors, with no see-also strip repeating the footer", async () => {
     await renderCompanyPage(AboutPage, "/about");
-    expect(stripHrefs()).toEqual(["/contact", "/feedback?from=%2Fabout", "/help"]);
+    expect(screen.queryByRole("heading", { name: /see also/i })).toBeNull();
+    // The footer still links the pages the strip used to.
+    const footer = document.querySelector("footer")!;
+    expect(within(footer).getAllByRole("link").map((a) => a.getAttribute("href"))).toContain("/contact");
   });
 
   it("draws no accent rule beside its eyebrows", async () => {

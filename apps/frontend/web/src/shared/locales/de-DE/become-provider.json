@@ -1,48 +1,28 @@
 {
   "title": "Biete deine Leistungen an.",
   "titleAccent": "Du legst den Preis fest.",
-  "subtitle": "Werde einer der Anbieter, die in Maputo, Matola und Beira Kundschaft finden. Keine monatliche Gebühr — nur ein fester Prozentsatz von dem, was du verdienst, angezeigt, bevor du inserierst.",
+  "subtitle": "Finde Kundschaft in ganz Mosambik. Keine monatliche Gebühr: Die Plattform behält einen festen Prozentsatz jeder Buchung, der Rest gehört dir.",
   "cta": "Loslegen",
   "trustFree": "Kostenlose Anmeldung",
-  "trustPaid": "Garantierte Bezahlung",
+  "trustPaid": "Bezahlung per M-Pesa",
   "trustLocal": "Kundschaft in deiner Nähe",
-  "pathsTitle": "Zwei Wege, Leistungen anzubieten",
-  "pathsBlurb": "Wähle einen zum Start. Du kannst später wechseln — was sich unterscheidet, ist, wie Kalender und Team funktionieren.",
-  "path": {
-    "individual": {
-      "title": "Auf eigene Faust",
-      "body": "Du bist die Leistung: dein Profil, deine Preise, die Stunden, die du wählst. Arbeite beim Kunden, bei dir oder aus der Ferne.",
-      "tag": "Ein Kalender — deiner"
-    },
-    "organization": {
-      "title": "Ein Unternehmen mit Personal",
-      "body": "Mehrere Mitarbeitende unter einem Namen, mit parallel laufenden Buchungen je nach Verfügbarkeit. Lade dein Team ein und lege fest, was jeder tun kann.",
-      "tag": "Ein Kalender pro Mitarbeiter"
-    }
-  },
-  "pricingTitle": "Ein Preis, den du festlegst",
-  "pricingBody": "Der Kunde zahlt genau den Preis, den du festlegst. Der Anteil der Plattform wird von dem abgezogen, was du ausgezahlt bekommst — ein fester Prozentsatz, angezeigt, bevor du eine Leistung veröffentlichst, und nie eine Überraschung bei der Auszahlung.",
   "stepsTitle": "So funktioniert's",
   "step": {
     "apply": {
       "title": "Bewirb dich",
-      "body": "Erstelle das Konto und sag uns, was du anbietest und wo. Es dauert nur ein paar Minuten.",
-      "tag": "≈ 5 Minuten"
+      "body": "Erstelle das Konto und sag uns, was du anbietest und wo."
     },
     "review": {
       "title": "Verifizierung",
-      "body": "Wir bestätigen, wer du bist, bevor wir dich der Kundschaft zeigen. Das ist es, was das Verifiziert-Abzeichen bedeutungsvoll macht.",
-      "tag": "1 bis 2 Tage"
+      "body": "Wir bestätigen, wer du bist, bevor die Kundschaft dich sieht."
     },
     "publish": {
       "title": "Leistungen veröffentlichen",
-      "body": "Preise, Dauer und Verfügbarkeit. Buchbare Termine werden automatisch für dich erstellt.",
-      "tag": "wann immer du willst"
+      "body": "Lege Preise, Dauer und deine verfügbaren Zeiten fest."
     },
     "earn": {
       "title": "Bezahlt werden",
-      "body": "Die Zahlung wird zurückgehalten, bis der Auftrag erledigt ist, und dann an dich ausgezahlt.",
-      "tag": "sobald es erledigt ist"
+      "body": "Die Kundschaft zahlt per M-Pesa, sobald du den Termin bestätigst. Die Provision geht vom Preis ab."
     }
   },
   "requirementsTitle": "Was du brauchst",
@@ -54,7 +34,7 @@
     },
     "payout": {
       "title": "Eine Möglichkeit, bezahlt zu werden",
-      "body": "M-Pesa, e-Mola oder ein Bankkonto. Dorthin geht, was du verdienst."
+      "body": "Eine M-Pesa-Nummer, auf die geht, was du verdienst."
     },
     "terms": {
       "title": "Die Bedingungen akzeptieren",
@@ -62,8 +42,8 @@
     }
   },
   "ctaSecondary": "Anbieter ansehen",
-  "stepsEyebrow": "Von der Anmeldung bis zu deiner ersten Buchung",
   "closingTitle": "Bereit, mit dem Verdienen anzufangen?",
   "closingBody": "Die Anmeldung ist kostenlos, und bis zu deiner ersten Buchung gibt es nichts zu bezahlen.",
-  "closingTalk": "Sprich mit uns"
+  "closingTalk": "Sprich mit uns",
+  "pathsLine": "Arbeite selbstständig oder als Betrieb mit Team, mit einem Kalender pro Mitarbeiter."
 }

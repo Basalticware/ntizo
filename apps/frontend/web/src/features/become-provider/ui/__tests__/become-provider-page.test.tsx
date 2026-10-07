@@ -22,21 +22,43 @@ const render = () => renderCompanyPage(BecomeProviderPage, "/become-provider");
 const page = () => document.body;
 
 describe("BecomeProviderPage", () => {
-  it("keeps every section, and ends on the ask", async () => {
+  it("keeps four blocks, and ends on the ask", async () => {
     await render();
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "Offer your services. You set the price.",
     );
-    for (const heading of [
-      "Two ways to provide",
-      "One price, set by you",
-      "How it works",
-      "What you need",
-      "Ready to start earning?",
-    ]) {
+    for (const heading of ["How it works", "What you need", "Ready to start earning?"]) {
       expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
     }
+    // Folded away (October 2026): the fee is one sentence in the hero, and
+    // the two ways to provide one line under the steps.
+    for (const gone of ["Two ways to provide", "One price, set by you"]) {
+      expect(screen.queryByRole("heading", { name: gone })).toBeNull();
+    }
+    expect(screen.getByText(/fixed percentage of each booking/)).toBeInTheDocument();
+    // A removed section left behind would render its keys, not its copy.
+    expect(document.querySelector("main")!.textContent).not.toMatch(/\b(path|pricing|step)\.[a-zA-Z]/);
+  });
+
+  /**
+   * The platform charges the customer by M-Pesa once the provider confirms;
+   * nothing in the booking flow holds the money or promises its release. The
+   * page used to say "Guaranteed payment" and "Payment is held until the job
+   * is done" — both are gone and must not come back.
+   */
+  it("promises no held or guaranteed payment", async () => {
+    await render();
+    const main = document.querySelector("main")!;
+    expect(main).toHaveTextContent("Paid by M-Pesa");
+    expect(main.textContent).not.toMatch(/guaranteed|is held|released to you/i);
+  });
+
+  it("shows the provider photograph beside the hero, as artwork", async () => {
+    await render();
+    const photo = screen.getByTestId("become-provider-photo");
+    expect(photo).toHaveAttribute("src", "/images/home-provider.jpg");
+    expect(photo).toHaveAttribute("alt", "");
   });
 
   /**
@@ -90,26 +112,19 @@ describe("BecomeProviderPage", () => {
   });
 
   /**
-   * Numbers promise an order. The two paths are a choice between two things,
-   * so they carry none; the four steps are a sequence you cannot reorder —
-   * you are not published before you are verified — so they do.
+   * The four steps are a sequence you cannot reorder — you are not published
+   * before you are verified — so they carry numbers. The two ways to provide
+   * are a choice, not an order, and survive as one line under them.
    */
-  it("numbers the steps and refuses to number the paths", async () => {
+  it("numbers the steps, and says the two ways to provide in one line", async () => {
     await render();
-
-    const paths = screen.getByRole("heading", { name: "Two ways to provide" }).closest("section")!;
-    // Any digit at all, because none of this section's copy carries one — so a
-    // digit here can only be a marker. `/\b0?[12]\b/` was the first attempt
-    // and it never fired: `textContent` concatenates without separators, so
-    // the string reads "01Por conta própria" and there is no word boundary
-    // between the "1" and the "P" for `\b` to match.
-    expect(paths.textContent).not.toMatch(/\d/);
 
     const steps = screen.getByRole("heading", { name: "How it works" }).closest("section")!;
     expect(within(steps).getAllByRole("listitem")).toHaveLength(4);
     for (const n of ["1", "2", "3", "4"]) {
       expect(within(steps).getByText(n)).toBeInTheDocument();
     }
+    expect(steps).toHaveTextContent("Work on your own, or as an establishment with a team");
   });
 
   /**
@@ -153,18 +168,14 @@ describe("BecomeProviderPage", () => {
    * cards to a pitch that looks like a different product. The card is the
    * same one `CustomerReviews` draws, down to the token.
    *
-   * `Pricing` is deliberately not in this list. It is one paragraph, and a
-   * card around a single sentence is a box, not a card.
-   *
    * jsdom does no layout, so the class that produces the box is the
    * assertion — and the hairline is asserted gone, because a `border-t` left
    * behind draws a second rule inside the card's own top edge.
    */
-  it("draws the paths, the steps and the requirements as the home page's cards", async () => {
+  it("draws the steps and the requirements as the home page's cards", async () => {
     await render();
 
     for (const [heading, count] of [
-      ["Two ways to provide", 2],
       ["How it works", 4],
       ["What you need", 3],
     ] as const) {

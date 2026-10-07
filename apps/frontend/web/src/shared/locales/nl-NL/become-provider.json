@@ -1,48 +1,28 @@
 {
   "title": "Bied je diensten aan.",
   "titleAccent": "Jij bepaalt de prijs.",
-  "subtitle": "Sluit je aan bij de aanbieders die klanten vinden in Maputo, Matola en Beira. Geen maandelijkse kosten — alleen een vast percentage van wat je verdient, dat je te zien krijgt voordat je iets aanbiedt.",
+  "subtitle": "Vind klanten in heel Mozambique. Geen maandelijkse kosten: het platform houdt een vast percentage van elke boeking, de rest is voor jou.",
   "cta": "Aan de slag",
   "trustFree": "Gratis aanmelden",
-  "trustPaid": "Gegarandeerde betaling",
+  "trustPaid": "Betaling via M-Pesa",
   "trustLocal": "Klanten bij jou in de buurt",
-  "pathsTitle": "Twee manieren om diensten aan te bieden",
-  "pathsBlurb": "Kies er één om mee te beginnen. Je kunt later wisselen — wat verschilt, is hoe de agenda en het team werken.",
-  "path": {
-    "individual": {
-      "title": "Zelfstandig",
-      "body": "Jij bent de dienst: jouw profiel, jouw prijzen, de uren die je kiest. Werk bij de klant thuis, op je eigen plek, of op afstand.",
-      "tag": "Eén agenda — die van jou"
-    },
-    "organization": {
-      "title": "Een bedrijf met personeel",
-      "body": "Meerdere medewerkers onder één naam, met boekingen die parallel lopen naargelang wie beschikbaar is. Nodig je team uit en bepaal wat ieder mag doen.",
-      "tag": "Eén agenda per medewerker"
-    }
-  },
-  "pricingTitle": "Eén prijs, die jij bepaalt",
-  "pricingBody": "De klant betaalt precies de prijs die jij bepaalt. Het aandeel van het platform gaat af van wat jij uitbetaald krijgt — een vast percentage, dat je te zien krijgt voordat je een dienst publiceert, en nooit een verrassing bij uitbetaling.",
   "stepsTitle": "Zo werkt het",
   "step": {
     "apply": {
       "title": "Meld je aan",
-      "body": "Maak het account aan en vertel ons wat je doet en waar. Het duurt maar een paar minuten.",
-      "tag": "≈ 5 minuten"
+      "body": "Maak het account aan en vertel ons wat je doet en waar."
     },
     "review": {
       "title": "Verificatie",
-      "body": "We bevestigen wie je bent voordat we je aan klanten laten zien. Dat is wat het geverifieerd-label betekenis geeft.",
-      "tag": "1 tot 2 dagen"
+      "body": "We bevestigen wie je bent voordat klanten je zien."
     },
     "publish": {
       "title": "Publiceer diensten",
-      "body": "Prijzen, duur en beschikbaarheid. Boekbare tijdsloten worden automatisch voor je aangemaakt.",
-      "tag": "wanneer je maar wilt"
+      "body": "Stel prijzen, duur en je beschikbare tijden in."
     },
     "earn": {
       "title": "Word betaald",
-      "body": "De betaling wordt vastgehouden tot de klus is geklaard, en dan aan jou vrijgegeven.",
-      "tag": "zodra het klaar is"
+      "body": "De klant betaalt via M-Pesa zodra jij de tijd bevestigt. De commissie gaat van de prijs af."
     }
   },
   "requirementsTitle": "Wat je nodig hebt",
@@ -54,7 +34,7 @@
     },
     "payout": {
       "title": "Een manier om betaald te worden",
-      "body": "M-Pesa, e-Mola of een bankrekening. Daar komt terecht wat je verdient."
+      "body": "Een M-Pesa-nummer, waar je verdiensten naartoe gaan."
     },
     "terms": {
       "title": "Accepteer de voorwaarden",
@@ -62,8 +42,8 @@
     }
   },
   "ctaSecondary": "Bekijk aanbieders",
-  "stepsEyebrow": "Van aanmelding tot je eerste boeking",
   "closingTitle": "Klaar om te gaan verdienen?",
   "closingBody": "Aanmelden is gratis, en er is niets te betalen tot je eerste boeking.",
-  "closingTalk": "Praat met ons"
+  "closingTalk": "Praat met ons",
+  "pathsLine": "Werk zelfstandig of als zaak met een team, met een agenda per medewerker."
 }

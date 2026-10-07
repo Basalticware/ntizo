@@ -47,25 +47,6 @@
         "body": "Ce n'est qu'une fois que le prestataire a confirmé l'horaire que vous recevez la demande de paiement sur votre téléphone. Rien n'est débité avant cela."
       }
     },
-    "principlesTitle": "Quatre règles qui ne changent jamais, quel que soit le service.",
-    "principles": {
-      "price": {
-        "title": "Le prix, c'est le prix.",
-        "body": "Le montant que vous voyez sur l'annonce est le montant que vous payez. La commission de la plateforme est prélevée du côté du prestataire, jamais du vôtre."
-      },
-      "verification": {
-        "title": "La vérification avant la visibilité.",
-        "body": "Aucun prestataire n'apparaît dans les résultats sans avoir envoyé une pièce d'identité et sans qu'une personne de Ntizo l'ait vérifiée."
-      },
-      "payAfter": {
-        "title": "Payer seulement après le oui.",
-        "body": "La demande de paiement n'arrive qu'après que le prestataire a confirmé l'horaire. S'il ne confirme pas, ou s'il refuse, il n'y a rien à débiter."
-      },
-      "local": {
-        "title": "Pensé pour ici, prêt à grandir.",
-        "body": "M-Pesa, le portugais, les villes où nous vivons. Et une plateforme conçue pour servir d'autres pays le moment venu."
-      }
-    },
     "customersTitle": "Trouvez, réservez et payez au même endroit.",
     "customersBody": "Pas d'appels pour connaître le prix, pas d'attente d'une réponse qui ne vient jamais. Chaque réservation a un horaire, un montant et un historique.",
     "customersCta": "Explorer les services",

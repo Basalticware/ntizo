@@ -47,25 +47,6 @@
         "body": "Erst wenn der Anbieter den Termin bestätigt, erhalten Sie die Zahlungsaufforderung auf Ihrem Telefon. Vorher wird nichts berechnet."
       }
     },
-    "principlesTitle": "Vier Regeln, die sich nie ändern, ganz gleich, um welche Dienstleistung es geht.",
-    "principles": {
-      "price": {
-        "title": "Der Preis ist der Preis.",
-        "body": "Der Betrag, den Sie im Angebot sehen, ist der Betrag, den Sie zahlen. Die Provision der Plattform wird vom Anteil des Anbieters abgezogen, nie von Ihrem."
-      },
-      "verification": {
-        "title": "Verifizierung vor Sichtbarkeit.",
-        "body": "Kein Anbieter erscheint in den Ergebnissen, ohne ein Ausweisdokument eingereicht zu haben und ohne dass eine Person bei Ntizo es geprüft hat."
-      },
-      "payAfter": {
-        "title": "Erst zahlen nach dem Ja.",
-        "body": "Die Zahlungsaufforderung kommt erst, nachdem der Anbieter den Termin bestätigt hat. Bestätigt er nicht oder lehnt er ab, gibt es nichts zu berechnen."
-      },
-      "local": {
-        "title": "Gemacht für hier, bereit zu wachsen.",
-        "body": "M-Pesa, Portugiesisch, die Städte, in denen wir leben. Und eine Plattform, die darauf ausgelegt ist, wenn die Zeit gekommen ist, auch andere Länder zu bedienen."
-      }
-    },
     "customersTitle": "Finden, buchen und bezahlen an einem Ort.",
     "customersBody": "Keine Anrufe, um den Preis zu erfahren, kein Warten auf eine Antwort, die nie kommt. Jede Buchung hat einen Termin, einen Betrag und einen Nachweis.",
     "customersCta": "Dienstleistungen entdecken",

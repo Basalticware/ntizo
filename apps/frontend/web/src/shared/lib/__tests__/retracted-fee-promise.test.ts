@@ -135,15 +135,17 @@ describe("the retracted fee promise never comes back", () => {
       import: "default",
     });
     const entries = byLocale(modules).map(({ locale, data }) => {
+      // The fee is said in the hero's subtitle since the "One price" section
+      // folded into it (October 2026), and the step that says how the
+      // provider is paid is the other place a promise could come back.
       const d = data as {
         titleAccent: string;
         subtitle: string;
-        pricingTitle: string;
-        pricingBody: string;
+        step: { earn: { body: string } };
       };
       return {
         locale,
-        text: `${d.titleAccent} ${d.subtitle} ${d.pricingTitle} ${d.pricingBody}`,
+        text: `${d.titleAccent} ${d.subtitle} ${d.step.earn.body}`,
       };
     });
 

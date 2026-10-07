@@ -18,11 +18,11 @@ import { formatHeadlinePrice } from "@/features/directory/services/domain/servic
  *
  * **What a row could say that a card cannot.** The row this replaces on
  * `/providers` also printed a business's own description paragraph and up to
- * three of its services with their prices — a ticket-stub rail a card's four
- * slots (an eyebrow, a title, a meta line, a bottom row) have no room for.
+ * three of its services with their prices — a ticket-stub rail a card's three
+ * lines (the name, the trade and city, the rating and price) have no room for.
  * Both drop with the row. A row with no listed category also fell back to
  * naming the provider's kind (`filterProviderKindOption.individual` /
- * `.organization`); this card's eyebrow shows nothing in that case rather
+ * `.organization`); this card's trade line shows nothing in that case rather
  * than manufacturing a label the business never gave. The row also closed its
  * link with a screen-reader-only "View business" / "View profile" suffix;
  * this card's link carries only the business's name.
@@ -102,7 +102,7 @@ export function ProviderCard({
 
   const title = (
     <h3
-      className={`line-clamp-2 text-base leading-[1.25] text-[var(--color-headline)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline ${feature ? "font-bold" : "mt-1 font-extrabold"}`}
+      className={`line-clamp-2 text-base leading-[1.25] text-[var(--color-headline)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline ${feature ? "font-bold" : "font-extrabold"}`}
     >
       <Link
         to="/providers/$slug"
@@ -212,18 +212,17 @@ export function ProviderCard({
           {price ? <div className="mt-auto pt-3">{price}</div> : null}
         </div>
       ) : (
+        // Three lines and no more (October 2026): the name and its seal, the
+        // trade and the city, then the rating and the "from" price. The
+        // district and the count of services went — the profile says both,
+        // and a grid of twenty-four reads by name and price.
         <div className="flex flex-1 flex-col px-[18px] pt-3.5 pb-4">
-          {(trade || where) && (
-            <p className="flex min-w-0 flex-wrap items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
-              {trade && <span className="whitespace-nowrap">{trade}</span>}
-              {trade && where && <span aria-hidden="true">·</span>}
-              {where && <span className="whitespace-nowrap">{where}</span>}
-            </p>
-          )}
           {title}
-          {services && (
-            <p className="mt-2 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
-              {services}
+          {(trade || provider.city) && (
+            <p className="mt-1.5 flex min-w-0 items-center gap-1.5 text-[13px] leading-[1.2] text-[var(--color-muted-foreground)]">
+              {trade && <span className="min-w-0 truncate">{trade}</span>}
+              {trade && provider.city && <span aria-hidden="true">·</span>}
+              {provider.city && <span className="shrink-0 whitespace-nowrap">{provider.city}</span>}
             </p>
           )}
           <div className="mt-auto flex items-center justify-between gap-3 pt-3">

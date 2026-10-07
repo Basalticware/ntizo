@@ -67,17 +67,16 @@ describe("ServiceFilters", () => {
       paymentMode: "hourly",
       q: "corte",
     });
-    // The payment pill fills with the chosen option, in place of its own
-    // name — both on the closed pill's own summary and, unreached before the
-    // reader opens it, on the option row now marked chosen inside.
+    // The "where" pill fills with the chosen option, in place of its own
+    // name.
     const summaries = [...container.querySelectorAll("summary")];
-    expect(summaries.map((s) => s.textContent)).toContain("Per hour");
-    expect(summaries.map((s) => s.textContent)).not.toContain("How you pay");
+    expect(summaries.map((s) => s.textContent)).toContain("At your place");
+    expect(summaries.map((s) => s.textContent)).not.toContain("Where it happens");
 
-    const remove = screen.getByRole("link", { name: "Remove How you pay" });
+    const remove = screen.getByRole("link", { name: "Remove Where it happens" });
     const href = remove.getAttribute("href")!;
-    expect(href).not.toContain("paymentMode");
-    expect(href).toContain("locationType=at_customer");
+    expect(href).not.toContain("locationType");
+    expect(href).toContain("paymentMode=hourly");
 
     // The clear-all is on because a facet is narrowing the list, and it
     // keeps `q` — the typed term is the search bar's to clear, up under the
@@ -86,12 +85,45 @@ describe("ServiceFilters", () => {
     expect(clearAll.getAttribute("href")).toContain("q=corte");
   });
 
+  it("keeps four pills on the bar and the rest behind More filters", async () => {
+    const { container } = await renderFilters({});
+    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
+    // The fixture offers more than one city, so all four show, then "More".
+    expect(summaries).toEqual([
+      "Category",
+      "Price range",
+      "Where it happens",
+      "City",
+      "More filters",
+    ]);
+    // Every option is still a link in the document, behind the last pill.
+    const more = [...container.querySelectorAll("details")].at(-1)!;
+    expect(more).toHaveTextContent("How you pay");
+    expect(more).toHaveTextContent("Who provides it");
+    expect(more).toHaveTextContent("Listing language");
+  });
+
+  it("counts what More filters hides, and its × takes off exactly those", async () => {
+    const { container } = await renderFilters({
+      paymentMode: "hourly",
+      providerType: "individual",
+      locationType: "at_customer",
+    });
+    const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
+    expect(summaries).toContain("More filters · 2");
+
+    const href = screen.getByRole("link", { name: "Remove More filters" }).getAttribute("href")!;
+    expect(href).not.toContain("paymentMode");
+    expect(href).not.toContain("providerType");
+    expect(href).toContain("locationType=at_customer");
+  });
+
   it("fills no pill and offers no clear-all when nothing is applied", async () => {
     const { container } = await renderFilters({});
     // No group's name has been replaced by a chosen option.
     const summaries = [...container.querySelectorAll("summary")].map((s) => s.textContent);
     expect(summaries).toContain("Where it happens");
-    expect(summaries).toContain("How you pay");
+    expect(summaries).toContain("More filters");
     // No filter is on, so no pill carries a remove link and there is nothing
     // to clear all of.
     expect(screen.queryByRole("link", { name: /^Remove /i })).toBeNull();

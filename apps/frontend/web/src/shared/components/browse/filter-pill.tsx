@@ -20,8 +20,11 @@ export function FilterPill({
   clear,
   icon: Icon,
   id,
+  panelClassName,
   children,
 }: {
+  /** Extra classes on the panel — the "more filters" pill lays its groups out wider. */
+  panelClassName?: string;
   /** On the `<details>`, so something else on the page can open this pill. */
   id?: string;
   /**
@@ -102,7 +105,9 @@ export function FilterPill({
           {active ?? label}
           {!on && <ChevronDown className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden="true" />}
         </summary>
-        <div className="absolute top-[calc(100%+6px)] left-0 z-20 grid min-w-56 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-float)]">
+        <div
+          className={`absolute top-[calc(100%+6px)] left-0 z-20 grid min-w-56 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-float)] ${panelClassName ?? ""}`}
+        >
           {children}
         </div>
       </details>
@@ -140,13 +145,13 @@ export const PILL_CLEAR_CLASS =
  * `<Link>`s a crawler should follow, and hiding them in CSS keeps them
  * followable while taking them off the phone's screen.
  *
- * **It wraps; there is no "More filters" pill.** The spec sketched one
- * collecting whatever did not fit at the current width, and R30 ruled the wrap
- * in its place: six pills and "Clear all" fit at 1440 and take a second row
- * between `lg` and about 1180px, which is legible, while an overflow pill
- * would need a `ResizeObserver` to know what fits and would hide filters a
- * crawler should see. The `filterPillMore` key was deleted from all eight
- * locales with that ruling.
+ * **Four pills, then "More filters".** The bar used to wrap six or seven pills
+ * onto two rows. Since October 2026 it holds the four filters a reader reaches
+ * for first and one more pill whose panel stacks the rest, as the phone's
+ * sheet does. That pill is a `<details>` of links like every other, so nothing
+ * a crawler should follow is hidden from it, and it needs no `ResizeObserver`:
+ * which filters sit behind it is fixed per page, not worked out from the
+ * width.
  */
 export function FilterBar({ children }: { children: ReactNode }) {
   return (

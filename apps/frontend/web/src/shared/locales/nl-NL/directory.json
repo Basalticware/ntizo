@@ -260,16 +260,10 @@
   "sortTrigger": "Sorteren op:",
   "browseHeroEyebrow": "Diensten",
   "browseHeroTitle": "Diensten bij u in de buurt,\nvoor de prijs die u ziet.",
-  "browseHeroSubtitle": "Vind loodgieters, elektriciens, schoonmaak, beauty en nog veel meer. Geverifieerde professionals in Mozambique, klaar om te helpen.",
-  "browseHeroQuote": "Echte mensen.\nLokale diensten.\nEen Mozambique\ndat vooruitgaat.",
+  "browseHeroSubtitle": "Vind loodgieters, elektriciens, schoonmaak, beauty en nog veel meer.",
   "browseSearchQuestion": "Welke dienst zoekt u?",
   "browseSearchHint": "Bijv. loodgieter, elektricien, schoonmaak, manicure...",
   "browseAllCities": "Alle steden",
-  "popularCategories": "Populaire categorieën",
-  "categoriesSeeAll": "Alles bekijken",
-  "moreCategories": "Meer categorieën",
-  "verifiedBannerTitle": "Geverifieerde aanbieders",
-  "verifiedBannerBody": "Veilige diensten, met echte professionals en klantbeoordelingen.",
   "galleryPosition": "{{current}} / {{total}}",
   "galleryPrevious": "Vorige foto",
   "galleryNext": "Volgende foto",
@@ -299,5 +293,6 @@
   "providersHeroTitle": "Betrouwbare vakmensen,\nbij u in de buurt.",
   "providersHeroSubtitle": "Vergelijk bedrijven en vakmensen op de beoordelingen van hun klanten en de prijs waarvoor ze beginnen.",
   "providerSearchQuestion": "Welke aanbieder zoekt u?",
-  "providerSearchHint": "Bijv. naam van het bedrijf of de vakman..."
+  "providerSearchHint": "Bijv. naam van het bedrijf of de vakman...",
+  "filterMore": "Meer filters"
 }

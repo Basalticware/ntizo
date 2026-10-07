@@ -260,16 +260,10 @@
   "sortTrigger": "Sortieren nach:",
   "browseHeroEyebrow": "Dienstleistungen",
   "browseHeroTitle": "Dienstleistungen in Ihrer Nähe,\nzum Preis, den Sie sehen.",
-  "browseHeroSubtitle": "Finden Sie Klempner, Elektriker, Reinigung, Beauty und vieles mehr. Geprüfte Fachleute in Mosambik, bereit zu helfen.",
-  "browseHeroQuote": "Echte Menschen.\nLokale Dienste.\nEin Mosambik,\ndas vorankommt.",
+  "browseHeroSubtitle": "Finden Sie Klempner, Elektriker, Reinigung, Beauty und vieles mehr.",
   "browseSearchQuestion": "Welche Dienstleistung suchen Sie?",
   "browseSearchHint": "Z. B. Klempner, Elektriker, Reinigung, Maniküre...",
   "browseAllCities": "Alle Städte",
-  "popularCategories": "Beliebte Kategorien",
-  "categoriesSeeAll": "Alle ansehen",
-  "moreCategories": "Weitere Kategorien",
-  "verifiedBannerTitle": "Geprüfte Anbieter",
-  "verifiedBannerBody": "Sichere Dienste mit echten Fachleuten und Kundenbewertungen.",
   "galleryPosition": "{{current}} / {{total}}",
   "galleryPrevious": "Vorheriges Foto",
   "galleryNext": "Nächstes Foto",
@@ -299,5 +293,6 @@
   "providersHeroTitle": "Vertrauenswürdige Profis\nin Ihrer Nähe.",
   "providersHeroSubtitle": "Vergleichen Sie Betriebe und Profis nach den Bewertungen ihrer Kunden und dem Preis, ab dem sie arbeiten.",
   "providerSearchQuestion": "Welchen Anbieter suchen Sie?",
-  "providerSearchHint": "z. B. Name des Betriebs oder der Fachkraft..."
+  "providerSearchHint": "z. B. Name des Betriebs oder der Fachkraft...",
+  "filterMore": "Weitere Filter"
 }

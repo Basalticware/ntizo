@@ -47,25 +47,6 @@
         "body": "Only once the provider confirms the time do you get the payment prompt on your phone. Nothing is charged before that."
       }
     },
-    "principlesTitle": "Four rules that never change, whatever the service.",
-    "principles": {
-      "price": {
-        "title": "The price is the price.",
-        "body": "The amount you see on the listing is the amount you pay. The platform's commission comes out of the provider's side, never yours."
-      },
-      "verification": {
-        "title": "Verification before visibility.",
-        "body": "No provider appears in results without having sent an identity document and without a person at Ntizo having reviewed it."
-      },
-      "payAfter": {
-        "title": "Pay only after the yes.",
-        "body": "The payment prompt arrives only after the provider confirms the time. If they do not confirm, or decline, there is nothing to charge."
-      },
-      "local": {
-        "title": "Built for here, ready to grow.",
-        "body": "M-Pesa, Portuguese, the cities we live in. And a platform designed to serve other countries when the time comes."
-      }
-    },
     "customersTitle": "Find, book and pay in one place.",
     "customersBody": "No phone calls to learn the price, no waiting for a reply that never comes. Every booking has a time, an amount and a record.",
     "customersCta": "Explore services",

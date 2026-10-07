@@ -34,7 +34,6 @@ import {
   useCategoryPreview,
 } from "@/features/landing/viewmodel/use-categories";
 import { DirectoryPriceFilter } from "@/features/directory/ui/directory-price-filter";
-import { PROVIDER_CATEGORY_PILL_ID } from "@/features/directory/ui/directory-aside";
 
 /**
  * Everything the pill bar can narrow, taken off at once — but not what was
@@ -211,7 +210,10 @@ function ClearAll({ current, onNavigate }: { current: DirectorySearch; onNavigat
  * disagree. Only the city pill breaks that pattern on purpose — see the
  * comment on it below.
  *
- * Five pills, and only the filters this data can honestly answer. The price
+ * Four pills — category, rating, city, verification — and the price and
+ * the kind of provider behind "More filters", which is the October 2026
+ * pass's answer to a bar that wrapped onto two rows. See `FilterBar`. Only
+ * the filters this data can honestly answer. The price
  * bound runs on the business's cheapest published option, which is the same
  * number its row prints as "from" — so a business can never be hidden by a
  * range it visibly satisfies.
@@ -245,6 +247,11 @@ export function ProviderFilters({ current }: { current: DirectorySearch }) {
   const verifiedLabel = t("filterVerification");
   const cityLabel = t("filterCity");
 
+  // What sits behind "More filters", and how many of those are on — the pill
+  // fills with the count so a narrowing it hides is never invisible.
+  const moreChips = [priceChip, kindChip].filter((c): c is FilterChip => c !== undefined);
+  const moreLabel = t("filterMore");
+
   return (
     <FilterBar>
       {/* First, because it is the widest narrowing on the bar: every other
@@ -254,7 +261,6 @@ export function ProviderFilters({ current }: { current: DirectorySearch }) {
       <FilterPill
         label={categoryLabel}
         icon={ShieldCheck}
-        id={PROVIDER_CATEGORY_PILL_ID}
         active={categoryName}
         clear={
           current.category ? (
@@ -276,35 +282,6 @@ export function ProviderFilters({ current }: { current: DirectorySearch }) {
         <RatingOptions current={current} />
       </FilterPill>
 
-      {/* The one group that is not a closed set, so the one that is not links
-          — see `DirectoryPriceFilter`, which explains why a range has to be
-          typed and submitted. */}
-      <FilterPill
-        label={priceLabel}
-        active={priceChip ? t(priceChip.label.key, priceChip.label.values ?? {}) : undefined}
-        clear={priceChip && <PillClear search={priceChip.next} label={priceLabel} />}
-      >
-        <DirectoryPriceFilter current={current} />
-      </FilterPill>
-
-      <FilterPill
-        label={kindLabel}
-        active={kindChip ? t(kindChip.label.key, kindChip.label.values ?? {}) : undefined}
-        clear={kindChip && <PillClear search={kindChip.next} label={kindLabel} />}
-      >
-        <KindOptions current={current} />
-      </FilterPill>
-
-      {/* A single-option pill: there is nothing to choose between, only to
-          switch on or off, so the group is one row rather than a list. */}
-      <FilterPill
-        label={verifiedLabel}
-        active={verifiedChip ? t(verifiedChip.label.key, verifiedChip.label.values ?? {}) : undefined}
-        clear={verifiedChip && <PillClear search={verifiedChip.next} label={verifiedLabel} />}
-      >
-        <VerifiedOption current={current} />
-      </FilterPill>
-
       {/* Only when there is more than one place to choose between. A city
           filter offering a single city narrows nothing and takes a pill of
           the bar to say so. Its `active` is `current.city` itself, not
@@ -321,6 +298,53 @@ export function ProviderFilters({ current }: { current: DirectorySearch }) {
           <CityOptions current={current} />
         </FilterPill>
       )}
+
+      {/* A single-option pill: there is nothing to choose between, only to
+          switch on or off, so the group is one row rather than a list. */}
+      <FilterPill
+        label={verifiedLabel}
+        active={verifiedChip ? t(verifiedChip.label.key, verifiedChip.label.values ?? {}) : undefined}
+        clear={verifiedChip && <PillClear search={verifiedChip.next} label={verifiedLabel} />}
+      >
+        <VerifiedOption current={current} />
+      </FilterPill>
+
+      {/* Everything else, stacked the way the phone's sheet stacks it. The
+          pill fills with how many of its filters are on, and its `×` takes
+          off exactly those — never the four pills beside it. The price is
+          the one group that is not a closed set, so the one that is not
+          links — see `DirectoryPriceFilter`, which explains why a range has
+          to be typed and submitted. */}
+      <FilterPill
+        label={moreLabel}
+        icon={SlidersHorizontal}
+        active={moreChips.length > 0 ? `${moreLabel} · ${String(moreChips.length)}` : undefined}
+        clear={
+          moreChips.length > 0 ? (
+            <PillClear
+              search={directorySearch(current, {
+                minPrice: undefined,
+                maxPrice: undefined,
+                providerType: undefined,
+                offset: undefined,
+              })}
+              label={moreLabel}
+            />
+          ) : undefined
+        }
+        panelClassName="w-[min(520px,80vw)] grid-cols-2 gap-x-6 p-5"
+      >
+        <div>
+          <SheetGroup label={priceLabel}>
+            <DirectoryPriceFilter current={current} />
+          </SheetGroup>
+        </div>
+        <div>
+          <SheetGroup label={kindLabel}>
+            <KindOptions current={current} />
+          </SheetGroup>
+        </div>
+      </FilterPill>
 
       {/* Nothing to clear is not a disabled link — it is no link, and the
           typed term is not one of the things it clears. See `ClearAll`. */}

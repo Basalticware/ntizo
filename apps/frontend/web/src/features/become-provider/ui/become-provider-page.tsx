@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { ShieldCheck, Smartphone, Tag } from "lucide-react";
+import { MapPin, Smartphone, Tag } from "lucide-react";
 import { useCurrentUser } from "@/features/user/viewmodel/use-current-user";
 import { SiteHeader } from "@/shared/components/site-header";
 import { Footer } from "@/features/landing/ui/footer";
@@ -32,16 +32,12 @@ import {
  * no blue of its own — the page's only `--color-primary` is the search button
  * the header brings with it.
  *
- * **The repeated groups are cards, on the home page's own shape.** The first
- * pass drew them as items on a hairline, which is what the home page looked
- * like at the time. The home has since become bordered cards end to end —
- * services, businesses, and now the reviews — so a hairline pitch made the
- * reader cross from a page of cards into what looked like a different
- * product. `Paths`, `Steps` and `Requirements` all take the card
- * `CustomerReviews` draws, down to the token, and the wide column gaps that
- * separated bare columns come down to the `gap-6` a row of cards uses.
- * `Pricing` keeps its hairline-free paragraph: it is one sentence, and a card
- * around one sentence is a box.
+ * **Four blocks, and nothing else** (October 2026): the hero, how it works,
+ * what you need, and the navy ask. "Two ways to provide" became one line
+ * under the steps and "One price, set by you" one sentence in the hero's
+ * subtitle — the page said each thing twice, and readers stopped before the
+ * button. `Steps` and `Requirements` take the card `CustomerReviews` draws,
+ * down to the token.
  *
  * **On the October 2026 system** like the home: the 53px hero title of
  * `/services`, the system's buttons (filled blue, outlined blue), cards at
@@ -67,8 +63,6 @@ export function BecomeProviderPage() {
   return (
     <main className={PUBLIC_PAGE_CLASS}>
       <Hero cta={cta} t={t} />
-      <Paths t={t} />
-      <Pricing t={t} />
       <Steps t={t} />
       <Requirements t={t} />
       <ClosingBand cta={cta} t={t} />
@@ -115,128 +109,72 @@ function PrimaryCta({ cta, label }: { cta: CtaTarget; label: string }) {
 }
 
 /**
- * The claim, on white, with the header solid above it.
+ * The claim, on white, with the header solid above it, and a photograph on
+ * the right from `lg` — the home's provider photograph, the site's artwork
+ * rather than anybody's listing, so `alt=""`.
  *
- * `SiteHeader` without `overlay`: the overlay variant exists to sit on
- * artwork, and there is no artwork now. The headline is one navy sentence
- * rather than half a sentence in blue — colouring a phrase inside a heading is
- * the tell the listings and the home both removed.
+ * The subtitle carries the fee in one sentence: a fixed percentage of each
+ * booking, no monthly fee. No number, and that is deliberate: the rate is per
+ * provider (`commission_bps`) and administrator-set, not a platform-wide
+ * constant safe to print in JSX. Until 2026-08-31 this page said "0%" and
+ * called itself commission-free, which the decision of 2026-08-30 made false.
  *
- * The three trust lines are the home hero's own shape: a stroked icon at 20px
- * in the brand blue and a short line.
+ * The three proof lines are the home hero's own shape: a stroked icon at 20px
+ * in the brand blue and a short line. The second says how the customer pays —
+ * M-Pesa — and nothing more. It said "guaranteed payment", which nothing in
+ * the booking flow backs: the customer is charged once the provider confirms,
+ * and no step holds the money or promises its release.
  */
 function Hero({ cta, t }: { cta: CtaTarget; t: T }) {
   const proofs = [
     { Icon: Tag, label: t("trustFree") },
-    { Icon: ShieldCheck, label: t("trustPaid") },
-    { Icon: Smartphone, label: t("trustLocal") },
+    { Icon: Smartphone, label: t("trustPaid") },
+    { Icon: MapPin, label: t("trustLocal") },
   ];
 
   return (
     <>
       <SiteHeader current="none" />
-      <section className="public-inset pt-[22px] pb-14 lg:pt-10">
-        <h1 className="max-w-[16ch] text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] lg:text-[53px]">
-          {t("title")} {t("titleAccent")}
-        </h1>
-        <p className="mt-3.5 max-w-[52ch] text-[17px] leading-normal text-[var(--color-muted-foreground)]">
-          {t("subtitle")}
-        </p>
+      <section className="public-inset grid items-center gap-12 pt-[22px] pb-16 lg:grid-cols-[minmax(0,1fr)_400px] lg:pt-12">
+        <div>
+          <h1 className="max-w-[16ch] text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] lg:text-[53px]">
+            {t("title")} {t("titleAccent")}
+          </h1>
+          <p className="mt-4 max-w-[50ch] text-[17px] leading-normal text-[var(--color-muted-foreground)]">
+            {t("subtitle")}
+          </p>
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <PrimaryCta cta={cta} label={t("cta")} />
-          {/* The system's second button — outlined in blue — for the second
-              action in the same task: see who is already on the platform. */}
-          <Link to="/providers" className={buttonVariants({ variant: "secondary" })}>
-            {t("ctaSecondary")}
-          </Link>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <PrimaryCta cta={cta} label={t("cta")} />
+            {/* The system's second button — outlined in blue — for the second
+                action in the same task: see who is already on the platform. */}
+            <Link to="/providers" className={buttonVariants({ variant: "secondary" })}>
+              {t("ctaSecondary")}
+            </Link>
+          </div>
+
+          <ul className="mt-9 flex list-none flex-wrap gap-x-7 gap-y-2.5 p-0">
+            {proofs.map(({ Icon, label }) => (
+              <li key={label} className="flex items-center gap-2.5 text-[15px] font-medium text-[var(--color-ink-2)]">
+                <Icon
+                  className="h-5 w-5 text-[var(--color-primary)]"
+                  strokeWidth={2}
+                  aria-hidden="true"
+                />
+                {label}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <ul className="mt-9 flex list-none flex-wrap gap-x-7 gap-y-2.5 p-0">
-          {proofs.map(({ Icon, label }) => (
-            <li key={label} className="flex items-center gap-2.5 text-[15px] font-medium text-[var(--color-ink-2)]">
-              <Icon
-                className="h-5 w-5 text-[var(--color-primary)]"
-                strokeWidth={2}
-                aria-hidden="true"
-              />
-              {label}
-            </li>
-          ))}
-        </ul>
+        <img
+          src="/images/home-provider.jpg"
+          alt=""
+          data-testid="become-provider-photo"
+          className="hidden h-[440px] w-full rounded-[14px] object-cover object-[50%_20%] lg:block"
+        />
       </section>
     </>
-  );
-}
-
-/**
- * The two kinds of provider.
- *
- * Ntizo's own distinction and the first real decision a visitor makes: a person
- * offering their own labour and an establishment with staff need different
- * calendars and different teams, and someone reading this is working out which
- * one they are.
- *
- * **No numerals.** They used to carry `01` and `02` over generated artwork,
- * and a number promises an order the reader has to follow. This is a choice
- * between two things, not a first and a second — so the hairline that opens
- * each column is the whole of the structure, and the differentiator stays one
- * sentence and one tag.
- */
-function Paths({ t }: { t: T }) {
-  const paths = ["individual", "organization"] as const;
-
-  return (
-    <section className="public-inset pt-4 pb-16">
-      <SectionHead title={t("pathsTitle")} blurb={t("pathsBlurb")} />
-      <div className="grid gap-6 md:grid-cols-2">
-        {paths.map((key) => (
-          <article
-            key={key}
-            className={PUBLIC_CARD_CLASS}
-          >
-            <h3 className="text-[20px] font-bold tracking-[-0.01em] text-[var(--color-headline)]">
-              {t(`path.${key}.title`)}
-            </h3>
-            <p className={`mt-2.5 ${CARD_BODY_CLASS}`}>{t(`path.${key}.body`)}</p>
-            {/* One fact, not a list, and set as type rather than a tinted
-                capsule — the thing that actually differs between the two. */}
-            <span className="mt-4 block text-[14px] font-semibold text-[var(--color-primary)]">
-              {t(`path.${key}.tag`)}
-            </span>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/**
- * The fee, stated in the reader's own column rather than shouted from a band.
- *
- * It is the first question anyone asks, so it gets a section of its own — but
- * on white, because the page now spends its one dark surface on the closing
- * ask. A second dark band was what made this page read as two pages stapled
- * together.
- *
- * No number, and that is deliberate: the rate is per provider
- * (`commission_bps`) and administrator-set, not a platform-wide constant safe
- * to print in JSX. Until 2026-08-31 this said "0%" and called itself
- * commission-free, which the decision of 2026-08-30 made false.
- */
-function Pricing({ t }: { t: T }) {
-  return (
-    <section className="public-inset pb-16">
-      <SectionHead title={t("pricingTitle")} />
-      {/* One panel, full width, because there is one thing to say — on the
-          soft blue the system gives a note, which sets it apart from the
-          cards around it. */}
-      <div className="rounded-[14px] bg-[var(--color-blue-softer)] p-6 md:p-7">
-        <p className="max-w-[62ch] text-[17px] leading-relaxed text-[var(--color-ink-2)]">
-          {t("pricingBody")}
-        </p>
-      </div>
-    </section>
   );
 }
 
@@ -248,6 +186,13 @@ function Pricing({ t }: { t: T }) {
  * small soft blue markers, the same shape `/about`'s flow uses, rather than
  * outlined numerals the size of the headline they sit above.
  *
+ * Step four says what is true about money: the customer pays by M-Pesa once
+ * the provider confirms the time, and the commission comes out of that price.
+ * It used to say the payment was held until the job was done and then
+ * released; nothing in the booking flow holds or releases money (there is no
+ * disbursement yet, and the wallet ledger has no writer), so it no longer
+ * says so.
+ *
  * Step two says the application is reviewed, and that is not decoration:
  * registering creates a pending provider customers cannot find until an
  * administrator approves it. Leaving it out would make the wait look like a
@@ -258,10 +203,7 @@ function Steps({ t }: { t: T }) {
 
   return (
     <section className="public-inset pb-16">
-      {/* `stepsEyebrow` reads as a sentence, not a label — "From signing up to
-          your first booking" — so it becomes the section's line now that the
-          tracked-out uppercase eyebrows are gone. */}
-      <SectionHead title={t("stepsTitle")} blurb={t("stepsEyebrow")} />
+      <SectionHead title={t("stepsTitle")} />
       <ol className="grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((key, i) => (
           <li
@@ -273,12 +215,12 @@ function Steps({ t }: { t: T }) {
             </span>
             <h3 className={CARD_TITLE_CLASS}>{t(`step.${key}.title`)}</h3>
             <p className={`mt-1.5 ${CARD_BODY_CLASS}`}>{t(`step.${key}.body`)}</p>
-            <span className="mt-3 block text-[13px] font-semibold text-[var(--color-primary)]">
-              {t(`step.${key}.tag`)}
-            </span>
           </li>
         ))}
       </ol>
+      {/* What used to be "Two ways to provide": a choice made once, in the
+          wizard, so one line here rather than two cards to weigh. */}
+      <p className="mt-5 text-[15px] text-[var(--color-muted-foreground)]">{t("pathsLine")}</p>
     </section>
   );
 }
