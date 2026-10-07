@@ -5,8 +5,13 @@ import {
   groupRules,
   labelToMinutes,
   minutesToLabel,
+  nextIntervalOn,
   overlaps,
+  rulesOn,
+  seedDay,
   weekdayShortLabel,
+  withoutRule,
+  workingDayCount,
 } from "../week";
 import type { WeeklyRuleDraft } from "../types";
 
@@ -162,5 +167,64 @@ describe("formatDayList", () => {
   });
   test("keeps the order it is given rather than re-sorting", () => {
     expect(formatDayList("en-US", [1, 0])).toMatch(/^Mon\b/);
+  });
+});
+
+describe("rulesOn", () => {
+  test("returns one day's rows, earliest first", () => {
+    const rules = [rule(1, 780, 1020), rule(2, 540, 600), rule(1, 480, 720)];
+    expect(rulesOn(rules, 1).map((r) => r.startMinute)).toEqual([480, 780]);
+  });
+});
+
+describe("withoutRule", () => {
+  test("removes the row that matches on every field, and only that one", () => {
+    const rules = [rule(1, 480, 720), rule(1, 480, 720, { capacity: 2 }), rule(2, 480, 720)];
+    expect(withoutRule(rules, rule(1, 480, 720))).toEqual([
+      rule(1, 480, 720, { capacity: 2 }),
+      rule(2, 480, 720),
+    ]);
+  });
+});
+
+describe("seedDay", () => {
+  test("an empty week starts the day on 09:00–17:00 with the defaults", () => {
+    expect(seedDay([], 6)).toEqual([rule(6, 540, 1020)]);
+  });
+
+  test("copies the nearest earlier working day, shape included", () => {
+    const rules = [rule(3, 480, 720, { bufferMinutes: 10 }), rule(5, 600, 660)];
+    // Saturday walks back to Friday first.
+    expect(seedDay(rules, 6)).toEqual([rule(6, 600, 660)]);
+    // Thursday walks back to Wednesday, and keeps its buffer.
+    expect(seedDay(rules, 4)).toEqual([rule(4, 480, 720, { bufferMinutes: 10 })]);
+  });
+
+  test("wraps past Monday to the end of the week", () => {
+    // Monday's nearest earlier day is Sunday (stored 0).
+    expect(seedDay([rule(0, 600, 720)], 1)).toEqual([rule(1, 600, 720)]);
+  });
+});
+
+describe("nextIntervalOn", () => {
+  test("offers the default on an empty day", () => {
+    expect(nextIntervalOn([], 1)).toEqual({ startMinute: 540, endMinute: 1020 });
+  });
+
+  test("starts on the first whole hour after the day's last interval", () => {
+    expect(nextIntervalOn([rule(1, 480, 720)], 1)).toEqual({ startMinute: 780, endMinute: 1020 });
+    expect(nextIntervalOn([rule(1, 480, 750)], 1)).toEqual({ startMinute: 780, endMinute: 1020 });
+  });
+
+  test("never runs past midnight, and falls back when there is no room left", () => {
+    expect(nextIntervalOn([rule(1, 1080, 1260)], 1)).toEqual({ startMinute: 1320, endMinute: 1440 });
+    expect(nextIntervalOn([rule(1, 1080, 1410)], 1)).toEqual({ startMinute: 540, endMinute: 1020 });
+  });
+});
+
+describe("workingDayCount", () => {
+  test("counts weekdays, not rows", () => {
+    expect(workingDayCount([rule(1, 480, 720), rule(1, 780, 1020), rule(6, 540, 780)])).toBe(2);
+    expect(workingDayCount([])).toBe(0);
   });
 });

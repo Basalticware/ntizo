@@ -201,9 +201,11 @@ describe("ServiceWizardPage", () => {
 
     renderWizard("/provider/bela-vista/services/new", qc);
 
-    // Five, not six: an individual provider skips performers. Telling them
-    // "1 of 6" would count a screen they will never be shown.
-    expect(await screen.findByText("Step 1/6")).toBeInTheDocument();
+    // Six, not seven: an individual provider skips performers. Telling them
+    // "1 of 7" would count a screen they will never be shown. Read off the
+    // progress bar, which both the rail and the phone's header draw.
+    const bars = await screen.findAllByRole("progressbar", { name: "Step 1 of 6" });
+    expect(bars[0]).toHaveAttribute("aria-valuemax", "6");
   });
 
   it("an unsaved service cannot jump forward past the step that creates it", async () => {
@@ -361,6 +363,44 @@ describe("ServiceWizardPage", () => {
 
     // It did not merely complain — it took them to the step that fixes it.
     expect(await screen.findByRole("heading", { name: "What does it cost?" })).toBeInTheDocument();
+  });
+
+  it("each section of the review has its own way back to the step that set it", async () => {
+    const qc = makeQueryClient();
+    seed(qc, { services: [SAVED_SERVICE] });
+    const user = userEvent.setup();
+
+    renderWizard("/provider/bela-vista/services/svc-1", qc);
+
+    await screen.findByRole("heading", { name: "What service are you offering?" });
+    await user.click(railRow(/Check and publish/));
+    await user.click(await screen.findByRole("button", { name: "Edit How it is charged" }));
+
+    expect(await screen.findByRole("heading", { name: "How is it charged?" })).toBeInTheDocument();
+  });
+
+  it("asks how it is charged as two cards, locked once the service exists", async () => {
+    const qc = makeQueryClient();
+    seed(qc, { services: [SAVED_SERVICE] });
+    const user = userEvent.setup();
+
+    renderWizard("/provider/bela-vista/services/svc-1", qc);
+
+    await screen.findByRole("heading", { name: "What service are you offering?" });
+    await user.click(railRow(/How it is charged/));
+
+    expect(await screen.findByRole("radio", { name: "Priced" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Priced" })).toBeDisabled();
+    expect(screen.getByRole("radio", { name: "By quote" })).toBeDisabled();
+  });
+
+  it("a saved draft offers to be saved as a draft", async () => {
+    const qc = makeQueryClient();
+    seed(qc, { services: [SAVED_SERVICE] });
+
+    renderWizard("/provider/bela-vista/services/svc-1", qc);
+
+    expect(await screen.findByRole("button", { name: "Save draft" })).toBeInTheDocument();
   });
 
   it("a quote service is never asked for prices", async () => {

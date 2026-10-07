@@ -22,17 +22,17 @@ const render = () => renderCompanyPage(BecomeProviderPage, "/become-provider");
 const page = () => document.body;
 
 describe("BecomeProviderPage", () => {
-  it("keeps four blocks, and ends on the ask", async () => {
+  it("keeps its five blocks, and ends on the ask", async () => {
     await render();
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "Offer your services. You set the price.",
     );
-    for (const heading of ["How it works", "What you need", "Ready to start earning?"]) {
+    for (const heading of ["Your work, your price", "How it works", "What you need", "Ready to start earning?"]) {
       expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
     }
-    // Folded away (October 2026): the fee is one sentence in the hero, and
-    // the two ways to provide one line under the steps.
+    // Folded away (October 2026): the fee is said once, beside the second
+    // photograph, and the two ways to provide one line under the steps.
     for (const gone of ["Two ways to provide", "One price, set by you"]) {
       expect(screen.queryByRole("heading", { name: gone })).toBeNull();
     }
@@ -54,23 +54,34 @@ describe("BecomeProviderPage", () => {
     expect(main.textContent).not.toMatch(/guaranteed|is held|released to you/i);
   });
 
-  it("shows the provider photograph beside the hero, as artwork", async () => {
+  /**
+   * Drawn as `/about` is: the hero is the home's own photograph under the
+   * white title, and why-join sits beside a second one. Both are artwork,
+   * not anybody's listing, so neither has alt text.
+   */
+  it("opens on the electrician, full-bleed, and explains why beside a second photograph", async () => {
     await render();
-    const photo = screen.getByTestId("become-provider-photo");
-    expect(photo).toHaveAttribute("src", "/images/home-provider.jpg");
-    expect(photo).toHaveAttribute("alt", "");
+    const main = document.querySelector("main")!;
+    const hero = main.querySelector<HTMLImageElement>("img[src='/images/home-hero.jpg']")!;
+    expect(hero).toHaveAttribute("alt", "");
+    expect(hero.className).toContain("object-cover");
+
+    const why = screen.getByRole("heading", { name: "Your work, your price" }).closest("section")!;
+    expect(why.querySelector("img")).toHaveAttribute("src", "/images/company/become-provider-why.jpg");
+    expect(why).toHaveTextContent("taken out of the price you set");
   });
 
   /**
    * The headline was `{title} <span style="color: ACCENT">{titleAccent}</span>`
    * — half a sentence in blue, which is the tell the listings and the home
-   * both removed. Both halves stay; the colouring does not.
+   * both removed. Both halves stay, white on the photograph; the colouring
+   * does not.
    */
   it("says the whole headline in one colour", async () => {
     await render();
     const h1 = screen.getByRole("heading", { level: 1 });
 
-    expect(h1.className).toContain("text-[var(--color-headline)]");
+    expect(h1.className).toContain("text-white");
     expect(h1.querySelector("[style*='color']")).toBeNull();
   });
 
@@ -78,7 +89,7 @@ describe("BecomeProviderPage", () => {
    * The October 2026 system gives every page one primary action: the filled
    * blue `Button`. This page's "Get started" is that button wherever it
    * appears — in the hero and in the closing band — and nothing else here
-   * draws a filled blue of its own.
+   * draws a filled blue of its own, bar the steps' decorative number badges.
    */
   it("draws its call to action as the system's primary button", async () => {
     await render();
@@ -87,7 +98,9 @@ describe("BecomeProviderPage", () => {
     expect(ctas).toHaveLength(2);
     for (const cta of ctas) expect(cta.className).toContain("bg-[var(--color-primary)]");
 
-    const filled = [...page().querySelectorAll<HTMLElement>("[class*='bg-[var(--color-primary)]']")];
+    const filled = [...page().querySelectorAll<HTMLElement>("[class*='bg-[var(--color-primary)]']")].filter(
+      (el) => el.getAttribute("aria-hidden") !== "true",
+    );
     for (const el of filled) {
       expect(el.closest("header") !== null || ctas.includes(el)).toBe(true);
     }
@@ -160,19 +173,12 @@ describe("BecomeProviderPage", () => {
   });
 
   /**
-   * The three repeated groups are cards, on the home page's own shape.
-   *
-   * They were items on a hairline — a rule above each, then type. That was
-   * the right call on a page of hairlines, and the wrong one once the home
-   * page became bordered cards end to end: the reader crosses from a page of
-   * cards to a pitch that looks like a different product. The card is the
-   * same one `CustomerReviews` draws, down to the token.
-   *
-   * jsdom does no layout, so the class that produces the box is the
-   * assertion — and the hairline is asserted gone, because a `border-t` left
-   * behind draws a second rule inside the card's own top edge.
+   * The steps and the requirements are the home's icon items now, with no box
+   * around any of them — the bordered cards went with the rest of the
+   * text-in-boxes look the owner rejected on `/about`. The steps sit on the
+   * soft blue band; the requirements on the page itself.
    */
-  it("draws the steps and the requirements as the home page's cards", async () => {
+  it("draws the steps and the requirements as icons, not cards", async () => {
     await render();
 
     for (const [heading, count] of [
@@ -180,15 +186,17 @@ describe("BecomeProviderPage", () => {
       ["What you need", 3],
     ] as const) {
       const section = screen.getByRole("heading", { name: heading }).closest("section")!;
-      const cards = section.querySelectorAll("article, li");
-      expect(cards).toHaveLength(count);
+      const items = section.querySelectorAll("li");
+      expect(items).toHaveLength(count);
 
-      for (const card of cards) {
-        expect(card.className).toContain("rounded-[var(--radius-card)]");
-        expect(card.className).toContain("border-[var(--color-border)]");
-        expect(card.className).toContain("bg-[var(--color-card)]");
-        expect(card.className.split(/\s+/)).not.toContain("border-t");
+      for (const item of items) {
+        expect(item.querySelector("svg")).not.toBeNull();
+        expect(item.className).not.toContain("rounded-[var(--radius-card)]");
+        expect(item.className).not.toContain("border-[var(--color-border)]");
       }
     }
+
+    const band = screen.getByRole("heading", { name: "How it works" }).parentElement!;
+    expect(band.className).toContain("bg-[var(--color-blue-softer)]");
   });
 });

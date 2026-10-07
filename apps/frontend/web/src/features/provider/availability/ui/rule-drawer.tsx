@@ -38,6 +38,7 @@ export function RuleDrawer({
   onOpenChange,
   locale,
   initial,
+  preset,
   others,
   onSubmit,
 }: {
@@ -46,6 +47,12 @@ export function RuleDrawer({
   locale: string;
   /** The group being edited, or `null` when adding a new one. */
   initial: WeekRuleGroup | null;
+  /**
+   * Where a *new* rule starts, when it is added from one day's row: that day
+   * ticked and hours that follow the day's last interval. Ignored when
+   * `initial` is given.
+   */
+  preset?: { weekdays: readonly number[]; startMinute: number; endMinute: number } | undefined;
   /**
    * Every other rule in the draft — the overlap check's other side. The group
    * under edit is deliberately absent: it is being replaced, so it cannot
@@ -58,9 +65,15 @@ export function RuleDrawer({
   const titleId = useId();
   const timeErrorId = useId();
 
-  const [days, setDays] = useState<string[]>(() => (initial?.weekdays ?? []).map(String));
-  const [start, setStart] = useState(() => minutesToLabel(initial?.startMinute ?? 9 * 60));
-  const [end, setEnd] = useState(() => minutesToLabel(initial?.endMinute ?? 17 * 60));
+  const [days, setDays] = useState<string[]>(() =>
+    (initial?.weekdays ?? preset?.weekdays ?? []).map(String),
+  );
+  const [start, setStart] = useState(() =>
+    minutesToLabel(initial?.startMinute ?? preset?.startMinute ?? 9 * 60),
+  );
+  const [end, setEnd] = useState(() =>
+    minutesToLabel(initial?.endMinute ?? preset?.endMinute ?? 17 * 60),
+  );
   // Raw text, not the parsed number: an empty box and a box holding "0" are
   // different things to a reader, and collapsing them into one numeric state
   // the moment a key is pressed would lose that difference before it could

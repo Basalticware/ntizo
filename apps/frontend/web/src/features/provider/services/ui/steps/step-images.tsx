@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronLeft, ChevronRight, ImageIcon, Loader2, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageIcon, ImagePlus, Loader2, Plus, X } from "lucide-react";
 import { Button, cn } from "@ntizo/frontend-ui";
 import { useImageUpload } from "@/features/provider/viewmodel/use-image-upload";
 
@@ -46,6 +46,8 @@ export function StepImages({
    * anything already saved is served by the API.
    */
   const [freshPreviews, setFreshPreviews] = useState<Record<string, string>>({});
+  /** Files are being dragged over the drop area. */
+  const [dragging, setDragging] = useState(false);
 
   /**
    * What to show for a key.
@@ -80,20 +82,93 @@ export function StepImages({
     onChange(next);
   }
 
+  /** Only images: a dropped PDF would otherwise reach the upload and fail there. */
+  function addDropped(list: FileList | null) {
+    const files = [...(list ?? [])].filter((f) => f.type.startsWith("image/"));
+    void add(files);
+  }
+
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5">
+      <input
+        ref={fileInput}
+        type="file"
+        accept="image/*"
+        multiple
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden="true"
+        onChange={(e) => {
+          const files = [...(e.target.files ?? [])];
+          // Cleared before the upload, not after: leaving the value set
+          // means picking the same file twice in a row fires no change.
+          e.target.value = "";
+          void add(files);
+        }}
+      />
+
+      {/* The drop area. One real button inside it, so the keyboard and a
+          screen reader have the same way in as a mouse dragging files. */}
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!dragging) setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          if (!upload.busy) addDropped(e.dataTransfer.files);
+        }}
+        className={cn(
+          "grid justify-items-center gap-3 rounded-[14px] border-2 border-dashed px-6 py-9 text-center transition-colors",
+          dragging
+            ? "border-[var(--color-primary)] bg-[var(--color-blue-soft)]"
+            : "border-[var(--color-blue-line)] bg-[var(--color-blue-softer)]",
+        )}
+      >
+        <span
+          aria-hidden="true"
+          className="grid h-12 w-12 place-items-center rounded-full bg-[var(--color-card)] text-[var(--color-primary)]"
+        >
+          {upload.busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <ImagePlus className="h-5 w-5" />}
+        </span>
+        <p className="m-0 text-[15px] font-semibold text-[var(--color-headline)]">
+          {upload.busy ? t("serviceImagesUploading") : t("serviceImagesDrop")}
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={upload.busy}
+          onClick={() => fileInput.current?.click()}
+        >
+          <Plus className="h-4 w-4" />
+          {t("serviceImagesAdd")}
+        </Button>
+      </div>
+
+      {upload.errorKey && (
+        <p className="m-0 text-[13.5px] leading-[1.45] font-medium text-[var(--color-bad-fg)]">
+          {t(upload.errorKey)}
+        </p>
+      )}
+
       {imageKeys.length === 0 ? (
-        <p className="m-0 rounded-[14px] bg-[var(--color-blue-softer)] px-[18px] py-4 text-[15px] text-[var(--color-ink-2)]">
+        <p className="m-0 text-center text-[14px] text-[var(--color-muted-foreground)]">
           {t("serviceImagesEmpty")}
         </p>
       ) : (
-        <ul className="grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3">
+        <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3">
           {imageKeys.map((key, i) => {
             const preview = previewFor(key);
             return (
               <li
                 key={key}
-                className="relative overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)]"
+                className={cn(
+                  "group relative overflow-hidden rounded-[12px] border bg-[var(--color-card)]",
+                  i === 0 ? "border-[var(--color-primary)]" : "border-[var(--color-border)]",
+                )}
               >
                 <div className="grid aspect-[4/3] place-items-center bg-[var(--color-blue-softer)]">
                   {preview ? (
@@ -101,7 +176,7 @@ export function StepImages({
                   ) : (
                     // Uploaded, but nothing can serve it here. Said plainly
                     // rather than shown as a broken image.
-                    <span className="text-[13px] leading-[1.45] px-2 text-center text-[var(--color-muted-foreground)]">
+                    <span className="px-2 text-center text-[13px] leading-[1.45] text-[var(--color-muted-foreground)]">
                       <ImageIcon className="mx-auto mb-1 h-5 w-5" aria-hidden="true" />
                       {t("serviceImagesUnavailable")}
                     </span>
@@ -109,7 +184,7 @@ export function StepImages({
                 </div>
 
                 {i === 0 && (
-                  <span className="text-[13px] leading-[1.45] absolute top-1.5 left-1.5 rounded-full bg-[var(--color-primary)] px-2 py-0.5 font-semibold text-white">
+                  <span className="absolute top-2 left-2 rounded-full bg-[var(--color-primary)] px-2.5 py-0.5 text-[12.5px] leading-5 font-semibold text-[var(--color-primary-foreground)]">
                     {t("serviceImagesCover")}
                   </span>
                 )}
@@ -118,12 +193,12 @@ export function StepImages({
                   type="button"
                   aria-label={t("serviceImagesRemove", { n: i + 1 })}
                   onClick={() => onChange(imageKeys.filter((k) => k !== key))}
-                  className="absolute top-1.5 right-1.5 grid h-7 w-7 place-items-center rounded-full bg-[var(--color-background)]/90 hover:bg-[var(--color-background)]"
+                  className="absolute top-2 right-2 grid h-8 w-8 cursor-pointer place-items-center rounded-full bg-[var(--color-card)] text-[var(--color-headline)] shadow-sm hover:text-[var(--color-destructive)]"
                 >
                   <X className="h-4 w-4" />
                 </button>
 
-                <div className="flex items-center justify-between gap-1 p-1.5">
+                <div className="flex items-center justify-between gap-1 border-t border-[var(--color-line-2)] px-1.5 py-1">
                   <IconButton
                     label={t("serviceImagesMoveEarlier", { n: i + 1 })}
                     disabled={i === 0}
@@ -131,6 +206,9 @@ export function StepImages({
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </IconButton>
+                  <span className="text-[12.5px] text-[var(--color-muted-foreground)] tabular-nums">
+                    {i + 1}
+                  </span>
                   <IconButton
                     label={t("serviceImagesMoveLater", { n: i + 1 })}
                     disabled={i === imageKeys.length - 1}
@@ -144,41 +222,6 @@ export function StepImages({
           })}
         </ul>
       )}
-
-      {upload.errorKey && (
-        <p className="text-[13px] leading-[1.45] text-[var(--color-destructive)]">{t(upload.errorKey)}</p>
-      )}
-
-      <div>
-        <input
-          ref={fileInput}
-          type="file"
-          accept="image/*"
-          multiple
-          className="sr-only"
-          onChange={(e) => {
-            const files = [...(e.target.files ?? [])];
-            // Cleared before the upload, not after: leaving the value set
-            // means picking the same file twice in a row fires no change.
-            e.target.value = "";
-            void add(files);
-          }}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={upload.busy}
-          onClick={() => fileInput.current?.click()}
-        >
-          {upload.busy ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Plus className="h-4 w-4" />
-          )}
-          {upload.busy ? t("serviceImagesUploading") : t("serviceImagesAdd")}
-        </Button>
-      </div>
     </div>
   );
 }

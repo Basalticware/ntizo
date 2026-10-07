@@ -1,11 +1,14 @@
 {
   "title": "Offri i tuoi servizi.",
   "titleAccent": "Stabilisci tu il prezzo.",
-  "subtitle": "Trova clienti in tutto il Mozambico. Nessuna quota mensile: la piattaforma trattiene una percentuale fissa di ogni prenotazione, il resto è tuo.",
+  "lede": "Mostra cosa fai, pubblica i tuoi prezzi e ricevi prenotazioni da clienti in Mozambico.",
   "cta": "Inizia",
   "trustFree": "Iscrizione gratuita",
   "trustPaid": "Pagamento con M-Pesa",
   "trustLocal": "Clienti vicino a te",
+  "whyTitle": "Il tuo lavoro, il tuo prezzo",
+  "why1": "Nessuna quota mensile e niente da pagare per iscriverti. La piattaforma trattiene una percentuale fissa di ogni prenotazione, che esce dal prezzo che stabilisci, e il resto è tuo.",
+  "why2": "I clienti ti trovano per servizio e zona, prenotano uno degli orari che hai aperto e pagano con M-Pesa quando confermi l'orario.",
   "stepsTitle": "Come funziona",
   "step": {
     "apply": {

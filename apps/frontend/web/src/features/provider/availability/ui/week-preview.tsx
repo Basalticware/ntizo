@@ -39,11 +39,11 @@ import type { PreviewDay } from "../domain/preview";
 export type PreviewDensity = "hours" | "slots";
 
 /** Height of one hour row. Rows are hourly, so the window is snapped to hours. */
-const ROW_REM = 2.75;
+const ROW_REM = 2.25;
 
 /** A day with no rule at all, as a texture rather than a sentence. */
 const STRIPES =
-  "repeating-linear-gradient(135deg,transparent,transparent 7px,color-mix(in srgb,var(--color-foreground) 9%,transparent) 7px,color-mix(in srgb,var(--color-foreground) 9%,transparent) 8px)";
+  "repeating-linear-gradient(135deg,transparent,transparent 7px,color-mix(in srgb,var(--color-foreground) 6%,transparent) 7px,color-mix(in srgb,var(--color-foreground) 6%,transparent) 8px)";
 
 /** The hourly ruler behind every column, drawn as paint rather than as 77 elements. */
 const HOUR_LINES = `repeating-linear-gradient(to bottom,var(--color-border) 0 1px,transparent 1px ${ROW_REM}rem)`;
@@ -306,7 +306,7 @@ function WorkingBlock({
   const { t } = useTranslation("provider");
   return (
     <div
-      className="absolute right-[3px] left-[3px] overflow-hidden rounded-[var(--radius-field)] border border-[color-mix(in_srgb,var(--color-primary)_28%,transparent)] bg-[color-mix(in_srgb,var(--color-primary)_11%,transparent)] px-1.5 py-1 shadow-[inset_3px_0_0_-1px_var(--color-primary)]"
+      className="absolute right-[3px] left-[3px] overflow-hidden rounded-[8px] border border-[var(--color-blue-line)] bg-[var(--color-blue-softer)] px-1.5 py-1"
       style={{ top: `${top}rem`, height: `${height}rem` }}
     >
       {/* The span on one line rather than the two stacked numbers this
@@ -401,7 +401,7 @@ function AgendaList({
                 d.intervals.map((iv) => (
                   <span
                     key={`${iv.start}-${iv.end}`}
-                    className="type-caption rounded-[var(--radius-field)] border border-[color-mix(in_srgb,var(--color-primary)_28%,transparent)] bg-[color-mix(in_srgb,var(--color-primary)_11%,transparent)] px-2 py-1 font-semibold tabular-nums text-[var(--color-primary)]"
+                    className="type-caption rounded-[var(--radius-field)] border border-[var(--color-blue-line)] bg-[var(--color-blue-softer)] px-2 py-1 font-semibold tabular-nums text-[var(--color-primary)]"
                   >
                     {minutesToLabel(iv.start)}–{minutesToLabel(iv.end)}
                   </span>
@@ -452,7 +452,7 @@ function Legend() {
       <span className="inline-flex items-center gap-1.5">
         <i
           aria-hidden="true"
-          className="h-2.5 w-2.5 rounded-[3px] border border-[color-mix(in_srgb,var(--color-primary)_28%,transparent)] bg-[color-mix(in_srgb,var(--color-primary)_11%,transparent)]"
+          className="h-2.5 w-2.5 rounded-[3px] border border-[var(--color-blue-line)] bg-[var(--color-blue-softer)]"
         />
         {t("availabilityLegendWorking")}
       </span>

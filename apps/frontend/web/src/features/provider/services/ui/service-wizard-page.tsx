@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import { Button, buttonVariants, cn } from "@ntizo/frontend-ui";
 import { usePageAction, usePageHeader } from "@/shared/lib/page-header";
 import { useServiceWizard } from "../viewmodel/use-service-wizard";
@@ -135,6 +135,7 @@ export function ServiceWizardPage() {
               .filter((m) => vm.draft.memberIds.includes(m.memberId))
               .map((m) => m.name ?? m.userId)}
             locale={locale}
+            showPerformers={vm.steps.includes("performers")}
             blocker={vm.blocker}
             blockerStep={vm.blockerStep}
             onSeek={vm.seek}
@@ -150,173 +151,202 @@ export function ServiceWizardPage() {
 
   const currentIndex = vm.steps.indexOf(vm.step);
   const total = vm.steps.length;
+  const progress = t("serviceStepProgress", { current: currentIndex + 1, total });
+  const progressBar = (
+    <div
+      role="progressbar"
+      aria-label={progress}
+      aria-valuemin={1}
+      aria-valuemax={total}
+      aria-valuenow={currentIndex + 1}
+      className="h-1 overflow-hidden rounded-full bg-[var(--color-line-2)] dark:bg-[var(--color-muted)]"
+    >
+      <div
+        className="h-full rounded-full bg-[var(--color-primary)] transition-[width] duration-300"
+        style={{ width: `${((currentIndex + 1) / total) * 100}%` }}
+      />
+    </div>
+  );
 
   return (
     <div className="flex w-full max-w-[1400px] flex-col">
-      <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start lg:gap-5">
-        {/* The step rail, in the settings page's rail: one white box, the
-            current step on the soft blue ground with the brand bar on its
-            left edge. Hidden below `lg`, where the card's own bar and counter
-            say the same thing in the room a phone has. */}
-        <nav aria-label={title} className="hidden lg:block">
-          <ol className="sticky top-6 m-0 grid list-none gap-1 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] px-3 pt-2.5 pb-3">
-            {vm.steps.map((step, i) => {
-              const done = i < currentIndex;
-              const active = i === currentIndex;
-              const reachable = vm.isReachable(step, vm.step);
-              return (
-                <li key={step} className="relative min-w-0">
-                  {active && (
-                    <span
-                      aria-hidden
-                      className="absolute top-1/2 -left-3 h-[50px] w-[3px] -translate-y-1/2 rounded-r-sm bg-[var(--color-primary)]"
-                    />
-                  )}
-                  <button
-                    type="button"
-                    disabled={!reachable}
-                    // The rail is a list of destinations and one of them is
-                    // where you are. Sighted readers get that from the
-                    // filled marker; without this a screen reader hears
-                    // interchangeable buttons.
-                    {...(active ? { "aria-current": "step" as const } : {})}
-                    onClick={() => reachable && vm.seek(step)}
-                    className={cn(
-                      "flex w-full gap-3.5 rounded-[9px] py-3 pr-2 pl-2.5 text-left transition-colors",
-                      active
-                        ? "bg-[var(--color-blue-soft)] text-[var(--color-primary)]"
-                        : "text-[var(--color-headline)]",
-                      reachable
-                        ? "cursor-pointer"
-                        : "cursor-default",
-                      reachable && !active && "hover:bg-[color-mix(in_srgb,var(--color-blue-soft)_50%,transparent)]",
+      <div className="lg:grid lg:grid-cols-[272px_minmax(0,1fr)] lg:items-start lg:gap-6">
+        {/* The step rail: where this is, how far it goes, and what each later
+            screen will ask. Hidden below `lg`, where the card's own count and
+            bar say the same thing in the room a phone has. */}
+        <nav aria-label={title} className="sticky top-6 hidden lg:block">
+          <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-5">
+            <p className="m-0 text-[13px] font-semibold text-[var(--color-muted-foreground)] tabular-nums">
+              {progress}
+            </p>
+            <div className="mt-3 mb-5">{progressBar}</div>
+            <ol className="m-0 grid list-none gap-1 p-0">
+              {vm.steps.map((step, i) => {
+                const done = i < currentIndex;
+                const active = i === currentIndex;
+                const reachable = vm.isReachable(step, vm.step);
+                const last = i === total - 1;
+                return (
+                  <li key={step} className="relative min-w-0">
+                    {/* The thread between markers, blue as far as the
+                        provider has come. */}
+                    {!last && (
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "absolute top-[38px] bottom-[-10px] left-[23px] w-0.5 rounded-full",
+                          done
+                            ? "bg-[var(--color-primary)]"
+                            : "bg-[var(--color-line-2)] dark:bg-[var(--color-muted)]",
+                        )}
+                      />
                     )}
-                  >
-                    <span
+                    <button
+                      type="button"
+                      disabled={!reachable}
+                      // The rail is a list of destinations and one of them is
+                      // where you are. Sighted readers get that from the
+                      // filled marker; without this a screen reader hears
+                      // interchangeable buttons.
+                      {...(active ? { "aria-current": "step" as const } : {})}
+                      onClick={() => reachable && vm.seek(step)}
                       className={cn(
-                        "grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full border-2 text-[13px] font-bold tabular-nums",
-                        done && "border-[var(--color-primary)] bg-[var(--color-primary)] text-white",
-                        active && "border-[var(--color-primary)] bg-[var(--color-card)] text-[var(--color-primary)]",
-                        !done && !active && "border-[var(--color-border)] text-[var(--color-muted-foreground)]",
+                        "relative flex w-full items-center gap-3.5 rounded-[10px] px-2.5 py-2 text-left transition-colors",
+                        active && "bg-[var(--color-blue-softer)]",
+                        reachable ? "cursor-pointer" : "cursor-default",
+                        reachable && !active && "hover:bg-[var(--color-blue-softer)]",
                       )}
                     >
-                      {done ? <Check className="h-4 w-4" strokeWidth={3} /> : i + 1}
-                    </span>
-                    <span className="grid min-w-0 flex-1">
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-[13px] font-bold tabular-nums",
+                          done &&
+                            "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]",
+                          active &&
+                            "border-[var(--color-primary)] bg-[var(--color-card)] text-[var(--color-primary)] ring-4 ring-[var(--color-blue-soft)]",
+                          !done &&
+                            !active &&
+                            "border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-muted-foreground)]",
+                        )}
+                      >
+                        {done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : i + 1}
+                      </span>
                       <span
                         className={cn(
-                          "truncate text-[14.5px] leading-[19px] font-medium",
-                          !done && !active && "text-[var(--color-muted-foreground)]",
+                          "min-w-0 flex-1 truncate text-[15px] leading-5",
+                          active
+                            ? "font-semibold text-[var(--color-primary)]"
+                            : done
+                              ? "font-medium text-[var(--color-headline)]"
+                              : "font-medium text-[var(--color-muted-foreground)]",
                         )}
                       >
                         {labels[step]}
-                      </span>
-                      <span className="mt-0.5 text-[13px] leading-[1.4] text-[var(--color-muted-foreground)]">
-                        {t("serviceStepStatus.stepPrefix")} {i + 1}
+                        {/* The marker's meaning, for anyone who cannot see it. */}
                         {done || active ? (
-                          <>
-                            {" · "}
-                            <span className="font-medium text-[var(--color-primary)]">
-                              {done ? t("serviceStepStatus.done") : t("serviceStepStatus.active")}
-                            </span>
-                          </>
+                          <span className="sr-only">
+                            {` · ${done ? t("serviceStepStatus.done") : t("serviceStepStatus.active")}`}
+                          </span>
                         ) : null}
                       </span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
         </nav>
 
-        <section className="min-w-0 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-5 sm:p-8">
-          {/* The phone's version of the rail: a count and a bar. A seven-row
-              rail above a form on a 390px screen would push the first field
-              below the fold. */}
-          <div className="mb-7 lg:hidden">
-            <div className="flex items-center justify-between gap-4">
-              <span className="truncate text-[15px] font-semibold text-[var(--color-headline)]">
-                {labels[vm.step]}
-              </span>
-              <span className="shrink-0 rounded-full bg-[var(--color-blue-soft)] px-3 py-1 text-[13px] font-semibold text-[var(--color-primary)] tabular-nums">
-                {t("serviceStepStatus.stepPrefix")} {currentIndex + 1}/{total}
-              </span>
+        <section className="min-w-0 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="px-5 pt-6 pb-8 sm:px-10 sm:pt-9 sm:pb-10">
+            {/* The phone's version of the rail: a count and a bar. A six-row
+                rail above a form on a 390px screen would push the first field
+                below the fold. */}
+            <div className="mb-7 grid gap-3 lg:hidden">
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="truncate text-[14px] font-semibold text-[var(--color-primary)]">
+                  {labels[vm.step]}
+                </span>
+                <span className="shrink-0 text-[13px] font-medium text-[var(--color-muted-foreground)] tabular-nums">
+                  {progress}
+                </span>
+              </div>
+              {progressBar}
             </div>
-            <div className="mt-3.5 h-1 rounded-full bg-[var(--color-border)]">
-              <div
-                className="h-full rounded-full bg-[var(--color-primary)] transition-[width] duration-300"
-                style={{ width: `${((currentIndex + 1) / total) * 100}%` }}
-              />
-            </div>
-          </div>
 
-          {vm.errorCode ? (
-            <p className="mb-6 rounded-[10px] bg-[color-mix(in_srgb,var(--color-destructive)_8%,transparent)] px-4 py-3 text-[15px] font-medium text-[var(--color-bad-fg)]">
-              {t(`serviceError.${vm.errorCode}`, { defaultValue: t("serviceSaveFailed") })}
-            </p>
-          ) : null}
-
-          <header className="mb-7 border-b border-[var(--color-line-2)] pb-6">
-            <h2 className="m-0 text-[22px] leading-tight font-bold text-[var(--color-headline)]">
-              {t(`serviceStepTitle.${vm.step}`)}
-            </h2>
-            <p className="mt-2 mb-0 max-w-[62ch] text-[15px] leading-[1.5] text-[var(--color-muted-foreground)]">
-              {t(`serviceStepDescription.${vm.step}`)}
-            </p>
-          </header>
-
-          <div className="max-w-[760px]">
-            {renderStep()}
-
-            {/* Only the essentials have anything `stepBlocks` can refuse —
-                every other step either always carries a value or writes
-                through its own mutation, so this is the one place that
-                message is ever shown. */}
-            {vm.showStepError && vm.step === "basics" ? (
-              <p className="mt-4 mb-0 text-sm text-[var(--color-destructive)]">
-                {t("serviceStepIncomplete")}
+            {vm.errorCode ? (
+              <p className="mb-6 rounded-[10px] bg-[color-mix(in_srgb,var(--color-destructive)_8%,transparent)] px-4 py-3 text-[15px] font-medium text-[var(--color-bad-fg)]">
+                {t(`serviceError.${vm.errorCode}`, { defaultValue: t("serviceSaveFailed") })}
               </p>
             ) : null}
+
+            <header className="mb-8 max-w-[720px]">
+              <h2 className="m-0 text-[24px] leading-[1.2] font-bold tracking-[-0.01em] text-[var(--color-headline)] sm:text-[28px]">
+                {t(`serviceStepTitle.${vm.step}`)}
+              </h2>
+              <p className="mt-2.5 mb-0 max-w-[60ch] text-[15px] leading-[1.55] text-[var(--color-muted-foreground)]">
+                {t(`serviceStepDescription.${vm.step}`)}
+              </p>
+            </header>
+
+            <div className="max-w-[720px]">
+              {renderStep()}
+
+              {/* Only the essentials have anything `stepBlocks` can refuse —
+                  every other step either always carries a value or writes
+                  through its own mutation, so this is the one place that
+                  message is ever shown. */}
+              {vm.showStepError && vm.step === "basics" ? (
+                <p className="mt-5 mb-0 text-sm font-medium text-[var(--color-bad-fg)]">
+                  {t("serviceStepIncomplete")}
+                </p>
+              ) : null}
+            </div>
           </div>
 
-          {/* The actions under every screen. The primary is last, which is
-              where a thumb reaches on a phone and where the eye lands after
-              the final field. */}
-          <footer className="mt-9 grid gap-3 border-t border-[var(--color-line-2)] pt-6 sm:flex sm:items-center sm:justify-between">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={vm.back}
-            >
+          {/* The actions, pinned to the bottom of the viewport while the step
+              runs longer than the screen. The primary is last, which is where
+              a thumb reaches on a phone and where the eye lands after the
+              final field. */}
+          <footer className="sticky bottom-0 z-10 flex items-center gap-2 rounded-b-[14px] border-t border-[var(--color-line-2)] bg-[var(--color-card)] px-4 py-3.5 sm:gap-3 sm:px-10 sm:py-4">
+            <Button type="button" variant="outline" onClick={vm.back} className="mr-auto max-sm:w-11 max-sm:px-0">
               <ArrowLeft aria-hidden="true" />
-              {t("serviceWizardBack")}
+              <span className="max-sm:sr-only">{t("serviceWizardBack")}</span>
             </Button>
-            <div className="grid gap-3 sm:flex sm:justify-end">
-              {/* Only once there is something to save and somewhere to
-                  return to. On a brand-new service the primary button *is*
-                  the save. */}
-              {vm.saved ? (
-                <Button type="button" variant="secondary" onClick={() => void vm.saveAndExit()}>
-                  {t("serviceWizardSaveExit")}
-                </Button>
-              ) : null}
-              {isReview ? (
-                <Button
-                  type="button"
-                  disabled={!vm.canPublish || vm.blocker !== null || vm.statusChanging}
-                  onClick={() => void vm.changeStatus("published")}
-                >
-                  {vm.statusChanging ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {t("servicePublish")}
-                </Button>
-              ) : (
-                <Button type="button" disabled={vm.saving} onClick={() => void vm.advance()}>
-                  {vm.saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {t("serviceWizardContinue")}
-                </Button>
-              )}
-            </div>
+            {/* Only once there is something to save and somewhere to return
+                to. On a brand-new service the primary button *is* the save. */}
+            {vm.saved ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => void vm.saveAndExit()}
+                className="px-3 text-[var(--color-primary)]"
+              >
+                {t(
+                  vm.current?.status === "published"
+                    ? "serviceWizardSaveExit"
+                    : "serviceWizardSaveDraft",
+                )}
+              </Button>
+            ) : null}
+            {isReview ? (
+              <Button
+                type="button"
+                disabled={!vm.canPublish || vm.blocker !== null || vm.statusChanging}
+                className="max-sm:flex-1"
+                onClick={() => void vm.changeStatus("published")}
+              >
+                {vm.statusChanging ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {t("servicePublish")}
+              </Button>
+            ) : (
+              <Button type="button" disabled={vm.saving} onClick={() => void vm.advance()} className="max-sm:flex-1">
+                {vm.saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {t("serviceWizardContinue")}
+                {vm.saving ? null : <ArrowRight aria-hidden="true" />}
+              </Button>
+            )}
           </footer>
         </section>
       </div>

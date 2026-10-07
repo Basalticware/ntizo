@@ -1,11 +1,14 @@
 {
   "title": "Biete deine Leistungen an.",
   "titleAccent": "Du legst den Preis fest.",
-  "subtitle": "Finde Kundschaft in ganz Mosambik. Keine monatliche Gebühr: Die Plattform behält einen festen Prozentsatz jeder Buchung, der Rest gehört dir.",
+  "lede": "Zeig, was du machst, veröffentliche deine Preise und erhalte Buchungen von Kundschaft in Mosambik.",
   "cta": "Loslegen",
   "trustFree": "Kostenlose Anmeldung",
   "trustPaid": "Bezahlung per M-Pesa",
   "trustLocal": "Kundschaft in deiner Nähe",
+  "whyTitle": "Deine Arbeit, dein Preis",
+  "why1": "Es gibt keine monatliche Gebühr und nichts für die Anmeldung zu zahlen. Die Plattform behält einen festen Prozentsatz jeder Buchung, der vom Preis abgeht, den du festlegst, und der Rest gehört dir.",
+  "why2": "Die Kundschaft findet dich nach Leistung und Gegend, bucht eine deiner freigegebenen Zeiten und zahlt per M-Pesa, sobald du den Termin bestätigst.",
   "stepsTitle": "So funktioniert's",
   "step": {
     "apply": {

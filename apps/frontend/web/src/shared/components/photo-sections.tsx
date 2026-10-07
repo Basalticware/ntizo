@@ -3,12 +3,15 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@ntizo/frontend-ui";
 
 /**
- * The company pages' building blocks — the home page's, at company scale.
+ * The public pages' building blocks — the home page's, at page scale. The
+ * company pages and `/become-provider` are built from them, which is why they
+ * live here rather than in either feature.
  *
  * The photographs under `/images/company/` are the demo seed's stock
  * pictures (`packages/backend/scripts/demo-photos/CREDITS.md`), all free for
- * commercial use under the Pexels License:
+ * commercial use under the Pexels or Unsplash License:
  *
+ * - `become-provider-why.jpg` — a worker in blue overalls, Divaris Shirichena (unsplash.com/photos/F4ox6XvbDps)
  * - `about-hero.jpg` — a barber at work, RDNE Stock project (pexels.com/photo/7697287)
  * - `about-mission.jpg` — a manicure at home, RDNE Stock project (pexels.com/photo/7755296)
  * - `careers-hero.jpg` — two builders in a corridor, Dave Garcia (pexels.com/photo/36153946)
@@ -28,12 +31,15 @@ export function PhotoHero({
   position = "center",
   title,
   lede,
+  children,
 }: {
   photo: string;
   /** The `object-position` that keeps the subject clear of the words. */
   position?: string;
   title: string;
   lede: string;
+  /** Whatever follows the lede — a page's buttons, say. White words only. */
+  children?: ReactNode;
 }) {
   return (
     <section className="relative isolate overflow-hidden">
@@ -52,6 +58,7 @@ export function PhotoHero({
           {title}
         </h1>
         <p className="mt-4 max-w-[44ch] text-[17px] leading-normal text-white/90">{lede}</p>
+        {children}
       </div>
     </section>
   );
@@ -109,6 +116,8 @@ export interface IconItem {
  *
  * `numbered` marks the discs 1, 2, 3 for a sequence and makes the list an
  * `<ol>`. `onBand` gives the discs the card colour, for the soft blue panel.
+ * Four items go two by two until `xl`, where four in a row still leave each
+ * sentence room.
  */
 export function IconItems({
   items,
@@ -121,7 +130,12 @@ export function IconItems({
 }) {
   const List = numbered ? "ol" : "ul";
   return (
-    <List className="m-0 grid list-none gap-7 p-0 sm:grid-cols-3 sm:gap-8">
+    <List
+      className={cn(
+        "m-0 grid list-none gap-7 p-0 sm:gap-8",
+        items.length === 4 ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-3",
+      )}
+    >
       {items.map(({ Icon, title, body }, i) => (
         <li key={title} className="flex items-start gap-4">
           <span

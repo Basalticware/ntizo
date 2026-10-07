@@ -1,11 +1,14 @@
 {
   "title": "Offer your services.",
   "titleAccent": "You set the price.",
-  "subtitle": "Find customers across Mozambique. No monthly fee: the platform keeps a fixed percentage of each booking, and the rest is yours.",
+  "lede": "Show what you do, publish your prices and get booked by customers in Mozambique.",
   "cta": "Get started",
   "trustFree": "Free to join",
   "trustPaid": "Paid by M-Pesa",
   "trustLocal": "Customers near you",
+  "whyTitle": "Your work, your price",
+  "why1": "There is no monthly fee and nothing to pay to join. The platform keeps a fixed percentage of each booking, taken out of the price you set, and the rest is yours.",
+  "why2": "Customers find you by service and area, book one of the hours you have opened, and pay by M-Pesa once you confirm the time.",
   "stepsTitle": "How it works",
   "step": {
     "apply": {

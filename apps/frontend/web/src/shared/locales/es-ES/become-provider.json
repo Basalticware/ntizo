@@ -1,11 +1,14 @@
 {
   "title": "Ofrece tus servicios.",
   "titleAccent": "Tú fijas el precio.",
-  "subtitle": "Encuentra clientes en todo Mozambique. Sin cuota mensual: la plataforma se queda con un porcentaje fijo de cada reserva, y el resto es tuyo.",
+  "lede": "Muestra lo que haces, publica tus precios y recibe reservas de clientes en Mozambique.",
   "cta": "Empezar",
   "trustFree": "Inscripción gratuita",
   "trustPaid": "Pago por M-Pesa",
   "trustLocal": "Clientes cerca de ti",
+  "whyTitle": "Tu trabajo, tu precio",
+  "why1": "No hay cuota mensual ni nada que pagar por registrarte. La plataforma se queda con un porcentaje fijo de cada reserva, que sale del precio que fijas, y el resto es tuyo.",
+  "why2": "Los clientes te encuentran por servicio y zona, reservan una de las horas que has abierto y pagan por M-Pesa cuando confirmas la hora.",
   "stepsTitle": "Cómo funciona",
   "step": {
     "apply": {
