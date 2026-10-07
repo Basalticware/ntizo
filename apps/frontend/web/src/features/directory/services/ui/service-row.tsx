@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Clock, MapPin } from "lucide-react";
+import { cn } from "@ntizo/frontend-ui";
 import { BrandImage } from "@/shared/components/brand-image";
 import {
   formatHeadlinePrice,
@@ -76,15 +77,40 @@ export function ServiceRow({
 
   const { price, cta } = servicePriceAndCta({ cell, locale, serviceId: service.id, t });
 
+  // `phone: false` for the pricing mode: on a phone it sits under the price.
+  const glyph = "h-3.5 w-3.5 text-[var(--color-ink-2)]";
+  const candidates: (MetaFact | null | "" | false)[] = [
+    durationLabel && {
+      key: "d",
+      label: durationLabel,
+      icon: <Clock className={glyph} strokeWidth={2.1} aria-hidden="true" />,
+      phone: true,
+    },
+    whereLabel && {
+      key: "w",
+      label: whereLabel,
+      icon: <MapPin className={glyph} strokeWidth={2.1} aria-hidden="true" />,
+      phone: true,
+    },
+    pricingModeLabel && {
+      key: "p",
+      label: pricingModeLabel,
+      icon: null,
+      phone: false,
+      className: "text-[var(--color-ok-fg)]",
+    },
+  ];
+  const facts = candidates.filter((f): f is MetaFact => Boolean(f));
+
   return (
-    // `first:border-t` closes the top of the list itself — every other row's
-    // top edge is the row above's `border-b`, so only the first row needs
-    // one of its own. The 72px/112px column narrows below `sm`, and the
-    // price/CTA column drops its own explicit position at the same
-    // breakpoint so it stacks under the body instead of squeezing the name
-    // into whatever width is left.
-    <li className="grid grid-cols-[91px_minmax(0,1fr)] items-center gap-x-5 gap-y-3 rounded-[10px] border border-[var(--color-line-2)] px-5 py-3.5 sm:grid-cols-[91px_minmax(0,1fr)_auto]">
-      <div className="h-[68px] w-[91px] overflow-hidden rounded-md bg-[var(--color-muted)]">
+    // On a phone: a 72px square thumbnail beside the name, description and
+    // meta, then the price and its button sharing one row across the whole
+    // card. They used to stack under the body, one per line, which left the
+    // card half empty on the right and twice as tall as it needed to be.
+    // From `sm`: thumbnail, body, and the price over its button in a third
+    // column, as the mockup draws it.
+    <li className="grid grid-cols-[72px_minmax(0,1fr)] items-start gap-x-4 gap-y-3 rounded-[10px] border border-[var(--color-line-2)] p-4 sm:grid-cols-[91px_minmax(0,1fr)_auto] sm:items-center sm:gap-x-5 sm:px-5 sm:py-3.5">
+      <div className="h-[72px] w-[72px] overflow-hidden rounded-md bg-[var(--color-muted)] sm:h-[68px] sm:w-[91px]">
         {/* Decorative: the service's
             name is already adjacent link text, so a non-empty alt would
             have a screen reader announce it twice per row — once here,
@@ -100,54 +126,45 @@ export function ServiceRow({
         <Link
           to="/services/$id"
           params={{ id: service.id }}
-          className="text-base font-bold text-[var(--color-headline)] hover:underline"
+          className="text-base leading-snug font-bold text-[var(--color-headline)] hover:underline"
         >
           {service.name}
         </Link>
         {service.description && (
-          <p className="mt-[5px] line-clamp-2 max-w-[52ch] text-sm text-[var(--color-muted-foreground)]">
+          <p className="mt-1 line-clamp-2 max-w-[52ch] text-sm text-[var(--color-muted-foreground)]">
             {service.description}
           </p>
         )}
-        {/* One line, three facts, each led by its glyph and parted by a dot,
-            as `client/prestador-detalhe.html` draws it; the pricing mode is
-            the green one. */}
-        <p className="mt-2 flex flex-wrap items-center gap-[7px] text-[13px] text-[var(--color-muted-foreground)]">
-          {[
-            durationLabel && (
-              <span key="d" className="flex items-center gap-[7px]">
-                <Clock className="h-3.5 w-3.5 text-[var(--color-ink-2)]" strokeWidth={2.1} aria-hidden="true" />
-                {durationLabel}
-              </span>
-            ),
-            whereLabel && (
-              <span key="w" className="flex items-center gap-[7px]">
-                <MapPin className="h-3.5 w-3.5 text-[var(--color-ink-2)]" strokeWidth={2.1} aria-hidden="true" />
-                {whereLabel}
-              </span>
-            ),
-            pricingModeLabel && (
-              <span key="p" className="text-[var(--color-ok-fg)]">
-                {pricingModeLabel}
-              </span>
-            ),
-          ]
-            .filter(Boolean)
-            .flatMap((fact, i) =>
-              i === 0
-                ? [fact]
-                : [<i key={`dot-${i}`} aria-hidden="true" className="mx-1 h-[3px] w-[3px] rounded-full bg-[var(--color-muted-foreground)]" />, fact],
-            )}
+        {/* The facts, each led by its glyph and parted by a dot, as
+            `client/prestador-detalhe.html` draws it. Each dot belongs to the
+            fact after it, so a line that wraps never ends on a dot. The
+            pricing mode (the green one) joins the line from `sm`; on a phone
+            it sits under the price instead, where it is about the price. */}
+        <p className="mt-1.5 flex flex-wrap items-center gap-x-[7px] gap-y-1 text-[13px] text-[var(--color-muted-foreground)]">
+          {facts.map((fact, i) => (
+            <span
+              key={fact.key}
+              className={cn("items-center gap-[7px] whitespace-nowrap", fact.phone ? "flex" : "hidden sm:flex", fact.className)}
+            >
+              {i > 0 && (
+                <i aria-hidden="true" className="mx-1 h-[3px] w-[3px] rounded-full bg-[var(--color-muted-foreground)]" />
+              )}
+              {fact.icon}
+              {fact.label}
+            </span>
+          ))}
         </p>
       </div>
 
-      {/* Same column at `sm` and below: `col-start-3` puts it beside the
-          thumbnail and body on a wide screen, `col-start-2` (the default,
-          overridden at `sm`) drops it under the body on a narrow one, which
-          is also why the text-alignment flips from left to right at the
-          same breakpoint. */}
-      <div className="col-start-2 flex flex-col items-start gap-2 text-left sm:col-start-3 sm:items-end sm:text-right">
-        {price}
+      {/* Across the whole card on a phone, price left and button right; the
+          third column from `sm`, price over button, right-aligned. */}
+      <div className="col-span-2 flex items-center justify-between gap-3 sm:col-span-1 sm:col-start-3 sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:text-right">
+        <div className="grid gap-0.5 sm:justify-items-end">
+          {price}
+          {pricingModeLabel && (
+            <span className="text-[12.5px] text-[var(--color-ok-fg)] sm:hidden">{pricingModeLabel}</span>
+          )}
+        </div>
         {cta}
       </div>
     </li>
@@ -239,11 +256,18 @@ function servicePriceAndCta({
   };
 }
 
+/** One fact on the meta line under a service's name. */
+type MetaFact = { key: string; label: string; icon: ReactNode; phone: boolean; className?: string };
+
 const PRICE_CLASS = "text-[17px] font-bold text-[var(--color-headline)] tabular-nums";
 
-/** The row's one action: a 165 × 42 outlined button, the mockup's "Ver disponibilidade". */
+/**
+ * The row's one action, the mockup's "Ver disponibilidade": a 165 × 42
+ * outlined button from `sm`, and as wide as its words on a phone, where it
+ * shares a row with the price.
+ */
 const ROW_CTA_CLASS =
-  "grid h-[42px] w-[165px] place-items-center rounded-[9px] border-[1.5px] border-[var(--color-blue-edge)] bg-[var(--color-background)] text-[14.5px] font-semibold text-[var(--color-primary)] hover:bg-[var(--color-blue-soft)]";
+  "grid h-10 shrink-0 place-items-center rounded-[9px] border-[1.5px] border-[var(--color-blue-edge)] bg-[var(--color-background)] px-4 text-[14px] font-semibold whitespace-nowrap text-[var(--color-primary)] hover:bg-[var(--color-blue-soft)] sm:h-[42px] sm:w-[165px] sm:px-0 sm:text-[14.5px]";
 
 /**
  * The row's call to action: step 1 of checkout, as a link.
