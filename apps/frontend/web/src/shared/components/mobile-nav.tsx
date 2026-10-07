@@ -25,7 +25,7 @@ export function MobileNav() {
   const { data: user } = useCurrentUser();
 
   const itemClass =
-    "flex flex-1 flex-col items-center gap-1 py-2 text-[10px] font-medium text-[var(--color-ink-2)]";
+    "flex flex-1 flex-col items-center gap-1 py-2 text-[11.5px] font-medium text-[var(--color-ink-2)]";
   const activeProps = { className: "text-[var(--color-primary)]" };
 
   return (

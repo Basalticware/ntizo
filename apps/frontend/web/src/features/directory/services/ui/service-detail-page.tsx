@@ -160,7 +160,7 @@ function ServiceDetail({ service }: { service: ServiceDetailDTO }) {
 
           <div className="mt-6 grid gap-6 md:grid-cols-[minmax(0,1fr)_290px]">
             <header className="min-w-0">
-              <h1 className="text-[34px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[45px]">
+              <h1 className="text-[30px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[45px]">
                 {service.name}
               </h1>
               <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[var(--color-muted-foreground)]">
@@ -211,7 +211,7 @@ function ServiceDetail({ service }: { service: ServiceDetailDTO }) {
               <div>
                 {service.description && (
                   <>
-                    <h2 className="text-2xl leading-[1.1] font-extrabold text-[var(--color-headline)]">
+                    <h2 className="text-[22px] leading-[1.1] font-extrabold text-[var(--color-headline)] md:text-2xl">
                       {t("aboutServiceHeading")}
                     </h2>
                     {/* `whitespace-pre-line`, so the paragraph breaks a
@@ -325,13 +325,13 @@ function FactCards({ facts }: { facts: { icon: LucideIcon; label: string; value:
   return (
     <dl className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
       {shown.map(({ icon: Icon, label, value }) => (
-        <div key={label} className="flex h-16 items-center gap-3 rounded-[10px] border border-[var(--color-border)] px-4">
+        <div key={label} className="flex min-h-16 min-w-0 items-center gap-2.5 rounded-[10px] border border-[var(--color-border)] px-3 py-2.5 md:h-16 md:gap-3 md:px-4 md:py-0">
           <span aria-hidden="true" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[var(--color-blue-public)]">
             <Icon className="h-[18px] w-[18px]" />
           </span>
           <div className="flex min-w-0 flex-col-reverse">
             <dt className="mt-[3px] truncate text-[13px] text-[var(--color-faint)]">{label}</dt>
-            <dd className="truncate text-[15px] leading-[1.3] font-semibold text-[var(--color-headline)]">{value}</dd>
+            <dd className="text-[15px] leading-[1.3] font-semibold text-[var(--color-headline)] md:truncate">{value}</dd>
           </div>
         </div>
       ))}

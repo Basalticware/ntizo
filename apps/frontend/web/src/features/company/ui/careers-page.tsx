@@ -50,7 +50,7 @@ export function CareersPage() {
       </PhotoSplit>
 
       <section className="public-inset pt-16 md:pt-20">
-        <h2 className="mb-8 text-[26px] leading-tight font-extrabold tracking-[-0.01em] text-[var(--color-headline)]">
+        <h2 className="mb-8 text-[24px] leading-tight font-extrabold md:text-[26px] tracking-[-0.01em] text-[var(--color-headline)]">
           {t("careers.howEyebrow")}
         </h2>
         {Array.isArray(how) && (
@@ -62,7 +62,7 @@ export function CareersPage() {
 
       <SoftBand className="mb-16 flex flex-col gap-6 md:mb-20 md:flex-row md:items-center md:justify-between md:gap-12">
         <div>
-          <h2 className="text-[26px] leading-tight font-extrabold tracking-[-0.01em] text-[var(--color-headline)]">
+          <h2 className="text-[24px] leading-tight font-extrabold md:text-[26px] tracking-[-0.01em] text-[var(--color-headline)]">
             {t("careers.openingsTitle")}
           </h2>
           <p className="mt-2 max-w-[56ch] text-[16px] leading-relaxed text-[var(--color-ink-2)]">

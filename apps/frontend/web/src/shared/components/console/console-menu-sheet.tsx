@@ -14,7 +14,7 @@ import type { ConsoleNav, ConsoleNavItem } from "@/shared/lib/console-nav";
 const ITEM =
   "flex items-center gap-2.5 rounded-[var(--radius-field)] px-2.5 py-2.5 text-[15px] font-medium text-[var(--color-foreground)]";
 const ITEM_ACTIVE = "bg-[var(--color-muted)] text-[var(--color-primary)]";
-const GROUP = "px-2.5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-muted-foreground)]";
+const GROUP = "px-2.5 pt-3 pb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-muted-foreground)]";
 /** The visually-hidden heading that names the primitive's dialog. */
 const CONSOLE_MENU_TITLE_ID = "console-menu-title";
 

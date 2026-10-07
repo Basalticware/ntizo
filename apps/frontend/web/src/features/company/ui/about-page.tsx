@@ -43,7 +43,7 @@ export function AboutPage() {
       {/* Numbered: search, book, pay is an order, and the point of the
           section is that paying comes last. */}
       <SoftBand>
-        <h2 className="mb-8 text-[26px] leading-tight font-extrabold tracking-[-0.01em] text-[var(--color-headline)]">
+        <h2 className="mb-8 text-[24px] leading-tight font-extrabold md:text-[26px] tracking-[-0.01em] text-[var(--color-headline)]">
           {t("about.howTitle")}
         </h2>
         <IconItems

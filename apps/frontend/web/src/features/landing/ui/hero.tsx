@@ -55,7 +55,9 @@ export function Hero() {
             <div className="mt-6 max-w-[763px]">
               <BrowseSearchBar current={{}} />
             </div>
-            <ul className="mt-5 flex flex-wrap gap-x-12 gap-y-3">
+            {/* Two even columns on a phone: as a wrapping row the first item
+                shrank and its second line ran into the next item's disc. */}
+            <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-12">
               {[
                 { Icon: BadgeCheck, label: t("home.proofPrice") },
                 { Icon: ShieldCheck, label: t("home.proofVerified") },
@@ -63,7 +65,7 @@ export function Hero() {
               ].map(({ Icon, label }) => (
                 <li
                   key={label}
-                  className="flex items-center gap-3 text-[14px] leading-[1.35] font-semibold whitespace-pre-line text-white"
+                  className="flex min-w-0 items-center gap-2.5 text-[13.5px] leading-[1.35] font-semibold whitespace-pre-line text-white sm:gap-3 sm:text-[14px]"
                 >
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white">
                     <Icon

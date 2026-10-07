@@ -126,7 +126,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         onClick={() => setOpen(true)}
         aria-label={t("changeLanguage")}
         className={cn(
-          "inline-flex items-center gap-2 rounded-md py-1.5 text-sm font-medium",
+          "inline-flex h-10 items-center gap-2 rounded-md text-sm font-medium",
           "text-[var(--color-muted-foreground)] hover:text-[var(--color-headline)]",
           className,
         )}

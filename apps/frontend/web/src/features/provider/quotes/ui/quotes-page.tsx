@@ -135,7 +135,7 @@ export function ProviderQuotesPage() {
         <p className="text-[13px] font-semibold tracking-[0.09em] text-[var(--color-muted-foreground)] uppercase">
           {t("provider.eyebrow")}
         </p>
-        <h1 className="font-display mt-[9px] text-[34px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[47.6px]">
+        <h1 className="font-display mt-[9px] text-[30px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[47.6px]">
           {t("provider.heading")}
         </h1>
         <p className="mt-2.5 text-base text-[var(--color-muted-foreground)] md:text-[17.9px]">

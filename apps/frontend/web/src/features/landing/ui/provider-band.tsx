@@ -33,7 +33,7 @@ export function ProviderBand() {
     <section className="mt-12 overflow-hidden bg-[var(--color-navy-surface)] text-[var(--color-navy-on)]">
       <div className="public-inset grid items-center gap-8 py-9 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_auto_260px] lg:py-0">
         <div className="lg:py-8">
-          <h2 className="text-[26px] leading-[1.15] font-extrabold tracking-[-0.01em] whitespace-pre-line md:text-[30px]">
+          <h2 className="text-[24px] leading-[1.15] font-extrabold tracking-[-0.01em] whitespace-pre-line md:text-[30px]">
             {t("home.bandTitle")}
           </h2>
           <p className="mt-3 max-w-[52ch] text-[16px] leading-relaxed text-[var(--color-navy-on)]/80">

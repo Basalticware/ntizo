@@ -66,7 +66,7 @@ export function PhotoHero({
 
 /** A section's big heading: the home banner's 28–33px navy. */
 export const SPLIT_TITLE_CLASS =
-  "text-[28px] leading-[1.1] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] sm:text-[33px]";
+  "text-[24px] leading-[1.1] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] sm:text-[33px]";
 
 /** Running text beside a photograph. */
 export const SPLIT_BODY_CLASS = "text-[16.5px] leading-relaxed text-[var(--color-ink-2)]";

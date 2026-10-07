@@ -40,7 +40,7 @@ export function AuthLayout({
   return (
     <div className="flex min-h-svh flex-col bg-[var(--color-background)]">
       <SiteHeader current="none" />
-      <main className="flex flex-1 flex-col items-center px-4 pt-12 pb-10 md:pt-20">
+      <main className="flex flex-1 flex-col items-center px-5 pt-12 pb-10 md:px-4 md:pt-20">
         <div className="flex w-full max-w-[560px] flex-col gap-8 [&_h1]:text-balance">
           <div className="flex flex-col items-start gap-6">
             {icon ? (

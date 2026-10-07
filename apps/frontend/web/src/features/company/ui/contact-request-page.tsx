@@ -50,7 +50,7 @@ export function ContactRequestPage({ kind }: { kind: ContactRequestKind }) {
               aria-hidden="true"
               className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/50 via-45% to-black/5"
             />
-            <h1 className="text-[34px] leading-[1.05] font-extrabold tracking-[-0.02em] sm:text-[40px]">
+            <h1 className="text-[30px] leading-[1.05] font-extrabold tracking-[-0.02em] sm:text-[40px]">
               {t(`${kind}.heading`)}
             </h1>
             <p className="mt-3 max-w-[40ch] text-[16.5px] leading-normal text-white/90">

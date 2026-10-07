@@ -12,7 +12,7 @@ export const CONSOLE_MENU_TRIGGER_ID = "console-menu-trigger";
 export const CONSOLE_MENU_SHEET_ID = "console-menu-sheet";
 
 const TAB =
-  "flex flex-1 flex-col items-center gap-1 py-2 text-[10px] font-medium text-[var(--color-muted-foreground)]";
+  "flex flex-1 flex-col items-center gap-1 py-2 text-[11.5px] font-medium text-[var(--color-ink-2)]";
 
 /**
  * The phone's navigation: the three items marked `primary`, and Menu.
