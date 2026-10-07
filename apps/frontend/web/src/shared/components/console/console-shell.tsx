@@ -199,7 +199,7 @@ function ShellFrame({
         )}
         <SidebarInset className="h-[calc(100svh-4rem)] min-h-0 min-w-0 overflow-hidden md:h-[calc(100svh-91px)]">
           {strip}
-          <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 md:pt-[26px] md:pr-8 md:pb-10 md:pl-[30px]">
+          <main className="min-h-0 flex-1 overflow-y-auto px-5 py-6 md:pt-[26px] md:pr-8 md:pb-10 md:pl-[30px]">
             {/* Centred, so the space right of the page matches the space left
                 of it on a wide window (the user asked for this). */}
             <div className="mx-auto w-full max-w-[1400px]">

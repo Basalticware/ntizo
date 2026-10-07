@@ -121,7 +121,8 @@ export function SiteHeader({
                 <Link
                   to="/sign-in"
                   className={cn(
-                    "font-semibold whitespace-nowrap",
+                    // 40px tall for the thumb; the text looks the same.
+                    "inline-flex h-10 items-center px-1 font-semibold whitespace-nowrap",
                     overlay ? "text-white" : "text-[var(--color-blue-public)]",
                   )}
                 >

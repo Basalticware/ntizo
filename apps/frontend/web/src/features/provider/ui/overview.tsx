@@ -59,7 +59,7 @@ export function OverviewPage() {
           <p className="text-[13px] font-medium tracking-[0.08em] text-[var(--color-muted-foreground)] uppercase">
             {t("overview.eyebrow")}
           </p>
-          <h1 className="font-display mt-2 text-[34px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[44px]">
+          <h1 className="font-display mt-2 text-[30px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[44px]">
             {title}
           </h1>
           <p className="mt-2 text-base leading-[1.45] text-[var(--color-muted-foreground)] md:text-[16.5px]">
@@ -84,8 +84,10 @@ export function OverviewPage() {
       )}
 
       {/* Two up until `xl`: four cards beside a 297px sidebar at 1024px would
-          each get a box narrower than a phone, with the money at 31px. */}
-      <section className="mt-4 grid grid-cols-1 gap-[23px] sm:grid-cols-2 xl:grid-cols-[239fr_262fr_266fr_283fr]">
+          each get a box narrower than a phone, with the money at 31px. Two up
+          on a phone too, compact: one card a row was four screen-heights of
+          tiles holding one number each. */}
+      <section className="mt-4 grid grid-cols-2 gap-3 sm:gap-[23px] xl:grid-cols-[239fr_262fr_266fr_283fr]">
         <StatTile
           icon={Calendar}
           label={t("overview.weekTitle")}
@@ -102,7 +104,7 @@ export function OverviewPage() {
             s ? (
               <span className="grid gap-1">
                 {s.pipelineMinor > 0 && (
-                  <span className="flex items-center whitespace-nowrap">
+                  <span className="flex flex-wrap items-center sm:flex-nowrap sm:whitespace-nowrap">
                     <FootFigure>{t("overview.pipelineAmount", { amount: money(s.pipelineMinor) })}</FootFigure>
                     {t("overview.pipelineLabel")}
                   </span>
@@ -224,20 +226,20 @@ function StatTile({
   foot: ReactNode;
 }) {
   return (
-    <div className="min-w-0 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] px-[25px] pt-5 pb-[22px]">
-      <span className="grid h-12 w-[50px] place-items-center rounded-[10px] bg-[var(--color-info-bg)] text-[var(--color-primary)]">
-        <Icon className="h-[22px] w-[22px]" />
+    <div className="min-w-0 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-4 sm:px-[25px] sm:pt-5 sm:pb-[22px]">
+      <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-[var(--color-info-bg)] text-[var(--color-primary)] sm:h-12 sm:w-[50px]">
+        <Icon className="h-5 w-5 sm:h-[22px] sm:w-[22px]" />
       </span>
       {loading ? (
-        <Skeleton className="mt-3 h-[37px] w-28" />
+        <Skeleton className="mt-3 h-[30px] w-24 sm:h-[37px] sm:w-28" />
       ) : (
-        <p className="mt-3 text-[31px] leading-[1.2] font-extrabold tracking-[-0.01em] whitespace-nowrap text-[var(--color-headline)] tabular-nums">
+        <p className="mt-2.5 text-[22px] leading-[1.2] font-extrabold tracking-[-0.01em] break-words text-[var(--color-headline)] tabular-nums sm:mt-3 sm:text-[31px] sm:whitespace-nowrap">
           {value}
         </p>
       )}
       {/* The label is the card's name, so it paints before the number does. */}
-      <p className="mt-1.5 text-[15px] text-[var(--color-ink-2)]">{label}</p>
-      <div className="mt-[22px] flex min-h-5 items-center text-[13px] text-[var(--color-muted-foreground)]">
+      <p className="mt-1 text-[14px] leading-snug text-[var(--color-ink-2)] sm:mt-1.5 sm:text-[15px]">{label}</p>
+      <div className="mt-3 flex min-h-5 items-center text-[12.5px] leading-snug text-[var(--color-muted-foreground)] sm:mt-[22px] sm:text-[13px]">
         {foot}
       </div>
     </div>

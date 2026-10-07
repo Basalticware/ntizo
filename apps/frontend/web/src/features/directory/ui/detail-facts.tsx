@@ -32,18 +32,18 @@ export function DetailFacts({
           key={label}
           className={
             i === 0
-              ? "flex items-center gap-[15px] pr-6"
-              : "flex items-center gap-[15px] pr-6 md:border-l md:border-[var(--color-line-2)] md:pl-6"
+              ? "flex min-w-0 items-center gap-3 pr-3 md:gap-[15px] md:pr-6"
+              : "flex min-w-0 items-center gap-3 pr-3 md:gap-[15px] md:border-l md:border-[var(--color-line-2)] md:pr-6 md:pl-6"
           }
         >
           {Icon && (
-            <span aria-hidden="true" className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[var(--color-primary)]">
-              <Icon className="h-[22px] w-[22px]" strokeWidth={2} />
+            <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[var(--color-primary)] md:h-[46px] md:w-[46px]">
+              <Icon className="h-5 w-5 md:h-[22px] md:w-[22px]" strokeWidth={2} />
             </span>
           )}
           <div className="flex min-w-0 flex-col">
             <dt className="text-[13.5px] text-[var(--color-muted-foreground)]">{label}</dt>
-            <dd className="mt-[5px] text-[15px] font-medium whitespace-nowrap text-[var(--color-ink-2)]">{value}</dd>
+            <dd className="mt-[5px] text-[15px] leading-snug font-medium text-[var(--color-ink-2)] md:whitespace-nowrap">{value}</dd>
           </div>
         </div>
       ))}

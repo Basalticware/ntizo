@@ -51,7 +51,7 @@ export function HomeBanner() {
             className="absolute inset-0 -z-10 bg-gradient-to-r from-[var(--color-background)] from-25% via-[var(--color-background)]/75 via-45% to-transparent to-80% max-sm:via-[var(--color-background)]/85 max-sm:to-[var(--color-background)]/40"
           />
           <div className="max-w-[340px] px-6 py-8 sm:px-8">
-            <h2 className="text-[30px] leading-[1.08] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] sm:text-[33px]">
+            <h2 className="text-[24px] leading-[1.08] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] sm:text-[33px]">
               {t("home.homeTitle")}
             </h2>
             <p className="mt-2.5 text-[16px] leading-snug text-[var(--color-ink-2)]">

@@ -57,8 +57,9 @@ export function ScrollRail({
       className={cn(
         // Phone: one scrolling row, bleeding into the page gutter so the cards
         // can reach the screen edge, with padding that puts the first one back
-        // under the heading.
-        "-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-6 px-6 pb-2",
+        // under the heading. The bleed is the page's own `--pw-pad`: a fixed
+        // 24px overshot the 20px phone inset and scrolled the page sideways.
+        "-mx-[var(--pw-pad)] flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-[var(--pw-pad)] px-[var(--pw-pad)] pb-2",
         // `contain` so a sideways flick inside the rail cannot become the
         // browser's back gesture — which on iOS navigates away from the page.
         "[overscroll-behavior-x:contain] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",

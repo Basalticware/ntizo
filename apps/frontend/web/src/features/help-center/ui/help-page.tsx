@@ -45,7 +45,7 @@ export function HelpPage() {
     <CompanyPage>
       <section className="bg-[var(--color-blue-softer)]">
         <div className="public-inset py-12 text-center md:py-16">
-          <h1 className="text-[32px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[44px]">
+          <h1 className="text-[30px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[44px]">
             {t("page.title")}
           </h1>
           <p className="mx-auto mt-3 max-w-[52ch] text-[16.5px] leading-relaxed text-[var(--color-muted-foreground)]">

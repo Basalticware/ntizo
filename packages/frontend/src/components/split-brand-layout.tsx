@@ -85,7 +85,7 @@ export function SplitBrandLayout({
         </div>
       </aside>
 
-      <main className="flex flex-col px-4 py-8 sm:px-8 lg:py-12">
+      <main className="flex flex-col px-5 py-8 sm:px-8 lg:py-12">
         {compactWordmark ? (
           <div className="mb-10 lg:hidden">{compactWordmark}</div>
         ) : null}

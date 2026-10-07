@@ -30,7 +30,7 @@ export function ConsoleTopBar({
 }) {
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center border-b border-[var(--color-border)] bg-[var(--color-background)] px-4 md:h-[91px] md:px-0">
+    <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center border-b border-[var(--color-border)] bg-[var(--color-background)] px-5 md:h-[91px] md:px-0">
       {/* The sidebar's width from `md` up, so the wordmark sits over its column. */}
       <div className="flex shrink-0 items-center md:w-[var(--sidebar-width)] md:pl-[43px]">
         <Link to={homeUrl} params={{ slug: slug ?? "" }} className="flex flex-col items-start leading-none" aria-label="Ntizo">

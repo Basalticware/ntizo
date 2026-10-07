@@ -20,6 +20,21 @@
   --color-blue-public: #3d8bff;
 }
 
+/*
+ * One side inset on a phone. Each page scales its own mockup inset with the
+ * window (`7.3vw` on /services, `2.85vw` on a service), which at 390px left
+ * the logo and the content 28px in on one page and 16px on the next. Below
+ * `md` every page shares 20px; the per-page clamps take over from `md`.
+ * `!important` because the per-page values are classes on a wrapper further
+ * down the tree, and a custom property set there would otherwise win.
+ */
+@media (max-width: 47.99rem) {
+  :root,
+  :root * {
+    --pw-pad: 20px !important;
+  }
+}
+
 @layer components {
   .public-inset {
     padding-inline: max(var(--pw-pad), calc((100% - 1440px) / 2 + var(--pw-pad)));

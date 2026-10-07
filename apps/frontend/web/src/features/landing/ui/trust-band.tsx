@@ -27,7 +27,7 @@ export function TrustBand() {
     <section className="public-inset pt-10">
       <div className="grid overflow-hidden rounded-[14px] bg-[var(--color-blue-softer)] xl:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
         <div className="px-6 py-7 sm:px-8">
-          <h2 className="text-[26px] leading-tight font-extrabold tracking-[-0.01em] text-[var(--color-headline)]">
+          <h2 className="text-[24px] leading-tight font-extrabold md:text-[26px] tracking-[-0.01em] text-[var(--color-headline)]">
             {t("home.trustTitle")}
           </h2>
           <p className="mt-1.5 text-[15px] text-[var(--color-muted-foreground)]">

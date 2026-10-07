@@ -121,7 +121,10 @@ export function StatCard({
             // the weight and the leading.
             <p
               className={cn(
-                "type-h1 text-[clamp(18px,13cqi,28px)] font-semibold whitespace-nowrap tabular-nums",
+                // 22px at the least: in a phone's two-up grid the card is ~130px
+                // wide and 18px read smaller than the label above it. A long
+                // amount wraps there rather than leave the card.
+                "type-h1 text-[clamp(22px,13cqi,28px)] font-semibold break-words tabular-nums @[15rem]:whitespace-nowrap",
                 quiet ? "text-[var(--color-muted-foreground)]" : "text-[var(--color-headline)]",
               )}
             >

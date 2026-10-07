@@ -101,7 +101,7 @@ function PrimaryCta({ cta, label }: { cta: CtaTarget; label: string }) {
 
 /** A section heading off the photographs: `/about`'s 26px navy. */
 const SECTION_TITLE_CLASS =
-  "text-[26px] leading-tight font-extrabold tracking-[-0.01em] text-[var(--color-headline)]";
+  "text-[24px] leading-tight font-extrabold tracking-[-0.01em] text-[var(--color-headline)] md:text-[26px]";
 
 /**
  * The claim on the home's own photograph — the user's electrician, the
@@ -143,9 +143,13 @@ function Hero({ cta, t }: { cta: CtaTarget; t: T }) {
         </Link>
       </div>
 
-      <ul className="mt-7 flex list-none flex-wrap gap-x-10 gap-y-3 p-0">
+      {/* Two even columns on a phone, as on the home hero. */}
+      <ul className="mt-7 grid list-none grid-cols-2 gap-x-4 gap-y-3 p-0 sm:flex sm:flex-wrap sm:gap-x-10">
         {proofs.map(({ Icon, label }) => (
-          <li key={label} className="flex items-center gap-3 text-[14px] leading-[1.35] font-semibold text-white">
+          <li
+            key={label}
+            className="flex min-w-0 items-center gap-2.5 text-[13.5px] leading-[1.35] font-semibold text-white sm:gap-3 sm:text-[14px]"
+          >
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white">
               <Icon className="h-5 w-5 text-[var(--color-blue-public)]" strokeWidth={2.2} aria-hidden="true" />
             </span>

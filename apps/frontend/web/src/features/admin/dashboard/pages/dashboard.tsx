@@ -46,7 +46,9 @@ const NEEDS_YOU_LOOK: Record<NeedsYouKey, { icon: LucideIcon; tone: DiscTone }> 
 };
 
 /** The one grid both card rows share, so their columns line up at every width. */
-const STAT_GRID = "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4";
+// Two up on a phone as well: one card a row stacked eight tall cards for
+// eight numbers. `StatCard` stacks its icon over the figures in a narrow box.
+const STAT_GRID = "grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4";
 
 /**
  * The platform at a glance, in the order the spec fixes: what is owed, then

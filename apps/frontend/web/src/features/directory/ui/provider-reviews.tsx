@@ -95,7 +95,7 @@ export function ProviderReviews({
     return (
       <section className="rounded-xl border border-[var(--color-line-2)] bg-[var(--color-background)] px-5 pt-5 pb-[22px]">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-[19px] font-extrabold text-[var(--color-headline)]">
+          <h2 className="text-[22px] font-extrabold text-[var(--color-headline)]">
             {t("reviewsHeading", { count: summary.count })}
           </h2>
           {seeAll && (
@@ -150,7 +150,7 @@ export function ProviderReviews({
 
   return (
     <section className="mt-9">
-      <h2 className="text-2xl leading-[1.1] font-extrabold text-[var(--color-headline)]">
+      <h2 className="text-[22px] leading-[1.1] font-extrabold text-[var(--color-headline)] md:text-2xl">
         {t("reviewsHeading", { count: summary.count })}
       </h2>
       <div className="mt-3.5 flex flex-col gap-6 rounded-xl border border-[var(--color-border)] py-[18px] pr-6 pl-2 sm:flex-row sm:items-center">

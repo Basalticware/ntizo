@@ -26,7 +26,7 @@ export function ProviderWalletPage() {
           <p className="m-0 text-[13.5px] font-semibold tracking-[0.07em] text-[var(--color-muted-foreground)] uppercase">
             {t("walletEyebrow")}
           </p>
-          <h1 className="font-display mt-2 text-[34px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[48px]">
+          <h1 className="font-display mt-2 text-[30px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] md:text-[48px]">
             {t("nav.wallet")}
           </h1>
           <p className="mt-3 max-w-[540px] text-base leading-[1.45] text-[var(--color-muted-foreground)] md:text-lg">

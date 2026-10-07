@@ -144,8 +144,8 @@ describe("PopularServices", () => {
     expect(list.className).toContain("snap-x");
     expect(list.className).toContain("snap-mandatory");
     expect(list.className).toContain("overflow-x-auto");
-    expect(list.className).toContain("-mx-6");
-    expect(list.className).toContain("px-6");
+    expect(list.className).toContain("-mx-[var(--pw-pad)]");
+    expect(list.className).toContain("px-[var(--pw-pad)]");
     expect(list.className).toContain("[&>*]:snap-start");
     expect(list.className).toContain("sm:grid");
     expect(list.className).toContain("sm:grid-cols-2");
