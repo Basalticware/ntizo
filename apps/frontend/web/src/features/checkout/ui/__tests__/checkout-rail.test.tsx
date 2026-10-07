@@ -183,16 +183,18 @@ describe("CheckoutRail", () => {
     expect(screen.getByRole("button", { name: "Enviar pedido" })).toBeInTheDocument();
   });
 
-  it("keeps the two trust promises the platform can actually make", () => {
+  // Nothing holds a payment — the customer pays by M-Pesa once the provider
+  // confirms — so the rail promises only what the platform does.
+  it("keeps only the trust promise the platform can actually make", () => {
     render(<CheckoutRail {...REQUIRED} />);
-    expect(screen.getByText(/pagamento fica retido/i)).toBeInTheDocument();
     expect(screen.getByText(/documentos do prestador verificados/i)).toBeInTheDocument();
+    expect(screen.queryByText(/retido/i)).not.toBeInTheDocument();
   });
 
   it("leaves the promises out where the caller says the card ends on the provider", () => {
     // Step 1's mockup closes the card on the provider row.
     render(<CheckoutRail {...REQUIRED} showTrust={false} />);
-    expect(screen.queryByText(/pagamento fica retido/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/documentos do prestador verificados/i)).not.toBeInTheDocument();
   });
 
   it("names the category and the place when the caller has them", () => {

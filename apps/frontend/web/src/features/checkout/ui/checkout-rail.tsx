@@ -188,7 +188,7 @@ export function CheckoutRail({
         <BrandImage src={imageUrl} alt="" className="mb-5 block h-[207px] w-full rounded-[10px] object-cover" />
       )}
 
-      <h2 className="text-[22px] leading-[1.2] font-bold text-[var(--color-headline)] md:text-[27px]">{serviceName}</h2>
+      <h2 className="text-[20px] leading-[1.25] font-bold text-[var(--color-headline)] md:text-[22px]">{serviceName}</h2>
       {/* The trust line: what people have said about the business, and
           whether the platform has seen its documents — the reason a customer
           holding a slot believes somebody will turn up. Each half disappears
@@ -281,7 +281,7 @@ export function CheckoutRail({
       <div className="mt-2 border-t border-[var(--color-line-2)]" />
 
       <div className="mt-[18px] flex items-center">
-        <Avatar className="mr-[18px] h-[74px] w-[74px] shrink-0">
+        <Avatar className="mr-4 h-14 w-14 shrink-0">
           {providerLogoUrl && <AvatarImage src={providerLogoUrl} alt="" />}
           <AvatarFallback className="text-lg">{initialsFrom(providerName)}</AvatarFallback>
         </Avatar>
@@ -313,11 +313,13 @@ export function CheckoutRail({
 
       {children && <div className="mt-5 grid gap-3">{children}</div>}
 
-      {/* Two promises the platform actually keeps: the money is held until
-          the job is done, and the provider's papers were looked at. */}
+      {/* The one promise the platform keeps here: the provider's papers were
+          looked at. "O pagamento fica retido até o serviço estar concluído"
+          stood beside it until 2026-10-07, but nothing holds a payment — the
+          customer pays by M-Pesa once the provider confirms. */}
       {showTrust && (
         <ul className="mt-5 grid gap-2 text-[13px] text-[var(--color-muted-foreground)]">
-          {[t("railTrustPayment"), t("railTrustVerified")].map((line) => (
+          {[t("railTrustVerified")].map((line) => (
             <li key={line} className="flex items-start gap-2">
               <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--color-success)]" aria-hidden="true" />
               {line}
