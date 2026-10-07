@@ -89,12 +89,12 @@ export function PhaseDocuments({
       </div>
 
       {errorKey && (
-        <p className="type-caption mt-4 text-[var(--color-destructive)]">
+        <p className="text-[13.5px] leading-[1.45] mt-4 text-[var(--color-bad-fg)]">
           {tp(errorKey)}
         </p>
       )}
 
-      <p className="type-caption mt-5 text-[var(--color-muted-foreground)]">
+      <p className="text-[13.5px] leading-[1.45] mt-5 text-[var(--color-muted-foreground)]">
         {t("documents.privacy")}
       </p>
 
@@ -150,11 +150,11 @@ function IdentitySlot({
   }
 
   return (
-    <div className="rounded-[var(--radius-card-sm)] border border-[var(--color-border)] p-5">
-      <p className="type-body-medium font-semibold">
+    <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+      <p className="text-[15px] font-semibold text-[var(--color-headline)]">
         {t("documents.identity.label")}
       </p>
-      <p className="type-caption mt-1 text-[var(--color-muted-foreground)]">
+      <p className="text-[13.5px] leading-[1.45] mt-1 text-[var(--color-muted-foreground)]">
         {t("documents.identity.hint")}
       </p>
 
@@ -198,9 +198,11 @@ function DocumentSlot({
   }
 
   return (
-    <div className="rounded-[var(--radius-card-sm)] border border-[var(--color-border)] p-5">
-      <p className="type-body-medium font-semibold">{label}</p>
-      <p className="type-caption mt-1 text-[var(--color-muted-foreground)]">
+    <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+      <p className="text-[15px] font-semibold text-[var(--color-headline)]">
+        {label}
+      </p>
+      <p className="text-[13.5px] leading-[1.45] mt-1 text-[var(--color-muted-foreground)]">
         {hint}
       </p>
       <div className="mt-4">
@@ -225,11 +227,13 @@ function UploadedRow({
 }) {
   const { t } = useTranslation("onboarding");
   return (
-    <div className="flex items-center gap-3.5 rounded-[var(--radius-card-sm)] border border-[var(--color-primary)] bg-[color-mix(in_srgb,var(--color-primary)_5%,transparent)] p-5">
+    <div className="flex items-center gap-3.5 rounded-[14px] border border-[var(--color-blue-line)] bg-[var(--color-blue-softer)] p-5">
       <FileText className="h-5 w-5 shrink-0 text-[var(--color-primary)]" />
       <div className="min-w-0 flex-1">
-        <p className="type-body-medium font-semibold">{label}</p>
-        <p className="type-caption truncate text-[var(--color-muted-foreground)]">
+        <p className="text-[15px] font-semibold text-[var(--color-headline)]">
+          {label}
+        </p>
+        <p className="text-[13.5px] leading-[1.45] truncate text-[var(--color-muted-foreground)]">
           {upload.fileName}
         </p>
       </div>
@@ -268,7 +272,7 @@ function FilePicker({
     <label
       htmlFor={id}
       className={cn(
-        "type-body-medium flex cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-field)] border border-dashed border-[var(--color-border)] px-4 py-3 font-semibold transition-colors",
+        "text-[15px] flex cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-field)] border border-dashed border-[var(--color-border)] px-4 py-3 font-semibold transition-colors",
         "hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]",
       )}
     >

@@ -200,7 +200,7 @@ describe("QuotesPage", () => {
     expect(r.getByText(/a sua decisão/)).toBeInTheDocument();
     // `formatMoney(980_000, "MZN", "pt-MZ")` — printed once with `node -e`
     // against this exact call and copied here, per the report.
-    expect(r.getByText("9800,00 MTn")).toBeInTheDocument();
+    expect(r.getByText("9 800,00 MTn")).toBeInTheDocument();
   });
 
   it("says there is no price yet rather than showing a zero", async () => {
@@ -296,7 +296,7 @@ describe("QuotesPage", () => {
     await renderQuotes(pageWith(proposedQuote));
     const c = await card("Instalação de ar condicionado");
     expect(c.getByText("Proposta recebida")).toBeInTheDocument();
-    expect(c.getByText("9800,00 MTn")).toBeInTheDocument();
+    expect(c.getByText("9 800,00 MTn")).toBeInTheDocument();
     expect(c.queryByText("Estado")).not.toBeInTheDocument();
     expect(c.queryByText("Preço")).not.toBeInTheDocument();
   });

@@ -110,10 +110,10 @@ export function DetailGallery({
 
         {many && layout === "provider" && (
           <>
-            <button type="button" onClick={() => step(-1)} aria-label={t("galleryPrevious")} className="absolute top-1/2 left-[11px] -mt-[18px] grid h-9 w-9 place-items-center rounded-full bg-white text-[#1557e8] shadow-[0_1px_4px_rgba(0,0,0,.12)]">
+            <button type="button" onClick={() => step(-1)} aria-label={t("galleryPrevious")} className="absolute top-1/2 left-[11px] -mt-[18px] grid h-9 w-9 place-items-center rounded-full bg-white text-[var(--color-info-fg)] shadow-[0_1px_4px_rgba(0,0,0,.12)]">
               <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={2.4} aria-hidden="true" />
             </button>
-            <button type="button" onClick={() => step(1)} aria-label={t("galleryNext")} className="absolute top-1/2 right-[11px] -mt-[18px] grid h-9 w-9 place-items-center rounded-full bg-white text-[#1557e8] shadow-[0_1px_4px_rgba(0,0,0,.12)]">
+            <button type="button" onClick={() => step(1)} aria-label={t("galleryNext")} className="absolute top-1/2 right-[11px] -mt-[18px] grid h-9 w-9 place-items-center rounded-full bg-white text-[var(--color-info-fg)] shadow-[0_1px_4px_rgba(0,0,0,.12)]">
               <ChevronRight className="h-[18px] w-[18px]" strokeWidth={2.4} aria-hidden="true" />
             </button>
             <span aria-live="polite" className="absolute bottom-4 left-[11px] grid h-8 min-w-[55px] place-items-center rounded-[18px] border border-white/35 bg-[rgba(20,22,30,.62)] px-2 text-sm font-semibold text-white tabular-nums">

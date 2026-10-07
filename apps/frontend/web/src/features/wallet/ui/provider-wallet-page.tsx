@@ -49,20 +49,20 @@ export function ProviderWalletPage() {
 function WalletPromise({ title, body }: { title: string; body: string }) {
   return (
     <div className="relative mt-[22px] hidden h-[169px] w-[592px] shrink-0 xl:block">
-      <span aria-hidden="true" className="absolute top-[39px] -left-[49px] h-[47px] w-12 rounded-[9px] bg-[#d1e9fd] dark:bg-[var(--color-blue-soft)]" />
-      <div className="absolute inset-0 flex items-center gap-[35px] rounded-[14px] bg-[#e1f2fe] pl-[69px] dark:bg-[var(--color-blue-softer)]">
+      <span aria-hidden="true" className="absolute top-[39px] -left-[49px] h-[47px] w-12 rounded-[9px] bg-[var(--color-info-bg)] dark:bg-[var(--color-blue-soft)]" />
+      <div className="absolute inset-0 flex items-center gap-[35px] rounded-[14px] bg-[var(--color-info-bg)] pl-[69px] dark:bg-[var(--color-blue-softer)]">
         <img src="/console/wallet.png" alt="" className="h-[135px] w-[150px]" />
         <div>
-          <h2 className="m-0 text-[22.5px] leading-[30px] font-bold whitespace-pre-line text-[#00003b] dark:text-[var(--color-headline)]">
+          <h2 className="m-0 text-[22.5px] leading-[30px] font-bold whitespace-pre-line text-[var(--color-headline)] dark:text-[var(--color-headline)]">
             {title}
           </h2>
-          <p className="mt-2 text-[17px] leading-[1.45] whitespace-pre-line text-[#5e6f92] dark:text-[var(--color-muted-foreground)]">
+          <p className="mt-2 text-[17px] leading-[1.45] whitespace-pre-line text-[var(--color-muted-foreground)] dark:text-[var(--color-muted-foreground)]">
             {body}
           </p>
         </div>
       </div>
-      <span aria-hidden="true" className="absolute top-[87px] left-0 h-12 w-[47px] rounded-[9px] bg-[#d1e9fd] shadow-[0_0_0_3px_var(--color-background)] dark:bg-[var(--color-blue-soft)]" />
-      <span aria-hidden="true" className="absolute top-[131px] left-[557px] h-[35px] w-9 rounded-[9px] bg-[#d1e9fd] shadow-[0_0_0_3px_var(--color-background)] dark:bg-[var(--color-blue-soft)]" />
+      <span aria-hidden="true" className="absolute top-[87px] left-0 h-12 w-[47px] rounded-[9px] bg-[var(--color-info-bg)] shadow-[0_0_0_3px_var(--color-background)] dark:bg-[var(--color-blue-soft)]" />
+      <span aria-hidden="true" className="absolute top-[131px] left-[557px] h-[35px] w-9 rounded-[9px] bg-[var(--color-info-bg)] shadow-[0_0_0_3px_var(--color-background)] dark:bg-[var(--color-blue-soft)]" />
     </div>
   );
 }

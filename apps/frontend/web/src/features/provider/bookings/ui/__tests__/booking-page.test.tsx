@@ -250,7 +250,10 @@ describe("BookingPage", () => {
     );
     await screen.findByRole("heading", { name: "Ana" });
 
-    expect(screen.getByText("Corte de cabelo · Célia")).toBeInTheDocument();
+    // The meta line under the title names the service on its own, and the
+    // professional beside it.
+    expect(screen.getAllByText("Corte de cabelo").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Célia").length).toBeGreaterThan(0);
     expect(screen.queryByText(/null/)).not.toBeInTheDocument();
   });
 

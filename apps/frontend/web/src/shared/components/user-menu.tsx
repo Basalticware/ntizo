@@ -82,7 +82,9 @@ export function UserMenu() {
           className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2"
         >
           <Avatar className="h-10 w-10">
-            {user.avatarUrl ? <AvatarImage src={user.avatarUrl} alt={label} /> : null}
+            {user.avatarUrl ? (
+              <AvatarImage src={user.avatarUrl} alt={label} />
+            ) : null}
             <AvatarFallback className="type-body-medium bg-[var(--color-primary)] font-semibold text-white">
               {initials}
             </AvatarFallback>
@@ -90,20 +92,25 @@ export function UserMenu() {
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-64">
+      <DropdownMenuContent align="end" className="w-72">
         <DropdownMenuLabel className="px-3 py-3">
-          <div className="flex items-center gap-2">
-            <Avatar className="h-9 w-9">
-              {user.avatarUrl ? <AvatarImage src={user.avatarUrl} alt={label} /> : null}
-              <AvatarFallback className="bg-[var(--color-primary)] text-xs font-semibold text-white">
+          {/* The person as the console tables draw one: the face, the name in
+              navy, the email under it at the 13px floor — the 11px it was set
+              in was the smallest text anywhere on the site. */}
+          <div className="flex min-w-0 items-center gap-3">
+            <Avatar className="h-10 w-10 shrink-0">
+              {user.avatarUrl ? (
+                <AvatarImage src={user.avatarUrl} alt={label} />
+              ) : null}
+              <AvatarFallback className="bg-[var(--color-primary)] text-sm font-semibold text-white">
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <div className="grid leading-tight">
-              <span className="truncate text-sm font-semibold text-[var(--color-foreground)]">
+            <div className="grid min-w-0 leading-tight">
+              <span className="truncate text-[15px] font-bold text-[var(--color-headline)]">
                 {user.name ?? ""}
               </span>
-              <span className="truncate text-[11px] font-normal text-[var(--color-muted-foreground)]">
+              <span className="mt-0.5 truncate text-[13px] font-normal text-[var(--color-muted-foreground)]">
                 {user.email ?? ""}
               </span>
             </div>

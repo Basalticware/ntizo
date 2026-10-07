@@ -90,7 +90,7 @@ export function ProviderServicesSection({
  */
 function ServiceRowSkeleton() {
   return (
-    <li className="grid grid-cols-[91px_minmax(0,1fr)] items-center gap-5 rounded-[10px] border border-[#edf1f7] px-5 py-3.5 sm:grid-cols-[91px_minmax(0,1fr)_auto]">
+    <li className="grid grid-cols-[91px_minmax(0,1fr)] items-center gap-5 rounded-[10px] border border-[var(--color-line-2)] px-5 py-3.5 sm:grid-cols-[91px_minmax(0,1fr)_auto]">
       <Skeleton className="h-[68px] w-[91px] rounded-md" />
       <div className="min-w-0">
         <Skeleton className="h-4 w-1/2" />

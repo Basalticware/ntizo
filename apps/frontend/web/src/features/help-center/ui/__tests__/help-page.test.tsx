@@ -42,7 +42,7 @@ describe("HelpPage", () => {
   /**
    * The page's content sits in the column, not across the window.
    *
-   * `CompanyPage` puts its own opening inside `page-shell` and hands
+   * `CompanyPage` puts its own opening inside `public-inset` and hands
    * `children` through untouched, because `/about`, `/careers`, `/contact` and
    * `/feedback` each bring their own. This page never did — so the heading sat
    * in the column while the categories and every accordion row ran the full
@@ -56,7 +56,7 @@ describe("HelpPage", () => {
     await renderHelpPage();
 
     const heading = screen.getByRole("heading", { name: "Customers" });
-    const shell = heading.closest(".page-shell");
+    const shell = heading.closest(".public-inset");
     expect(shell).not.toBeNull();
 
     // Every question, not a sample: the bug put all of them outside the

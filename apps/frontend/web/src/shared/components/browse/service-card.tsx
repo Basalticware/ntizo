@@ -58,7 +58,7 @@ export function ServiceCard({
   const where = t(`filterWhereOption.${service.locationType}`, { defaultValue: "" });
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-[10px] border border-[#edf0f6] bg-[var(--color-card)] text-[var(--color-card-foreground)]">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-[10px] border border-[var(--color-line-2)] bg-[var(--color-card)] text-[var(--color-card-foreground)]">
       {/* `relative` is the positioning context the heart resolves against, and
           this box rather than the `<article>` is the slot's home for the same
           reason `TileMedia` was before it: it is the same box whether the
@@ -119,7 +119,7 @@ export function ServiceCard({
               })}
             />
           )}
-          <b className="text-right text-base font-extrabold whitespace-nowrap text-[#000a5c]">
+          <b className="text-right text-base font-extrabold whitespace-nowrap text-[var(--color-headline)]">
             {line.amount.kind === "words" ? (
               <span className="text-[14px] font-semibold">{t(line.amount.key)}</span>
             ) : (

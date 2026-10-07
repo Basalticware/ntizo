@@ -55,9 +55,9 @@ describe("ProposalForm", () => {
 
     await userEvent.type(await screen.findByLabelText("Preço para o cliente"), "9800");
 
-    expect(screen.getByText("9800,00 MTn")).toBeInTheDocument();
+    expect(screen.getByText("9 800,00 MTn")).toBeInTheDocument();
     expect(screen.getByText("− 980,00 MTn")).toBeInTheDocument();
-    expect(screen.getByText("8820,00 MTn")).toBeInTheDocument();
+    expect(screen.getByText("8 820,00 MTn")).toBeInTheDocument();
   });
 
   // The bug this pins: the field carried no unit at all, so a provider who
@@ -169,7 +169,7 @@ describe("ProposalForm", () => {
     // The split already knows what a filled-in price means, from the very
     // first render — the provider does not have to retype the price to see
     // what revising it would change.
-    expect(screen.getByText("9800,00 MTn")).toBeInTheDocument();
+    expect(screen.getByText("9 800,00 MTn")).toBeInTheDocument();
   });
 
   it("opens blank when there are no initialValues, exactly as before this prop existed", async () => {

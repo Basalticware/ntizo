@@ -22,6 +22,7 @@ import {
   profileName,
 } from "@/features/account/ui/profile-header";
 import { textAction } from "@/shared/ui/text-action";
+import { FIELD_LABEL } from "@/features/account/ui/customer-page";
 
 /**
  * Editing happens in place, under the same header that displays the profile.
@@ -185,7 +186,7 @@ export function ProfileForm({
                 two lines of small print that matter to nobody until a file is
                 refused — and then this says which rule it broke. */}
             {photoProblem ? (
-              <p className="type-caption mt-1.5 text-[var(--color-destructive)]">
+              <p className="mt-1.5 text-[13.5px] text-[var(--color-destructive)]">
                 {photoProblem}
               </p>
             ) : null}
@@ -194,23 +195,25 @@ export function ProfileForm({
       />
 
       {/* The same rhythm the details have when the page is being read:
-          `mt-8`, a rule, `pt-6`. */}
-      <div className="mt-8 grid gap-4 border-t border-[var(--color-border)] pt-6">
+          `mt-6`, the row line, `pt-6`. */}
+      <div className="mt-6 grid gap-5 border-t border-[var(--color-line-2)] pt-6">
         <form.Subscribe selector={(s) => s.errorMap.onSubmit}>
           {(error) =>
             error ? (
-              <p className="type-body-medium text-[var(--color-destructive)]">
+              <p className="text-[15px] font-medium text-[var(--color-destructive)]">
                 {error.form}
               </p>
             ) : null
           }
         </form.Subscribe>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           <form.Field name="firstName">
             {(field) => (
-              <div className="grid gap-1.5">
-                <Label htmlFor={field.name}>{t("fieldFirstName")}</Label>
+              <div className="grid gap-2">
+                <Label htmlFor={field.name} className={FIELD_LABEL}>
+                  {t("fieldFirstName")}
+                </Label>
                 <Input
                   id={field.name}
                   value={field.state.value}
@@ -223,8 +226,10 @@ export function ProfileForm({
 
           <form.Field name="lastName">
             {(field) => (
-              <div className="grid gap-1.5">
-                <Label htmlFor={field.name}>{t("fieldLastName")}</Label>
+              <div className="grid gap-2">
+                <Label htmlFor={field.name} className={FIELD_LABEL}>
+                  {t("fieldLastName")}
+                </Label>
                 <Input
                   id={field.name}
                   value={field.state.value}
@@ -237,8 +242,10 @@ export function ProfileForm({
 
           <form.Field name="displayName">
             {(field) => (
-              <div className="grid gap-1.5">
-                <Label htmlFor={field.name}>{t("fieldDisplayName")}</Label>
+              <div className="grid gap-2">
+                <Label htmlFor={field.name} className={FIELD_LABEL}>
+                  {t("fieldDisplayName")}
+                </Label>
                 <Input
                   id={field.name}
                   value={field.state.value}
@@ -250,8 +257,10 @@ export function ProfileForm({
 
           <form.Field name="phone">
             {(field) => (
-              <div className="grid gap-1.5">
-                <Label htmlFor={field.name}>{t("fieldPhone")}</Label>
+              <div className="grid gap-2">
+                <Label htmlFor={field.name} className={FIELD_LABEL}>
+                  {t("fieldPhone")}
+                </Label>
                 {/* The same component the sign-up form uses, so a number that
                     passes here cannot be refused there. It emits E.164 and
                     nothing else. Its copy is passed in because
@@ -275,8 +284,10 @@ export function ProfileForm({
 
           <form.Field name="timezone">
             {(field) => (
-              <div className="grid gap-1.5">
-                <Label htmlFor={field.name}>{t("fieldTimezone")}</Label>
+              <div className="grid gap-2">
+                <Label htmlFor={field.name} className={FIELD_LABEL}>
+                  {t("fieldTimezone")}
+                </Label>
                 <Select
                   id={field.name}
                   value={field.state.value}
@@ -289,8 +300,10 @@ export function ProfileForm({
 
           <form.Field name="dateOfBirth">
             {(field) => (
-              <div className="grid gap-1.5">
-                <Label htmlFor={field.name}>{t("fieldDateOfBirth")}</Label>
+              <div className="grid gap-2">
+                <Label htmlFor={field.name} className={FIELD_LABEL}>
+                  {t("fieldDateOfBirth")}
+                </Label>
                 <DatePicker
                   id={field.name}
                   value={field.state.value}
@@ -312,8 +325,10 @@ export function ProfileForm({
 
           <form.Field name="gender">
             {(field) => (
-              <div className="grid gap-1.5">
-                <Label htmlFor={field.name}>{t("fieldGender")}</Label>
+              <div className="grid gap-2">
+                <Label htmlFor={field.name} className={FIELD_LABEL}>
+                  {t("fieldGender")}
+                </Label>
                 <Select
                   id={field.name}
                   value={field.state.value}
@@ -337,14 +352,16 @@ export function ProfileForm({
 
         <form.Field name="bio">
           {(field) => (
-            <div className="grid gap-1.5">
-              <Label htmlFor={field.name}>{t("fieldBio")}</Label>
+            <div className="grid gap-2">
+              <Label htmlFor={field.name} className={FIELD_LABEL}>
+                {t("fieldBio")}
+              </Label>
               <textarea
                 id={field.name}
                 rows={3}
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
-                className="type-body rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-3.5 py-2.5 focus-visible:border-[var(--color-primary)] focus-visible:outline-none"
+                className="rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-4 py-3 text-[15px] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none"
               />
             </div>
           )}

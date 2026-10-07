@@ -9,9 +9,12 @@ import { useAttachments, type PendingAttachment } from "@/features/messaging/vie
 import { QuoteAttachmentPicker } from "@/features/quotes/ui/attachment-picker";
 import type { ProposeQuoteInput } from "../viewmodel/use-provider-quotes";
 
-const FORM_LABEL = "text-sm font-medium";
+/** The console's form label and field: 14.5px semibold navy over a 47px field, as `Input` draws it. */
+const FORM_LABEL = "text-[14.5px] font-semibold text-[var(--color-headline)]";
 const TEXT_FIELD =
-  "w-full rounded-[var(--radius-field)] border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-2.5 text-sm";
+  "h-[47px] w-full rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-4 text-[15px] text-[var(--color-foreground)] placeholder:text-[var(--color-faint)] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50";
+/** The unit beside a field — "MZN", "horas". */
+const FIELD_UNIT = "shrink-0 text-sm text-[var(--color-muted-foreground)]";
 
 export interface ProposalFormPerformer {
   id: string;
@@ -245,13 +248,13 @@ export function ProposalForm({
 
   return (
     <form onSubmit={submit} className="grid gap-5">
-      <h2 className="type-h3">{t(isRevision ? "propose.titleRevise" : "propose.title")}</h2>
+      <h2 className="m-0 text-lg font-bold text-[var(--color-headline)]">{t(isRevision ? "propose.titleRevise" : "propose.title")}</h2>
 
-      <div className="grid gap-1.5">
+      <div className="grid gap-2">
         <label htmlFor="proposal-price" className={FORM_LABEL}>
           {t("propose.priceLabel")}
         </label>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <input
             id="proposal-price"
             inputMode="decimal"
@@ -260,7 +263,7 @@ export function ProposalForm({
             disabled={busy}
             className={TEXT_FIELD}
           />
-          <span className="type-caption text-[var(--color-muted-foreground)]">{currency}</span>
+          <span className={FIELD_UNIT}>{currency}</span>
         </div>
       </div>
 
@@ -270,23 +273,25 @@ export function ProposalForm({
           pay. "Recebe" is the largest, boldest number here on purpose; see
           this file's own note on `commissionMinorOf`/`payoutMinorOf`. */}
       {priceMinor !== null && commission !== null && payout !== null && (
-        <dl className="grid gap-2 rounded-[var(--radius-card-sm)] bg-[var(--color-muted)] p-4">
-          <div className="flex justify-between">
-            <dt className="type-body">{t("propose.customerPays")}</dt>
-            <dd className="type-body tabular-nums">{formatMoney(priceMinor, currency, locale)}</dd>
+        <dl className="m-0 grid gap-2.5 rounded-[14px] bg-[var(--color-blue-softer)] p-[18px] text-[15px]">
+          <div className="flex justify-between gap-3">
+            <dt className="text-[var(--color-ink-2)]">{t("propose.customerPays")}</dt>
+            <dd className="m-0 text-[var(--color-ink-2)] tabular-nums">
+              {formatMoney(priceMinor, currency, locale)}
+            </dd>
           </div>
-          <div className="flex justify-between text-[var(--color-muted-foreground)]">
-            <dt className="type-body">
+          <div className="flex justify-between gap-3 text-[var(--color-muted-foreground)]">
+            <dt>
               {t("propose.commission", { rate: formatCommission(commissionBps, locale) })}
             </dt>
-            <dd className="type-body tabular-nums">
+            <dd className="m-0 tabular-nums">
               {"− "}
               {formatMoney(commission, currency, locale)}
             </dd>
           </div>
-          <div className="flex justify-between border-t border-[var(--color-border)] pt-2">
-            <dt className="type-body-medium font-semibold">{t("propose.receives")}</dt>
-            <dd className="type-h3 font-semibold tabular-nums">
+          <div className="flex items-baseline justify-between gap-3 border-t border-[var(--color-blue-line)] pt-2.5">
+            <dt className="font-semibold text-[var(--color-headline)]">{t("propose.receives")}</dt>
+            <dd className="m-0 text-lg font-extrabold text-[var(--color-headline)] tabular-nums">
               {formatMoney(payout, currency, locale)}
             </dd>
           </div>
@@ -294,7 +299,7 @@ export function ProposalForm({
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2">
           <label htmlFor="proposal-date" className={FORM_LABEL}>
             {t("propose.dateLabel")}
           </label>
@@ -307,7 +312,7 @@ export function ProposalForm({
             className={TEXT_FIELD}
           />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2">
           <label htmlFor="proposal-time" className={FORM_LABEL}>
             {t("propose.timeLabel")}
           </label>
@@ -322,11 +327,11 @@ export function ProposalForm({
         </div>
       </div>
 
-      <div className="grid gap-1.5 sm:w-48">
+      <div className="grid gap-2 sm:w-52">
         <label htmlFor="proposal-duration" className={FORM_LABEL}>
           {t("propose.durationLabel")}
         </label>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <input
             id="proposal-duration"
             inputMode="decimal"
@@ -335,13 +340,13 @@ export function ProposalForm({
             disabled={busy}
             className={TEXT_FIELD}
           />
-          <span className="type-caption text-[var(--color-muted-foreground)]">
+          <span className={FIELD_UNIT}>
             {t("propose.durationUnit")}
           </span>
         </div>
       </div>
 
-      <div className="grid gap-1.5">
+      <div className="grid gap-2">
         <label htmlFor="proposal-member" className={FORM_LABEL}>
           {t("propose.memberLabel")}
         </label>
@@ -369,7 +374,7 @@ export function ProposalForm({
         </select>
       </div>
 
-      <div className="grid gap-1.5">
+      <div className="grid gap-2">
         <label htmlFor="proposal-note" className={FORM_LABEL}>
           {t("propose.noteLabel")}{" "}
           <span className="font-normal text-[var(--color-muted-foreground)]">
@@ -383,7 +388,7 @@ export function ProposalForm({
           placeholder={t("propose.notePlaceholder")}
           rows={3}
           disabled={busy}
-          className={TEXT_FIELD}
+          className={`${TEXT_FIELD} h-auto py-3 leading-[1.45]`}
         />
       </div>
 
@@ -401,12 +406,12 @@ export function ProposalForm({
       </div>
 
       {(error ?? notice) && (
-        <p role="alert" className="type-caption text-[var(--color-destructive)]">
+        <p role="alert" className="m-0 text-sm text-[var(--color-destructive)]">
           {t(error ?? notice!)}
         </p>
       )}
 
-      <div>
+      <div className="grid">
         <Button type="submit" disabled={busy}>
           {t(isRevision ? "propose.submitRevise" : "propose.submit")}
         </Button>

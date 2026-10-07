@@ -35,7 +35,7 @@ export function RailCard({
     <div
       className={cn(
         // The October mockups' rail card: a hairline and nothing else.
-        "rounded-xl border border-[#eef2f8] bg-[var(--color-background)] px-5 pt-5 pb-[22px]",
+        "rounded-xl border border-[var(--color-line-2)] bg-[var(--color-background)] px-5 pt-5 pb-[22px]",
         !flat && "shadow-[var(--shadow-sm)]",
         className,
       )}

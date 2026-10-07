@@ -176,7 +176,7 @@ export function PhoneInput({
 
   return (
     <div ref={rootRef} className={cn("relative", className)}>
-      <div className="flex h-10 w-full rounded-md border border-[var(--color-input)] bg-[var(--color-background)] focus-within:ring-2 focus-within:ring-[var(--color-ring)]">
+      <div className="flex h-[47px] w-full rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)]">
         <button
           type="button"
           disabled={disabled}
@@ -184,7 +184,7 @@ export function PhoneInput({
           aria-label={countrySelectLabel}
           aria-haspopup="listbox"
           aria-expanded={open}
-          className="flex shrink-0 items-center gap-1.5 rounded-l-md px-3 text-sm hover:bg-[var(--color-muted)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex shrink-0 items-center gap-1.5 rounded-l-[var(--radius-field)] px-4 text-[15px] hover:bg-[var(--color-muted)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         >
           {/* The ISO code carries the meaning on platforms that render no
               flag emoji, so the control never degrades to a bare arrow. */}
@@ -218,12 +218,12 @@ export function PhoneInput({
           value={national}
           onBlur={onBlur}
           onChange={(e) => handleNational(e.target.value)}
-          className="w-full rounded-r-md bg-transparent px-3 text-sm placeholder:text-[var(--color-muted-foreground)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-r-[var(--radius-field)] bg-transparent px-4 text-[15px] placeholder:text-[var(--color-faint)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>
 
       {open ? (
-        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-md border border-[var(--color-border)] bg-[var(--color-background)] shadow-md">
+        <div className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-[var(--radius-card-sm)] border border-[var(--color-border)] bg-[var(--color-background)] shadow-md">
           <input
             ref={searchRef}
             type="text"

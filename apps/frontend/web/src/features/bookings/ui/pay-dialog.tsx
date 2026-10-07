@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { isValidPhoneNumber, parsePhoneNumberFromString } from "libphonenumber-js";
+import {
+  isValidPhoneNumber,
+  parsePhoneNumberFromString,
+} from "libphonenumber-js";
 import { Loader2 } from "lucide-react";
 import type { BookingDTO } from "@ntizo/shared/read-models";
 import {
@@ -166,7 +169,10 @@ export function PayDialog({
   phone,
   onClose,
 }: {
-  booking: Pick<BookingDTO, "id" | "status" | "expiresAt" | "priceMinor" | "currency">;
+  booking: Pick<
+    BookingDTO,
+    "id" | "status" | "expiresAt" | "priceMinor" | "currency"
+  >;
   phone: string | null;
   onClose: () => void;
 }) {
@@ -196,7 +202,10 @@ export function PayDialog({
   // and given priority below, because it is the freshest, most authoritative
   // fact this dialog has about the booking: a mutation error can only ever
   // report what was true the instant it was sent.
-  const fromPoll = liveStatus === "CONFIRMED" ? null : pollOverReason(liveStatus, deadline, now);
+  const fromPoll =
+    liveStatus === "CONFIRMED"
+      ? null
+      : pollOverReason(liveStatus, deadline, now);
 
   useEffect(() => {
     if (liveStatus === "CONFIRMED") onClose();
@@ -281,7 +290,7 @@ export function PayDialog({
                   className="h-4 w-4 animate-spin text-[var(--color-primary)]"
                   aria-hidden="true"
                 />
-                <span className="type-caption font-semibold text-[var(--color-primary)]">
+                <span className="text-[13.5px] leading-normal font-semibold text-[var(--color-primary)]">
                   {t("payDialogWaitingCaption")}
                 </span>
               </div>
@@ -302,7 +311,7 @@ export function PayDialog({
                 fresh prompt had gone out would leave them waiting on a
                 second one that is never coming. See
                 `RequestBookingChargeOutcome`. */}
-            <p className="type-caption -mt-2 mb-2 text-[var(--color-muted-foreground)]">
+            <p className="text-[13.5px] leading-normal -mt-2 mb-2 text-[var(--color-muted-foreground)]">
               {pay.data?.promptAlreadySent
                 ? t("payDialogAlreadySent")
                 : t("payDialogWaitingNote")}
@@ -322,7 +331,9 @@ export function PayDialog({
               <DialogDescription>{t("payDialogPhoneBody")}</DialogDescription>
             </DialogHeader>
             <div className="grid gap-1.5">
-              <Label htmlFor="pay-dialog-phone">{t("payDialogPhoneLabel")}</Label>
+              <Label htmlFor="pay-dialog-phone">
+                {t("payDialogPhoneLabel")}
+              </Label>
               <PhoneInput
                 id="pay-dialog-phone"
                 value={phoneValue}
@@ -337,18 +348,26 @@ export function PayDialog({
               />
               <p
                 id="pay-dialog-phone-hint"
-                className="type-caption text-[var(--color-muted-foreground)]"
+                className="text-[13.5px] leading-normal text-[var(--color-muted-foreground)]"
               >
                 {t("payDialogPhoneHint", { amount })}
               </p>
               {phoneInvalid && (
-                <p role="alert" className="type-caption text-[var(--color-destructive)]">
+                <p
+                  role="alert"
+                  className="text-[13.5px] leading-normal text-[var(--color-destructive)]"
+                >
                   {t("payDialogPhoneInvalid")}
                 </p>
               )}
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} disabled={busy}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={busy}
+              >
                 {t("payDialogNotNow")}
               </Button>
               <Button type="submit" disabled={busy}>

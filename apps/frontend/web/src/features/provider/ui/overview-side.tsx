@@ -103,8 +103,8 @@ export function AvailabilityTodayCard({
           <p className="mt-1.5 flex items-center text-sm">
             {intervals.length > 0 ? (
               <>
-                <span className="flex h-[18px] items-center gap-1.5 border-r border-[var(--color-border)] pr-3.5 text-[#22a447]">
-                  <i aria-hidden="true" className="h-2 w-2 rounded-full bg-[#22b14c]" />
+                <span className="flex h-[18px] items-center gap-1.5 border-r border-[var(--color-border)] pr-3.5 text-[var(--color-ok-fg)]">
+                  <i aria-hidden="true" className="h-2 w-2 rounded-full bg-[var(--color-ok-fg)]" />
                   {t("overview.available")}
                 </span>
                 <span className="pl-3.5 text-[var(--color-ink-2)] tabular-nums">

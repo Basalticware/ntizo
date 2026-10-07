@@ -294,5 +294,10 @@
   "servicesCountValue_other": "{{count}} servizi",
   "trustVerifiedReviewed": "Fornitore verificato, con recensioni reali.",
   "availabilityPreviousMonth": "Mese precedente",
-  "availabilityNextMonth": "Mese successivo"
+  "availabilityNextMonth": "Mese successivo",
+  "providersHeroEyebrow": "Fornitori",
+  "providersHeroTitle": "Professionisti di fiducia,\nvicino a te.",
+  "providersHeroSubtitle": "Confronta attività e professionisti in base alle recensioni dei clienti e al prezzo da cui partono.",
+  "providerSearchQuestion": "Quale fornitore cerchi?",
+  "providerSearchHint": "Es.: nome dell'attività o del professionista..."
 }

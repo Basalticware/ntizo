@@ -2,12 +2,16 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, Building2, Clock } from "lucide-react";
-import { Badge, Button, Skeleton } from "@ntizo/frontend-ui";
+import { Badge, Button, Skeleton, buttonVariants } from "@ntizo/frontend-ui";
 import { AuthLayout } from "@/features/auth/components/auth-layout";
+import { AUTH_ERROR } from "@/features/auth/components/auth-styles";
 import { useCurrentUser } from "@/features/user/viewmodel/use-current-user";
 import { providerErrorMessage } from "@/features/provider/viewmodel/error-message";
 import { useAcceptInvite } from "@/features/provider/viewmodel/use-member-mutations";
-import { useDeclineInvite, useInvite } from "@/features/provider/viewmodel/use-invite";
+import {
+  useDeclineInvite,
+  useInvite,
+} from "@/features/provider/viewmodel/use-invite";
 import type { PublicInvite } from "@/features/provider/domain/types";
 
 /**
@@ -40,7 +44,9 @@ export function AcceptInvite() {
   // purpose: distinguishing them would turn this page into an oracle for
   // guessing tokens.
   if (error || !invite) {
-    return <DeadEnd title={t("inviteUnknownTitle")} body={t("inviteUnknownBody")} />;
+    return (
+      <DeadEnd title={t("inviteUnknownTitle")} body={t("inviteUnknownBody")} />
+    );
   }
 
   if (invite.status !== "pending") {
@@ -79,7 +85,11 @@ export function AcceptInvite() {
   }
 
   return (
-    <AuthLayout title={t("inviteTitle", { name: invite.providerName })} subtitle="" footer={null}>
+    <AuthLayout
+      title={t("inviteTitle", { name: invite.providerName })}
+      subtitle=""
+      footer={null}
+    >
       <div className="grid gap-5">
         <Summary invite={invite} />
 
@@ -87,30 +97,45 @@ export function AcceptInvite() {
           // Signed out. The invitation has already been shown, so signing in is
           // now a step towards something known rather than a leap of faith —
           // which is the reason this page reads before it asks.
-          <div className="grid gap-2.5">
-            <p className="type-body text-[var(--color-muted-foreground)]">
+          <div className="grid gap-3">
+            <p className="mb-1 text-[15px] leading-[1.5] text-[var(--color-muted-foreground)]">
               {t("inviteSignInPrompt", { email: invite.email })}
             </p>
-            <Link to="/sign-in" search={{ next: `/accept-invite/${token}` }}>
-              <Button className="w-full">{t("inviteSignIn")}</Button>
+            <Link
+              to="/sign-in"
+              search={{ next: `/accept-invite/${token}` }}
+              className={buttonVariants({ className: "w-full" })}
+            >
+              {t("inviteSignIn")}
             </Link>
-            <Link to="/sign-up" search={{ next: `/accept-invite/${token}` }}>
-              <Button variant="outline" className="w-full">
-                {t("inviteSignUp")}
-              </Button>
+            <Link
+              to="/sign-up"
+              search={{ next: `/accept-invite/${token}` }}
+              className={buttonVariants({
+                variant: "outline",
+                className: "w-full",
+              })}
+            >
+              {t("inviteSignUp")}
             </Link>
           </div>
         ) : wrongAccount ? (
           <div className="grid gap-3">
             <Warning>
-              {t("inviteWrongAccount", { invited: invite.email, current: user.email })}
+              {t("inviteWrongAccount", {
+                invited: invite.email,
+                current: user.email,
+              })}
             </Warning>
-            <Button variant="outline" onClick={() => void nav({ to: "/account" })}>
+            <Button
+              variant="outline"
+              onClick={() => void nav({ to: "/account" })}
+            >
               {t("inviteSwitchAccount")}
             </Button>
           </div>
         ) : (
-          <div className="grid gap-2.5">
+          <div className="grid gap-3">
             <Button
               className="w-full"
               disabled={accepting || declining}
@@ -128,14 +153,19 @@ export function AcceptInvite() {
             >
               {declining ? t("inviteDeclining") : t("inviteDecline")}
             </Button>
-            <Link to="/" className="type-caption text-center text-[var(--color-muted-foreground)] hover:underline">
+            <Link
+              to="/"
+              className="mt-1 text-center text-[14.5px] font-medium text-[var(--color-muted-foreground)] hover:text-[var(--color-headline)] hover:underline"
+            >
               {t("inviteNotNow")}
             </Link>
           </div>
         )}
 
         {failure && (
-          <p className="type-body text-center text-[var(--color-destructive)]">{failure}</p>
+          <p role="alert" className={AUTH_ERROR}>
+            {failure}
+          </p>
         )}
       </div>
     </AuthLayout>
@@ -145,46 +175,61 @@ export function AcceptInvite() {
 /** What is being joined, before anything is decided about it. */
 function Summary({ invite }: { invite: PublicInvite }) {
   const { t, i18n } = useTranslation("auth");
-  const expires = new Intl.DateTimeFormat(i18n.resolvedLanguage ?? i18n.language, {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(invite.expiresAt));
+  const expires = new Intl.DateTimeFormat(
+    i18n.resolvedLanguage ?? i18n.language,
+    {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    },
+  ).format(new Date(invite.expiresAt));
 
   return (
-    <div className="grid gap-4 rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
-      <div className="flex items-center gap-3.5">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-card-sm)] bg-[var(--color-muted)] text-[var(--color-primary)]">
-          <Building2 className="h-5 w-5" />
+    <div className="grid gap-5 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+      <div className="flex items-center gap-4">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[var(--color-primary)]">
+          <Building2 className="h-[22px] w-[22px]" />
         </span>
         <div className="min-w-0">
-          <p className="type-body-medium truncate font-semibold">{invite.providerName}</p>
-          <p className="type-caption truncate text-[var(--color-muted-foreground)]">
+          <p className="truncate text-[17px] font-bold text-[var(--color-headline)]">
+            {invite.providerName}
+          </p>
+          <p className="mt-0.5 truncate text-[14px] text-[var(--color-muted-foreground)]">
             {t("inviteFrom", { name: invite.inviterName })}
           </p>
         </div>
       </div>
 
-      <dl className="grid gap-2.5 border-t border-[var(--color-border)] pt-4">
+      <dl className="grid gap-3 border-t border-[var(--color-line-2)] pt-5">
         <Row label={t("inviteRoleLabel")}>
           <Badge tone="info">{t(`inviteRole.${invite.role}`)}</Badge>
         </Row>
         <Row label={t("inviteExpiresLabel")}>
-          <span className="type-body">{expires}</span>
+          <span className="text-[15px] text-[var(--color-ink-2)]">
+            {expires}
+          </span>
         </Row>
       </dl>
 
-      <p className="type-caption text-[var(--color-muted-foreground)]">
+      <p className="rounded-[10px] bg-[var(--color-blue-softer)] px-4 py-3 text-[14px] leading-[1.5] text-[var(--color-ink-2)]">
         {t(`inviteRoleBlurb.${invite.role}`)}
       </p>
     </div>
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex items-baseline justify-between gap-4">
-      <dt className="type-caption text-[var(--color-muted-foreground)]">{label}</dt>
+      <dt className="text-[14px] text-[var(--color-muted-foreground)]">
+        {label}
+      </dt>
       <dd className="m-0 text-right">{children}</dd>
     </div>
   );
@@ -192,8 +237,8 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 function Warning({ children }: { children: React.ReactNode }) {
   return (
-    <p className="type-body flex items-start gap-2.5 rounded-[var(--radius-card-sm)] border border-[color-mix(in_srgb,var(--color-warning,#b45309)_35%,transparent)] bg-[color-mix(in_srgb,var(--color-warning,#b45309)_8%,transparent)] px-4 py-3">
-      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+    <p className="flex items-start gap-3 rounded-[10px] bg-[var(--color-warn-bg)] px-4 py-3 text-[14.5px] leading-[1.5] text-[var(--color-warn-chip)]">
+      <AlertTriangle className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[var(--color-warn-fg)]" />
       {children}
     </p>
   );
@@ -209,16 +254,16 @@ function Warning({ children }: { children: React.ReactNode }) {
 function DeadEnd({ title, body }: { title: string; body: string }) {
   const { t } = useTranslation("auth");
   return (
-    <AuthLayout title={title} subtitle="" footer={null}>
-      <div className="grid gap-5 text-center">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[var(--color-muted)]">
-          <Clock className="h-6 w-6 text-[var(--color-muted-foreground)]" />
-        </span>
-        <p className="type-body text-[var(--color-muted-foreground)]">{body}</p>
-        <Link to="/">
-          <Button variant="outline" className="w-full">
-            {t("inviteGoHome")}
-          </Button>
+    <AuthLayout title={title} subtitle={body} footer={null} icon={<Clock />}>
+      <div className="grid gap-6">
+        <Link
+          to="/"
+          className={buttonVariants({
+            variant: "outline",
+            className: "w-full",
+          })}
+        >
+          {t("inviteGoHome")}
         </Link>
       </div>
     </AuthLayout>
@@ -230,21 +275,21 @@ function InviteSkeleton() {
   return (
     <AuthLayout title={t("acceptInvite")} subtitle="" footer={null}>
       <div className="grid gap-5" aria-busy="true">
-        <div className="grid gap-4 rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
-          <div className="flex items-center gap-3.5">
-            <Skeleton className="h-11 w-11 shrink-0 rounded-[var(--radius-card-sm)]" />
+        <div className="grid gap-5 rounded-[14px] border border-[var(--color-border)] p-6">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
             <div className="grid flex-1 gap-1.5">
               <Skeleton className="h-[23px] w-40" />
               <Skeleton className="h-[17px] w-52" />
             </div>
           </div>
-          <div className="grid gap-2.5 border-t border-[var(--color-border)] pt-4">
+          <div className="grid gap-3 border-t border-[var(--color-line-2)] pt-5">
             <Skeleton className="h-[22px] w-full" />
             <Skeleton className="h-[22px] w-full" />
           </div>
           <Skeleton className="h-[17px] w-full" />
         </div>
-        <Skeleton className="h-11 w-full rounded-[var(--radius-field)]" />
+        <Skeleton className="h-[47px] w-full rounded-[var(--radius-field)]" />
       </div>
     </AuthLayout>
   );

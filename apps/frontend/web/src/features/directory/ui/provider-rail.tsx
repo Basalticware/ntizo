@@ -76,7 +76,7 @@ export function ProviderRail({ provider }: { provider: ProviderPublicDetailDTO }
           <>
             {/* "A partir de", the number, and what the number is — the
                 mockup's 46px headline in a 360px column. */}
-            <span className="block text-sm text-[#4d6189]">{t("railFromLabel")}</span>
+            <span className="block text-sm text-[var(--color-muted-foreground)]">{t("railFromLabel")}</span>
             <b className="mt-1 block text-[46px] leading-none font-extrabold tracking-[-0.02em] text-[var(--color-headline)] tabular-nums">
               {price}
             </b>
@@ -88,18 +88,18 @@ export function ProviderRail({ provider }: { provider: ProviderPublicDetailDTO }
                 The read model exposes no priced-service count, so the honest
                 fix is to stop claiming a denominator rather than to print one
                 the number was not drawn from. */}
-            <span className="mt-2 block text-sm text-[#586592]">{t("railCheapestOf")}</span>
+            <span className="mt-2 block text-sm text-[var(--color-muted-foreground)]">{t("railCheapestOf")}</span>
           </>
         )}
 
         <div className={price === null ? "grid gap-2.5" : "mt-5 grid gap-2.5"}>
           <MessageProviderButton
             providerId={provider.id}
-            className="h-12 gap-3 rounded-lg bg-[#0061fe] text-base font-semibold"
+            className="h-12 gap-3 rounded-lg bg-[var(--color-primary)] text-base font-semibold"
           />
           <a
             href="#servicos"
-            className="grid h-[46px] place-items-center rounded-lg bg-[#e7f2fe] text-base font-bold text-[var(--color-headline)] hover:bg-[var(--color-blue-soft)]"
+            className="grid h-[46px] place-items-center rounded-lg bg-[var(--color-blue-soft)] text-base font-bold text-[var(--color-headline)] hover:bg-[var(--color-blue-soft)]"
           >
             {t("railViewServices")}
           </a>

@@ -34,10 +34,10 @@ export function WeeklyHoursCard({ hours }: { hours: readonly WeeklyHoursDTO[] })
   return (
     <RailCard>
       <h2 className="flex items-center gap-3.5 text-base font-extrabold text-[var(--color-headline)]">
-        <Calendar className="h-[19px] w-[19px] text-[#0a5afe]" strokeWidth={2} aria-hidden="true" />
+        <Calendar className="h-[19px] w-[19px] text-[var(--color-primary)]" strokeWidth={2} aria-hidden="true" />
         {t("availabilityHeading")}
       </h2>
-      <dl className="mt-[18px] ml-2.5 grid gap-3 text-[15px] leading-[1.3] text-[#152b72]">
+      <dl className="mt-[18px] ml-2.5 grid gap-3 text-[15px] leading-[1.3] text-[var(--color-ink-2)]">
         {rows.map((row) => (
           <div key={row.key} className="flex justify-between gap-4">
             <dt className="first-letter:uppercase">{row.label}</dt>
@@ -55,7 +55,7 @@ export function WeeklyHoursCard({ hours }: { hours: readonly WeeklyHoursDTO[] })
           </div>
         ))}
       </dl>
-      <p className="mt-4 ml-2.5 text-[13px] leading-normal text-[#737ea3]">
+      <p className="mt-4 ml-2.5 text-[13px] leading-normal text-[var(--color-faint)]">
         {t("availabilityUsualNote")}
       </p>
     </RailCard>

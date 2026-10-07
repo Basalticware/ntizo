@@ -1,13 +1,29 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, CalendarDays, MapPin, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  ListOrdered,
+  MapPin,
+  Plus,
+  Smartphone,
+} from "lucide-react";
 import { toMpesaMsisdn } from "@ntizo/shared";
 import { isValidPhoneNumber } from "libphonenumber-js";
-import { Button, PhoneInput, Skeleton, buttonVariants } from "@ntizo/frontend-ui";
+import {
+  Button,
+  PhoneInput,
+  Skeleton,
+  buttonVariants,
+  cn,
+} from "@ntizo/frontend-ui";
 import { EmptyCard } from "@/shared/components/empty-card";
 import { AddressForm } from "@/features/account/ui/address-form";
-import { useAddressMutations, useMyAddresses } from "@/features/account/viewmodel/use-addresses";
+import {
+  useAddressMutations,
+  useMyAddresses,
+} from "@/features/account/viewmodel/use-addresses";
 import { useCurrentUser } from "@/features/user/viewmodel/use-current-user";
 import { useUpdateMyProfile } from "@/features/account/viewmodel/use-update-profile";
 import { GraphqlError } from "@/shared/lib/graphql/session-graphql";
@@ -15,12 +31,25 @@ import { formatMoney } from "@/features/wallet/domain/money";
 import { slotWording } from "@/features/checkout/domain/slot-wording";
 import { toAddressInput } from "@/shared/domain/address-input";
 import { canAccept } from "@/features/quotes/domain/status";
-import { useAcceptQuote, useMyQuote } from "@/features/quotes/viewmodel/use-my-quotes";
+import {
+  useAcceptQuote,
+  useMyQuote,
+} from "@/features/quotes/viewmodel/use-my-quotes";
+import {
+  BACK_LINK_CLASS,
+  CUSTOMER_CARD,
+  CardHead,
+  CustomerPageHeading,
+  DETAIL_GRID,
+  FIELD_LABEL,
+  Fact,
+  MUTED_SMALL,
+  NumberedSteps,
+} from "@/features/account/ui/customer-page";
 
-const CAPTION =
-  "type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase";
-const CARD = "rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 sm:p-5";
-const FORM_LABEL = "text-sm font-medium";
+/** A saved address to choose, as a radio row: the request page's own. */
+const ADDRESS_CHOICE =
+  "flex cursor-pointer items-start gap-3 rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)] p-4 has-[:checked]:border-[var(--color-blue-line)] has-[:checked]:bg-[var(--color-blue-softer)]";
 
 /** The rail's three numbered steps, in the order they actually happen. */
 const NEXT_STEPS = [
@@ -134,8 +163,11 @@ export function AcceptQuotePage({ quoteId }: { quoteId: string }) {
     // service whose provider did not ask. A booking past DRAFT must have
     // one, so it is asked for here instead.
     const chosen =
-      q!.address === null ? (addresses.data?.find((a) => a.id === addressId) ?? null) : null;
-    if (q!.address === null && chosen === null) return setRefusal("accept.errorAddressRequired");
+      q!.address === null
+        ? (addresses.data?.find((a) => a.id === addressId) ?? null)
+        : null;
+    if (q!.address === null && chosen === null)
+      return setRefusal("accept.errorAddressRequired");
 
     try {
       // The number first: a booking that reaches PENDING_PAYMENT without one
@@ -167,9 +199,9 @@ export function AcceptQuotePage({ quoteId }: { quoteId: string }) {
 
   if (query.isLoading) {
     return (
-      <div className="grid gap-3">
-        <Skeleton className="h-8 w-1/2" />
-        <Skeleton className="h-48 w-full" />
+      <div className="grid w-full max-w-[1400px] gap-4">
+        <Skeleton className="h-10 w-1/2" />
+        <Skeleton className="h-48 w-full rounded-[14px]" />
       </div>
     );
   }
@@ -183,7 +215,13 @@ export function AcceptQuotePage({ quoteId }: { quoteId: string }) {
   }
 
   if (!q) {
-    return <EmptyCard framed title={t("detail.notFoundTitle")} body={t("detail.notFoundBody")} />;
+    return (
+      <EmptyCard
+        framed
+        title={t("detail.notFoundTitle")}
+        body={t("detail.notFoundBody")}
+      />
+    );
   }
 
   const proposal = q.proposal;
@@ -193,8 +231,15 @@ export function AcceptQuotePage({ quoteId }: { quoteId: string }) {
     // is nothing here to accept any more, so the page says so and points
     // back rather than rendering a form with nothing to submit.
     return (
-      <div className="grid gap-3">
-        <p className="type-body">{t("accept.errorMoved")}</p>
+      <div
+        className={cn(
+          CUSTOMER_CARD,
+          "grid max-w-[640px] justify-items-start gap-4",
+        )}
+      >
+        <p className="m-0 text-base text-[var(--color-ink-2)]">
+          {t("accept.errorMoved")}
+        </p>
         <Link
           to="/quotes/$quoteId"
           params={{ quoteId }}
@@ -206,8 +251,17 @@ export function AcceptQuotePage({ quoteId }: { quoteId: string }) {
     );
   }
 
-  const when = slotWording(proposal.startsAt, proposal.endsAt, locale, q.timezone);
-  const totalAmount = formatMoney(proposal.priceMinor, proposal.currency, locale);
+  const when = slotWording(
+    proposal.startsAt,
+    proposal.endsAt,
+    locale,
+    q.timezone,
+  );
+  const totalAmount = formatMoney(
+    proposal.priceMinor,
+    proposal.currency,
+    locale,
+  );
   const busy = profile.isPending || accept.isPending;
   // Narrowed from `refusal`, which is whole-form state: a lapsed proposal, a
   // moved quote or a generic server error all set it too, and none of those
@@ -217,258 +271,283 @@ export function AcceptQuotePage({ quoteId }: { quoteId: string }) {
   const phoneRefused = refusal !== null && PHONE_REFUSALS.has(refusal);
 
   const savedAddresses = addresses.data ?? [];
-  const addressFormOpen = addingAddress || (!addresses.isPending && savedAddresses.length === 0);
+  const addressFormOpen =
+    addingAddress || (!addresses.isPending && savedAddresses.length === 0);
 
   return (
-    <div>
+    <div className="w-full max-w-[1400px]">
       <Link
         to="/quotes/$quoteId"
         params={{ quoteId }}
-        className="type-caption inline-flex items-center gap-1.5 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+        className={BACK_LINK_CLASS}
       >
-        <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+        <ArrowLeft aria-hidden="true" />
         {t("accept.back", { provider: q.providerName })}
       </Link>
 
+      <CustomerPageHeading
+        className="mt-5"
+        title={t("accept.title")}
+        subtitle={t("accept.lead")}
+      />
+
       <form
-        className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start"
+        className={cn("mt-[30px]", DETAIL_GRID)}
         onSubmit={(event) => {
           event.preventDefault();
           void submit();
         }}
       >
-        <div className="min-w-0">
-          <h1 className="type-h1">{t("accept.title")}</h1>
-          <p className="type-body mt-2 text-[var(--color-muted-foreground)]">{t("accept.lead")}</p>
-
-          <div className="mt-8 grid gap-4">
-            {/* What is being agreed — read-only, on purpose. Every "change"
-                a customer might want belongs to a page other than this one:
-                the price and the slot are the provider's own proposal, and
-                changing either is a new proposal, not an edit here. */}
-            <dl className={`${CARD} grid gap-5`}>
-              <div>
-                <dt className={CAPTION}>{t("accept.service")}</dt>
-                <dd className="type-body-medium mt-1 font-semibold">{q.serviceName}</dd>
-              </div>
-              <div>
-                <dt className={CAPTION}>{t("accept.provider")}</dt>
-                <dd className="type-body-medium mt-1 font-semibold">{q.providerName}</dd>
-              </div>
-              <div>
-                <dt className="type-caption flex items-center gap-2 text-[var(--color-muted-foreground)]">
-                  <CalendarDays className="h-4 w-4 text-[var(--color-primary)]" aria-hidden="true" />
-                  {t("accept.when")}
-                </dt>
-                <dd className="type-body-medium mt-1 pl-6 font-semibold">{when.date}</dd>
-                <dd className="type-body pl-6 tabular-nums">
+        <div className="grid min-w-0 gap-6">
+          {/* What is being agreed — read-only, on purpose. Every "change"
+              a customer might want belongs to a page other than this one:
+              the price and the slot are the provider's own proposal, and
+              changing either is a new proposal, not an edit here. */}
+          <section className={CUSTOMER_CARD}>
+            <dl className="m-0 grid gap-5 sm:grid-cols-2">
+              <Fact label={t("accept.service")}>
+                <span className="font-semibold text-[var(--color-headline)]">
+                  {q.serviceName}
+                </span>
+              </Fact>
+              <Fact label={t("accept.provider")}>
+                <span className="font-semibold text-[var(--color-headline)]">
+                  {q.providerName}
+                </span>
+              </Fact>
+              <Fact
+                label={
+                  <span className="inline-flex items-center gap-2">
+                    <CalendarDays
+                      className="h-4 w-4 text-[var(--color-primary)]"
+                      aria-hidden="true"
+                    />
+                    {t("accept.when")}
+                  </span>
+                }
+              >
+                <span className="block font-semibold text-[var(--color-headline)]">
+                  {when.date}
+                </span>
+                <span className="tabular-nums">
                   {when.start} – {when.end}
-                </dd>
-              </div>
+                </span>
+              </Fact>
               {q.address && (
-                <div>
-                  <dt className="type-caption flex items-center gap-2 text-[var(--color-muted-foreground)]">
-                    <MapPin className="h-4 w-4 text-[var(--color-primary)]" aria-hidden="true" />
-                    {t("accept.where")}
-                  </dt>
-                  <dd className="type-body mt-1 pl-6">
-                    {[q.address.label, q.address.line, q.address.district, q.address.city]
-                      .filter(Boolean)
-                      .join(", ")}
-                  </dd>
-                </div>
+                <Fact
+                  label={
+                    <span className="inline-flex items-center gap-2">
+                      <MapPin
+                        className="h-4 w-4 text-[var(--color-primary)]"
+                        aria-hidden="true"
+                      />
+                      {t("accept.where")}
+                    </span>
+                  }
+                >
+                  {[
+                    q.address.label,
+                    q.address.line,
+                    q.address.district,
+                    q.address.city,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </Fact>
               )}
               {proposal.note && (
-                <div>
-                  <dt className={CAPTION}>{t("accept.includes")}</dt>
-                  <dd className="type-body mt-1 whitespace-pre-line">{proposal.note}</dd>
-                </div>
+                <Fact label={t("accept.includes")} className="sm:col-span-2">
+                  <span className="whitespace-pre-line">{proposal.note}</span>
+                </Fact>
               )}
-              <div>
-                <dt className={CAPTION}>{t("accept.total")}</dt>
-                <dd className="type-h3 mt-1 font-semibold text-[var(--color-primary)] tabular-nums">
-                  {totalAmount}
-                </dd>
-              </div>
             </dl>
+            <div className="mt-5 flex items-baseline justify-between gap-3 border-t border-[var(--color-line-2)] pt-5">
+              <span className="text-[15px] text-[var(--color-ink-2)]">
+                {t("accept.total")}
+              </span>
+              <span className="text-[22px] font-extrabold text-[var(--color-headline)] tabular-nums">
+                {totalAmount}
+              </span>
+            </div>
+          </section>
 
-            {/* Where the M-Pesa prompt goes. Always editable, never a
-                read-only value behind a "change" link: this is the first
-                and only page that collects the number for a quote's own
-                booking, so there is no earlier step to send the customer
-                back to. */}
-            <section className={CARD}>
-              <label htmlFor="accept-phone" className={FORM_LABEL}>
+          {/* Where the M-Pesa prompt goes. Always editable, never a
+              read-only value behind a "change" link: this is the first
+              and only page that collects the number for a quote's own
+              booking, so there is no earlier step to send the customer
+              back to. */}
+          <section className={CUSTOMER_CARD}>
+            <div className="flex items-center gap-3">
+              <Smartphone
+                aria-hidden="true"
+                className="h-[21px] w-[21px] shrink-0 text-[var(--color-primary)]"
+              />
+              <label htmlFor="accept-phone" className={FIELD_LABEL}>
                 {t("accept.phoneLabel")}
               </label>
-              <div className="mt-1.5">
-                <PhoneInput
-                  id="accept-phone"
-                  value={phone}
-                  onChange={(next) => {
-                    setTypedPhone(next);
-                    setRefusal(null);
-                  }}
-                  defaultCountry="MZ"
-                  locale={locale}
-                  searchPlaceholder={t("accept.countrySearchPlaceholder")}
-                  noResultsText={t("accept.countryNoResults")}
-                  countrySelectLabel={t("accept.countrySelectLabel")}
-                  aria-invalid={phoneRefused}
-                  aria-describedby="accept-phone-hint"
-                />
-              </div>
-              <p
-                id="accept-phone-hint"
-                className="type-caption mt-1.5 text-[var(--color-muted-foreground)]"
-              >
-                {t("accept.phoneHint", { amount: totalAmount })}
+            </div>
+            <div className="mt-3 max-w-md">
+              <PhoneInput
+                id="accept-phone"
+                value={phone}
+                onChange={(next) => {
+                  setTypedPhone(next);
+                  setRefusal(null);
+                }}
+                defaultCountry="MZ"
+                locale={locale}
+                searchPlaceholder={t("accept.countrySearchPlaceholder")}
+                noResultsText={t("accept.countryNoResults")}
+                countrySelectLabel={t("accept.countrySelectLabel")}
+                aria-invalid={phoneRefused}
+                aria-describedby="accept-phone-hint"
+              />
+            </div>
+            <p id="accept-phone-hint" className={cn("m-0 mt-2", MUTED_SMALL)}>
+              {t("accept.phoneHint", { amount: totalAmount })}
+            </p>
+          </section>
+
+          {/* Asked here, and only here: the quote carried no address when
+              the provider priced it, so a customer past this point must
+              still give the platform somewhere to send them. */}
+          {needsAddress && (
+            <section className={CUSTOMER_CARD}>
+              {addresses.isPending ? (
+                <Skeleton className="h-16 w-full" />
+              ) : addresses.isError ? (
+                <div role="alert" className="grid justify-items-start gap-3">
+                  <p className="type-body text-[var(--color-destructive)]">
+                    {t("request.addressLoadError")}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => void addresses.refetch()}
+                  >
+                    {t("request.retry")}
+                  </Button>
+                </div>
+              ) : (
+                <fieldset className="m-0 grid min-w-0 gap-3 border-0 p-0">
+                  <legend className="sr-only">
+                    {t("request.addressLegend")}
+                  </legend>
+
+                  {savedAddresses.map((address) => (
+                    <label key={address.id} className={ADDRESS_CHOICE}>
+                      <input
+                        type="radio"
+                        name="accept-address"
+                        value={address.id}
+                        checked={addressId === address.id}
+                        onChange={() => setAddressId(address.id)}
+                        className="mt-1 h-4 w-4 accent-[var(--color-primary)]"
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-[15px] font-semibold text-[var(--color-headline)]">
+                          {address.label}
+                        </span>
+                        <span className={cn("block", MUTED_SMALL)}>
+                          {addressSummary(address)}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+
+                  {addressFormOpen ? (
+                    <AddressForm
+                      ariaLabel={t("request.addressLegend")}
+                      submitting={add.isPending}
+                      {...(savedAddresses.length > 0
+                        ? { onCancel: () => setAddingAddress(false) }
+                        : {})}
+                      onSubmit={async (values) => {
+                        const id = await add.mutateAsync(values);
+                        await addresses.refetch();
+                        setAddressId(id);
+                        setAddingAddress(false);
+                      }}
+                    />
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="justify-self-start"
+                      onClick={() => setAddingAddress(true)}
+                    >
+                      <Plus aria-hidden="true" />
+                      {t("request.addressAddAction")}
+                    </Button>
+                  )}
+                </fieldset>
+              )}
+              <p className={cn("m-0 mt-3", MUTED_SMALL)}>
+                {t("request.addressNote")}
               </p>
             </section>
+          )}
 
-            {/* Asked here, and only here: the quote carried no address when
-                the provider priced it, so a customer past this point must
-                still give the platform somewhere to send them. */}
-            {needsAddress && (
-              <section className={CARD}>
-                {addresses.isPending ? (
-                  <Skeleton className="h-16 w-full" />
-                ) : addresses.isError ? (
-                  <div role="alert" className="grid justify-items-start gap-3">
-                    <p className="type-body text-[var(--color-destructive)]">
-                      {t("request.addressLoadError")}
-                    </p>
-                    <Button type="button" variant="outline" onClick={() => void addresses.refetch()}>
-                      {t("request.retry")}
-                    </Button>
-                  </div>
-                ) : (
-                  <fieldset className="grid gap-3 border-0 p-0">
-                    <legend className="sr-only">{t("request.addressLegend")}</legend>
+          {refusal && (
+            <p
+              role="alert"
+              className="m-0 text-[15px] font-medium text-[var(--color-destructive)]"
+            >
+              {t(refusal)}
+            </p>
+          )}
 
-                    {savedAddresses.map((address) => (
-                      <label
-                        key={address.id}
-                        className="flex cursor-pointer items-start gap-3 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] p-4"
-                      >
-                        <input
-                          type="radio"
-                          name="accept-address"
-                          value={address.id}
-                          checked={addressId === address.id}
-                          onChange={() => setAddressId(address.id)}
-                          className="mt-1 h-4 w-4 accent-[var(--color-primary)]"
-                        />
-                        <span className="min-w-0">
-                          <span className="type-body-medium block font-semibold">
-                            {address.label}
-                          </span>
-                          <span className="type-caption block text-[var(--color-muted-foreground)]">
-                            {addressSummary(address)}
-                          </span>
-                        </span>
-                      </label>
-                    ))}
-
-                    {addressFormOpen ? (
-                      <AddressForm
-                        ariaLabel={t("request.addressLegend")}
-                        submitting={add.isPending}
-                        {...(savedAddresses.length > 0
-                          ? { onCancel: () => setAddingAddress(false) }
-                          : {})}
-                        onSubmit={async (values) => {
-                          const id = await add.mutateAsync(values);
-                          await addresses.refetch();
-                          setAddressId(id);
-                          setAddingAddress(false);
-                        }}
-                      />
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="justify-self-start"
-                        onClick={() => setAddingAddress(true)}
-                      >
-                        <Plus className="h-4 w-4" aria-hidden="true" />
-                        {t("request.addressAddAction")}
-                      </Button>
-                    )}
-                  </fieldset>
-                )}
-                <p className="type-caption mt-3 text-[var(--color-muted-foreground)]">
-                  {t("request.addressNote")}
-                </p>
-              </section>
-            )}
-
-            {refusal && (
-              <p role="alert" className="type-body text-[var(--color-destructive)]">
-                {t(refusal)}
+          {slotTaken ? (
+            // In place of the button — there is nothing left to press. The
+            // backend has already put the quote back to REQUESTED and asked
+            // the provider again; pressing "Aceitar" a second time here
+            // would not retry anything.
+            <div className="grid gap-2 rounded-[14px] bg-[var(--color-blue-softer)] p-5 sm:p-6">
+              <p className="m-0 text-base font-bold text-[var(--color-headline)]">
+                {t("accept.slotTakenTitle")}
               </p>
-            )}
-
-            {slotTaken ? (
-              // In place of the button — there is nothing left to press. The
-              // backend has already put the quote back to REQUESTED and asked
-              // the provider again; pressing "Aceitar" a second time here
-              // would not retry anything.
-              <div className={`${CARD} grid gap-2`}>
-                <p className="type-body-medium font-semibold">{t("accept.slotTakenTitle")}</p>
-                <p className="type-body text-[var(--color-muted-foreground)]">
-                  {t("accept.slotTakenBody", { provider: q.providerName })}
-                </p>
-                <Link
-                  to="/quotes/$quoteId"
-                  params={{ quoteId }}
-                  className={`${buttonVariants({ variant: "outline" })} justify-self-start`}
-                >
-                  {t("accept.slotTakenAction")}
-                </Link>
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-3">
-                <Button type="submit" disabled={busy}>
-                  {t("accept.submit", { amount: totalAmount })}
-                </Button>
-                <Link
-                  to="/quotes/$quoteId"
-                  params={{ quoteId }}
-                  className={buttonVariants({ variant: "outline" })}
-                >
-                  {t("accept.cancel")}
-                </Link>
-              </div>
-            )}
-          </div>
+              <p className="m-0 text-[15px] text-[var(--color-muted-foreground)]">
+                {t("accept.slotTakenBody", { provider: q.providerName })}
+              </p>
+              <Link
+                to="/quotes/$quoteId"
+                params={{ quoteId }}
+                className={`${buttonVariants({ variant: "outline" })} mt-2 justify-self-start`}
+              >
+                {t("accept.slotTakenAction")}
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              <Button type="submit" disabled={busy}>
+                {t("accept.submit", { amount: totalAmount })}
+              </Button>
+              <Link
+                to="/quotes/$quoteId"
+                params={{ quoteId }}
+                className={buttonVariants({ variant: "outline" })}
+              >
+                {t("accept.cancel")}
+              </Link>
+            </div>
+          )}
         </div>
 
-        <aside className="grid gap-4 lg:sticky lg:top-6">
-          <section className={CARD}>
-            <h2 className={CAPTION}>{t("accept.nextTitle")}</h2>
-            <ol className="mt-3 grid list-none gap-3 p-0">
-              {NEXT_STEPS.map(([titleKey, bodyKey], index) => (
-                <li key={titleKey} className="flex items-start gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[var(--color-muted)] text-xs font-bold text-[var(--color-primary)]"
-                  >
-                    {index + 1}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="type-body-medium font-semibold">{t(titleKey)}</p>
-                    <p className="type-caption text-[var(--color-muted-foreground)]">
-                      {t(bodyKey)}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+        <aside className="grid gap-6 lg:sticky lg:top-6">
+          <section className={CUSTOMER_CARD}>
+            <CardHead icon={ListOrdered} title={t("accept.nextTitle")} />
+            <div className="mt-5">
+              <NumberedSteps
+                steps={NEXT_STEPS.map(([titleKey, bodyKey]) => ({
+                  key: titleKey,
+                  title: t(titleKey),
+                  body: t(bodyKey),
+                }))}
+              />
+            </div>
           </section>
-          <p className="type-caption text-[var(--color-muted-foreground)]">
-            {t("accept.nextFooter")}
-          </p>
+          <p className={cn("m-0", MUTED_SMALL)}>{t("accept.nextFooter")}</p>
         </aside>
       </form>
     </div>

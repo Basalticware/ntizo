@@ -22,7 +22,7 @@ export interface StatusTab<K extends string> {
 
 const CHIP_TONE: Record<StatusTabTone, string> = {
   primary: "bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] text-[var(--color-primary)]",
-  warning: "bg-[color-mix(in_srgb,var(--color-warning)_20%,transparent)] text-[#8a5a00] dark:text-[var(--color-warning)]",
+  warning: "bg-[color-mix(in_srgb,var(--color-warning)_20%,transparent)] text-[var(--color-warn-chip)] dark:text-[var(--color-warning)]",
   success: "bg-[color-mix(in_srgb,var(--color-success)_16%,transparent)] text-[var(--color-success)]",
   danger: "bg-[color-mix(in_srgb,var(--color-destructive)_12%,transparent)] text-[var(--color-destructive)]",
   info: "bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] text-[var(--color-primary)]",

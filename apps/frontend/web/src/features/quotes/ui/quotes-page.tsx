@@ -2,9 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { FileQuestion } from "lucide-react";
-import { Button, cn } from "@ntizo/frontend-ui";
+import { Button, buttonVariants } from "@ntizo/frontend-ui";
 import { CUSTOMER_QUOTE_TABS, type CustomerQuoteTab } from "@ntizo/shared";
 import { CollectionCard } from "@/shared/components/collection-card";
+import {
+  DETAILS_BUTTON_CLASS,
+  TwoLineCell,
+} from "@/shared/components/list-cells";
+import { StatusTabs } from "@/shared/components/status-tabs";
+import { CustomerPageHeading } from "@/features/account/ui/customer-page";
 import { formatMoney } from "@/features/wallet/domain/money";
 import { QUOTES_PAGE_SIZE } from "@/features/quotes/domain/status";
 import {
@@ -98,62 +104,45 @@ export function QuotesPage() {
   const items = offset === 0 ? (query.data?.items ?? []) : loaded;
 
   return (
-    <div>
-      <h1 className="type-h1">{t("list.title")}</h1>
-      <p className="type-body mt-2 max-w-[62ch] text-[var(--color-muted-foreground)]">
-        {t("list.blurb")}
-      </p>
+    <div className="w-full max-w-[1400px]">
+      <CustomerPageHeading title={t("list.title")} subtitle={t("list.blurb")} />
 
       {query.isError && (
-        <p role="alert" className="type-body mt-4 text-[var(--color-destructive)]">
+        <p
+          role="alert"
+          className="type-body mt-4 text-[var(--color-destructive)]"
+        >
           {t("list.loadError")}
         </p>
       )}
 
-      <div
-        role="tablist"
-        aria-label={t("list.title")}
-        className="mt-6 inline-flex rounded-full bg-[var(--color-muted)] p-1"
-      >
-        {CUSTOMER_QUOTE_TABS.map((key) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={tab === key}
-            onClick={() => setTab(key)}
-            className={cn(
-              "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-              tab === key
-                ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]",
-            )}
-          >
-            {t(`list.tab.${key}`)}
-            {answered && (
-              <span
-                className={cn(
-                  "ml-1.5 inline-block rounded-full px-1.5 py-0.5 text-xs font-semibold",
-                  tab === key
-                    ? "bg-white/25"
-                    : "bg-[var(--color-background)] text-[var(--color-muted-foreground)]",
-                )}
-              >
-                {answered.counts[key]}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-4">
+      <div className="mt-[30px]">
         <CollectionCard
+          tabs={
+            // The bookings list's tab row; `quoteMine` counts every tab.
+            <div className="w-full [contain:inline-size]">
+              {/* `contain` so the row is measured by the card, not by its boxes:
+                  `CollectionCard` sizes its toolbar to its widest child, and three
+                  boxes wider than a phone pushed the whole page sideways. Inside
+                  the card's width they scroll, as `StatusTabs` means them to. */}
+              <StatusTabs
+                tabs={CUSTOMER_QUOTE_TABS.map((key) => ({
+                  key,
+                  label: t(`list.tab.${key}`),
+                  count: answered ? answered.counts[key] : null,
+                }))}
+                value={tab}
+                onChange={setTab}
+                ariaLabel={t("list.title")}
+              />
+            </div>
+          }
           title={t(`list.tab.${tab}`)}
           shown={items.length}
           total={total}
           loading={query.isLoading && offset === 0}
           columns={[
-            { key: "service", label: t("list.column.service"), className: "pl-5" },
+            { key: "service", label: t("list.column.service") },
             {
               key: "status",
               label: t("list.column.status"),
@@ -168,15 +157,18 @@ export function QuotesPage() {
               skeletonWidth: "w-24",
               hideOnCard: true,
             },
+            {
+              key: "actions",
+              label: "",
+              className: "pr-6 text-right",
+              hideOnCard: true,
+            },
           ]}
           emptyTitle={t("list.emptyTitle")}
           emptyText={t("list.emptyText")}
           emptyBadge={FileQuestion}
           emptyAction={
-            <Link
-              to="/services"
-              className="rounded-full bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
-            >
+            <Link to="/services" className={buttonVariants({ size: "sm" })}>
               {t("list.emptyAction")}
             </Link>
           }
@@ -190,8 +182,12 @@ export function QuotesPage() {
             // own line — the rule `cardBody` states for anyone using it.
             const priceNode = q.proposal ? (
               <span className="inline-flex flex-col items-end gap-0.5">
-                <span className="tabular-nums">
-                  {formatMoney(q.proposal.priceMinor, q.proposal.currency, locale)}
+                <span className="text-lg font-bold whitespace-nowrap text-[var(--color-headline)] tabular-nums">
+                  {formatMoney(
+                    q.proposal.priceMinor,
+                    q.proposal.currency,
+                    locale,
+                  )}
                 </span>
                 {/* A rejected quote's proposal is never superseded — the
                     write side leaves it live so this row can still show the
@@ -205,25 +201,27 @@ export function QuotesPage() {
               </span>
             ) : (
               <span className="type-caption text-[var(--color-muted-foreground)]">
-                {q.status === "REQUESTED" ? t("list.noPriceYet") : t("list.noProposal")}
+                {q.status === "REQUESTED"
+                  ? t("list.noPriceYet")
+                  : t("list.noProposal")}
               </span>
             );
 
             return {
               key: q.id,
               primary: (
-                <div className="min-w-0">
-                  <Link
-                    to="/quotes/$quoteId"
-                    params={{ quoteId: q.id }}
-                    className="type-body-medium font-semibold hover:underline"
-                  >
-                    {q.serviceName}
-                  </Link>
-                  <p className="type-caption mt-0.5 truncate text-[var(--color-muted-foreground)]">
-                    {q.providerName}
-                  </p>
-                </div>
+                <TwoLineCell
+                  title={
+                    <Link
+                      to="/quotes/$quoteId"
+                      params={{ quoteId: q.id }}
+                      className="hover:underline"
+                    >
+                      {q.serviceName}
+                    </Link>
+                  }
+                  sub={q.providerName}
+                />
               ),
               cells: {
                 status: <QuoteStatusLine quote={q} side="customer" now={now} />,
@@ -239,16 +237,32 @@ export function QuotesPage() {
                   <div className="text-right">{priceNode}</div>
                 </div>
               ),
+              // The provider lists' row action: the title's own link again,
+              // where the mockups put the row's way in — so out of the tab
+              // order and the accessibility tree, or every row is met twice.
+              // Table only: on the phone the whole title is the target.
+              actions: (
+                <Link
+                  to="/quotes/$quoteId"
+                  params={{ quoteId: q.id }}
+                  className={`${DETAILS_BUTTON_CLASS} hidden md:inline-flex`}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                >
+                  {t("common:viewDetails")}
+                </Link>
+              ),
             };
           })}
         />
       </div>
 
       {answered && canLoadMore && (
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-center">
           <Button
             type="button"
             variant="outline"
+            size="sm"
             disabled={query.isFetching}
             onClick={() => setOffset(offset + QUOTES_PAGE_SIZE)}
           >

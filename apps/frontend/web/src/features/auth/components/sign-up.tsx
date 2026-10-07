@@ -7,8 +7,6 @@ import { Eye, EyeOff, UserPlus, MailCheck } from "lucide-react";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import {
   Button,
-  Card,
-  CardContent,
   Checkbox,
   Input,
   InputGroup,
@@ -24,6 +22,18 @@ import { AuthSplitLayout } from "@/features/auth/components/auth-split-layout";
 import { GoogleIcon } from "@/shared/components/icons";
 import { authErrorMessage } from "@/features/auth/viewmodel/auth-error";
 import { ResendVerification } from "@/features/auth/components/resend-verification";
+import {
+  AUTH_DIVIDER_TEXT,
+  AUTH_ERROR,
+  AUTH_FIELD,
+  AUTH_FORM,
+  AUTH_HINT,
+  AUTH_ICON_DISC,
+  AUTH_INPUT_GROUP_BUTTON,
+  AUTH_LEDE,
+  AUTH_LINK,
+  AUTH_TITLE,
+} from "@/features/auth/components/auth-styles";
 
 export function SignUp() {
   const { t, i18n } = useTranslation("auth");
@@ -76,7 +86,10 @@ export function SignUp() {
             //
             // It lands on the phone invite first (/verify-phone?next=…),
             // which steps aside when there is nothing to confirm.
-            callbackURL: emailConfirmedCallbackURL(window.location.origin, next),
+            callbackURL: emailConfirmedCallbackURL(
+              window.location.origin,
+              next,
+            ),
             // The language on screen, not the browser's own. Someone reading
             // the app in Portuguese with an English-configured browser gets
             // Portuguese email, which is the whole point — and this is the
@@ -115,102 +128,69 @@ export function SignUp() {
   if (submitted) {
     return (
       <AuthSplitLayout {...panel}>
-        <Card>
-          <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
-            <div className="rounded-full bg-[var(--color-muted)] p-3">
-              <MailCheck className="h-6 w-6 text-[var(--color-accent)]" />
-            </div>
-            <h1 className="text-xl font-semibold">{t("checkYourEmail")}</h1>
-            <p className="text-sm text-[var(--color-muted-foreground)]">
+        <div className="flex flex-col items-center gap-6 text-center">
+          <span aria-hidden="true" className={AUTH_ICON_DISC}>
+            <MailCheck />
+          </span>
+          <div>
+            <h1 className={AUTH_TITLE}>{t("checkYourEmail")}</h1>
+            <p className={AUTH_LEDE}>
               {t("verificationSent", { email: submitted })}
             </p>
-            {/* For the mail that went to spam, or the link that expired
+          </div>
+          {/* For the mail that went to spam, or the link that expired
                 before anyone got to it — an hour is not long. */}
-            <ResendVerification
-              email={submitted}
-              callbackURL={emailConfirmedCallbackURL(window.location.origin, next)}
-            />
-            <Link
-              to="/sign-in"
-              className="text-sm text-[var(--color-accent)] hover:underline"
-            >
-              {t("backToSignIn")}
-            </Link>
-          </CardContent>
-        </Card>
+          <ResendVerification
+            email={submitted}
+            callbackURL={emailConfirmedCallbackURL(
+              window.location.origin,
+              next,
+            )}
+          />
+          <Link to="/sign-in" className={`text-[15px] ${AUTH_LINK}`}>
+            {t("backToSignIn")}
+          </Link>
+        </div>
       </AuthSplitLayout>
     );
   }
 
   return (
     <AuthSplitLayout {...panel}>
-      <Card>
-        <CardContent className="flex flex-col gap-6 p-8">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-xl font-semibold">{t("createYourAccount")}</h1>
-            <p className="text-sm text-[var(--color-muted-foreground)]">
-              {t("fastAndFree")}
-            </p>
-          </div>
+      <div className="flex flex-col gap-8">
+        <div>
+          <h1 className={AUTH_TITLE}>{t("createYourAccount")}</h1>
+          <p className={AUTH_LEDE}>{t("fastAndFree")}</p>
+        </div>
 
-          <form
-            className="flex flex-col gap-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void form.handleSubmit();
-            }}
-          >
-            <form.Subscribe selector={(s) => s.errorMap.onSubmit}>
-              {(err) =>
-                err ? (
-                  <div className="text-sm text-[var(--color-destructive)] text-center">
-                    {err.form}
-                  </div>
-                ) : null
-              }
-            </form.Subscribe>
+        <form
+          className={AUTH_FORM}
+          onSubmit={(e) => {
+            e.preventDefault();
+            void form.handleSubmit();
+          }}
+        >
+          <form.Subscribe selector={(s) => s.errorMap.onSubmit}>
+            {(err) =>
+              err ? (
+                <div role="alert" className={AUTH_ERROR}>
+                  {err.form}
+                </div>
+              ) : null
+            }
+          </form.Subscribe>
 
-            {/* Two fields, not one "full name". A single field forces a guess
+          {/* Two fields, not one "full name". A single field forces a guess
                 at where the surname begins, and the profile stores them
                 separately — the mockup shows one field, but the data model and
                 Mozambican naming both argue against it. */}
-            <div className="grid grid-cols-2 gap-3">
-              <form.Field name="firstName">
-                {(field) => (
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={field.name}>{t("firstName")}</Label>
-                    <Input
-                      id={field.name}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      required
-                    />
-                  </div>
-                )}
-              </form.Field>
-              <form.Field name="lastName">
-                {(field) => (
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={field.name}>{t("lastName")}</Label>
-                    <Input
-                      id={field.name}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      required
-                    />
-                  </div>
-                )}
-              </form.Field>
-            </div>
-
-            <form.Field name="email">
+          <div className="grid grid-cols-2 gap-4">
+            <form.Field name="firstName">
               {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor={field.name}>{t("email")}</Label>
+                <div className={AUTH_FIELD}>
+                  <Label htmlFor={field.name}>{t("firstName")}</Label>
                   <Input
                     id={field.name}
-                    type="email"
-                    placeholder={t("emailPlaceholder")}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
@@ -218,154 +198,179 @@ export function SignUp() {
                 </div>
               )}
             </form.Field>
-
-            <form.Field name="phone">
+            <form.Field name="lastName">
               {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor={field.name}>{t("phone")}</Label>
-                  <PhoneInput
+                <div className={AUTH_FIELD}>
+                  <Label htmlFor={field.name}>{t("lastName")}</Label>
+                  <Input
                     id={field.name}
                     value={field.state.value}
-                    onChange={(next) => field.handleChange(next)}
-                    onBlur={field.handleBlur}
-                    // Mozambique is the launch market, so it is the sensible
-                    // first guess — but every country is one search away.
-                    defaultCountry="MZ"
-                    locale={i18n.language}
-                    placeholder={t("phonePlaceholder")}
-                    searchPlaceholder={t("countrySearchPlaceholder")}
-                    noResultsText={t("countryNoResults")}
-                    countrySelectLabel={t("countrySelectLabel")}
+                    onChange={(e) => field.handleChange(e.target.value)}
                     required
                   />
-                  <p className="text-xs text-[var(--color-muted-foreground)]">
-                    {t("phoneHint")}
-                  </p>
                 </div>
               )}
             </form.Field>
+          </div>
 
-            <form.Field name="password">
-              {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor={field.name}>{t("password")}</Label>
-                  <InputGroup>
-                    <InputGroupInput
-                      id={field.name}
-                      type={showPassword ? "text" : "password"}
-                      placeholder={t("createPassword")}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      required
-                      minLength={8}
-                    />
-                    <InputGroupAddon align="inline-end">
-                      <InputGroupButton
-                        onClick={() => setShowPassword((v) => !v)}
-                        aria-label={
-                          showPassword ? t("hidePassword") : t("showPassword")
-                        }
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </InputGroupButton>
-                    </InputGroupAddon>
-                  </InputGroup>
-                  <p className="text-xs text-[var(--color-muted-foreground)]">
-                    {t("passwordHint")}
-                  </p>
-                </div>
-              )}
-            </form.Field>
+          <form.Field name="email">
+            {(field) => (
+              <div className={AUTH_FIELD}>
+                <Label htmlFor={field.name}>{t("email")}</Label>
+                <Input
+                  id={field.name}
+                  type="email"
+                  placeholder={t("emailPlaceholder")}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+          </form.Field>
 
-            <form.Field name="acceptTerms">
-              {(field) => (
-                <label className="flex items-start gap-2 text-sm">
-                  <Checkbox
+          <form.Field name="phone">
+            {(field) => (
+              <div className={AUTH_FIELD}>
+                <Label htmlFor={field.name}>{t("phone")}</Label>
+                <PhoneInput
+                  id={field.name}
+                  value={field.state.value}
+                  onChange={(next) => field.handleChange(next)}
+                  onBlur={field.handleBlur}
+                  // Mozambique is the launch market, so it is the sensible
+                  // first guess — but every country is one search away.
+                  defaultCountry="MZ"
+                  locale={i18n.language}
+                  placeholder={t("phonePlaceholder")}
+                  searchPlaceholder={t("countrySearchPlaceholder")}
+                  noResultsText={t("countryNoResults")}
+                  countrySelectLabel={t("countrySelectLabel")}
+                  required
+                />
+                <p className={AUTH_HINT}>{t("phoneHint")}</p>
+              </div>
+            )}
+          </form.Field>
+
+          <form.Field name="password">
+            {(field) => (
+              <div className={AUTH_FIELD}>
+                <Label htmlFor={field.name}>{t("password")}</Label>
+                <InputGroup>
+                  <InputGroupInput
                     id={field.name}
-                    checked={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.checked)}
-                    className="mt-0.5"
+                    type={showPassword ? "text" : "password"}
+                    placeholder={t("createPassword")}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
                     required
+                    minLength={8}
                   />
-                  {/* The two documents, reachable from the checkbox that asks
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupButton
+                      className={AUTH_INPUT_GROUP_BUTTON}
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={
+                        showPassword ? t("hidePassword") : t("showPassword")
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                </InputGroup>
+                <p className={AUTH_HINT}>{t("passwordHint")}</p>
+              </div>
+            )}
+          </form.Field>
+
+          <form.Field name="acceptTerms">
+            {(field) => (
+              <label className="flex items-start gap-3 text-[14.5px] leading-[1.45]">
+                <Checkbox
+                  id={field.name}
+                  checked={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.checked)}
+                  className="mt-0.5"
+                  required
+                />
+                {/* The two documents, reachable from the checkbox that asks
                       you to accept them. It read as a plain sentence before,
                       naming things a person had no way to go and read. */}
-                  <span className="text-[var(--color-muted-foreground)]">
-                    {t("acceptTerms")}{" "}
-                    <Link to="/terms" target="_blank" className="underline">
-                      {tc("footer.terms", { ns: "landing" })}
-                    </Link>
-                    {" · "}
-                    <Link to="/privacy" target="_blank" className="underline">
-                      {tc("footer.privacy", { ns: "landing" })}
-                    </Link>
-                  </span>
-                </label>
-              )}
-            </form.Field>
+                <span className="text-[var(--color-muted-foreground)]">
+                  {t("acceptTerms")}{" "}
+                  <Link to="/terms" target="_blank" className={AUTH_LINK}>
+                    {tc("footer.terms", { ns: "landing" })}
+                  </Link>
+                  {" · "}
+                  <Link to="/privacy" target="_blank" className={AUTH_LINK}>
+                    {tc("footer.privacy", { ns: "landing" })}
+                  </Link>
+                </span>
+              </label>
+            )}
+          </form.Field>
 
-            <form.Subscribe
-              selector={(s) => [s.canSubmit, s.isSubmitting] as const}
-            >
-              {([canSubmit, isSubmitting]) => (
-                <Button type="submit" className="w-full" disabled={!canSubmit}>
-                  <UserPlus className="h-4 w-4" />
-                  {isSubmitting ? t("creatingAccount") : t("createAccount")}
-                </Button>
-              )}
-            </form.Subscribe>
-
-            <div className="flex items-center gap-3">
-              <Separator className="flex-1" />
-              <span className="text-xs text-[var(--color-muted-foreground)]">
-                {tc("orContinueWith")}
-              </span>
-              <Separator className="flex-1" />
-            </div>
-
-            {/* One column: Microsoft is gone and a lone button in a
-                two-column grid sits at half width beside a hole. */}
-            <div className="grid grid-cols-1">
+          <form.Subscribe
+            selector={(s) => [s.canSubmit, s.isSubmitting] as const}
+          >
+            {([canSubmit, isSubmitting]) => (
               <Button
-                type="button"
-                variant="outline"
-                onClick={() =>
-                  authClient.signIn.social({
-                    provider: "google",
-                    // Absolute, and pointing at THIS app. A relative path is
-                    // resolved against better-auth's own baseURL, which is the
-                    // API origin — a successful sign-in landed on the API's
-                    // JSON root instead of the app.
-                    callbackURL: `${window.location.origin}/`,
-                    // And the failure needs its own destination, or the error
-                    // goes to that same JSON root: a person who tried to sign
-                    // in read `{"status":"ok"}` and an error code in the URL
-                    // bar. Sent back to the form, which knows how to say it.
-                    errorCallbackURL: `${window.location.origin}/sign-in`,
-                  })
-                }
+                type="submit"
+                className="mt-1 w-full"
+                disabled={!canSubmit}
               >
-                <GoogleIcon className="h-4 w-4" />
-                {tc("google")}
+                <UserPlus />
+                {isSubmitting ? t("creatingAccount") : t("createAccount")}
               </Button>
-            </div>
-          </form>
+            )}
+          </form.Subscribe>
 
-          <p className="text-center text-sm text-[var(--color-muted-foreground)]">
-            {t("alreadyHaveAccount")}{" "}
-            <Link
-              to="/sign-in"
-              className="text-[var(--color-accent)] hover:underline"
+          <div className="flex items-center gap-3">
+            <Separator className="flex-1" />
+            <span className={AUTH_DIVIDER_TEXT}>{tc("orContinueWith")}</span>
+            <Separator className="flex-1" />
+          </div>
+
+          {/* One column: Microsoft is gone and a lone button in a
+                two-column grid sits at half width beside a hole. */}
+          <div className="grid grid-cols-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                authClient.signIn.social({
+                  provider: "google",
+                  // Absolute, and pointing at THIS app. A relative path is
+                  // resolved against better-auth's own baseURL, which is the
+                  // API origin — a successful sign-in landed on the API's
+                  // JSON root instead of the app.
+                  callbackURL: `${window.location.origin}/`,
+                  // And the failure needs its own destination, or the error
+                  // goes to that same JSON root: a person who tried to sign
+                  // in read `{"status":"ok"}` and an error code in the URL
+                  // bar. Sent back to the form, which knows how to say it.
+                  errorCallbackURL: `${window.location.origin}/sign-in`,
+                })
+              }
             >
-              {t("signIn")}
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
+              <GoogleIcon className="h-5 w-5" />
+              {tc("google")}
+            </Button>
+          </div>
+        </form>
+
+        <p className="text-center text-[15px] text-[var(--color-muted-foreground)]">
+          {t("alreadyHaveAccount")}{" "}
+          <Link to="/sign-in" className={AUTH_LINK}>
+            {t("signIn")}
+          </Link>
+        </p>
+      </div>
     </AuthSplitLayout>
   );
 }

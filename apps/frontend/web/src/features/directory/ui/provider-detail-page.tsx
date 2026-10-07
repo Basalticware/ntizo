@@ -136,7 +136,7 @@ export function ProviderDetailPage({ slug }: { slug: string }) {
               <h2 className="text-[22px] font-extrabold text-[var(--color-headline)]">{t("aboutHeading")}</h2>
               {/* `whitespace-pre-line`, so the paragraph breaks a provider
                   typed into the field survive as paragraph breaks. */}
-              <p className="mt-2 max-w-[800px] text-base leading-normal whitespace-pre-line text-[#55639a]">
+              <p className="mt-2 max-w-[800px] text-base leading-normal whitespace-pre-line text-[var(--color-muted-foreground)]">
                 {provider.description}
               </p>
             </section>
@@ -207,7 +207,7 @@ function locationLabels(
  */
 const CRUMB_SEPARATOR = (
   <li aria-hidden="true">
-    <ChevronRight className="h-3.5 w-3.5 text-[#2a3561]" strokeWidth={2.4} />
+    <ChevronRight className="h-3.5 w-3.5 text-[var(--color-ink-2)]" strokeWidth={2.4} />
   </li>
 );
 
@@ -217,7 +217,7 @@ function Breadcrumb({ provider }: { provider: ProviderPublicDetailDTO }) {
 
   return (
     <nav aria-label={t("breadcrumbLabel")} className="pt-5 pb-[18px] text-sm leading-[1.2]">
-      <ol className="flex list-none flex-wrap items-center gap-2.5 p-0 text-[#5d6a99]">
+      <ol className="flex list-none flex-wrap items-center gap-2.5 p-0 text-[var(--color-muted-foreground)]">
         <li>
           <Link to="/providers" className="hover:text-[var(--color-headline)] hover:underline">
             {t("breadcrumbProviders")}

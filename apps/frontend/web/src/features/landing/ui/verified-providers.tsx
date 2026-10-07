@@ -27,11 +27,9 @@ export const LANDING_PROVIDERS = 3;
  * title, with the verification seal riding beside the name instead of beside
  * a provider byline that no longer exists here.
  *
- * Below `sm` the grid becomes `ScrollRail`'s sideways row. `cardWidth="78%"`
- * — wider than `PopularServices`' own 72% — because this card's photo is
- * 16:10 rather than 4:3: the same width would leave it visibly shorter than
- * a service card, and the extra width keeps the two rails in the same
- * rhythm while still leaving a clear peek of the next business.
+ * Below `sm` the grid becomes `ScrollRail`'s sideways row, at `cardWidth="78%"`
+ * — wider than `PopularServices`' own 72%, which keeps a clear peek of the
+ * next business while the card's longer bottom row stays on one line.
  */
 export function VerifiedProviders() {
   const { t } = useTranslation("landing"); // t:VerifiedProviders
@@ -42,7 +40,7 @@ export function VerifiedProviders() {
   if (!isLoading && items.length === 0) return null;
 
   return (
-    <section className="page-shell pt-14">
+    <section className="public-inset pt-14">
       <SectionHead
         title={t("home.providersTitle")}
         blurb={t("home.providersBlurb")}
@@ -62,7 +60,7 @@ export function VerifiedProviders() {
                     this is copied from so neither loading row reflows when
                     its real card replaces it. */}
                 <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)]">
-                  <Skeleton className="aspect-[16/10] w-full rounded-none" />
+                  <Skeleton className="aspect-[272/127] w-full rounded-none" />
                   <div className="grid gap-2 p-4">
                     <Skeleton className="h-[13px] w-1/3" />
                     <Skeleton className="h-[17px] w-4/5" />

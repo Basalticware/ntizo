@@ -91,6 +91,7 @@
   "usersError": "Die Benutzerliste konnte nicht geladen werden.",
   "usersFilterTitle": "Benutzer filtern",
   "userDetailTitle": "Nutzer",
+  "userDetailData": "Nutzerdaten",
   "userDetailError": "Dieser Nutzer konnte nicht geladen werden.",
   "userDetailNotFound": "Diesen Nutzer gibt es nicht mehr.",
   "userDetailEmail": "E-Mail",

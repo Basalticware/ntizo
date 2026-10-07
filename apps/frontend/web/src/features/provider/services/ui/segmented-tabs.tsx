@@ -57,7 +57,7 @@ export function SegmentedTabs<K extends string>({
                 "grid place-items-center rounded-full font-semibold tabular-nums",
                 selected
                   ? "h-[30px] min-w-[30px] bg-[var(--color-primary)] px-1.5 text-base text-[var(--color-primary-foreground)]"
-                  : "h-[26px] min-w-[26px] bg-[#eef2f9] px-1.5 text-[15px] text-[var(--color-ink-2)] dark:bg-[var(--color-muted)]",
+                  : "h-[26px] min-w-[26px] bg-[var(--color-line-2)] px-1.5 text-[15px] text-[var(--color-ink-2)] dark:bg-[var(--color-muted)]",
               )}
             >
               {tab.count}

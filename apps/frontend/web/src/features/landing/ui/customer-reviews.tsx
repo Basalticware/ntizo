@@ -43,7 +43,8 @@ export const LANDING_STORIES = 3;
  *   statistic.
  * - the **bottom row** is who wrote it and when.
  *
- * `p-5` rather than the `p-4` the other two cards use: a photograph gives
+ * `p-6`, the system's card padding, rather than the `p-4` the other two
+ * cards use: a photograph gives
  * those cards their top mass for nothing, and a card made only of words has
  * to buy the same presence with its margins. The gaps are no longer this
  * section's own to pick — `ScrollRail` supplies them, which is what finally
@@ -68,7 +69,7 @@ export function CustomerReviews() {
   const month = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" });
 
   return (
-    <section className="page-shell pt-14">
+    <section className="public-inset pt-14">
       <SectionHead title={t("home.storiesTitle")} blurb={t("home.storiesBlurb")} />
       {/* Below `sm` this is `ScrollRail`'s sideways row, like the two sections
           above it: once the reviews are cards, three of them stacked down a
@@ -90,7 +91,7 @@ export function CustomerReviews() {
                     row — so a cold load does not reflow the moment the real
                     card replaces it. The same choice `PopularServices`'
                     skeleton documents for the same reason. */}
-                <div className="flex h-full flex-col rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
+                <div className="flex h-full flex-col rounded-[var(--radius-card)] border border-[var(--color-border)] p-6">
                   <Skeleton className="h-[15px] w-1/3" />
                   <Skeleton className="mt-2.5 h-[17px] w-full" />
                   <Skeleton className="mt-1.5 h-[17px] w-4/5" />
@@ -113,13 +114,13 @@ export function CustomerReviews() {
                     tab stop leading to the business — the same construction
                     `ServiceCard` and `ProviderCard` use, rather than an anchor
                     wrapped around everything. */}
-                <article className="group relative flex h-full flex-col rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] p-5 text-[var(--color-card-foreground)]">
-                  <p className="text-[12.5px] text-[var(--color-muted-foreground)]">
+                <article className="group relative flex h-full flex-col rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] p-6 text-[var(--color-card-foreground)]">
+                  <p className="text-[13px] text-[var(--color-muted-foreground)]">
                     <Link
                       to="/providers/$slug"
                       params={{ slug: s.providerSlug }}
                       className={cn(
-                        "font-semibold text-[var(--color-foreground)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline",
+                        "font-semibold text-[var(--color-muted-foreground)] group-hover:underline group-hover:decoration-[1.5px] group-hover:underline-offset-[3px] group-focus-within:underline",
                         TILE_TITLE_LINK_CLASS,
                       )}
                     >
@@ -132,7 +133,7 @@ export function CustomerReviews() {
                       review running to nine lines beside two of three is the
                       ragged column the grid's `items-stretch` exists to
                       prevent. */}
-                  <blockquote className="mt-2 line-clamp-4 text-[17px] leading-[1.4] font-semibold tracking-[-0.012em] text-[var(--color-headline)]">
+                  <blockquote className="mt-2 line-clamp-4 text-[17px] leading-[1.4] font-bold tracking-[-0.01em] text-[var(--color-headline)]">
                     {s.comment}
                   </blockquote>
 
@@ -147,8 +148,8 @@ export function CustomerReviews() {
                         aria-hidden="true"
                         className={
                           star < s.rating
-                            ? "h-[15px] w-[15px] fill-[var(--color-warning)] text-[var(--color-warning)]"
-                            : "h-[15px] w-[15px] text-[color-mix(in_srgb,var(--color-muted-foreground)_40%,transparent)]"
+                            ? "h-4 w-4 fill-[var(--color-star)] text-[var(--color-star)]"
+                            : "h-4 w-4 text-[color-mix(in_srgb,var(--color-muted-foreground)_40%,transparent)]"
                         }
                       />
                     ))}
@@ -163,14 +164,14 @@ export function CustomerReviews() {
                     style={{ marginTop: "auto" }}
                     className="grid grid-cols-[36px_minmax(0,1fr)] items-center gap-3 pt-[18px]"
                   >
-                    <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--color-muted)] text-[12.5px] font-bold text-[var(--color-headline)]">
+                    <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[13px] font-bold text-[var(--color-primary)]">
                       {s.authorName ? initialsOf(s.authorName) : "—"}
                     </span>
                     <span className="min-w-0">
-                      <b className="block truncate text-sm font-semibold">
+                      <b className="block truncate text-sm font-semibold text-[var(--color-headline)]">
                         {s.authorName ?? t("storyAnonymous")}
                       </b>
-                      <span className="text-[12.5px] text-[var(--color-muted-foreground)]">
+                      <span className="text-[13px] text-[var(--color-muted-foreground)]">
                         {month.format(new Date(s.createdAt))}
                       </span>
                     </span>

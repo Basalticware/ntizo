@@ -2,7 +2,12 @@ import { useTranslation } from "react-i18next";
 import { SectionHead } from "@/features/landing/ui/section-head";
 import { CONTACT } from "@/shared/lib/contact";
 import { CompanyPage } from "./company-page";
-import { CARD_SURFACE_CLASS } from "@/shared/components/card-surface";
+import { buttonVariants } from "@ntizo/frontend-ui";
+import {
+  CARD_BODY_CLASS,
+  CARD_TITLE_CLASS,
+  PUBLIC_CARD_CLASS,
+} from "@/features/landing/ui/public-page";
 
 interface Principle {
   title: string;
@@ -25,31 +30,29 @@ export function CareersPage() {
 
   return (
     <CompanyPage page="careers" title={t("careers.heading")} lede={t("careers.lede")}>
-      <section className="page-shell pb-14">
+      <section className="public-inset pb-14">
         <div className="grid gap-10 md:grid-cols-2 md:gap-14">
           <div>
             {/* Was an eyebrow with two paragraphs under it and no heading at
                 all. It is the heading now. */}
             <SectionHead title={t("careers.buildingEyebrow")} />
-            <div className={CARD_SURFACE_CLASS}>
-              <p className="text-[15.5px] leading-relaxed text-[var(--color-foreground)]">
+            <div className={PUBLIC_CARD_CLASS}>
+              <p className="text-[16px] leading-relaxed text-[var(--color-ink-2)]">
                 {t("careers.building1")}
               </p>
-              <p className="mt-4 text-[15.5px] leading-relaxed text-[var(--color-foreground)]">
+              <p className="mt-4 text-[16px] leading-relaxed text-[var(--color-ink-2)]">
                 {t("careers.building2")}
               </p>
             </div>
           </div>
           <div>
             <SectionHead title={t("careers.howEyebrow")} />
-            <ul className="grid list-none gap-4 p-0">
+            <ul className="grid list-none gap-6 p-0">
               {Array.isArray(how) &&
                 how.map((p) => (
-                  <li key={p.title} className={CARD_SURFACE_CLASS}>
-                    <h3 className="font-display text-[16.5px] font-bold text-[var(--color-headline)]">
-                      {p.title}
-                    </h3>
-                    <p className="mt-1.5 text-[14.5px] leading-relaxed text-[var(--color-foreground)]">
+                  <li key={p.title} className={PUBLIC_CARD_CLASS}>
+                    <h3 className={CARD_TITLE_CLASS}>{p.title}</h3>
+                    <p className={`mt-1.5 ${CARD_BODY_CLASS}`}>
                       {p.body}
                     </p>
                   </li>
@@ -59,25 +62,23 @@ export function CareersPage() {
         </div>
       </section>
 
-      {/* The ask, on the site's own card and roomier than the rest — it is
-          the only thing in its section. The blue pill on its right is gone:
-          the site spends blue on the header's search and sign-in, so the
-          button here is navy like every other affirmative control. */}
-      <section className="page-shell pb-14">
-        <div className={`${CARD_SURFACE_CLASS} md:p-8`}>
-          <h2 className="font-display text-[clamp(1.35rem,2.4vw,1.75rem)] font-extrabold tracking-[-0.02em] text-[var(--color-headline)]">
+      {/* The ask, on the soft blue info panel — it is the only thing in its
+          section — with the system's primary button. */}
+      <section className="public-inset pb-14">
+        <div className="rounded-[14px] bg-[var(--color-blue-softer)] p-6 md:p-8">
+          <h2 className="text-[22px] font-extrabold tracking-[-0.01em] text-[var(--color-headline)]">
             {t("careers.openingsTitle")}
           </h2>
-          <p className="mt-3 max-w-[56ch] text-[15.5px] leading-relaxed text-[var(--color-foreground)]">
+          <p className="mt-2 max-w-[56ch] text-[16px] leading-relaxed text-[var(--color-ink-2)]">
             {t("careers.openingsBody")}
           </p>
           <a
             href={mailto}
-            className="font-rounded mt-6 inline-flex items-center rounded-full bg-[var(--color-navy-surface)] px-7 py-3.5 text-[15px] font-bold text-[var(--color-navy-on)] no-underline"
+            className={`mt-6 no-underline ${buttonVariants()}`}
           >
             {t("careers.openingsCta")}
           </a>
-          <p className="mt-3 text-[13.5px] text-[var(--color-muted-foreground)]">
+          <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">
             {t("careers.openingsHint", { email: CONTACT.general })}
           </p>
         </div>

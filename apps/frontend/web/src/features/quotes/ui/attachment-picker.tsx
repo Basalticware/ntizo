@@ -2,15 +2,17 @@ import { Paperclip, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { buttonVariants, cn } from "@ntizo/frontend-ui";
 import {
-  ACCEPTED_ATTACHMENT_TYPES, MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS,
+  ACCEPTED_ATTACHMENT_TYPES,
+  MAX_ATTACHMENT_BYTES,
+  MAX_ATTACHMENTS,
 } from "@/features/messaging/domain/types";
 import type { PendingAttachment } from "@/features/messaging/viewmodel/use-attachments";
 
 const ACCEPT_ATTR = ACCEPTED_ATTACHMENT_TYPES.join(",");
 const MAX_ATTACHMENT_MB = MAX_ATTACHMENT_BYTES / (1024 * 1024);
-const ACCEPTED_FORMATS_LABEL = ACCEPTED_ATTACHMENT_TYPES
-  .map((type) => type.split("/")[1]!.toUpperCase())
-  .join(", ");
+const ACCEPTED_FORMATS_LABEL = ACCEPTED_ATTACHMENT_TYPES.map((type) =>
+  type.split("/")[1]!.toUpperCase(),
+).join(", ");
 
 /**
  * The quote flow's file picker: the messaging one's construction with the
@@ -28,7 +30,13 @@ const ACCEPTED_FORMATS_LABEL = ACCEPTED_ATTACHMENT_TYPES
  * big", not two that drift.
  */
 export function QuoteAttachmentPicker({
-  inputId, label, hint, files, onAdd, onRemove, disabled = false,
+  inputId,
+  label,
+  hint,
+  files,
+  onAdd,
+  onRemove,
+  disabled = false,
 }: {
   inputId: string;
   label: string;
@@ -74,10 +82,12 @@ export function QuoteAttachmentPicker({
           }}
         />
         {hint && !atLimit && (
-          <p className="type-caption text-[var(--color-muted-foreground)]">{hint}</p>
+          <p className="text-[13.5px] leading-normal text-[var(--color-muted-foreground)]">
+            {hint}
+          </p>
         )}
         {atLimit && (
-          <p className="type-caption text-[var(--color-muted-foreground)]">
+          <p className="text-[13.5px] leading-normal text-[var(--color-muted-foreground)]">
             {t("attachment.tooMany", { max: MAX_ATTACHMENTS })}
           </p>
         )}
@@ -88,9 +98,11 @@ export function QuoteAttachmentPicker({
           {files.map((pending) => (
             <li
               key={pending.id}
-              className="type-caption flex flex-wrap items-center gap-2 rounded-[var(--radius-field)] border border-[var(--color-border)] px-2.5 py-1.5"
+              className="text-[13.5px] leading-normal flex flex-wrap items-center gap-2 rounded-[var(--radius-field)] border border-[var(--color-border)] px-2.5 py-1.5"
             >
-              <span className="min-w-0 flex-1 truncate">{pending.file.name}</span>
+              <span className="min-w-0 flex-1 truncate">
+                {pending.file.name}
+              </span>
               <button
                 type="button"
                 onClick={() => onRemove(pending.id)}
@@ -100,8 +112,14 @@ export function QuoteAttachmentPicker({
                 <X className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
               {pending.errorKey && (
-                <p role="alert" className="type-caption w-full text-[var(--color-destructive)]">
-                  {tm(pending.errorKey, { maxMB: MAX_ATTACHMENT_MB, formats: ACCEPTED_FORMATS_LABEL })}
+                <p
+                  role="alert"
+                  className="text-[13.5px] leading-normal w-full text-[var(--color-destructive)]"
+                >
+                  {tm(pending.errorKey, {
+                    maxMB: MAX_ATTACHMENT_MB,
+                    formats: ACCEPTED_FORMATS_LABEL,
+                  })}
                 </p>
               )}
             </li>

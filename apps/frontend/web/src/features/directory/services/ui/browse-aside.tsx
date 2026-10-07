@@ -42,7 +42,7 @@ export function PopularCategories() {
   const more = categories.length > TILES;
   const shown = categories.slice(0, more ? TILES - 1 : TILES);
   const tileClass =
-    "flex min-h-[88px] flex-col items-center gap-2 rounded-[10px] bg-[#f1f8fe] px-1 pt-3.5 pb-3 text-center text-[13px] leading-[1.3] text-[var(--color-ink-2)] hover:bg-[var(--color-blue-soft)]";
+    "flex min-h-[88px] flex-col items-center gap-2 rounded-[10px] bg-[var(--color-blue-softer)] px-1 pt-3.5 pb-3 text-center text-[13px] leading-[1.3] text-[var(--color-ink-2)] hover:bg-[var(--color-blue-soft)]";
 
   return (
     <section>
@@ -54,7 +54,7 @@ export function PopularCategories() {
           <button
             type="button"
             onClick={openCategoryPill}
-            className="ml-auto flex items-center gap-2 text-sm font-semibold text-[#1d7dfc] hover:underline"
+            className="ml-auto flex items-center gap-2 text-sm font-semibold text-[var(--color-blue-edge)] hover:underline"
           >
             {t("categoriesSeeAll")}
             <ArrowRight className="h-4 w-4" strokeWidth={2.4} aria-hidden="true" />
@@ -67,7 +67,7 @@ export function PopularCategories() {
           return (
             <li key={c.id}>
               <Link to="/services" search={{ category: c.code }} className={tileClass}>
-                <Icon className="h-6 w-6 shrink-0 text-[#005cfe]" strokeWidth={2.4} aria-hidden="true" />
+                <Icon className="h-6 w-6 shrink-0 text-[var(--color-primary)]" strokeWidth={2.4} aria-hidden="true" />
                 {c.name}
               </Link>
             </li>
@@ -77,7 +77,7 @@ export function PopularCategories() {
           <li>
             <button type="button" onClick={openCategoryPill} className={`${tileClass} w-full`}>
               <span aria-hidden="true" className="grid h-6 w-6 place-items-center rounded-full bg-white">
-                <Ellipsis className="h-4 w-4 text-[#005cfe]" strokeWidth={2.4} />
+                <Ellipsis className="h-4 w-4 text-[var(--color-primary)]" strokeWidth={2.4} />
               </span>
               {t("moreCategories")}
             </button>
@@ -95,12 +95,12 @@ export function PopularCategories() {
 export function VerifiedBanner() {
   const { t } = useTranslation("directory");
   return (
-    <div className="flex items-center gap-4 rounded-xl bg-[#eff7fe] px-5 py-[18px]">
-      <span aria-hidden="true" className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full bg-[#d6ebfe]">
-        <ShieldCheck className="h-[26px] w-[26px] text-[#005cfe]" strokeWidth={2} />
+    <div className="flex items-center gap-4 rounded-xl bg-[var(--color-blue-softer)] px-5 py-[18px]">
+      <span aria-hidden="true" className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full bg-[var(--color-info-bg)]">
+        <ShieldCheck className="h-[26px] w-[26px] text-[var(--color-primary)]" strokeWidth={2} />
       </span>
       <div>
-        <b className="block text-[15px] font-bold text-[#000a5c]">{t("verifiedBannerTitle")}</b>
+        <b className="block text-[15px] font-bold text-[var(--color-headline)]">{t("verifiedBannerTitle")}</b>
         <p className="mt-1 text-[13px] leading-[1.45] text-[var(--color-muted-foreground)]">
           {t("verifiedBannerBody")}
         </p>

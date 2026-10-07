@@ -294,5 +294,10 @@
   "servicesCountValue_other": "{{count}} services",
   "trustVerifiedReviewed": "A verified provider, with real reviews.",
   "availabilityPreviousMonth": "Previous month",
-  "availabilityNextMonth": "Next month"
+  "availabilityNextMonth": "Next month",
+  "providersHeroEyebrow": "Providers",
+  "providersHeroTitle": "Trusted professionals,\nnear you.",
+  "providersHeroSubtitle": "Compare businesses and professionals by their customers' reviews and the price they start from.",
+  "providerSearchQuestion": "Which provider are you looking for?",
+  "providerSearchHint": "E.g. business or professional name..."
 }

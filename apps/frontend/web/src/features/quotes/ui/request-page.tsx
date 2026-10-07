@@ -2,9 +2,16 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BadgeCheck, PackageX, Plus, Star } from "lucide-react";
+import {
+  BadgeCheck,
+  ListOrdered,
+  PackageX,
+  Plus,
+  Star,
+  Store,
+} from "lucide-react";
 import { hasContact } from "@ntizo/shared/text";
-import { Button, Skeleton, buttonVariants } from "@ntizo/frontend-ui";
+import { Button, Skeleton, buttonVariants, cn } from "@ntizo/frontend-ui";
 import { BrandImage } from "@/shared/components/brand-image";
 import { EmptyCard } from "@/shared/components/empty-card";
 import { formatRating } from "@/shared/domain/rating";
@@ -15,14 +22,27 @@ import { useRequestQuote } from "@/features/quotes/viewmodel/use-my-quotes";
 import { useAttachments } from "@/features/messaging/viewmodel/use-attachments";
 import { QuoteAttachmentPicker } from "@/features/quotes/ui/attachment-picker";
 import { AddressForm } from "@/features/account/ui/address-form";
-import { useAddressMutations, useMyAddresses } from "@/features/account/viewmodel/use-addresses";
+import {
+  useAddressMutations,
+  useMyAddresses,
+} from "@/features/account/viewmodel/use-addresses";
+import {
+  CUSTOMER_CARD,
+  CardHead,
+  CustomerPageHeading,
+  DETAIL_GRID,
+  FIELD_LABEL,
+  MUTED_SMALL,
+  NumberedSteps,
+} from "@/features/account/ui/customer-page";
 
-const FORM_LABEL = "text-sm font-medium";
-const CAPTION =
-  "type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase";
-const CARD = "rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 sm:p-5";
+const FORM_LABEL = FIELD_LABEL;
+/** The base `Input`'s look, for the two native controls it does not cover. */
 const TEXT_FIELD =
-  "w-full rounded-[var(--radius-field)] border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-2.5 text-sm";
+  "w-full rounded-[var(--radius-field)] border border-[var(--color-input)] bg-[var(--color-background)] px-4 py-3 text-[15px] placeholder:text-[var(--color-faint)] focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] focus-visible:outline-none";
+/** A saved address to choose, as a radio row. */
+const ADDRESS_CHOICE =
+  "flex cursor-pointer items-start gap-3 rounded-[10px] border border-[var(--color-border)] bg-[var(--color-card)] p-4 has-[:checked]:border-[var(--color-blue-line)] has-[:checked]:bg-[var(--color-blue-softer)]";
 
 /** The three steps of the rail's "O que acontece a seguir" — a real sequence, so numbered rather than bulleted. */
 const NEXT_STEPS = [
@@ -117,10 +137,7 @@ export function RequestQuotePage({ serviceId }: { serviceId: string }) {
         title={td("serviceNotFoundTitle")}
         body={td("serviceNotFoundBody")}
         action={
-          <Link
-            to="/services"
-            className="rounded-full bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
-          >
+          <Link to="/services" className={buttonVariants({ size: "sm" })}>
             {td("serviceNotFoundAction")}
           </Link>
         }
@@ -139,7 +156,8 @@ export function RequestQuotePage({ serviceId }: { serviceId: string }) {
     if (hasContact(text)) return setRefusal("request.errorContact");
 
     const chosen = addresses.data?.find((a) => a.id === addressId) ?? null;
-    if (wantsAddress && chosen === null) return setRefusal("request.errorAddressRequired");
+    if (wantsAddress && chosen === null)
+      return setRefusal("request.errorAddressRequired");
 
     // Uploads run once, at submit, and resolve to null on the first failure —
     // never a partial list. The picker shows which file and why.
@@ -163,7 +181,8 @@ export function RequestQuotePage({ serviceId }: { serviceId: string }) {
   }
 
   const savedAddresses = addresses.data ?? [];
-  const addressFormOpen = addingAddress || (!addresses.isPending && savedAddresses.length === 0);
+  const addressFormOpen =
+    addingAddress || (!addresses.isPending && savedAddresses.length === 0);
   const busy = request.isPending || attachments.uploading;
 
   // No `<main>`/`page-shell` of its own — see the not-found branch's own
@@ -171,260 +190,273 @@ export function RequestQuotePage({ serviceId }: { serviceId: string }) {
   // form first on a phone, where only the unprefixed grid column exists —
   // an `order` pair here would fight that rather than describe it.
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-      <form onSubmit={submit} className="min-w-0 grid gap-6">
-        <div>
-          <p className="type-caption text-[var(--color-muted-foreground)]">{service.name}</p>
-          <h1 className="type-h1">{t("request.title")}</h1>
-          <p className="type-body mt-2 text-[var(--color-muted-foreground)]">
-            {t("request.lead", { provider: service.providerName })}
-          </p>
-        </div>
+    <div className="w-full max-w-[1400px]">
+      {/* The service named over the title, the way the done public pages put
+          a short label over a hero heading — in the muted colour, not a
+          tracked-out eyebrow. */}
+      <p className="m-0 mb-2 text-[15px] font-semibold text-[var(--color-primary)]">
+        {service.name}
+      </p>
+      <CustomerPageHeading
+        title={t("request.title")}
+        subtitle={t("request.lead", { provider: service.providerName })}
+      />
 
-        {/* The one thing on the page in the provider's own voice. */}
-        {form?.intro && (
-          <div className={`${CARD} bg-[var(--color-muted)]`}>
-            <p className="type-body">
-              <span className="font-semibold">
-                {t("request.introBy", { provider: service.providerName })}
-              </span>{" "}
-              {form.intro}
+      <div className={cn("mt-[30px]", DETAIL_GRID)}>
+        <form onSubmit={submit} className={cn(CUSTOMER_CARD, "grid gap-6")}>
+          {/* The one thing on the page in the provider's own voice. */}
+          {form?.intro && (
+            <div className="rounded-[14px] bg-[var(--color-blue-softer)] p-4 sm:p-5">
+              <p className="m-0 text-[15px] text-[var(--color-ink-2)]">
+                <span className="font-semibold text-[var(--color-headline)]">
+                  {t("request.introBy", { provider: service.providerName })}
+                </span>{" "}
+                {form.intro}
+              </p>
+            </div>
+          )}
+
+          <div className="grid gap-2">
+            <label htmlFor="quote-description" className={FORM_LABEL}>
+              {t("request.descriptionLabel")}
+            </label>
+            <textarea
+              id="quote-description"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder={t("request.descriptionPlaceholder")}
+              rows={5}
+              className={TEXT_FIELD}
+            />
+            <p className={cn("m-0", MUTED_SMALL)}>
+              {t("request.descriptionHint")}
             </p>
           </div>
-        )}
 
-        <div className="grid gap-1.5">
-          <label htmlFor="quote-description" className={FORM_LABEL}>
-            {t("request.descriptionLabel")}
-          </label>
-          <textarea
-            id="quote-description"
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder={t("request.descriptionPlaceholder")}
-            rows={5}
-            className={TEXT_FIELD}
-          />
-          <p className="type-caption text-[var(--color-muted-foreground)]">
-            {t("request.descriptionHint")}
-          </p>
-        </div>
+          {form?.askDeadline && (
+            <div className="grid gap-2">
+              <label htmlFor="quote-needed-by" className={FORM_LABEL}>
+                {t("request.neededByLabel")}{" "}
+                <span className="font-normal text-[var(--color-muted-foreground)]">
+                  ({t("request.optional")})
+                </span>
+              </label>
+              <input
+                id="quote-needed-by"
+                type="date"
+                value={neededBy}
+                onChange={(event) => setNeededBy(event.target.value)}
+                className={`${TEXT_FIELD} sm:w-56`}
+              />
+            </div>
+          )}
 
-        {form?.askDeadline && (
-          <div className="grid gap-1.5">
-            <label htmlFor="quote-needed-by" className={FORM_LABEL}>
-              {t("request.neededByLabel")}{" "}
-              <span className="font-normal text-[var(--color-muted-foreground)]">
-                ({t("request.optional")})
-              </span>
-            </label>
-            <input
-              id="quote-needed-by"
-              type="date"
-              value={neededBy}
-              onChange={(event) => setNeededBy(event.target.value)}
-              className={`${TEXT_FIELD} sm:w-56`}
-            />
-          </div>
-        )}
+          {form?.askPhotos && (
+            <div className="grid gap-2">
+              <p className={FORM_LABEL}>{t("request.photosLabel")}</p>
+              <QuoteAttachmentPicker
+                inputId="quote-photos"
+                label={t("request.photosAction")}
+                hint={t("request.photosHint")}
+                files={attachments.files}
+                onAdd={attachments.add}
+                onRemove={attachments.remove}
+                disabled={attachments.uploading}
+              />
+            </div>
+          )}
 
-        {form?.askPhotos && (
-          <div className="grid gap-2">
-            <p className={FORM_LABEL}>{t("request.photosLabel")}</p>
-            <QuoteAttachmentPicker
-              inputId="quote-photos"
-              label={t("request.photosAction")}
-              hint={t("request.photosHint")}
-              files={attachments.files}
-              onAdd={attachments.add}
-              onRemove={attachments.remove}
-              disabled={attachments.uploading}
-            />
-          </div>
-        )}
-
-        {wantsAddress && (
-          <div className="grid gap-2">
-            {addresses.isPending ? (
-              <Skeleton className="h-16 w-full" />
-            ) : addresses.isError ? (
-              <div role="alert" className="grid justify-items-start gap-3">
-                <p className="type-body text-[var(--color-destructive)]">
-                  {t("request.addressLoadError")}
-                </p>
-                <Button type="button" variant="outline" onClick={() => void addresses.refetch()}>
-                  {t("request.retry")}
-                </Button>
-              </div>
-            ) : (
-              <fieldset className="grid gap-3 border-0 p-0">
-                {/* Sr-only: nothing above this fieldset names the group
-                    visually, and `addressNote` right below already reads as
-                    the section's caption for a sighted customer. */}
-                <legend className="sr-only">{t("request.addressLegend")}</legend>
-
-                {savedAddresses.map((address) => (
-                  <label
-                    key={address.id}
-                    className="flex cursor-pointer items-start gap-3 rounded-[var(--radius-card-sm)] border border-[var(--color-border)] p-4"
-                  >
-                    <input
-                      type="radio"
-                      name="quote-address"
-                      value={address.id}
-                      checked={addressId === address.id}
-                      onChange={() => setAddressId(address.id)}
-                      className="mt-1 h-4 w-4 accent-[var(--color-primary)]"
-                    />
-                    <span className="min-w-0">
-                      <span className="type-body-medium block font-semibold">
-                        {address.label}
-                      </span>
-                      <span className="type-caption block text-[var(--color-muted-foreground)]">
-                        {addressSummary(address)}
-                      </span>
-                    </span>
-                  </label>
-                ))}
-
-                {addressFormOpen ? (
-                  <AddressForm
-                    ariaLabel={t("request.addressLegend")}
-                    submitting={add.isPending}
-                    // No way out when there is nothing to go back to: a
-                    // customer with no saved address has to add one to
-                    // continue.
-                    {...(savedAddresses.length > 0
-                      ? { onCancel: () => setAddingAddress(false) }
-                      : {})}
-                    onSubmit={async (values) => {
-                      const id = await add.mutateAsync(values);
-                      // Awaited before selecting it, so the new row is in
-                      // the list the radio group is rendering from by the
-                      // time it is the chosen one.
-                      await addresses.refetch();
-                      setAddressId(id);
-                      setAddingAddress(false);
-                    }}
-                  />
-                ) : (
+          {wantsAddress && (
+            <div className="grid gap-2">
+              {addresses.isPending ? (
+                <Skeleton className="h-16 w-full" />
+              ) : addresses.isError ? (
+                <div role="alert" className="grid justify-items-start gap-3">
+                  <p className="type-body text-[var(--color-destructive)]">
+                    {t("request.addressLoadError")}
+                  </p>
                   <Button
                     type="button"
                     variant="outline"
-                    className="justify-self-start"
-                    onClick={() => setAddingAddress(true)}
+                    onClick={() => void addresses.refetch()}
                   >
-                    <Plus className="h-4 w-4" aria-hidden="true" />
-                    {t("request.addressAddAction")}
+                    {t("request.retry")}
                   </Button>
-                )}
-              </fieldset>
-            )}
-            <p className="type-caption text-[var(--color-muted-foreground)]">
-              {t("request.addressNote")}
+                </div>
+              ) : (
+                <fieldset className="grid gap-3 border-0 p-0">
+                  {/* Sr-only: nothing above this fieldset names the group
+                    visually, and `addressNote` right below already reads as
+                    the section's caption for a sighted customer. */}
+                  <legend className="sr-only">
+                    {t("request.addressLegend")}
+                  </legend>
+
+                  {savedAddresses.map((address) => (
+                    <label key={address.id} className={ADDRESS_CHOICE}>
+                      <input
+                        type="radio"
+                        name="quote-address"
+                        value={address.id}
+                        checked={addressId === address.id}
+                        onChange={() => setAddressId(address.id)}
+                        className="mt-1 h-4 w-4 accent-[var(--color-primary)]"
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-[15px] font-semibold text-[var(--color-headline)]">
+                          {address.label}
+                        </span>
+                        <span className={cn("block", MUTED_SMALL)}>
+                          {addressSummary(address)}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+
+                  {addressFormOpen ? (
+                    <AddressForm
+                      ariaLabel={t("request.addressLegend")}
+                      submitting={add.isPending}
+                      // No way out when there is nothing to go back to: a
+                      // customer with no saved address has to add one to
+                      // continue.
+                      {...(savedAddresses.length > 0
+                        ? { onCancel: () => setAddingAddress(false) }
+                        : {})}
+                      onSubmit={async (values) => {
+                        const id = await add.mutateAsync(values);
+                        // Awaited before selecting it, so the new row is in
+                        // the list the radio group is rendering from by the
+                        // time it is the chosen one.
+                        await addresses.refetch();
+                        setAddressId(id);
+                        setAddingAddress(false);
+                      }}
+                    />
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="justify-self-start"
+                      onClick={() => setAddingAddress(true)}
+                    >
+                      <Plus aria-hidden="true" />
+                      {t("request.addressAddAction")}
+                    </Button>
+                  )}
+                </fieldset>
+              )}
+              <p className={cn("m-0", MUTED_SMALL)}>
+                {t("request.addressNote")}
+              </p>
+            </div>
+          )}
+
+          {refusal && (
+            <p
+              role="alert"
+              className="m-0 text-[15px] font-medium text-[var(--color-destructive)]"
+            >
+              {t(refusal)}
             </p>
+          )}
+
+          <div className="flex flex-wrap gap-3 border-t border-[var(--color-line-2)] pt-6">
+            <Button type="submit" disabled={busy}>
+              {t("request.submit")}
+            </Button>
+            <Link
+              to="/services/$id"
+              params={{ id: serviceId }}
+              className={buttonVariants({ variant: "outline" })}
+            >
+              {t("request.cancel")}
+            </Link>
           </div>
-        )}
+        </form>
 
-        {refusal && (
-          <p role="alert" className="type-caption text-[var(--color-destructive)]">
-            {t(refusal)}
-          </p>
-        )}
-
-        <div className="flex flex-wrap gap-3">
-          <Button type="submit" disabled={busy}>
-            {t("request.submit")}
-          </Button>
-          <Link
-            to="/services/$id"
-            params={{ id: serviceId }}
-            className={buttonVariants({ variant: "outline" })}
-          >
-            {t("request.cancel")}
-          </Link>
-        </div>
-      </form>
-
-      <aside className="grid gap-6 lg:self-start">
-        <section className={CARD}>
-          <h2 className={CAPTION}>{t("request.railWho")}</h2>
-          <div className="mt-3 flex items-center gap-3">
-            <span className="h-12 w-12 shrink-0 overflow-hidden rounded-full">
-              <BrandImage
-                src={service.providerLogoUrl}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            </span>
-            <div className="min-w-0">
-              <p className="type-body-medium truncate font-semibold">{service.providerName}</p>
-              {/* Each half disappears on its own when it has nothing to
+        <aside className="grid gap-6 lg:sticky lg:top-6">
+          <section className={CUSTOMER_CARD}>
+            <CardHead icon={Store} title={t("request.railWho")} />
+            <div className="mt-5 flex items-center gap-4">
+              <span className="h-[58px] w-[58px] shrink-0 overflow-hidden rounded-full">
+                <BrandImage
+                  src={service.providerLogoUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              </span>
+              <div className="min-w-0">
+                <p className="m-0 truncate text-base font-bold text-[var(--color-headline)]">
+                  {service.providerName}
+                </p>
+                {/* Each half disappears on its own when it has nothing to
                   say — an unreviewed business shows no score rather than a
                   zero, and an unverified one shows no badge rather than a
                   greyed-out promise. The same rule `checkout-rail`'s trust
                   line and `booking-page.tsx`'s `trustLine` both state in
                   full. */}
-              <p className="type-caption flex flex-wrap items-center gap-x-1.5 text-[var(--color-muted-foreground)]">
-                {service.providerRatingAverage !== null && (
-                  <span className="inline-flex items-center gap-0.5 tabular-nums">
-                    {formatRating(service.providerRatingAverage, locale)}
-                    <Star
-                      className="h-3 w-3 fill-[var(--color-warning)] text-[var(--color-warning)]"
-                      aria-hidden="true"
-                    />
-                  </span>
-                )}
-                {service.providerVerified && (
-                  <>
-                    {service.providerRatingAverage !== null && (
-                      <span aria-hidden="true">·</span>
-                    )}
-                    <span className="inline-flex items-center gap-0.5">
-                      <BadgeCheck
-                        className="h-3.5 w-3.5 text-[var(--color-success)]"
+                <p
+                  className={cn(
+                    "m-0 mt-0.5 flex flex-wrap items-center gap-x-1.5",
+                    MUTED_SMALL,
+                  )}
+                >
+                  {service.providerRatingAverage !== null && (
+                    <span className="inline-flex items-center gap-0.5 tabular-nums">
+                      {formatRating(service.providerRatingAverage, locale)}
+                      <Star
+                        className="h-3.5 w-3.5 fill-[var(--color-star)] text-[var(--color-star)]"
                         aria-hidden="true"
                       />
-                      {t("request.verified")}
                     </span>
-                  </>
-                )}
-              </p>
+                  )}
+                  {service.providerVerified && (
+                    <>
+                      {service.providerRatingAverage !== null && (
+                        <span aria-hidden="true">·</span>
+                      )}
+                      <span className="inline-flex items-center gap-1">
+                        <BadgeCheck
+                          className="h-4 w-4 text-[var(--color-primary)]"
+                          aria-hidden="true"
+                        />
+                        {t("request.verified")}
+                      </span>
+                    </>
+                  )}
+                </p>
+              </div>
             </div>
-          </div>
-          {form && (
-            <p className="type-caption mt-3 text-[var(--color-muted-foreground)]">
-              {t("request.railPromise", { hours: form.responseHours })}
-            </p>
-          )}
-        </section>
+            {form && (
+              <p
+                className={cn(
+                  "m-0 mt-4 border-t border-[var(--color-line-2)] pt-4",
+                  MUTED_SMALL,
+                )}
+              >
+                {t("request.railPromise", { hours: form.responseHours })}
+              </p>
+            )}
+          </section>
 
-        <section className={CARD}>
-          <h2 className={CAPTION}>{t("request.railNextTitle")}</h2>
-          <ol className="mt-3 grid list-none gap-3 p-0">
-            {NEXT_STEPS.map(([titleKey, bodyKey], index) => (
-              <li key={titleKey} className="flex items-start gap-3">
-                <span
-                  aria-hidden="true"
-                  className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[var(--color-muted)] text-xs font-bold text-[var(--color-primary)]"
-                >
-                  {index + 1}
-                </span>
-                <div className="min-w-0">
-                  <p className="type-body-medium font-semibold">{t(titleKey)}</p>
-                  <p className="type-caption text-[var(--color-muted-foreground)]">
-                    {t(bodyKey)}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
+          <section className={CUSTOMER_CARD}>
+            <CardHead icon={ListOrdered} title={t("request.railNextTitle")} />
+            <div className="mt-5">
+              <NumberedSteps
+                steps={NEXT_STEPS.map(([titleKey, bodyKey]) => ({
+                  key: titleKey,
+                  title: t(titleKey),
+                  body: t(bodyKey),
+                }))}
+              />
+            </div>
+          </section>
 
-        <p className="type-caption text-[var(--color-muted-foreground)]">
-          {t("request.railFooter")}
-        </p>
-      </aside>
+          <p className={cn("m-0", MUTED_SMALL)}>{t("request.railFooter")}</p>
+        </aside>
+      </div>
     </div>
   );
 }

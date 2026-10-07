@@ -294,5 +294,10 @@
   "servicesCountValue_other": "{{count}} Leistungen",
   "trustVerifiedReviewed": "Geprüfter Anbieter mit echten Bewertungen.",
   "availabilityPreviousMonth": "Vorheriger Monat",
-  "availabilityNextMonth": "Nächster Monat"
+  "availabilityNextMonth": "Nächster Monat",
+  "providersHeroEyebrow": "Anbieter",
+  "providersHeroTitle": "Vertrauenswürdige Profis\nin Ihrer Nähe.",
+  "providersHeroSubtitle": "Vergleichen Sie Betriebe und Profis nach den Bewertungen ihrer Kunden und dem Preis, ab dem sie arbeiten.",
+  "providerSearchQuestion": "Welchen Anbieter suchen Sie?",
+  "providerSearchHint": "z. B. Name des Betriebs oder der Fachkraft..."
 }

@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Clock, LayoutGrid } from "lucide-react";
-import { Button } from "@ntizo/frontend-ui";
+import { buttonVariants } from "@ntizo/frontend-ui";
 import { HeroQuestion } from "@/features/onboarding/ui/wizard-chrome";
 
 /**
@@ -20,15 +20,15 @@ export function PhaseReview({ providerName }: { providerName: string }) {
 
   return (
     <div className="text-center">
-      <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[color-mix(in_srgb,var(--color-warning)_16%,transparent)]">
-        <Clock className="h-7 w-7 text-[var(--color-warning)]" />
+      <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[var(--color-warn-bg)]">
+        <Clock className="h-7 w-7 text-[var(--color-warn-fg)]" />
       </span>
 
       <div className="mt-6">
         <HeroQuestion title={t("review.title", { name: providerName })} />
       </div>
 
-      <p className="type-body mx-auto -mt-4 max-w-[52ch] text-[var(--color-muted-foreground)]">
+      <p className="mx-auto text-[16.5px] leading-[1.5] -mt-4 max-w-[52ch] text-[var(--color-muted-foreground)]">
         {t("review.body")}
       </p>
 
@@ -36,17 +36,17 @@ export function PhaseReview({ providerName }: { providerName: string }) {
         {["profile", "services", "team"].map((key) => (
           <li
             key={key}
-            className="type-body flex items-start gap-3 rounded-[var(--radius-card-sm)] bg-[var(--color-muted)] px-4 py-3"
+            className="flex text-[15px] text-[var(--color-ink-2)] items-start gap-3 rounded-[14px] bg-[var(--color-blue-softer)] px-5 py-4"
           >
-            <LayoutGrid className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-primary)]" />
+            <LayoutGrid className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-primary)]" />
             {t(`review.meanwhile.${key}`)}
           </li>
         ))}
       </ul>
 
       <div className="mt-9">
-        <Link to="/provider">
-          <Button>{t("review.cta")}</Button>
+        <Link to="/provider" className={buttonVariants()}>
+          {t("review.cta")}
         </Link>
       </div>
     </div>

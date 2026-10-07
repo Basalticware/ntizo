@@ -23,6 +23,11 @@ import { HeroCollage } from "@/features/landing/ui/hero-collage";
  * header on every page now, so a field under the subtitle would be the same
  * question asked twice in one screenful.
  *
+ * **Type and colour are `/services`' hero's** (October 2026): the 53px navy
+ * title, the 17px grey line, the brand-blue glyphs — so the home and the
+ * listing it leads to read as one site. The photograph beside it is the same
+ * artwork that hero carries.
+ *
  * The provider's door is deliberately not in this header. It sat among the
  * destinations for one day and cost the search bar its centring on this page
  * alone — the "centring that failed" look the user had already rejected twice
@@ -44,27 +49,32 @@ export function Hero() {
           between the last trust claim and "Explorar por categoria", measured
           at 390px on the deployed page. The phone now falls back to the same
           rhythm as every other junction. */}
-      <section className="page-shell grid items-center gap-10 pt-12 lg:grid-cols-[minmax(0,1fr)_580px] lg:gap-[72px] lg:pb-14">
-        <div>
-          <h1 className="font-display max-w-[13ch] text-[clamp(2.4rem,5.2vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em] text-[var(--color-headline)]">
+      {/* `/services`' hero grid: the text inset by the page's `--pw-pad`,
+          the photograph running out to the window's right edge. */}
+      <section className="mx-auto grid max-w-[1440px] lg:grid-cols-[minmax(0,1fr)_minmax(0,730px)] lg:gap-x-6 lg:pb-14">
+        <div className="pt-[22px] pr-[var(--pw-pad)] pl-[var(--pw-pad)] lg:pr-0">
+          <h1 className="max-w-[13ch] text-[36px] leading-[1.02] font-extrabold tracking-[-0.02em] text-[var(--color-headline)] lg:text-[53px]">
             {t("home.heroTitle")}
           </h1>
-          <p className="mt-5 max-w-[46ch] text-[17px] leading-relaxed text-[var(--color-foreground)]">
+          <p className="mt-3.5 max-w-[46ch] text-[17px] leading-normal text-[var(--color-muted-foreground)]">
             {t("home.heroSubtitle")}
           </p>
           {/* Three claims the read models can support today. The version this
               replaces promised "payment held until it's done", which nothing
               on the platform does. */}
-          <ul className="mt-7 flex flex-wrap gap-x-7 gap-y-2.5">
+          <ul className="mt-7 flex flex-wrap gap-x-7 gap-y-3">
             {[
               { Icon: Tag, label: t("home.proofPrice") },
               { Icon: ShieldCheck, label: t("home.proofVerified") },
               { Icon: Smartphone, label: t("home.proofPayment") },
             ].map(({ Icon, label }) => (
-              <li key={label} className="flex items-center gap-2.5 text-sm font-medium">
+              <li
+                key={label}
+                className="flex items-center gap-2.5 text-[15px] font-medium text-[var(--color-ink-2)]"
+              >
                 <Icon
-                  className="h-5 w-5 text-[var(--color-headline)]"
-                  strokeWidth={1.7}
+                  className="h-5 w-5 text-[var(--color-primary)]"
+                  strokeWidth={2}
                   aria-hidden="true"
                 />
                 {label}

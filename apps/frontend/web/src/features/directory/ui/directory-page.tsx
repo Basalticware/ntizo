@@ -26,6 +26,9 @@ import { useFavouriteMarks } from "@/features/favourites/viewmodel/use-favourite
 import { FavouriteButton } from "@/features/favourites/ui/favourite-button";
 import { SaveToListDialog } from "@/features/favourites/ui/save-to-list-dialog";
 import { ProviderCard } from "@/shared/components/browse/provider-card";
+import { VerifiedBanner } from "@/features/directory/services/ui/browse-aside";
+import { DirectoryHero, DirectorySearchBar } from "@/features/directory/ui/directory-hero";
+import { ProviderCategories } from "@/features/directory/ui/directory-aside";
 import {
   MobileProviderFilters,
   ProviderFilters,
@@ -171,7 +174,10 @@ export function DirectoryPage() {
     current.maxPrice != null;
 
   return (
-    <>
+    // `--pw-pad` is `/services`' own inset, 100px at a 1440px window, and the
+    // header reads the same variable, so the logo, the hero's text and the
+    // results all start on one line — on both browse pages.
+    <div className="[--pw-pad:clamp(16px,7.3vw,100px)]">
       {/* The site's search, not a search this page invented, and inside the
           header rather than in a band of its own beneath it: it is the same
           bar on every page, so it belongs to the chrome. Pointed at this list
@@ -193,159 +199,175 @@ export function DirectoryPage() {
         }}
       />
 
+      <main className="mx-auto max-w-[1440px]">
+        {/* The hero's headline until the reader narrows the list; then what
+            they asked for, which is what `directoryTitle` is for. */}
+        <DirectoryHero
+          title={title.key === "titleProviders" ? t("providersHeroTitle") : t(title.key, title.values)}
+        />
 
-      {/* The floating capsule is `fixed` and covers whatever the page ends
-          with — which is the pager, so "Next →" was sitting behind it and
-          could not be pressed. The root layout's own `pb-14` clears
-          `MobileNav` and nothing more; this clears the capsule above it, and
-          stops at `lg`, where the capsule is hidden and the pills take over. */}
-      <main className="page-shell pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-14">
-        <div className="flex items-end justify-between gap-5 pt-6 pb-3.5">
-          <div>
-            <h1 className="text-[26px] leading-tight font-bold tracking-[-0.02em] text-[var(--color-headline)]">
-              {t(title.key, title.values)}
-            </h1>
-            {/* Two translated pieces, and the second is a whole clause per
-                scope — never "in" plus a name. That is what lets a language
-                order, inflect or case the category and the city as its own
-                grammar needs, instead of receiving them in the order English
-                happened to put them.
+        {/* The floating capsule is `fixed` and covers whatever the page ends
+            with — which is the pager, so "Next →" was sitting behind it and
+            could not be pressed. The root layout's own `pb-14` clears
+            `MobileNav` and nothing more; this clears the capsule above it,
+            and stops at `lg`, where the capsule is hidden and the pills take
+            over. */}
+        <div className="grid items-start gap-x-9 gap-y-10 pt-6 pr-[var(--pw-pad)] pb-[calc(7rem+env(safe-area-inset-bottom))] pl-[var(--pw-pad)] lg:grid-cols-[minmax(0,1fr)_327px] lg:pr-[clamp(16px,2.6vw,36px)] lg:pb-12">
+          <div className="min-w-0">
+            <DirectorySearchBar current={current} />
 
-                `scopeValues`, not the heading's: a typed term outranks the
-                category above, so reusing `title.values` printed "0 businesses
-                found in all categories" over a search inside a category whose
-                chip was lit two lines up. The clause names what is filtering. */}
-            <p className="mt-1 text-[14.5px] text-[var(--color-muted-foreground)]">
-              <b className="font-semibold text-[var(--color-foreground)]">
-                {t("providersFound", { count: page.total })}
-              </b>{" "}
-              {t(`resultsScope.${resultsScope(scope)}`, scope)}
-            </p>
-          </div>
+            <ProviderFilters current={current} />
 
-          {/* One sort per width: the phone's copy rides in the floating
-              capsule (see `MobileProviderFilters`), so this one is drawn only
-              where that capsule is not. Both read the same list and write
-              through the same chooser, so they can never come to offer
-              different orders. */}
-          <SortDropdown
-            active={sort}
-            options={providerSortOptions(t)}
-            sortLabel={t("sortTrigger")}
-            triggerClassName="hidden text-[var(--color-headline)] lg:inline-flex"
-            onChoose={chooseProviderSort(navigate, current)}
-          />
-        </div>
+            <div className="mt-[30px] flex flex-wrap items-center gap-3">
+              {/* Two translated pieces, and the second is a whole clause per
+                  scope — never "in" plus a name. That is what lets a language
+                  order, inflect or case the category and the city as its own
+                  grammar needs, instead of receiving them in the order English
+                  happened to put them.
 
-        <ProviderFilters current={current} />
+                  `scopeValues`, not the heading's: a typed term outranks the
+                  category above, so reusing `title.values` printed "0
+                  businesses found in all categories" over a search inside a
+                  category whose chip was lit two lines up. The clause names
+                  what is filtering. */}
+              <p className="text-xl text-[var(--color-headline)]">
+                <b className="font-extrabold">{t("providersFound", { count: page.total })}</b>{" "}
+                <span className="text-[var(--color-muted-foreground)]">
+                  {t(`resultsScope.${resultsScope(scope)}`, scope)}
+                </span>
+              </p>
 
+              {/* One sort per width: the phone's copy rides in the floating
+                  capsule (see `MobileProviderFilters`), so this one is drawn
+                  only where that capsule is not. Both read the same list and
+                  write through the same chooser, so they can never come to
+                  offer different orders. */}
+              <SortDropdown
+                boxed
+                active={sort}
+                options={providerSortOptions(t)}
+                sortLabel={t("sortTrigger")}
+                triggerClassName="ml-auto hidden lg:flex"
+                onChoose={chooseProviderSort(navigate, current)}
+              />
+            </div>
 
-        {page.items.length === 0 ? (
-          // Two different sentences, because they are two different
-          // situations. An empty platform is "nobody has joined yet"; an
-          // empty search is "nothing matches", and telling a reader who
-          // filtered that the platform is empty is simply false. Only the
-          // first is an empty list, so only the first carries the mark.
-          isNarrowed ? (
-            <EmptyCard icon={SearchX} title={t("noResultsTitle")} body={t("noResultsHint")} />
-          ) : (
-            <EmptyCard badge={Store} title={t("emptyTitle")} body={t("empty")} />
-          )
-        ) : (
-          <>
-            {/* The same grid `/services` lays its cards in — four across at
-                `lg`, two at `sm`, one below it — because the two pages are
-                meant to be twins and a provider is now drawn on the same
-                bordered card a service is. The gap is the only separation
-                a card needs: it already draws its own border, so a hairline
-                between two bordered boxes would be a second separation
-                doing the first one's job. */}
-            <ul className="grid list-none grid-cols-1 gap-x-6 gap-y-8 p-0 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {page.items.map((provider) => (
-                <li key={provider.id}>
-                  <ProviderCard
-                    provider={provider}
-                    locale={locale}
-                    favourite={
-                      <FavouriteButton
-                        targetType="provider"
-                        targetId={provider.id}
-                        saved={marks.isMarked(provider.id)}
-                        // Fires when the save answers, never on the press:
-                        // the lists come from the mutation's own data, so the
-                        // dialog opens already knowing which are ticked. A
-                        // press on an already-filled heart brings none, and
-                        // the dialog asks for itself.
-                        onSaved={({ listIds }) =>
-                          setFiling({ provider, ...(listIds ? { listIds } : {}) })
+            {page.items.length === 0 ? (
+              // Two different sentences, because they are two different
+              // situations. An empty platform is "nobody has joined yet"; an
+              // empty search is "nothing matches", and telling a reader who
+              // filtered that the platform is empty is simply false. Only the
+              // first is an empty list, so only the first carries the mark.
+              <div className="mt-5">
+                {isNarrowed ? (
+                  <EmptyCard icon={SearchX} title={t("noResultsTitle")} body={t("noResultsHint")} />
+                ) : (
+                  <EmptyCard badge={Store} title={t("emptyTitle")} body={t("empty")} />
+                )}
+              </div>
+            ) : (
+              <>
+                {/* `/services`' grid exactly — three across from `md`, two at
+                    `sm`, one below it, 24px apart — because the two pages are
+                    twins and a provider is drawn on the same card a service
+                    is. The card draws its own edge, so the gap is the only
+                    separation it needs. */}
+                <ul className="mt-5 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 md:grid-cols-3">
+                  {page.items.map((provider) => (
+                    <li key={provider.id}>
+                      <ProviderCard
+                        provider={provider}
+                        locale={locale}
+                        favourite={
+                          <FavouriteButton
+                            targetType="provider"
+                            targetId={provider.id}
+                            saved={marks.isMarked(provider.id)}
+                            // Fires when the save answers, never on the press:
+                            // the lists come from the mutation's own data, so the
+                            // dialog opens already knowing which are ticked. A
+                            // press on an already-filled heart brings none, and
+                            // the dialog asks for itself.
+                            onSaved={({ listIds }) =>
+                              setFiling({ provider, ...(listIds ? { listIds } : {}) })
+                            }
+                          />
                         }
                       />
-                    }
-                  />
-                </li>
-              ))}
-            </ul>
+                    </li>
+                  ))}
+                </ul>
 
-            <Pager
-              total={page.total}
-              pageSize={DIRECTORY_PAGE_SIZE}
-              offset={offset}
-              label={t("pagerLabel")}
-              renderPage={(slot) => (
-                <Link
-                  key={slot.page}
-                  to="/providers"
-                  activeOptions={EXACT_MATCH}
-                  search={directorySearch(current, { offset: slot.offset })}
-                  aria-current={slot.current ? "page" : undefined}
-                  className={pagerPageClass(slot.current)}
-                >
-                  {slot.page}
-                </Link>
-              )}
-              {...(offset > 0
-                ? {
-                    previous: (
-                      <Link
-                        to="/providers"
-                        activeOptions={EXACT_MATCH}
-                        search={directorySearch(current, {
-                          offset: Math.max(offset - DIRECTORY_PAGE_SIZE, 0),
-                        })}
-                        className={PAGER_EDGE_CLASS}
-                      >
-                        {t("providersPrevious")}
-                      </Link>
-                    ),
-                  }
-                : {})}
-              {...(offset + DIRECTORY_PAGE_SIZE < page.total
-                ? {
-                    next: (
-                      <Link
-                        to="/providers"
-                        // Stepped from the total rather than from a
-                        // server-issued cursor: `providerPageReadModel`
-                        // carries a count and no `nextOffset`, because this
-                        // directory pages by a fixed size rather than
-                        // scrolling further. Never `offset + items.length` —
-                        // a row dropped for being unrenderable still occupied
-                        // a position in the underlying order, and stepping by
-                        // the shorter number would fetch it again forever.
-                        activeOptions={EXACT_MATCH}
-                        search={directorySearch(current, {
-                          offset: offset + DIRECTORY_PAGE_SIZE,
-                        })}
-                        className={PAGER_EDGE_CLASS}
-                      >
-                        {t("providersNext")}
-                      </Link>
-                    ),
-                  }
-                : {})}
-            />
-          </>
-        )}
+                <Pager
+                  total={page.total}
+                  pageSize={DIRECTORY_PAGE_SIZE}
+                  offset={offset}
+                  label={t("pagerLabel")}
+                  renderPage={(slot) => (
+                    <Link
+                      key={slot.page}
+                      to="/providers"
+                      activeOptions={EXACT_MATCH}
+                      search={directorySearch(current, { offset: slot.offset })}
+                      aria-current={slot.current ? "page" : undefined}
+                      className={pagerPageClass(slot.current)}
+                    >
+                      {slot.page}
+                    </Link>
+                  )}
+                  {...(offset > 0
+                    ? {
+                        previous: (
+                          <Link
+                            to="/providers"
+                            activeOptions={EXACT_MATCH}
+                            search={directorySearch(current, {
+                              offset: Math.max(offset - DIRECTORY_PAGE_SIZE, 0),
+                            })}
+                            className={PAGER_EDGE_CLASS}
+                          >
+                            {t("providersPrevious")}
+                          </Link>
+                        ),
+                      }
+                    : {})}
+                  {...(offset + DIRECTORY_PAGE_SIZE < page.total
+                    ? {
+                        next: (
+                          <Link
+                            to="/providers"
+                            // Stepped from the total rather than from a
+                            // server-issued cursor: `providerPageReadModel`
+                            // carries a count and no `nextOffset`, because this
+                            // directory pages by a fixed size rather than
+                            // scrolling further. Never `offset + items.length` —
+                            // a row dropped for being unrenderable still occupied
+                            // a position in the underlying order, and stepping by
+                            // the shorter number would fetch it again forever.
+                            activeOptions={EXACT_MATCH}
+                            search={directorySearch(current, {
+                              offset: offset + DIRECTORY_PAGE_SIZE,
+                            })}
+                            className={PAGER_EDGE_CLASS}
+                          >
+                            {t("providersNext")}
+                          </Link>
+                        ),
+                      }
+                    : {})}
+                />
+              </>
+            )}
+          </div>
+
+          {/* `/services`' side column, in the directory's terms: the
+              platform's categories, each opening the businesses in it, and
+              the same static note about what the platform checks. */}
+          <aside className="hidden flex-col gap-7 lg:flex">
+            <ProviderCategories />
+            <VerifiedBanner />
+          </aside>
+        </div>
       </main>
 
       <MobileProviderFilters current={current} total={page.total} />
@@ -362,7 +384,7 @@ export function DirectoryPage() {
           {...(filing.listIds ? { savedListIds: filing.listIds } : {})}
         />
       )}
-    </>
+    </div>
   );
 }
 

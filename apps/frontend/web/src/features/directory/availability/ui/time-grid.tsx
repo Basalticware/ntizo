@@ -121,7 +121,7 @@ function HalfDay({
                 "grid h-[58px] w-full place-content-center rounded-[9px] border text-center transition-colors",
                 selected
                   ? "border-[var(--color-blue-public)] bg-[var(--color-blue-public)] font-semibold text-white"
-                  : "border-[#e8edf4] font-medium text-[#0b1440] hover:border-[var(--color-blue-line)]",
+                  : "border-[var(--color-border)] font-medium text-[var(--color-headline)] hover:border-[var(--color-blue-line)]",
               )}
             >
               <span aria-hidden="true" className="text-lg tabular-nums">

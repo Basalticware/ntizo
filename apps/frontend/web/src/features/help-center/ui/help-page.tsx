@@ -7,7 +7,8 @@ import { useFaqEntries } from "@/features/help-center/ui/help-faq";
 import { useHelpCenter } from "@/features/help-center/viewmodel/use-help-center";
 import { CONTACT } from "@/shared/lib/contact";
 import { SectionHead } from "@/features/landing/ui/section-head";
-import { CARD_SURFACE_CLASS } from "@/shared/components/card-surface";
+import { Button } from "@ntizo/frontend-ui";
+import { INFO_PANEL_CLASS } from "@/features/landing/ui/public-page";
 
 /**
  * The FAQ, on a page anyone can link to and a crawler can read.
@@ -32,11 +33,13 @@ export function HelpPage() {
   return (
     <CompanyPage page="help" title={t("page.title")} lede={t("page.lede")}>
       {/* The page's own gutter. `CompanyPage` puts its opening inside
-          `page-shell` and hands `children` through untouched, because every
+          `public-inset` and hands `children` through untouched, because every
           other page it frames brings its own — this one never did, so the
           categories and every accordion row ran the full width of the window
-          while the heading above them sat in the column. */}
-      <div className="page-shell grid gap-10 pb-14">
+          while the heading above them sat in the column. The answers read
+          best at a measure, so the column stops at 860px. */}
+      <div className="public-inset pb-14">
+        <div className="grid max-w-[860px] gap-10">
         {FAQ_CATEGORIES.map((category) => (
           <section key={category.id} id={category.id} className="scroll-mt-24">
             <SectionHead title={t(`faq.${category.id}.title`)} />
@@ -48,26 +51,25 @@ export function HelpPage() {
           </section>
         ))}
 
-        <section className={`grid gap-2 ${CARD_SURFACE_CLASS}`}>
-          <h2 className="font-display text-[20px] font-bold text-[var(--color-headline)]">
+        {/* The way out, on the soft blue info panel, with the system's
+            primary button. */}
+        <section className={`grid gap-2 ${INFO_PANEL_CLASS}`}>
+          <h2 className="text-[20px] font-extrabold text-[var(--color-headline)]">
             {t("page.contactTitle")}
           </h2>
-          <p className="type-body text-[var(--color-muted-foreground)]">{t("page.contactBody")}</p>
-          <button
-            type="button"
-            onClick={() => help.composeNew()}
-            className="type-body-medium justify-self-start rounded-full bg-[var(--color-navy-surface)] px-5 py-2.5 text-[var(--color-navy-on)]"
-          >
+          <p className="text-[16px] leading-relaxed text-[var(--color-ink-2)]">{t("page.contactBody")}</p>
+          <Button type="button" onClick={() => help.composeNew()} className="mt-2 justify-self-start">
             {t("page.contactAction")}
-          </button>
-          <p className="type-caption text-[var(--color-muted-foreground)]">
+          </Button>
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
             {t("page.contactEmailPrefix")}{" "}
-            <a href={`mailto:${CONTACT.support}`} className="text-[var(--color-headline)] underline decoration-[var(--color-border-strong)] underline-offset-4">
+            <a href={`mailto:${CONTACT.support}`} className="font-semibold text-[var(--color-primary)] hover:underline">
               {CONTACT.support}
             </a>
             .
           </p>
         </section>
+        </div>
       </div>
     </CompanyPage>
   );

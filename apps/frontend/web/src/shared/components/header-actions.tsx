@@ -35,7 +35,7 @@ interface HeaderActionsProps {
 function headerBellClassName(onDark: boolean): string {
   return onDark
     ? "rounded-full p-1.5 text-white/90 hover:bg-white/15"
-    : "rounded-full p-1.5 text-[#2b3a66] hover:bg-[var(--color-muted)]";
+    : "rounded-full p-1.5 text-[var(--color-ink-2)] hover:bg-[var(--color-muted)]";
 }
 
 /**
@@ -62,7 +62,7 @@ export function HeaderActions({
   return (
     <div className="flex items-center gap-[18px]">
       <LanguageSwitcher
-        className={onDark ? "text-white/90 hover:bg-white/15" : "text-[#2b3a66]"}
+        className={onDark ? "text-white/90 hover:bg-white/15" : "text-[var(--color-ink-2)]"}
       />
       {!showAccount ? null : user ? (
         <>

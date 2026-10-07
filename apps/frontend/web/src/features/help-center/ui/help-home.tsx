@@ -23,7 +23,7 @@ export function HelpHome({ signedIn, unreadCount }: { signedIn: boolean; unreadC
   );
 
   return (
-    <div className="grid gap-4 p-4">
+    <div className="grid gap-5 p-5">
       <HelpSearchField />
 
       {help.query.trim() ? (
@@ -34,20 +34,20 @@ export function HelpHome({ signedIn, unreadCount }: { signedIn: boolean; unreadC
             <div className="grid grid-cols-2 gap-3">
               <button type="button" onClick={() => help.composeNew()} className={CARD}>
                 <MessageSquarePlus aria-hidden="true" className="h-5 w-5 text-[var(--color-primary)]" />
-                <span className="type-body-medium">{t("actionMessage")}</span>
-                <span className="type-caption text-[var(--color-muted-foreground)]">{t("actionMessageBody")}</span>
+                <span className="text-[15px] font-semibold text-[var(--color-headline)]">{t("actionMessage")}</span>
+                <span className="text-[13px] text-[var(--color-muted-foreground)]">{t("actionMessageBody")}</span>
               </button>
               <button type="button" onClick={() => help.go("requests")} className={CARD}>
                 <span className="flex items-center gap-2">
                   <Inbox aria-hidden="true" className="h-5 w-5 text-[var(--color-primary)]" />
                   {unreadCount > 0 && (
-                    <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[var(--color-primary)] px-1 text-[11px] font-semibold text-[var(--color-primary-foreground)]">
+                    <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[var(--color-alert)] px-1 text-[12px] font-semibold text-white">
                       {unreadCount}
                     </span>
                   )}
                 </span>
-                <span className="type-body-medium">{t("actionRequests")}</span>
-                <span className="type-caption text-[var(--color-muted-foreground)]">{t("actionRequestsBody")}</span>
+                <span className="text-[15px] font-semibold text-[var(--color-headline)]">{t("actionRequests")}</span>
+                <span className="text-[13px] text-[var(--color-muted-foreground)]">{t("actionRequestsBody")}</span>
               </button>
             </div>
           ) : (
@@ -55,9 +55,7 @@ export function HelpHome({ signedIn, unreadCount }: { signedIn: boolean; unreadC
           )}
 
           <section className="grid gap-2">
-            <h3 className="type-caption font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
-              {t("popularTitle")}
-            </h3>
+            <h3 className="text-[15px] font-bold text-[var(--color-headline)]">{t("popularTitle")}</h3>
             <ul className="grid list-none gap-1.5 p-0">
               {popular.map((entry) => (
                 <li key={entry.id}>
@@ -67,14 +65,14 @@ export function HelpHome({ signedIn, unreadCount }: { signedIn: boolean; unreadC
                       help.setQuery(entry.question);
                       help.go("faq");
                     }}
-                    className="type-body w-full rounded-[var(--radius-card)] border border-[var(--color-border)] px-3.5 py-2.5 text-left hover:bg-[var(--color-muted)]"
+                    className="w-full rounded-[10px] border border-[var(--color-border)] px-4 py-3 text-left text-[15px] text-[var(--color-ink-2)] hover:border-[var(--color-blue-line)] hover:bg-[var(--color-blue-softer)]"
                   >
                     {entry.question}
                   </button>
                 </li>
               ))}
             </ul>
-            <button type="button" onClick={() => help.go("faq")} className="type-body-medium text-[var(--color-primary)] hover:underline">
+            <button type="button" onClick={() => help.go("faq")} className="justify-self-start text-sm font-semibold text-[var(--color-primary)] hover:underline">
               {t("browseAll")}
             </button>
           </section>
@@ -85,4 +83,4 @@ export function HelpHome({ signedIn, unreadCount }: { signedIn: boolean; unreadC
 }
 
 const CARD =
-  "grid gap-1 rounded-[var(--radius-card)] border border-[var(--color-border)] p-3.5 text-left hover:bg-[var(--color-muted)]";
+  "grid gap-1 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] p-4 text-left hover:border-[var(--color-blue-line)] hover:bg-[var(--color-blue-softer)]";

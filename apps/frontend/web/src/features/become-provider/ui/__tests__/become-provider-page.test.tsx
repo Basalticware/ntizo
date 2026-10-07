@@ -53,24 +53,22 @@ describe("BecomeProviderPage", () => {
   });
 
   /**
-   * The site spends `--color-primary` on search and sign-in. The header brings
-   * a search bar to every public page now, so anything blue this page drew
-   * itself would be the second blue on one screen.
+   * The October 2026 system gives every page one primary action: the filled
+   * blue `Button`. This page's "Get started" is that button wherever it
+   * appears — in the hero and in the closing band — and nothing else here
+   * draws a filled blue of its own.
    */
-  it("draws no blue of its own — every one on screen belongs to the header", async () => {
+  it("draws its call to action as the system's primary button", async () => {
     await render();
 
-    // The public pages' blue is `--color-blue-public` since the October 2026
-    // header; either token counts as blue here.
-    const blue = [
-      ...page().querySelectorAll<HTMLElement>(
-        "[class*='--color-primary'], [class*='--color-blue-public']",
-      ),
-    ];
-    // The header's: the search submit, "Entrar" and "Criar conta". None of
-    // them is this page's to spend.
-    expect(blue.length).toBeGreaterThan(0);
-    for (const el of blue) expect(el.closest("header")).not.toBeNull();
+    const ctas = screen.getAllByRole("link", { name: "Get started" });
+    expect(ctas).toHaveLength(2);
+    for (const cta of ctas) expect(cta.className).toContain("bg-[var(--color-primary)]");
+
+    const filled = [...page().querySelectorAll<HTMLElement>("[class*='bg-[var(--color-primary)]']")];
+    for (const el of filled) {
+      expect(el.closest("header") !== null || ctas.includes(el)).toBe(true);
+    }
   });
 
   /**
@@ -117,17 +115,18 @@ describe("BecomeProviderPage", () => {
   /**
    * The band is the page's one dark surface and its tokens are load-bearing.
    * `--color-headline` goes near-white in dark mode, so a literal white button
-   * carrying it disappears — a bug this page's predecessor shipped once.
+   * carrying it disappears — a bug this page's predecessor shipped once. The
+   * button is the system's filled blue, whose text is `--color-primary-foreground`.
    */
-  it("puts the closing button on the dark-aware pair, not literal white", async () => {
+  it("puts the closing button on tokens that read on navy in both themes", async () => {
     await render();
 
     const band = screen.getByRole("heading", { name: "Ready to start earning?" }).closest("section")!;
     expect(band.className).toContain("bg-[var(--color-navy-surface)]");
 
     const button = within(band).getByRole("link", { name: "Get started" });
-    expect(button.className).toContain("bg-[var(--color-navy-on)]");
-    expect(button.className).toContain("text-[var(--color-navy-surface)]");
+    expect(button.className).toContain("bg-[var(--color-primary)]");
+    expect(button.className).toContain("text-[var(--color-primary-foreground)]");
     expect(button.className).not.toContain("--color-headline");
   });
 

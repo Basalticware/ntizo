@@ -89,7 +89,7 @@ export function MonthCalendar({
         </button>
       </div>
 
-      <div aria-hidden="true" className="mt-8 grid grid-cols-7 text-center text-base text-[#5c6b98]">
+      <div aria-hidden="true" className="mt-8 grid grid-cols-7 text-center text-base text-[var(--color-muted-foreground)]">
         {weekdayHeads(cells, locale).map((head) => (
           <span key={head}>{head}</span>
         ))}
@@ -122,10 +122,10 @@ export function MonthCalendar({
                 selected
                   ? "bg-[var(--color-blue-public)] font-semibold text-white"
                   : offered
-                    ? "font-medium text-[#1a2758] hover:bg-[var(--color-blue-soft)]"
+                    ? "font-medium text-[var(--color-ink-2)] hover:bg-[var(--color-blue-soft)]"
                     : inMonth(dateIso)
                       ? "font-normal text-[var(--color-faint)]"
-                      : "font-normal text-[#b3bacb]",
+                      : "font-normal text-[var(--color-blue-line)]",
               )}
             >
               <span aria-hidden="true">{formatDate(dateIso, locale, { day: "numeric" })}</span>

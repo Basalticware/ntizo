@@ -16,6 +16,9 @@ export function formatMoney(
     style: "currency",
     currency,
     minimumFractionDigits: 2,
+    // "1 200,00 MTn", as the mockups write every amount: pt-MZ's default
+    // minimum grouping would leave four-digit amounts as "1200,00".
+    useGrouping: "always",
   }).format(minor / 100);
 }
 

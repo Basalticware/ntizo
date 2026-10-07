@@ -91,6 +91,7 @@
   "usersError": "Impossibile caricare l'elenco degli utenti.",
   "usersFilterTitle": "Filtra utenti",
   "userDetailTitle": "Utente",
+  "userDetailData": "Dati dell'utente",
   "userDetailError": "Impossibile caricare questo utente.",
   "userDetailNotFound": "Questo utente non esiste più.",
   "userDetailEmail": "Email",

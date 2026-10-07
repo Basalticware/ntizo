@@ -75,20 +75,20 @@ export function RoleConfirmDialog({
 
           {granting && (
             <>
-              <ul className="grid list-none gap-1.5 p-0">
+              <ul className="m-0 grid list-none gap-2 rounded-[14px] bg-[var(--color-blue-softer)] p-4">
                 {ABILITIES.map((key) => (
-                  <li key={key} className="type-body flex gap-2">
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-[var(--color-primary)]" />
+                  <li key={key} className="flex gap-2.5 text-[15px] text-[var(--color-ink-2)]">
+                    <Check aria-hidden="true" className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[var(--color-primary)]" />
                     {t(key)}
                   </li>
                 ))}
               </ul>
-              <p className="type-caption text-[var(--color-muted-foreground)]">{t("userDetailGrantAudit")}</p>
+              <p className="mt-3 mb-0 text-[13px] text-[var(--color-muted-foreground)]">{t("userDetailGrantAudit")}</p>
             </>
           )}
 
           {change.isError && (
-            <p role="alert" className="type-body text-[var(--color-destructive)]">
+            <p role="alert" className="mt-3 mb-0 text-[15px] text-[var(--color-destructive)]">
               {code && KNOWN_ERRORS.has(code) ? t(`userDetailRoleError.${code}`) : t("userDetailRoleFailed")}
             </p>
           )}

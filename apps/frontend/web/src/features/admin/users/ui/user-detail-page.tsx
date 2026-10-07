@@ -1,13 +1,24 @@
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage, Badge, Skeleton } from "@ntizo/frontend-ui";
+import {
+  Briefcase,
+  Calendar,
+  ChevronRight,
+  Fingerprint,
+  Globe,
+  Mail,
+  Phone,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage, Badge, Skeleton, cn } from "@ntizo/frontend-ui";
 import { localeName } from "@/shared/components/language-switcher";
 import { initialsFrom } from "@/shared/lib/initials";
 import { usePageHeader } from "@/shared/lib/page-header";
 import { displayName } from "../domain/types";
 import { useAdminUserDetail } from "../viewmodel/use-admin-users";
 import { RoleSection } from "./role-section";
+import { USER_CARD, UserCardHead } from "./user-card";
 import { WorkspacesSection } from "./workspaces-section";
 
 const STATUS_TONE: Record<string, "success" | "warning" | "danger" | "info"> = {
@@ -19,8 +30,10 @@ const STATUS_TONE: Record<string, "success" | "warning" | "danger" | "info"> = {
 /**
  * One person, and whether they administer the platform.
  *
- * The provider detail page's skeleton on purpose: back link, who this is, the
- * decision, then a list. An administrator who has learned one of the two
+ * Laid out as the admin provider detail page is: the crumb, a hero with the
+ * face, the name and its status, and the facts the read carries beside it;
+ * then the person's data and their workspaces on the left and the one
+ * decision on the right. An administrator who has learned one of the two
  * pages has learned both.
  *
  * What is left out is deliberate and matches the list: no bio, no date of
@@ -53,19 +66,23 @@ export function AdminUserDetailPage() {
   // sentence) — none of them true here, and "doesn't belong to any
   // workspace" is actively wrong for a user who no longer exists.
   const failed = Boolean(query.error) && !detail;
+  const ready = !query.isLoading && detail && name;
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-6">
-      <Link
-        to="/admin/users"
-        className="type-body inline-flex items-center gap-1.5 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+    <div className="flex w-full max-w-[1400px] flex-col">
+      <nav
+        aria-label={t("usersTitle")}
+        className="flex min-w-0 items-center gap-2 text-[15px] text-[var(--color-muted-foreground)]"
       >
-        <ArrowLeft className="h-4 w-4" />
-        {t("usersTitle")}
-      </Link>
+        <Link to="/admin/users" className="shrink-0 text-[var(--color-primary)] hover:underline">
+          {t("usersTitle")}
+        </Link>
+        <ChevronRight aria-hidden="true" className="mx-1.5 h-3.5 w-3.5 shrink-0" />
+        <span className="truncate">{name ?? t("userDetailTitle")}</span>
+      </nav>
 
       {query.error && (
-        <p className="type-body text-[var(--color-destructive)]">
+        <p className="type-body mt-4 text-[var(--color-destructive)]">
           {t(notFound ? "userDetailNotFound" : "userDetailError")}
         </p>
       )}
@@ -73,71 +90,125 @@ export function AdminUserDetailPage() {
       {!failed && (
         <>
           {/* ── Who this is ──────────────────────────────────────────────── */}
-          <section className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
-            {query.isLoading || !detail || !name ? (
-              <div className="flex items-center gap-4">
-                <Skeleton className="h-14 w-14 shrink-0 rounded-full" />
-                <div className="grid gap-2">
-                  <Skeleton className="h-[24px] w-56" />
-                  <Skeleton className="h-[19px] w-40" />
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="flex min-w-0 items-center gap-4">
-                    <Avatar className="h-14 w-14 shrink-0">
-                      {detail.avatarUrl && <AvatarImage src={detail.avatarUrl} alt="" />}
-                      <AvatarFallback>{initialsFrom(name)}</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <h2 className="type-h3 truncate font-semibold">{name}</h2>
-                      <p className="type-body truncate text-[var(--color-muted-foreground)]">{detail.email}</p>
-                    </div>
-                  </div>
-                  <Badge tone={STATUS_TONE[detail.status] ?? "info"}>
+          {ready ? (
+            <section className="mt-[22px] grid items-start gap-[26px] md:grid-cols-[120px_minmax(0,1fr)] 2xl:grid-cols-[120px_minmax(0,1fr)_auto]">
+              <Avatar className="h-24 w-24 md:h-[120px] md:w-[120px]">
+                {detail.avatarUrl && <AvatarImage src={detail.avatarUrl} alt="" />}
+                <AvatarFallback className="bg-[var(--color-blue-soft)] text-3xl font-semibold text-[var(--color-primary)]">
+                  {initialsFrom(name)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                {/* The status beside the heading rather than inside it: the
+                    heading is the person's name, and nothing else. */}
+                <div className="flex flex-wrap items-center gap-x-[18px] gap-y-2">
+                  <h1 className="m-0 min-w-0 font-display text-[28px] leading-tight font-extrabold tracking-[-0.01em] break-words text-[var(--color-headline)] md:text-[35.5px]">
+                    {name}
+                  </h1>
+                  <Badge
+                    tone={STATUS_TONE[detail.status] ?? "info"}
+                    className="h-[30px] px-[17px] text-[14.5px] tracking-normal"
+                  >
                     {t(`userStatus.${detail.status}`, { defaultValue: detail.status })}
                   </Badge>
                 </div>
+                <div className="mt-2.5 flex min-w-0 items-center text-base text-[var(--color-muted-foreground)]">
+                  <Mail aria-hidden="true" className="mr-[11px] h-[19px] w-[19px] shrink-0" />
+                  <span className="truncate">{detail.email}</span>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-y-3 md:col-span-2 2xl:col-span-1 2xl:mt-6">
+                <Kpi
+                  icon={Briefcase}
+                  iconClass="text-[var(--color-primary)]"
+                  value={String(detail.workspaces.length)}
+                  label={t("userDetailWorkspaces")}
+                />
+                <Kpi
+                  icon={Calendar}
+                  iconClass="text-[var(--color-success)]"
+                  value={date(detail.createdAt)}
+                  label={t("userDetailJoined")}
+                />
+              </div>
+            </section>
+          ) : (
+            <div className="mt-[22px] flex items-start gap-[26px]">
+              <Skeleton className="h-24 w-24 shrink-0 rounded-full md:h-[120px] md:w-[120px]" />
+              <div className="grid gap-3 pt-2">
+                <Skeleton className="h-9 w-72 max-w-full" />
+                <Skeleton className="h-5 w-48" />
+              </div>
+            </div>
+          )}
 
-                <dl className="mt-5 grid gap-x-8 gap-y-3 border-t border-[var(--color-border)] pt-5 sm:grid-cols-2">
-                  <Pair
-                    label={t("userDetailEmail")}
-                    value={detail.email}
-                    note={verification(detail.emailVerified)}
-                  />
-                  <Pair
-                    label={t("userDetailPhone")}
-                    value={detail.phoneNumber}
-                    note={detail.phoneNumber ? verification(detail.phoneVerified) : undefined}
-                  />
-                  <Pair
-                    label={t("userDetailRole")}
-                    value={t(`userRole.${detail.role}`, { defaultValue: detail.role })}
-                  />
-                  <Pair label={t("userDetailLanguage")} value={localeName(detail.language)} />
-                  <Pair label={t("userDetailJoined")} value={date(detail.createdAt)} />
-                  {/* Shown because support quotes it. */}
-                  <Pair label={t("userDetailId")} value={detail.id} mono />
-                </dl>
-              </>
-            )}
-          </section>
+          <div className="mt-[30px] grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+            <div className="grid min-w-0 gap-6">
+              <section className={USER_CARD}>
+                <UserCardHead title={t("userDetailData")} />
+                {ready ? (
+                  <dl className="mt-5 mb-0 grid gap-x-8 gap-y-5 md:grid-cols-2">
+                    <Pair
+                      icon={Mail}
+                      label={t("userDetailEmail")}
+                      value={detail.email}
+                      note={verification(detail.emailVerified)}
+                    />
+                    <Pair
+                      icon={Phone}
+                      label={t("userDetailPhone")}
+                      value={detail.phoneNumber}
+                      note={detail.phoneNumber ? verification(detail.phoneVerified) : undefined}
+                    />
+                    <Pair
+                      icon={ShieldCheck}
+                      label={t("userDetailRole")}
+                      value={t(`userRole.${detail.role}`, { defaultValue: detail.role })}
+                    />
+                    <Pair icon={Globe} label={t("userDetailLanguage")} value={localeName(detail.language)} />
+                    {/* Shown because support quotes it. */}
+                    <Pair icon={Fingerprint} label={t("userDetailId")} value={detail.id} mono />
+                  </dl>
+                ) : (
+                  <div className="mt-5 grid gap-4 md:grid-cols-2">
+                    {[0, 1, 2, 3].map((i) => (
+                      <Skeleton key={i} className="h-11 w-full" />
+                    ))}
+                  </div>
+                )}
+              </section>
 
-          <RoleSection detail={detail} name={name} loading={query.isLoading} />
-          <WorkspacesSection workspaces={detail?.workspaces ?? []} loading={query.isLoading} />
+              <WorkspacesSection workspaces={detail?.workspaces ?? []} loading={query.isLoading} />
+            </div>
+
+            <div className="grid min-w-0 gap-6">
+              <RoleSection detail={detail} name={name} loading={query.isLoading} />
+            </div>
+          </div>
         </>
       )}
     </div>
   );
 }
 
+function Kpi({ icon: Icon, iconClass, value, label }: { icon: LucideIcon; iconClass: string; value: string; label: string }) {
+  return (
+    <div className="grid grid-cols-[auto_auto] items-center gap-x-[13px] gap-y-[7px] border-l border-[var(--color-border)] py-1 pr-[22px] pl-5 first:border-l-0 first:pl-0 2xl:first:border-l 2xl:first:pl-5">
+      <Icon aria-hidden="true" className={cn("h-[22px] w-[22px]", iconClass)} />
+      <b className="text-[18.5px] font-bold whitespace-nowrap text-[var(--color-headline)]">{value}</b>
+      <span className="col-start-2 text-[13px] whitespace-nowrap text-[var(--color-muted-foreground)]">{label}</span>
+    </div>
+  );
+}
+
 function Pair({
+  icon: Icon,
   label,
   value,
   note,
   mono,
 }: {
+  icon: LucideIcon;
   label: string;
   value: string | null;
   /** A state that belongs beside the value — whether an email or phone is confirmed. */
@@ -146,12 +217,18 @@ function Pair({
 }) {
   const shown = value?.trim();
   return (
-    <div className="grid min-w-0 gap-0.5">
-      <dt className="type-caption text-[var(--color-muted-foreground)]">{label}</dt>
-      <dd className={mono ? "type-caption m-0 truncate font-mono" : "type-body m-0 flex min-w-0 items-center gap-2"}>
+    <div className="grid min-w-0 grid-cols-[21px_minmax(0,1fr)] gap-x-4">
+      <Icon aria-hidden="true" className="row-span-2 mt-0.5 h-[21px] w-[21px] text-[var(--color-ink-2)]" />
+      <dt className="text-sm text-[var(--color-muted-foreground)]">{label}</dt>
+      <dd
+        className={cn(
+          "m-0 mt-1 flex min-w-0 items-center gap-2.5 text-[15px] text-[var(--color-ink-2)]",
+          mono && "font-mono text-[13px]",
+        )}
+      >
         <span className="truncate">{shown || "—"}</span>
         {note && shown && (
-          <Badge tone={note.verified ? "success" : "warning"} className="shrink-0">
+          <Badge tone={note.verified ? "success" : "warning"} className="h-[26px] shrink-0 px-3 text-[13px]">
             {note.text}
           </Badge>
         )}

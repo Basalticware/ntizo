@@ -6,6 +6,12 @@ import { KeyRound, Lock, MailCheck } from "lucide-react";
 import { Button, Input, Label } from "@ntizo/frontend-ui";
 import { authClient } from "@/shared/lib/api/auth-client";
 import { AuthLayout } from "@/features/auth/components/auth-layout";
+import {
+  AUTH_FIELD,
+  AUTH_FORM,
+  AUTH_INFO,
+  AUTH_LINK,
+} from "@/features/auth/components/auth-styles";
 
 export function ForgotPassword() {
   const { t } = useTranslation("auth");
@@ -44,14 +50,11 @@ export function ForgotPassword() {
         footer={null}
         icon={<MailCheck className="h-6 w-6 text-[var(--color-primary)]" />}
       >
-        <div className="flex flex-col items-center gap-4 text-center">
-          <p className="text-sm text-[var(--color-muted-foreground)]">
+        <div className="flex flex-col items-center gap-6 text-center">
+          <p role="status" className={`${AUTH_INFO} w-full`}>
             {t("resetSent")}
           </p>
-          <Link
-            to="/sign-in"
-            className="text-sm text-[var(--color-accent)] hover:underline"
-          >
+          <Link to="/sign-in" className={`text-[15px] ${AUTH_LINK}`}>
             {t("backToSignInArrow")}
           </Link>
         </div>
@@ -67,7 +70,7 @@ export function ForgotPassword() {
       icon={<Lock className="h-6 w-6 text-[var(--color-primary)]" />}
     >
       <form
-        className="flex flex-col gap-4"
+        className={AUTH_FORM}
         onSubmit={(e) => {
           e.preventDefault();
           void form.handleSubmit();
@@ -75,7 +78,7 @@ export function ForgotPassword() {
       >
         <form.Field name="email">
           {(field) => (
-            <div className="flex flex-col gap-1.5">
+            <div className={AUTH_FIELD}>
               <Label htmlFor={field.name}>{t("email")}</Label>
               <Input
                 id={field.name}
@@ -94,16 +97,13 @@ export function ForgotPassword() {
         >
           {([canSubmit, isSubmitting]) => (
             <Button type="submit" className="w-full" disabled={!canSubmit}>
-              <KeyRound className="h-4 w-4" />
+              <KeyRound />
               {isSubmitting ? t("sending") : t("sendResetLink")}
             </Button>
           )}
         </form.Subscribe>
 
-        <Link
-          to="/sign-in"
-          className="text-center text-sm text-[var(--color-accent)] hover:underline"
-        >
+        <Link to="/sign-in" className={`text-center text-[15px] ${AUTH_LINK}`}>
           {t("backToSignInArrow")}
         </Link>
       </form>

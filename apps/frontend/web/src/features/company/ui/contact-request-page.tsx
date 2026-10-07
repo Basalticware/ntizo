@@ -4,7 +4,14 @@ import type { ContactRequestKind } from "@ntizo/shared";
 import { CONTACT } from "@/shared/lib/contact";
 import { CompanyPage } from "./company-page";
 import { ContactForm } from "./contact-form";
-import { CARD_SURFACE_CLASS } from "@/shared/components/card-surface";
+import {
+  CARD_BODY_CLASS,
+  CARD_TITLE_CLASS,
+  PUBLIC_CARD_CLASS,
+} from "@/features/landing/ui/public-page";
+
+/** A link inside a note: the brand blue, the way the listings draw one. */
+const NOTE_LINK_CLASS = "font-semibold text-[var(--color-primary)] hover:underline";
 
 /** Which three cards sit under each form, and where the linking one goes. */
 const CARDS: Record<ContactRequestKind, ReadonlyArray<{ key: string; kind: "email" | "social" | "text" | "link"; to?: string }>> = {
@@ -23,9 +30,8 @@ const CARDS: Record<ContactRequestKind, ReadonlyArray<{ key: string; kind: "emai
 /**
  * Contact and Feedback: a centred band, the form, three cards.
  *
- * On the home page's rules since 2026-09-07: white, the heading in navy,
- * hairlines under the three notes instead of bordered cards, and the links
- * inside them as text rather than blue.
+ * On the October 2026 system: white, the heading in navy, the three notes on
+ * the site's card, and the links inside them in the brand blue.
  *
  * Single centred column, decided 2026-09-02 against a side rail: the form is
  * what the page is for, and the alternatives sit under it rather than beside
@@ -38,7 +44,7 @@ export function ContactRequestPage({ kind }: { kind: ContactRequestKind }) {
 
   return (
     <CompanyPage page={kind} title={t(`${kind}.heading`)} lede={t(`${kind}.lede`)} centred>
-      <section className="page-shell py-12 md:py-16">
+      <section className="public-inset pb-14">
         <div className="mx-auto max-w-[640px]">
           <ContactForm kind={kind} messagePlaceholder={t(`${kind}.messagePlaceholder`)} />
         </div>
@@ -47,15 +53,15 @@ export function ContactRequestPage({ kind }: { kind: ContactRequestKind }) {
           {CARDS[kind].map((card) => (
             <article
               key={card.key}
-              className={CARD_SURFACE_CLASS}
+              className={PUBLIC_CARD_CLASS}
             >
-              <h2 className="font-display m-0 text-[15.5px] font-bold text-[var(--color-headline)]">
+              <h2 className={`m-0 ${CARD_TITLE_CLASS}`}>
                 {t(`${kind}.cards.${card.key}.title`)}
               </h2>
-              <p className="mt-1.5 mb-0 text-[14.5px] leading-relaxed text-[var(--color-foreground)]">
+              <p className={`mt-1.5 mb-0 ${CARD_BODY_CLASS}`}>
                 {card.kind === "email" && (
                   <>
-                    <a href={`mailto:${CONTACT.general}`} className="font-semibold text-[var(--color-headline)] underline decoration-[var(--color-border-strong)] underline-offset-4">
+                    <a href={`mailto:${CONTACT.general}`} className={NOTE_LINK_CLASS}>
                       {CONTACT.general}
                     </a>
                     <br />
@@ -69,7 +75,7 @@ export function ContactRequestPage({ kind }: { kind: ContactRequestKind }) {
                       href={CONTACT.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold text-[var(--color-headline)] underline decoration-[var(--color-border-strong)] underline-offset-4"
+                      className={NOTE_LINK_CLASS}
                     >
                       Instagram
                     </a>
@@ -78,7 +84,7 @@ export function ContactRequestPage({ kind }: { kind: ContactRequestKind }) {
                       href={CONTACT.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold text-[var(--color-headline)] underline decoration-[var(--color-border-strong)] underline-offset-4"
+                      className={NOTE_LINK_CLASS}
                     >
                       LinkedIn
                     </a>
@@ -89,7 +95,7 @@ export function ContactRequestPage({ kind }: { kind: ContactRequestKind }) {
                 <Link
                   to={card.to}
                   search={card.to === "/feedback" ? { from: pathname } : undefined}
-                  className="mt-3 inline-flex items-center text-[14px] font-semibold text-[var(--color-headline)] underline decoration-[var(--color-border-strong)] underline-offset-4"
+                  className={`mt-3 inline-flex items-center gap-2 text-sm ${NOTE_LINK_CLASS}`}
                 >
                   {t(`${kind}.cards.${card.key}.cta`)}
                 </Link>

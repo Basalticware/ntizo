@@ -235,7 +235,7 @@ describe("ProviderQuotePage", () => {
     // The split's own "recebe" line, gone; the proposal's own price, in its
     // place — the same `formatMoney(980_000, "MZN", "pt-MZ")` string the
     // form's own test file derives from the real formatter.
-    expect(await screen.findByText("9800,00 MTn")).toBeInTheDocument();
+    expect(await screen.findByText("9 800,00 MTn")).toBeInTheDocument();
     expect(screen.queryByLabelText("Preço para o cliente")).not.toBeInTheDocument();
     // "Proposta enviada", not the neutral "A sua proposta" — this page is
     // the one that just sent it.

@@ -204,7 +204,7 @@ function MessageBubble({
         <div
           className={cn(
             "min-w-0 rounded-xl px-[19px] py-[11px] text-[15px] leading-[1.45] text-[var(--color-headline)]",
-            mine ? "bg-[#e1effe] dark:bg-[var(--color-blue-soft)]" : "bg-[#f0f3f8] dark:bg-[var(--color-muted)]",
+            mine ? "bg-[var(--color-info-bg)] dark:bg-[var(--color-blue-soft)]" : "bg-[var(--color-line-2)] dark:bg-[var(--color-muted)]",
           )}
         >
           {message.senderSide === "platform" && platformLabel && (

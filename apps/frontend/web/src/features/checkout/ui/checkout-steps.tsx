@@ -61,7 +61,7 @@ export function CheckoutSteps({ current }: { current: CheckoutStep }) {
           const last = index === CHECKOUT_STEPS.length - 1;
           const lineClass = done
             ? "bg-[var(--color-blue-public)]"
-            : "bg-[#dfe6f1]";
+            : "bg-[var(--color-border)]";
 
           return (
             <li
@@ -87,7 +87,7 @@ export function CheckoutSteps({ current }: { current: CheckoutStep }) {
                 className={cn(
                   "grid h-10 w-10 shrink-0 place-items-center rounded-full text-base font-medium tabular-nums",
                   (done || active) && "bg-[var(--color-blue-public)] text-white",
-                  !done && !active && "bg-[#e9eff7] text-[var(--color-ink-2)]",
+                  !done && !active && "bg-[var(--color-border)] text-[var(--color-ink-2)]",
                 )}
               >
                 {done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : index + 1}
@@ -97,7 +97,7 @@ export function CheckoutSteps({ current }: { current: CheckoutStep }) {
                 aria-current={active ? "step" : undefined}
                 className={cn(
                   "max-w-[7.5rem] text-center text-xs leading-tight font-medium whitespace-nowrap md:max-w-none md:text-left md:text-[15.5px]",
-                  active ? "text-[var(--color-blue-public)]" : "text-[#2f4a7a]",
+                  active ? "text-[var(--color-blue-public)]" : "text-[var(--color-muted-foreground)]",
                 )}
               >
                 {t(LABEL_KEY[step])}
@@ -108,7 +108,7 @@ export function CheckoutSteps({ current }: { current: CheckoutStep }) {
               {!last && (
                 <span
                   aria-hidden="true"
-                  className="mx-1.5 hidden w-16 border-t-2 border-dotted border-[#dfe6f1] md:block lg:w-[126px]"
+                  className="mx-1.5 hidden w-16 border-t-2 border-dotted border-[var(--color-border)] md:block lg:w-[126px]"
                 />
               )}
             </li>

@@ -80,11 +80,11 @@ export function StepReview({
     <div className="grid gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="type-h3 font-semibold break-words">
+          <p className="m-0 text-lg font-bold break-words text-[var(--color-headline)]">
             {source?.name ?? ownerName(service, locale)}
           </p>
           {source?.description ? (
-            <p className="type-body mt-1 text-[var(--color-muted-foreground)]">
+            <p className="mt-1.5 mb-0 text-[15px] leading-[1.5] text-[var(--color-muted-foreground)]">
               {source.description}
             </p>
           ) : null}
@@ -95,7 +95,7 @@ export function StepReview({
       {/* Every answer, beside the step that set it. The label is the way back:
           finding a mistake here and having to hunt the rail for where it lives
           is the whole reason a review screen feels like a formality. */}
-      <dl className="grid gap-0 divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
+      <dl className="m-0 grid gap-0 divide-y divide-[var(--color-line-2)] rounded-[14px] border border-[var(--color-border)] px-5">
         <SummaryRow label={t("serviceCategory")} step="basics" onSeek={onSeek}>
           {categoryLabel || <Missing t={t} />}
         </SummaryRow>
@@ -147,12 +147,12 @@ export function StepReview({
           type="button"
           onClick={() => blockerStep && onSeek(blockerStep)}
           disabled={!blockerStep}
-          className="type-body rounded-[var(--radius-field)] bg-[color-mix(in_srgb,var(--color-destructive)_10%,transparent)] px-4 py-3 text-left text-[var(--color-destructive)] enabled:hover:underline"
+          className="rounded-[14px] bg-[color-mix(in_srgb,var(--color-destructive)_8%,transparent)] px-[18px] py-3.5 text-left text-[15px] text-[var(--color-bad-fg)] enabled:hover:underline"
         >
           {t(`serviceError.${blocker}`)}
         </button>
       ) : (
-        <p className="type-body inline-flex items-center gap-2 rounded-[var(--radius-field)] bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)] px-4 py-3 text-[var(--color-primary)]">
+        <p className="m-0 flex items-center gap-2.5 rounded-[14px] bg-[var(--color-blue-softer)] px-[18px] py-3.5 text-[15px] font-medium text-[var(--color-primary)]">
           <Check className="h-4 w-4 shrink-0" />
           {t("serviceReviewReady")}
         </p>
@@ -204,17 +204,17 @@ function SummaryRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid gap-1 py-3 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)] sm:gap-4">
+    <div className="grid gap-1 py-3.5 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)] sm:gap-5">
       <dt>
         <button
           type="button"
           onClick={() => onSeek(step)}
-          className="type-caption text-left font-semibold text-[var(--color-muted-foreground)] hover:text-[var(--color-primary)] hover:underline"
+          className="text-left text-sm font-medium text-[var(--color-muted-foreground)] hover:text-[var(--color-primary)] hover:underline"
         >
           {label}
         </button>
       </dt>
-      <dd className="type-body min-w-0 break-words">{children}</dd>
+      <dd className="m-0 min-w-0 text-[15px] break-words text-[var(--color-ink-2)]">{children}</dd>
     </div>
   );
 }

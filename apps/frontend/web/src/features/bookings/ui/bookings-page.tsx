@@ -2,10 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { ArrowRight, CalendarDays } from "lucide-react";
-import { Button, cn } from "@ntizo/frontend-ui";
-import type { BookingDTO, CustomerBookingPageDTO } from "@ntizo/shared/read-models";
+import { Button, buttonVariants, cn } from "@ntizo/frontend-ui";
+import type {
+  BookingDTO,
+  CustomerBookingPageDTO,
+} from "@ntizo/shared/read-models";
 import { BrandImage } from "@/shared/components/brand-image";
 import { CollectionCard } from "@/shared/components/collection-card";
+import { DETAILS_BUTTON_CLASS, WhenCell } from "@/shared/components/list-cells";
+import { StatusTabs } from "@/shared/components/status-tabs";
+import { CustomerPageHeading } from "@/features/account/ui/customer-page";
 import { MessageProviderButton } from "@/features/directory/ui/provider-rail";
 import { compactSlotWording } from "@/features/checkout/domain/slot-wording";
 import { formatAmount } from "@/features/directory/services/domain/service-card";
@@ -29,7 +35,7 @@ import { PayDialog } from "./pay-dialog";
 function countdownTone(status: CustomerBookingStatus): string {
   return status === "PENDING_PAYMENT"
     ? "text-[var(--color-primary)]"
-    : "text-[#8a5b00]";
+    : "text-[var(--color-warn-fg)]";
 }
 
 /**
@@ -163,50 +169,32 @@ export function BookingsPage() {
   const { data: currentUser } = useCurrentUser();
 
   return (
-    <div>
-      <h1 className="type-h1">{t("title")}</h1>
-      <p className="type-body mt-2 max-w-[62ch] text-[var(--color-muted-foreground)]">
-        {t("lede")}
-      </p>
+    <div className="w-full max-w-[1400px]">
+      <CustomerPageHeading title={t("title")} subtitle={t("lede")} />
 
-      <div
-        role="tablist"
-        aria-label={t("title")}
-        className="mt-6 inline-flex rounded-full bg-[var(--color-muted)] p-1"
-      >
-        {CUSTOMER_BOOKING_TABS.map((key) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={tab === key}
-            onClick={() => setTab(key)}
-            className={cn(
-              "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-              tab === key
-                ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]",
-            )}
-          >
-            {t(`tab.${key}`)}
-            {data && (
-              <span
-                className={cn(
-                  "ml-1.5 inline-block rounded-full px-1.5 py-0.5 text-xs font-semibold",
-                  tab === key
-                    ? "bg-white/25"
-                    : "bg-[var(--color-background)] text-[var(--color-muted-foreground)]",
-                )}
-              >
-                {data.counts[key]}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-4">
+      <div className="mt-[30px]">
         <CollectionCard
+          tabs={
+            // The provider list's own tab row. Every tab's number is known
+            // here — `bookingMine` counts all three — so all three show one.
+            <div className="w-full [contain:inline-size]">
+              {/* `contain` so the row is measured by the card, not by its boxes:
+                  `CollectionCard` sizes its toolbar to its widest child, and three
+                  boxes wider than a phone pushed the whole page sideways. Inside
+                  the card's width they scroll, as `StatusTabs` means them to. */}
+              <StatusTabs
+                tabs={CUSTOMER_BOOKING_TABS.map((key) => ({
+                  key,
+                  label: t(`tab.${key}`),
+                  count: data ? data.counts[key] : null,
+                  tone: key === "waiting" ? "warning" : "neutral",
+                }))}
+                value={tab}
+                onChange={setTab}
+                ariaLabel={t("title")}
+              />
+            </div>
+          }
           title={t(`tab.${tab}`)}
           shown={items.length}
           total={data?.total ?? 0}
@@ -216,7 +204,7 @@ export function BookingsPage() {
           // `CollectionRow.cardBody` states for anyone using the slot. The
           // table is unchanged and still reads them off `cells`.
           columns={[
-            { key: "service", label: t("col.service"), className: "pl-5" },
+            { key: "service", label: t("col.service") },
             {
               key: "when",
               label: t("col.when"),
@@ -237,16 +225,13 @@ export function BookingsPage() {
               skeletonWidth: "w-20",
               hideOnCard: true,
             },
-            { key: "actions", label: "", className: "pr-5" },
+            { key: "actions", label: "", className: "pr-6 text-right" },
           ]}
           emptyTitle={t("emptyTitle")}
           emptyText={t("emptyBody")}
           emptyBadge={CalendarDays}
           emptyAction={
-            <Link
-              to="/services"
-              className="rounded-full bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
-            >
+            <Link to="/services" className={buttonVariants({ size: "sm" })}>
               {t("emptyAction")}
             </Link>
           }
@@ -297,7 +282,7 @@ export function BookingsPage() {
               <button
                 type="button"
                 onClick={() => setCancelling(b)}
-                className="type-caption font-medium text-[var(--color-muted-foreground)] hover:underline disabled:pointer-events-none disabled:opacity-50"
+                className="text-sm font-semibold text-[var(--color-muted-foreground)] hover:text-[var(--color-destructive)] hover:underline disabled:pointer-events-none disabled:opacity-50"
               >
                 {t("cancel")}
               </button>
@@ -311,7 +296,7 @@ export function BookingsPage() {
                       dev is one of these. The mark on the soft ground is the
                       app's single treatment for that — see its own comment.
                       Empty `alt`, because the title is right beside it. */}
-                  <span className="h-12 w-12 shrink-0 overflow-hidden rounded-[var(--radius-card-sm)]">
+                  <span className="h-[58px] w-[58px] shrink-0 overflow-hidden rounded-[10px]">
                     <BrandImage
                       src={b.serviceImageUrl}
                       alt=""
@@ -322,7 +307,7 @@ export function BookingsPage() {
                     <Link
                       to="/bookings/$bookingId"
                       params={{ bookingId: b.id }}
-                      className="type-body-medium font-semibold hover:underline"
+                      className="text-base leading-snug font-bold text-[var(--color-headline)] hover:underline"
                     >
                       {b.serviceName}
                       {b.optionName ? ` · ${b.optionName}` : ""}
@@ -332,7 +317,7 @@ export function BookingsPage() {
                         pushing "✓ Verificado" onto a second line — which is
                         what a card 266px wide did to every provider whose
                         name ran past about twenty characters. */}
-                    <p className="type-caption mt-0.5 flex items-center gap-1.5 text-[var(--color-muted-foreground)]">
+                    <p className="m-0 mt-1 flex items-center gap-1.5 text-sm text-[var(--color-muted-foreground)]">
                       <span className="truncate">{b.providerName}</span>
                       {b.providerVerified && (
                         <span className="shrink-0 font-semibold whitespace-nowrap text-[var(--color-primary)]">
@@ -346,7 +331,7 @@ export function BookingsPage() {
                         below `md` that column is hidden, and a date belongs
                         with the name it qualifies rather than under a
                         heading of its own. */}
-                    <p className="type-caption mt-0.5 tabular-nums text-[var(--color-muted-foreground)] md:hidden">
+                    <p className="m-0 mt-1 text-sm tabular-nums text-[var(--color-muted-foreground)] md:hidden">
                       {slot.date} · {slot.start} ·{" "}
                       {t("minutes", { count: b.durationMinutes })}
                     </p>
@@ -355,13 +340,10 @@ export function BookingsPage() {
               ),
               cells: {
                 when: (
-                  <span className="tabular-nums">
-                    {slot.date}
-                    <span className="block text-[var(--color-muted-foreground)]">
-                      {slot.start} ·{" "}
-                      {t("minutes", { count: b.durationMinutes })}
-                    </span>
-                  </span>
+                  <WhenCell
+                    day={slot.date}
+                    time={`${slot.start} · ${t("minutes", { count: b.durationMinutes })}`}
+                  />
                 ),
                 status: (
                   <span className="inline-flex flex-col items-start gap-1">
@@ -369,7 +351,7 @@ export function BookingsPage() {
                     {left && (
                       <span
                         className={cn(
-                          "type-caption font-semibold",
+                          "text-[13.5px] font-semibold",
                           countdownTone(b.status),
                         )}
                       >
@@ -386,7 +368,7 @@ export function BookingsPage() {
                 // row reading "1 801 MZN" over a dialog asking for 1 800,50
                 // is the list disagreeing with the debit.
                 price: (
-                  <span className="tabular-nums">
+                  <span className="text-lg font-bold whitespace-nowrap text-[var(--color-headline)] tabular-nums">
                     {formatAmount(b.priceMinor, b.currency, locale)}
                   </span>
                 ),
@@ -404,7 +386,7 @@ export function BookingsPage() {
                       {left && (
                         <span
                           className={cn(
-                            "type-caption font-semibold",
+                            "text-[13.5px] font-semibold",
                             countdownTone(b.status),
                           )}
                         >
@@ -417,7 +399,7 @@ export function BookingsPage() {
                     {/* The same exact amount the cell carries, at the size the
                         detail page gives the total — never the rounded
                         headline. See the `price` cell below. */}
-                    <span className="type-h3 shrink-0 font-semibold tabular-nums">
+                    <span className="shrink-0 text-lg font-bold text-[var(--color-headline)] tabular-nums">
                       {formatAmount(b.priceMinor, b.currency, locale)}
                     </span>
                   </div>
@@ -440,7 +422,7 @@ export function BookingsPage() {
                     <Link
                       to="/bookings/$bookingId"
                       params={{ bookingId: b.id }}
-                      className="type-caption inline-flex shrink-0 items-center gap-1 font-semibold text-[var(--color-primary)] hover:underline"
+                      className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-[var(--color-primary)] hover:underline"
                     >
                       {t("viewDetail")}
                       <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -467,11 +449,26 @@ export function BookingsPage() {
               // it is a full-width target rather than a corner one. Hidden
               // rather than conditional, because a row description is one
               // object for both renderings — see `CollectionRow.cardBody`.
-              actions: showPay ? (
-                <span className="hidden md:inline-flex">{payButton}</span>
-              ) : showCancel ? (
-                <span className="hidden md:inline-flex">{cancelButton}</span>
-              ) : undefined,
+              //
+              // "Ver detalhe" beside it is the provider list's row action: the
+              // same link as the title, drawn where the mockups put the row's
+              // way in. Out of the tab order and the accessibility tree,
+              // because it *is* the title's link a second time — a reader
+              // tabbing or listening would otherwise meet every row twice.
+              actions: (
+                <span className="hidden items-center justify-end gap-4 md:inline-flex">
+                  {showPay ? payButton : showCancel ? cancelButton : null}
+                  <Link
+                    to="/bookings/$bookingId"
+                    params={{ bookingId: b.id }}
+                    className={DETAILS_BUTTON_CLASS}
+                    tabIndex={-1}
+                    aria-hidden="true"
+                  >
+                    {t("common:viewDetails")}
+                  </Link>
+                </span>
+              ),
             };
           })}
         />
@@ -481,12 +478,15 @@ export function BookingsPage() {
           header carries the count, and it is honest now that `shown` grows
           with the list instead of restarting at twenty on every page. */}
       {data && data.nextOffset !== null && (
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-center">
           <Button
             type="button"
             variant="outline"
+            size="sm"
             disabled={query.isFetching}
-            onClick={() => setOffset(data.nextOffset ?? offset + CUSTOMER_BOOKINGS_PAGE_SIZE)}
+            onClick={() =>
+              setOffset(data.nextOffset ?? offset + CUSTOMER_BOOKINGS_PAGE_SIZE)
+            }
           >
             {t("loadMore")}
           </Button>
@@ -494,7 +494,10 @@ export function BookingsPage() {
       )}
 
       {cancelling && (
-        <CancelDialog booking={cancelling} onClose={() => setCancelling(null)} />
+        <CancelDialog
+          booking={cancelling}
+          onClose={() => setCancelling(null)}
+        />
       )}
       {paying && (
         <PayDialog

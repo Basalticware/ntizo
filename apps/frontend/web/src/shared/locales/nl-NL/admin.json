@@ -91,6 +91,7 @@
   "usersError": "Kan de gebruikerslijst niet laden.",
   "usersFilterTitle": "Gebruikers filteren",
   "userDetailTitle": "Gebruiker",
+  "userDetailData": "Gebruikersgegevens",
   "userDetailError": "Deze gebruiker kon niet worden geladen.",
   "userDetailNotFound": "Deze gebruiker bestaat niet meer.",
   "userDetailEmail": "E-mail",

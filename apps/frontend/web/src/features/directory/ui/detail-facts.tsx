@@ -26,24 +26,24 @@ export function DetailFacts({
   if (shown.length === 0) return null;
 
   return (
-    <dl className="mt-6 grid grid-cols-2 gap-y-4 border-y border-[#edf1f7] py-[18px] md:flex md:justify-between">
+    <dl className="mt-6 grid grid-cols-2 gap-y-4 border-y border-[var(--color-line-2)] py-[18px] md:flex md:justify-between">
       {shown.map(({ label, value, icon: Icon }, i) => (
         <div
           key={label}
           className={
             i === 0
               ? "flex items-center gap-[15px] pr-6"
-              : "flex items-center gap-[15px] pr-6 md:border-l md:border-[#eef2f8] md:pl-6"
+              : "flex items-center gap-[15px] pr-6 md:border-l md:border-[var(--color-line-2)] md:pl-6"
           }
         >
           {Icon && (
-            <span aria-hidden="true" className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full bg-[#e9f3fd] text-[#0552fe]">
+            <span aria-hidden="true" className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[var(--color-primary)]">
               <Icon className="h-[22px] w-[22px]" strokeWidth={2} />
             </span>
           )}
           <div className="flex min-w-0 flex-col">
-            <dt className="text-[13.5px] text-[#56628e]">{label}</dt>
-            <dd className="mt-[5px] text-[15px] font-medium whitespace-nowrap text-[#142777]">{value}</dd>
+            <dt className="text-[13.5px] text-[var(--color-muted-foreground)]">{label}</dt>
+            <dd className="mt-[5px] text-[15px] font-medium whitespace-nowrap text-[var(--color-ink-2)]">{value}</dd>
           </div>
         </div>
       ))}

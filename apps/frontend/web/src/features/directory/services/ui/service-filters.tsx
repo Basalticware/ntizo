@@ -219,7 +219,7 @@ function ClearAll({ current, onNavigate }: { current: BrowseSearch; onNavigate?:
       activeOptions={EXACT_MATCH}
       search={clearedBrowseSearch(current)}
       {...(onNavigate ? { onClick: onNavigate } : {})}
-      className="ml-2 text-sm font-semibold whitespace-nowrap text-[#1d7dfc] hover:underline"
+      className="ml-2 text-sm font-semibold whitespace-nowrap text-[var(--color-blue-edge)] hover:underline"
     >
       {t("filtersClearAll")}
     </Link>

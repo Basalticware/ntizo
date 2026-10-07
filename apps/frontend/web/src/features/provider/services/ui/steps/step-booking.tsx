@@ -32,7 +32,7 @@ export function StepBooking({
   const { t } = useTranslation("provider");
 
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2">
       <ChoiceChips
         name="service-booking-mode"
         legend={t("serviceBookingModeQuestion")}
@@ -52,7 +52,7 @@ export function StepBooking({
           },
         ]}
       />
-      <p className="type-caption text-[var(--color-muted-foreground)]">
+      <p className="m-0 text-sm leading-[1.45] text-[var(--color-muted-foreground)]">
         {canChangeBookingMode
           ? t(
               draft.bookingMode === "priced"

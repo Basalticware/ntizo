@@ -13,8 +13,8 @@ import { Button, cn } from "@ntizo/frontend-ui";
  *
  * So the step list and the reachability rule arrive as props. Nothing here
  * decides anything — callers own their order, their labels and their rule
- * about which rows may be clicked. The pixels are unchanged from the version
- * onboarding shipped.
+ * about which rows may be clicked. The pixels are the October 2026 system's:
+ * bordered 14px cards on the rail ground, navy type, the blue markers.
  */
 
 /** How the layout claims space. */
@@ -67,22 +67,26 @@ function StepRail<S extends string>({
         return (
           <li
             key={step}
-            className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3.5"
+            className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-x-3.5"
           >
             <div className="grid justify-items-center">
               <span
                 className={cn(
-                  "grid h-8 w-8 place-items-center rounded-full border-2 text-[13px] font-bold tabular-nums transition-colors",
+                  "grid h-9 w-9 place-items-center rounded-full border-2 text-[14px] font-bold tabular-nums transition-colors",
                   done &&
-                    "border-[var(--color-primary)] bg-[var(--color-primary)] text-white",
+                    "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]",
                   active &&
-                    "border-[var(--color-primary)] text-[var(--color-primary)]",
+                    "border-[var(--color-primary)] bg-[var(--color-blue-soft)] text-[var(--color-primary)]",
                   !done &&
                     !active &&
-                    "border-[var(--color-border)] text-[var(--color-muted-foreground)]",
+                    "border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-muted-foreground)]",
                 )}
               >
-                {done ? <Check className="h-4 w-4" /> : i + 1}
+                {done ? (
+                  <Check className="h-[18px] w-[18px]" strokeWidth={2.4} />
+                ) : (
+                  i + 1
+                )}
               </span>
               {/* The connector belongs to the row above it, so the last row
                   does not draw a line into empty space. */}
@@ -93,7 +97,7 @@ function StepRail<S extends string>({
                     "my-1 w-0.5 flex-1 rounded-full",
                     done
                       ? "bg-[var(--color-primary)]"
-                      : "bg-[var(--color-border)]",
+                      : "bg-[var(--color-line-2)]",
                   )}
                   style={{ minHeight: 28 }}
                 />
@@ -110,23 +114,25 @@ function StepRail<S extends string>({
                 {...(active ? { "aria-current": "step" as const } : {})}
                 onClick={() => reachable && onSeek(step)}
                 className={cn(
-                  "block text-left",
+                  "block rounded-[6px] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2",
                   reachable ? "cursor-pointer" : "cursor-default",
                 )}
               >
-                <span className="type-caption block text-[var(--color-muted-foreground)]">
+                <span className="block text-[13px] text-[var(--color-muted-foreground)]">
                   {statusLabels.stepPrefix} {i + 1}
                 </span>
                 <span
                   className={cn(
-                    "type-body-medium block font-semibold",
-                    !done && !active && "text-[var(--color-muted-foreground)]",
+                    "block text-[15px] leading-snug font-semibold",
+                    done || active
+                      ? "text-[var(--color-headline)]"
+                      : "text-[var(--color-ink-2)]",
                   )}
                 >
                   {labels[step]}
                 </span>
                 {done || active ? (
-                  <span className="type-caption block font-semibold text-[var(--color-primary)]">
+                  <span className="block text-[13px] font-semibold text-[var(--color-primary)]">
                     {done ? statusLabels.done : statusLabels.active}
                   </span>
                 ) : null}
@@ -190,14 +196,14 @@ export function WizardLayout<S extends string>({
        own footer below the fold on every screen. */
     <div
       className={cn(
-        "grid place-items-center bg-[var(--color-muted)]",
+        "grid place-items-center bg-[var(--color-rail)]",
         frame === "screen"
           ? "min-h-svh p-3 sm:p-6"
           : "-m-4 min-h-full p-4 sm:-m-6 sm:p-6",
       )}
     >
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
-        <aside className="hidden rounded-[var(--radius-card)] bg-[var(--color-background)] p-7 lg:flex lg:flex-col">
+        <aside className="hidden rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-7 lg:flex lg:flex-col">
           {brand ? <div className="mb-9">{brand}</div> : null}
 
           <StepRail
@@ -210,13 +216,13 @@ export function WizardLayout<S extends string>({
           />
 
           {footerNote ? (
-            <div className="type-caption mt-auto pt-8 text-[var(--color-muted-foreground)]">
+            <div className="mt-auto pt-8 text-[14px] leading-[1.5] text-[var(--color-muted-foreground)]">
               {footerNote}
             </div>
           ) : null}
         </aside>
 
-        <main className="rounded-[var(--radius-card)] bg-[var(--color-background)] p-6 sm:p-10">
+        <main className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-6 sm:p-10">
           {/* The phone's version of the rail: a bar, a count, and the way back.
               A seven-row rail above a form on a 390px screen would push the
               first field below the fold. */}
@@ -226,19 +232,19 @@ export function WizardLayout<S extends string>({
                 <button
                   type="button"
                   onClick={onBack}
-                  className="type-body-medium inline-flex items-center gap-1.5 font-semibold"
+                  className="inline-flex items-center gap-2 text-[15px] font-semibold text-[var(--color-primary)]"
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  <ArrowLeft className="h-[18px] w-[18px]" />
                   {backLabel}
                 </button>
               ) : (
                 (brand ?? <span />)
               )}
-              <span className="type-caption rounded-full bg-[var(--color-muted)] px-3 py-1 font-semibold tabular-nums">
+              <span className="rounded-full bg-[var(--color-blue-soft)] px-3 py-1 text-[13.5px] font-semibold text-[var(--color-primary)] tabular-nums">
                 {statusLabels.stepPrefix} {step}/{total}
               </span>
             </div>
-            <div className="mt-4 h-1 rounded-full bg-[var(--color-border)]">
+            <div className="mt-4 h-1 rounded-full bg-[var(--color-line-2)]">
               <div
                 className="h-full rounded-full bg-[var(--color-primary)] transition-[width] duration-300"
                 style={{ width: `${(step / total) * 100}%` }}
@@ -268,11 +274,11 @@ export function HeroQuestion({
 }) {
   return (
     <header className="mb-8 text-center">
-      <h1 className="font-rounded text-[clamp(1.5rem,3vw,2.1rem)] leading-[1.15] font-extrabold tracking-[-0.02em] text-balance">
+      <h1 className="text-[30px] leading-[1.1] font-extrabold tracking-[-0.02em] text-balance text-[var(--color-headline)] md:text-[40px]">
         {title}
       </h1>
       {description ? (
-        <p className="type-body mx-auto mt-3 max-w-[46ch] text-[var(--color-muted-foreground)]">
+        <p className="mx-auto mt-[7px] max-w-[46ch] text-[16.5px] leading-[1.5] text-[var(--color-muted-foreground)]">
           {description}
         </p>
       ) : null}
@@ -345,18 +351,23 @@ export function Field({
   children: ReactNode;
 }) {
   return (
-    <div className="grid content-start gap-1.5">
-      <label htmlFor={htmlFor} className="type-body-medium font-semibold">
+    <div className="grid content-start gap-2">
+      <label
+        htmlFor={htmlFor}
+        className="text-[15px] leading-tight font-semibold text-[var(--color-headline)]"
+      >
         {label}
       </label>
       {hint ? (
-        <p className="type-caption text-[var(--color-muted-foreground)]">
+        <p className="-mt-0.5 text-[13.5px] leading-[1.45] text-[var(--color-muted-foreground)]">
           {hint}
         </p>
       ) : null}
       {children}
       {error ? (
-        <p className="type-caption text-[var(--color-destructive)]">{error}</p>
+        <p className="text-[13.5px] leading-[1.45] font-medium text-[var(--color-bad-fg)]">
+          {error}
+        </p>
       ) : null}
     </div>
   );

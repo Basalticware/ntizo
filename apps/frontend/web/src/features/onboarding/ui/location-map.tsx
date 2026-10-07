@@ -161,9 +161,9 @@ export function LocationMap({
         ref={containerRef}
         role="application"
         aria-label={t("location.mapLabel")}
-        className="h-64 w-full overflow-hidden rounded-[var(--radius-card-sm)] border border-[var(--color-border)]"
+        className="h-64 w-full overflow-hidden rounded-[14px] border border-[var(--color-border)]"
       />
-      <p className="type-caption mt-2 flex items-start gap-1.5 text-[var(--color-muted-foreground)]">
+      <p className="text-[13.5px] leading-[1.45] mt-2 flex items-start gap-1.5 text-[var(--color-muted-foreground)]">
         <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         {picked ? t("location.mapPicked") : t("location.mapHint")}
       </p>

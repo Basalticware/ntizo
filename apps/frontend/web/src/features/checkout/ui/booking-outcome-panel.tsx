@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import { CalendarCheck, CalendarX, Send, Smartphone } from "lucide-react";
+import { buttonVariants } from "@ntizo/frontend-ui";
 import { EmptyCard } from "@/shared/components/empty-card";
 import type { CheckoutBooking } from "@/features/checkout/viewmodel/use-checkout";
 import type { CheckoutOutcome } from "@/features/checkout/domain/booking-outcome";
@@ -26,14 +27,14 @@ export function BrowseMoreLink({ bookingId }: { bookingId: string }) {
       <Link
         to="/bookings/$bookingId"
         params={{ bookingId }}
-        className="rounded-full bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
+        className={buttonVariants()}
       >
         {t("viewBookingAction")}
       </Link>
       <Link
         to="/services"
         search={{}}
-        className="type-caption font-medium text-[var(--color-muted-foreground)] hover:underline"
+        className={buttonVariants({ variant: "outline" })}
       >
         {t("browseMoreAction")}
       </Link>
@@ -49,7 +50,7 @@ function PickAnotherTimeLink({ booking }: { booking: CheckoutBooking }) {
       to="/book/$serviceId"
       params={{ serviceId: booking.serviceId }}
       search={{ optionId: booking.serviceOptionId ?? undefined }}
-      className="rounded-full bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
+      className={buttonVariants()}
     >
       {t("unansweredAction")}
     </Link>
@@ -83,7 +84,9 @@ export function SentPanel({
   // The service's zone, exactly as the slot was rendered in. A deadline in
   // the browser's zone beside a slot in the provider's would put two clocks
   // on one page, and make whichever the customer checked look wrong.
-  const by = deadline ? momentWording(deadline, locale, booking.timezone) : null;
+  const by = deadline
+    ? momentWording(deadline, locale, booking.timezone)
+    : null;
 
   return (
     <EmptyCard
@@ -92,7 +95,11 @@ export function SentPanel({
       title={t("sentTitle")}
       body={
         by
-          ? t("sentBody", { provider: booking.providerName, date: by.date, time: by.time })
+          ? t("sentBody", {
+              provider: booking.providerName,
+              date: by.date,
+              time: by.time,
+            })
           : t("sentBodyNoDeadline", { provider: booking.providerName })
       }
       action={<BrowseMoreLink bookingId={booking.id} />}

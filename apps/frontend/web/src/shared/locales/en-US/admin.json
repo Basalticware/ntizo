@@ -91,6 +91,7 @@
   "usersError": "Couldn't load the user list.",
   "usersFilterTitle": "Filter users",
   "userDetailTitle": "User",
+  "userDetailData": "User details",
   "userDetailError": "Couldn't load this user.",
   "userDetailNotFound": "This user no longer exists.",
   "userDetailEmail": "Email",

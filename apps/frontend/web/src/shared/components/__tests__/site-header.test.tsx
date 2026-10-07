@@ -59,11 +59,11 @@ describe("SiteHeader", () => {
 
     const active = screen.getByRole("link", { name: /^providers$/i });
     expect(active.className).toContain("font-bold");
-    expect(active.className).toContain("text-[#004bf4]");
+    expect(active.className).toContain("text-[var(--color-primary)]");
     expect(active.className).toContain("after:bg-[var(--color-blue-public)]");
 
     const resting = screen.getByRole("link", { name: /^services$/i });
-    expect(resting.className).not.toContain("text-[#004bf4]");
+    expect(resting.className).not.toContain("text-[var(--color-primary)]");
     expect(resting.className).toContain("font-medium");
   });
 
@@ -91,7 +91,7 @@ describe("SiteHeader", () => {
     await renderHeader({ current: "none" });
 
     for (const name of [/explore/i, /^services$/i, /^providers$/i]) {
-      expect(screen.getByRole("link", { name }).className).not.toContain("text-[#004bf4]");
+      expect(screen.getByRole("link", { name }).className).not.toContain("text-[var(--color-primary)]");
     }
   });
 

@@ -71,13 +71,13 @@ export function RailPriceSummary({
 
   return (
     <>
-      <div className="rounded-xl border border-[#e9f0f8] p-6">
+      <div className="rounded-xl border border-[var(--color-border)] p-6">
         <p className="flex flex-wrap items-baseline gap-2">
           {/* `data-testid` kept: this is the one total this card prints, so it
               is the handle every assertion about it reaches for. */}
           <b
             data-testid="booking-total"
-            className="text-[37px] leading-none font-extrabold tracking-[-0.02em] text-[#00064f] tabular-nums"
+            className="text-[37px] leading-none font-extrabold tracking-[-0.02em] text-[var(--color-headline)] tabular-nums"
           >
             {formatAmount(option.amountMinor, option.currency, locale)}
           </b>
@@ -88,9 +88,9 @@ export function RailPriceSummary({
         {/* Which package that price belongs to. Printed for a single-option
             service too, where `ServiceOptions` renders nothing at all and
             this is the only place the package is named. */}
-        <p className="mt-2 text-lg leading-[1.2] text-[#5b6899]">{option.name}</p>
+        <p className="mt-2 text-lg leading-[1.2] text-[var(--color-muted-foreground)]">{option.name}</p>
 
-        <dl className="mt-5 grid grid-cols-2 items-center rounded-[10px] border border-[#e9f0f8] py-3">
+        <dl className="mt-5 grid grid-cols-2 items-center rounded-[10px] border border-[var(--color-border)] py-3">
           {minutes !== null && (
             <PairCell icon={Timer} label={t("packageDuration")}>
               {t(isHourly ? "serviceMinimumMinutes" : "serviceDurationMinutes", { count: minutes })}
@@ -124,14 +124,14 @@ export function RailPriceSummary({
           </Link>
           <MessageProviderButton
             providerId={providerId}
-            className="h-11 rounded-[10px] bg-[#e9f3fe] text-[15px] font-medium text-[#1f6ff0] hover:bg-[var(--color-blue-soft)] hover:opacity-100"
+            className="h-11 rounded-[10px] bg-[var(--color-blue-soft)] text-[15px] font-medium text-[var(--color-info-fg)] hover:bg-[var(--color-blue-soft)] hover:opacity-100"
           />
         </div>
 
         <ul className="mt-[22px] grid list-none gap-3 p-0">
           {trustItems.map((item) => (
-            <li key={item} className="flex gap-3.5 text-sm leading-[1.45] text-[#6c78ac]">
-              <Check className="mt-px h-[19px] w-[19px] shrink-0 text-[#1bbf55]" strokeWidth={2.4} aria-hidden="true" />
+            <li key={item} className="flex gap-3.5 text-sm leading-[1.45] text-[var(--color-faint)]">
+              <Check className="mt-px h-[19px] w-[19px] shrink-0 text-[var(--color-ok-fg)]" strokeWidth={2.4} aria-hidden="true" />
               <span>{item}</span>
             </li>
           ))}
@@ -140,13 +140,13 @@ export function RailPriceSummary({
 
       {/* How paying works on Ntizo, said once: the M-Pesa request arrives
           after the provider confirms. The same sentence for every service. */}
-      <div className="flex items-center gap-3.5 rounded-xl border border-[#e9f0f8] px-5 py-4">
-        <span aria-hidden="true" className="grid h-[46px] w-[43px] shrink-0 place-items-center rounded-lg bg-[#e8f8ee]">
-          <Smartphone className="h-6 w-6 text-[#13923a]" />
+      <div className="flex items-center gap-3.5 rounded-xl border border-[var(--color-border)] px-5 py-4">
+        <span aria-hidden="true" className="grid h-[46px] w-[43px] shrink-0 place-items-center rounded-lg bg-[var(--color-ok-bg)]">
+          <Smartphone className="h-6 w-6 text-[var(--color-ok-fg)]" />
         </span>
         <div className="min-w-0">
-          <b className="block text-[15px] font-bold text-[#0e1261]">{t("mpesaCardTitle")}</b>
-          <span className="mt-1 block text-[13px] leading-[1.45] text-[#6c78ac]">{t("mpesaCardBody")}</span>
+          <b className="block text-[15px] font-bold text-[var(--color-ink-2)]">{t("mpesaCardTitle")}</b>
+          <span className="mt-1 block text-[13px] leading-[1.45] text-[var(--color-faint)]">{t("mpesaCardBody")}</span>
         </div>
       </div>
     </>
@@ -165,13 +165,13 @@ function PairCell({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn("flex items-center gap-3 px-3.5", divided && "border-l border-[#e9f0f8]")}>
-      <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#ebf5fe] text-[var(--color-blue-public)]">
+    <div className={cn("flex items-center gap-3 px-3.5", divided && "border-l border-[var(--color-border)]")}>
+      <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[var(--color-blue-soft)] text-[var(--color-blue-public)]">
         <Icon className="h-5 w-5" />
       </span>
       <div>
-        <dt className="text-[13px] leading-[1.25] text-[#6b7bab]">{label}</dt>
-        <dd className="mt-[3px] text-[15px] leading-[1.25] font-bold text-[#01085f]">{children}</dd>
+        <dt className="text-[13px] leading-[1.25] text-[var(--color-faint)]">{label}</dt>
+        <dd className="mt-[3px] text-[15px] leading-[1.25] font-bold text-[var(--color-headline)]">{children}</dd>
       </div>
     </div>
   );
@@ -252,7 +252,7 @@ function RailSlotPicker({
 
   return (
     <>
-      <h3 className="mt-[26px] text-lg leading-[1.1] font-bold text-[#000351]">{t("railChooseDate")}</h3>
+      <h3 className="mt-[26px] text-lg leading-[1.1] font-bold text-[var(--color-headline)]">{t("railChooseDate")}</h3>
       <div className="mt-3 flex gap-2">
         {days.map((date) => {
           const free = startsOn(date).length > 0;
@@ -271,7 +271,7 @@ function RailSlotPicker({
               }}
               className={cn(
                 "grid h-[62px] flex-1 place-content-center rounded-[9px] text-center text-[13px] leading-[1.45] capitalize aria-disabled:cursor-not-allowed aria-disabled:opacity-45",
-                on ? "bg-[var(--color-blue-public)] text-white" : "bg-[#f0f7fe] text-[#7380ad]",
+                on ? "bg-[var(--color-blue-public)] text-white" : "bg-[var(--color-blue-softer)] text-[var(--color-faint)]",
               )}
             >
               {tileLines(date, locale).map((line) => (
@@ -287,13 +287,13 @@ function RailSlotPicker({
           params={{ serviceId }}
           search={{ optionId }}
           aria-label={t("railMoreDates")}
-          className="grid h-[62px] w-10 shrink-0 place-items-center rounded-[9px] bg-[#f0f7fe] text-[var(--color-blue-public)]"
+          className="grid h-[62px] w-10 shrink-0 place-items-center rounded-[9px] bg-[var(--color-blue-softer)] text-[var(--color-blue-public)]"
         >
           <CalendarDays className="h-[21px] w-[21px]" aria-hidden="true" />
         </Link>
       </div>
 
-      <h3 className="mt-[26px] text-lg leading-[1.1] font-bold text-[#000351]">{t("railChooseTime")}</h3>
+      <h3 className="mt-[26px] text-lg leading-[1.1] font-bold text-[var(--color-headline)]">{t("railChooseTime")}</h3>
       <div className="mt-3 grid grid-cols-4 gap-2.5">
         {starts.map((start) => {
           const on = picked?.startsAt === start.startsAt;
@@ -305,7 +305,7 @@ function RailSlotPicker({
               onClick={() => onPick(on ? null : start)}
               className={cn(
                 "h-10 rounded-lg text-sm tabular-nums",
-                on ? "bg-[var(--color-blue-public)] text-white" : "bg-[#f0f7fe] text-[#1a2468] hover:bg-[var(--color-blue-soft)]",
+                on ? "bg-[var(--color-blue-public)] text-white" : "bg-[var(--color-blue-softer)] text-[var(--color-ink-2)] hover:bg-[var(--color-blue-soft)]",
               )}
             >
               {time(start.startsAt)}

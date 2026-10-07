@@ -1,8 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "@tanstack/react-router";
-import { ChevronLeft } from "lucide-react";
-import { Badge, Button, Skeleton } from "@ntizo/frontend-ui";
+import {
+  CalendarDays,
+  ChevronLeft,
+  CircleCheck,
+  Store,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+import { Avatar, AvatarFallback, Badge, Button, Skeleton } from "@ntizo/frontend-ui";
+import { initialsFrom } from "@/shared/lib/initials";
 import { usePageHeader } from "@/shared/lib/page-header";
 import { ThreadView } from "@/features/messaging/ui/thread-view";
 import { MessageComposer } from "@/features/messaging/ui/message-composer";
@@ -17,6 +25,11 @@ import { messagingErrorCode } from "@/features/messaging/viewmodel/messaging-err
 
 /**
  * One support request, read and answered by the platform.
+ *
+ * Laid out as the Mensagens page's thread pane — the person's face and name
+ * over the conversation, the composer in its foot — with the request's
+ * subject and status as the page title above it, and a rail beside it with
+ * who the request is from, what it is about and the resolve button.
  *
  * The same `ThreadView` and `MessageComposer` the participants use — with
  * `checkContact={false}`, because the platform giving out a number to call
@@ -100,121 +113,164 @@ export function AdminSupportRequestPage() {
   }, [threadId, newestRequesterMessageId]);
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-6">
-      <Link to="/admin/support" className="type-body-medium inline-flex items-center gap-1 text-[var(--color-muted-foreground)] no-underline">
+    <div className="flex w-full max-w-[1400px] flex-col">
+      <Link
+        to="/admin/support"
+        className="inline-flex items-center gap-1.5 self-start text-[15px] text-[var(--color-primary)] no-underline hover:underline"
+      >
         <ChevronLeft aria-hidden="true" className="h-4 w-4" />
         {t("supportBackToQueue")}
       </Link>
 
-      <section className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-5">
-        {request ? (
-          <>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h1 className="type-h2 font-semibold">{request.subject}</h1>
-                <p className="type-caption mt-1 text-[var(--color-muted-foreground)]">
-                  {t(`supportAudience.${request.audience}`)}
+      {request ? (
+        <>
+          <header className="mt-[18px] flex flex-wrap items-center gap-x-[18px] gap-y-2.5">
+            <h1 className="m-0 min-w-0 font-display text-[28px] leading-tight font-extrabold tracking-[-0.01em] break-words text-[var(--color-headline)] md:text-[35.5px]">
+              {request.subject}
+            </h1>
+            <Badge
+              tone={request.status === "open" ? "info" : "neutral"}
+              className="h-[30px] px-[17px] text-[14.5px]"
+            >
+              {t(`supportStatus.${request.status}`)}
+            </Badge>
+          </header>
+
+          {/* The Mensagens page's thread pane beside a rail with the request's
+              facts and its one decision — the conversation is what an
+              administrator came here to read, so it takes the width. */}
+          <div className="mt-[22px] grid items-start gap-[17px] lg:grid-cols-[minmax(0,1fr)_360px]">
+            <section className="flex min-h-[28rem] min-w-0 flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] lg:h-[max(560px,calc(100dvh-300px))]">
+              <div className="flex h-[89px] shrink-0 items-center gap-3.5 px-4 sm:pr-[21px] sm:pl-[30px]">
+                <Avatar className="h-[62px] w-[62px] shrink-0">
+                  <AvatarFallback className="bg-[var(--color-info-bg)] text-base font-semibold text-[var(--color-primary)]">
+                    {initialsFrom(request.requesterName)}
+                  </AvatarFallback>
+                </Avatar>
+                <p className="m-0 min-w-0 truncate text-lg font-bold text-[var(--color-headline)]">
+                  {request.requesterName}
                 </p>
               </div>
-              <span className="flex items-center gap-2">
-                <Badge tone={request.status === "open" ? "info" : "neutral"}>
-                  {t(`supportStatus.${request.status}`)}
-                </Badge>
+
+              <div className="min-h-0 flex-1 overflow-y-auto border-t border-[var(--color-line-2)] px-4 pt-6 pb-7 sm:pr-[30px] sm:pl-6">
+                {messagesFailed ? (
+                  // Said out loud, because the alternative is worse than an
+                  // error: an empty `ThreadView` under a header that loaded
+                  // fine, with a composer and a resolve button beside it — an
+                  // administrator answering a request whose content they were
+                  // never shown.
+                  <p role="alert" className="type-body text-[var(--color-destructive)]">
+                    {t("supportConversationError")}
+                  </p>
+                ) : (
+                  <ThreadView
+                    messages={messages}
+                    platformLabel={t("supportPlatformSender")}
+                    loading={loading}
+                    hasMore={hasMore}
+                    onLoadMore={loadMore}
+                  />
+                )}
+              </div>
+
+              <div className="mx-[18px] shrink-0 border-t border-[var(--color-line-2)] pt-3.5 pb-4">
+                <MessageComposer
+                  onSend={(body, attachments) => reply(request.threadId, body, attachments)}
+                  sending={replying}
+                  errorCode={errorCode}
+                  checkContact={false}
+                />
+              </div>
+            </section>
+
+            <aside className="grid min-w-0 gap-[17px] lg:sticky lg:top-6">
+              <section className={CARD}>
+                <h2 className="m-0 text-lg font-bold text-[var(--color-headline)]">{t("supportRequest")}</h2>
+                <dl className="mt-5 mb-0 grid gap-4">
+                  <Fact icon={Users} label={t("supportAudienceLabel")}>
+                    {t(`supportAudience.${request.audience}`)}
+                  </Fact>
+                  {request.providerId && (
+                    <Fact icon={Store} label={t("supportProvider")}>
+                      <Link
+                        to="/admin/providers/$providerId"
+                        params={{ providerId: request.providerId }}
+                        className="text-[var(--color-primary)] hover:underline"
+                      >
+                        {request.providerName}
+                      </Link>
+                    </Fact>
+                  )}
+                  {request.bookingId && (
+                    // An id, not a link: there is no admin page for a booking
+                    // to point at. It is here so somebody can find the row.
+                    <Fact icon={CalendarDays} label={t("supportBooking")}>
+                      <span className="font-mono text-[13px] break-all">{request.bookingId}</span>
+                    </Fact>
+                  )}
+                </dl>
+
                 {request.status === "open" && (
-                  <Button size="sm" disabled={resolving} onClick={() => resolve(request.threadId)}>
+                  <Button
+                    className="mt-6 w-full"
+                    disabled={resolving}
+                    onClick={() => resolve(request.threadId)}
+                  >
+                    <CircleCheck aria-hidden="true" />
                     {t("supportResolve")}
                   </Button>
                 )}
-              </span>
+
+                {resolveFailed && (
+                  // Losing this race is the ordinary case, not the exotic one:
+                  // two administrators working the same queue, and the second
+                  // click answered `SUPPORT_ALREADY_RESOLVED`. Without a line
+                  // here the button simply stopped spinning and the badge went
+                  // on saying "open".
+                  <p role="alert" className="mt-4 mb-0 text-sm text-[var(--color-destructive)]">
+                    {resolveErrorCode === "SUPPORT_ALREADY_RESOLVED"
+                      ? t("supportAlreadyResolved")
+                      : t("supportResolveError")}
+                  </p>
+                )}
+
+                {request.status === "resolved" && (
+                  <p className="mt-5 mb-0 rounded-[14px] bg-[var(--color-blue-softer)] p-4 text-[14.5px] leading-[1.45] text-[var(--color-ink-2)]">
+                    {t("supportResolvedNotice")}
+                  </p>
+                )}
+              </section>
+            </aside>
+          </div>
+        </>
+      ) : (
+        <section className={`${CARD} mt-[18px]`}>
+          {isPending ? (
+            <div role="status" aria-label={tCommon("loading")} className="grid gap-3">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="mt-4 h-16 w-full" />
             </div>
-
-            <dl className="mt-5 grid gap-x-8 gap-y-3 border-t border-[var(--color-border)] pt-5 sm:grid-cols-2">
-              <div>
-                <dt className="type-caption text-[var(--color-muted-foreground)]">{t("supportWho")}</dt>
-                <dd className="type-body">{request.requesterName}</dd>
-              </div>
-              {request.providerId && (
-                <div>
-                  <dt className="type-caption text-[var(--color-muted-foreground)]">{t("supportProvider")}</dt>
-                  <dd className="type-body">
-                    <Link to="/admin/providers/$providerId" params={{ providerId: request.providerId }}>
-                      {request.providerName}
-                    </Link>
-                  </dd>
-                </div>
-              )}
-              {request.bookingId && (
-                <div>
-                  <dt className="type-caption text-[var(--color-muted-foreground)]">{t("supportBooking")}</dt>
-                  {/* An id, not a link: there is no admin page for a booking to
-                      point at. It is here so somebody can find the row. */}
-                  <dd className="type-body font-mono text-[13px]">{request.bookingId}</dd>
-                </div>
-              )}
-            </dl>
-
-            {resolveFailed && (
-              // Losing this race is the ordinary case, not the exotic one:
-              // two administrators working the same queue, and the second
-              // click answered `SUPPORT_ALREADY_RESOLVED`. Without a line
-              // here the button simply stopped spinning and the badge went
-              // on saying "open".
-              <p role="alert" className="type-caption mt-4 text-[var(--color-destructive)]">
-                {resolveErrorCode === "SUPPORT_ALREADY_RESOLVED"
-                  ? t("supportAlreadyResolved")
-                  : t("supportResolveError")}
-              </p>
-            )}
-
-            {request.status === "resolved" && (
-              <p className="type-caption mt-4 text-[var(--color-muted-foreground)]">{t("supportResolvedNotice")}</p>
-            )}
-          </>
-        ) : isPending ? (
-          <div role="status" aria-label={tCommon("loading")} className="grid gap-3">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="mt-4 h-16 w-full" />
-          </div>
-        ) : error && !requestNotFound ? (
-          <p className="type-body text-[var(--color-destructive)]">{t("supportLoadError")}</p>
-        ) : (
-          <p className="type-body text-[var(--color-destructive)]">{t("supportNotFound")}</p>
-        )}
-      </section>
-
-      {request && (
-        <section className="flex min-h-[24rem] flex-col rounded-[var(--radius-card)] border border-[var(--color-border)]">
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5">
-            {messagesFailed ? (
-              // Said out loud, because the alternative is worse than an
-              // error: an empty `ThreadView` under a header that loaded
-              // fine, with a composer and a resolve button beside it — an
-              // administrator answering a request whose content they were
-              // never shown.
-              <p role="alert" className="type-body text-[var(--color-destructive)]">
-                {t("supportConversationError")}
-              </p>
-            ) : (
-              <ThreadView
-                messages={messages}
-                platformLabel={t("supportPlatformSender")}
-                loading={loading}
-                hasMore={hasMore}
-                onLoadMore={loadMore}
-              />
-            )}
-          </div>
-          <div className="border-t border-[var(--color-border)] p-4 sm:p-5">
-            <MessageComposer
-              onSend={(body, attachments) => reply(request.threadId, body, attachments)}
-              sending={replying}
-              errorCode={errorCode}
-              checkContact={false}
-            />
-          </div>
+          ) : error && !requestNotFound ? (
+            <p className="type-body m-0 text-[var(--color-destructive)]">{t("supportLoadError")}</p>
+          ) : (
+            <p className="type-body m-0 text-[var(--color-destructive)]">{t("supportNotFound")}</p>
+          )}
         </section>
       )}
+    </div>
+  );
+}
+
+/** The request's cards, as the other admin detail pages draw theirs. */
+const CARD = "min-w-0 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] p-5 md:p-6";
+
+function Fact({ icon: Icon, label, children }: { icon: LucideIcon; label: string; children: ReactNode }) {
+  return (
+    <div className="grid grid-cols-[20px_minmax(0,1fr)] gap-x-4">
+      <Icon aria-hidden="true" className="row-span-2 mt-0.5 h-5 w-5 text-[var(--color-ink-2)]" />
+      <dt className="text-sm text-[var(--color-muted-foreground)]">{label}</dt>
+      <dd className="m-0 mt-0.5 min-w-0 text-[15px] text-[var(--color-ink-2)]">{children}</dd>
     </div>
   );
 }
