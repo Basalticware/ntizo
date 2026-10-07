@@ -1,7 +1,6 @@
-import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
-import { Check, ChevronDown, Users } from "lucide-react";
+import { Check, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage, cn } from "@ntizo/frontend-ui";
 import { initialsFrom } from "@/shared/lib/initials";
 import { memberDayFree } from "@/features/directory/availability/domain/day-strip";
@@ -30,26 +29,15 @@ import type { Start } from "@/features/directory/availability/domain/types";
  * rather than rendering a blank button — "Professional 1", "Professional 2",
  * a stable position in the sorted id list.
  *
- * **A vertical list, not a row of pills.** It was chosen over five other
- * shapes for one reason: it is the only one that survives a salon with twelve
- * staff without wrapping into three rows or scrolling sideways, and on a
- * phone each row is a target the width of the panel rather than the width of
- * a name. A row carries a face, a name, and how much of the day that person
- * still has free — which is the fact that decides the choice, and which a
- * pill had nowhere to put.
- *
- * **Folded by default (2026-09-02).** The list earned its rows and then
- * charged for them: six performers on a phone put the times — the decision
- * this page exists for — a full screen below the day strip, behind a
- * question most customers answer with the default. So the frame shows one
- * row, the current choice, with the list's own wording ("Qualquer pessoa
- * disponível, 17 livres · a próxima às 08:00"), and a button in the heading
- * that says what opening it is for: "Escolher profissional" while anyone is
- * chosen, "Alterar" once somebody is, "Fechar" while the list is open. A
- * choice folds the list back, because the row that then shows is the
- * answer. Focus follows: into the list onto the ticked row when it opens, and
- * back to the heading's button when it folds, so a keyboard is never left on
- * an element that has just unmounted.
+ * **A row of person cards, always open (2026-10-07).** It was a framed list
+ * folded on the current choice behind an "Escolher profissional" toggle, and
+ * opened into rows with an empty radio ring each — a form to fill in for a
+ * question most customers answer with the default. The user asked for it to
+ * be better; now every choice is on screen as a small card — a face, a first
+ * name, and how much of the day that person still has free — and the chosen
+ * one wears the primary border and a tick. On a phone the cards are one row
+ * that scrolls sideways (a salon with twelve staff costs no height); from
+ * `sm` they wrap into a grid of equal cards.
  *
  * **The sub-lines are a sum over `days[].starts[].memberIds`** — who is free
  * at each moment — and cost no extra query. A count of moments is not a seat
@@ -85,40 +73,25 @@ export function MemberPicker({
   timezone: string;
 }) {
   const { t } = useTranslation("directory");
-  const [open, setOpen] = useState(false);
-  const listId = useId();
-  const toggleRef = useRef<HTMLButtonElement>(null);
-  const frameRef = useRef<HTMLDivElement>(null);
-  // Only a fold that follows an unfold moves focus: on first render nothing
-  // has been touched, and stealing focus to this heading from wherever the
-  // page put it would be a jump nobody asked for.
-  const hasOpened = useRef(false);
-  useEffect(() => {
-    if (open) {
-      hasOpened.current = true;
-      frameRef.current?.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
-    } else if (hasOpened.current) {
-      toggleRef.current?.focus();
-    }
-  }, [open]);
 
   // One performer means the question has one answer, and asking it is
   // noise — the same rule the provider-side screen already applies to its
   // own person picker (`isIndividualProvider`).
   if (memberIds.length <= 1) return null;
 
-  const rows: { id: string | undefined; name: string; detail: string; face: React.ReactNode }[] = [
+  const rows: { id: string | undefined; name: string; detail: string; free: boolean; face: React.ReactNode }[] = [
     {
       id: undefined,
       name: t("availabilityMemberAnyone"),
       detail: freeLine(t, locale, timezone, starts, undefined),
+      free: memberDayFree(starts, undefined).count > 0,
       face: (
         // Stacked heads rather than a face or a monogram: this row is not
         // a person, and a `?` circle in the same place as eleven real
         // photographs reads as a performer whose picture failed to load.
-        <Avatar className="h-9 w-9">
+        <Avatar className="h-11 w-11">
           <AvatarFallback>
-            <Users className="h-4 w-4" aria-hidden="true" />
+            <Users className="h-5 w-5" aria-hidden="true" />
           </AvatarFallback>
         </Avatar>
       ),
@@ -135,8 +108,9 @@ export function MemberPicker({
         id,
         name,
         detail: freeLine(t, locale, timezone, starts, id),
+        free: memberDayFree(starts, id).count > 0,
         face: (
-          <Avatar className="h-9 w-9">
+          <Avatar className="h-11 w-11">
             {/* `AvatarImage` rather than a bare `<img>`: with both
                 children mounted a 404'd photo pushes the fallback out
                 of the clipped circle, so the monogram never appears —
@@ -148,88 +122,29 @@ export function MemberPicker({
       };
     }),
   ];
-  // An id the roster does not carry (a stale link) folds to the anyone row
-  // rather than to a blank one; the list, once opened, ticks nothing, which
-  // is the honest reading of a choice nothing here can name.
-  const chosen = rows.find((row) => row.id === selectedMemberId) ?? rows[0]!;
-  const toggleLabel = open
-    ? t("availabilityMemberClose")
-    : selectedMemberId === undefined
-      ? t("availabilityMemberChoose")
-      : t("availabilityMemberChange");
-
   return (
-    <div className="grid gap-1.5">
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-xs font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
-          {t("availabilityMemberLabel")}
-        </span>
-        <button
-          ref={toggleRef}
-          type="button"
-          aria-expanded={open}
-          aria-controls={listId}
-          onClick={() => setOpen((o) => !o)}
-          className="inline-flex items-center gap-1 rounded-full text-sm font-semibold text-[var(--color-primary)] hover:underline"
-        >
-          {toggleLabel}
-          <ChevronDown
-            aria-hidden="true"
-            className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
-          />
-        </button>
-      </div>
-      {/* One border around the whole list and hairlines between the rows,
-          rather than a border per row: twelve bordered cards stacked read as
-          twelve separate decisions, where one framed list reads as one. The
-          frame is the same element folded or open, so the toggle's
-          `aria-controls` always points at something that exists. */}
+    <div className="grid gap-2.5">
+      <span className="text-xs font-bold tracking-[0.14em] text-[var(--color-muted-foreground)] uppercase">
+        {t("availabilityMemberLabel")}
+      </span>
+      {/* An id the roster does not carry (a stale link) ticks nothing, which
+          is the honest reading of a choice nothing here can name. */}
       <div
-        id={listId}
-        ref={frameRef}
-        role={open ? "radiogroup" : undefined}
-        aria-label={open ? t("availabilityMemberLabel") : undefined}
-        className="divide-y divide-[var(--color-border)] overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)]"
+        role="radiogroup"
+        aria-label={t("availabilityMemberLabel")}
+        className="-mx-1 flex snap-x gap-2.5 overflow-x-auto px-1 pt-1 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-[repeat(auto-fill,minmax(128px,1fr))] sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden"
       >
-        {open ? (
-          rows.map((row) => (
-            <MemberRow
-              key={row.id ?? "anyone"}
-              selected={selectedMemberId === row.id}
-              onClick={() => {
-                onChange(row.id);
-                setOpen(false);
-              }}
-              name={row.name}
-              detail={row.detail}
-              face={row.face}
-            />
-          ))
-        ) : (
-          <button
-            type="button"
-            aria-expanded={false}
-            aria-controls={listId}
-            // The two visible lines, joined, exactly as the radio for this
-            // row would be named: what is chosen is the fact, and opening
-            // the list is what the chevron and the heading's button say.
-            aria-label={`${chosen.name}, ${chosen.detail}`}
-            onClick={() => setOpen(true)}
-            className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-[var(--color-muted)]"
-          >
-            {chosen.face}
-            <span aria-hidden="true" className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold">{chosen.name}</span>
-              <span className="type-caption block truncate text-[var(--color-muted-foreground)]">
-                {chosen.detail}
-              </span>
-            </span>
-            <ChevronDown
-              aria-hidden="true"
-              className="h-4 w-4 shrink-0 text-[var(--color-muted-foreground)]"
-            />
-          </button>
-        )}
+        {rows.map((row) => (
+          <MemberCard
+            key={row.id ?? "anyone"}
+            selected={selectedMemberId === row.id}
+            onClick={() => onChange(row.id)}
+            name={row.name}
+            detail={row.detail}
+            free={row.free}
+            face={row.face}
+          />
+        ))}
       </div>
     </div>
   );
@@ -289,17 +204,19 @@ function freeLine(
   });
 }
 
-function MemberRow({
+function MemberCard({
   selected,
   onClick,
   name,
   detail,
+  free,
   face,
 }: {
   selected: boolean;
   onClick: () => void;
   name: string;
   detail: string;
+  free: boolean;
   face: React.ReactNode;
 }) {
   return (
@@ -308,44 +225,46 @@ function MemberRow({
       role="radio"
       aria-checked={selected}
       // The two visible lines, joined. A button with an `aria-label` is
-      // announced by that label alone, so a row labelled with the name only
+      // announced by that label alone, so a card labelled with the name only
       // would hide the half of it that decides the choice — including "sem
-      // horários", which is the whole reason that row is still here.
+      // horários", which is the whole reason that card is still here.
       aria-label={`${name}, ${detail}`}
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors",
+        "relative flex w-[136px] shrink-0 snap-start flex-col items-center gap-2 rounded-xl border bg-[var(--color-card)] px-3 pt-4 pb-3.5 text-center transition-colors sm:w-auto",
         selected
-          ? "bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)]"
-          : "hover:bg-[var(--color-muted)]",
+          ? "border-[var(--color-primary)] bg-[var(--color-blue-softer)] shadow-[0_0_0_1px_var(--color-primary)]"
+          : "border-[var(--color-border)] hover:border-[var(--color-blue-line)] hover:bg-[var(--color-blue-softer)]",
       )}
     >
+      {/* The tick only on the chosen card: an empty ring on every other one
+          is what made the list read as a form. */}
+      {selected && (
+        <span
+          aria-hidden="true"
+          className="absolute top-2 right-2 grid h-5 w-5 place-items-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+        >
+          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+        </span>
+      )}
       {face}
-      <span aria-hidden="true" className="min-w-0 flex-1">
+      <span aria-hidden="true" className="grid w-full min-w-0 gap-0.5">
         <span
           className={cn(
-            "block truncate text-sm",
-            selected ? "font-semibold text-[var(--color-primary)]" : "font-medium",
+            "line-clamp-2 text-[14px] leading-tight font-semibold",
+            selected ? "text-[var(--color-primary)]" : "text-[var(--color-headline)]",
           )}
         >
           {name}
         </span>
-        <span className="type-caption block truncate text-[var(--color-muted-foreground)]">
+        <span
+          className={cn(
+            "line-clamp-2 text-[12px] leading-snug",
+            free ? "text-[var(--color-ok-fg)]" : "text-[var(--color-faint)]",
+          )}
+        >
           {detail}
         </span>
-      </span>
-      {/* The ring is drawn on every row so the tick has somewhere to appear
-          without the row reflowing when it does. */}
-      <span
-        aria-hidden="true"
-        className={cn(
-          "grid h-5 w-5 shrink-0 place-items-center rounded-full border",
-          selected
-            ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-            : "border-[var(--color-border)]",
-        )}
-      >
-        {selected && <Check className="h-3.5 w-3.5" />}
       </span>
     </button>
   );

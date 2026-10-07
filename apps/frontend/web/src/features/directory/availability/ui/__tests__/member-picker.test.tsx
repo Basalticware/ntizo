@@ -71,14 +71,7 @@ function renderPicker(over: Partial<React.ComponentProps<typeof MemberPicker>> =
   return { onChange, ...view };
 }
 
-/**
- * Unfold the list. It starts folded on the current choice — see the
- * component's doc comment — so every assertion about a row has to open it
- * first, exactly as a customer would.
- */
-async function openList() {
-  await userEvent.click(screen.getByRole("button", { name: /^(escolher profissional|alterar)$/i }));
-}
+
 
 describe("MemberPicker", () => {
   it("renders nothing at all with one or zero members", () => {
@@ -88,7 +81,6 @@ describe("MemberPicker", () => {
 
   it("falls back to a numbered position when no performers were given", async () => {
     renderPicker();
-    await openList();
     expect(screen.getByRole("radio", { name: /^Profissional 1,/ })).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: /^Profissional 2,/ })).toBeInTheDocument();
   });
@@ -100,14 +92,12 @@ describe("MemberPicker", () => {
         { id: "m2", firstName: "Flávio", avatarUrl: null },
       ],
     });
-    await openList();
     expect(screen.getByRole("radio", { name: /^Ana,/ })).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: /^Flávio,/ })).toBeInTheDocument();
   });
 
   it("falls back to a numbered position for an id the performer list doesn't cover", async () => {
     renderPicker({ performers: [{ id: "m1", firstName: "Ana", avatarUrl: null }] });
-    await openList();
     expect(screen.getByRole("radio", { name: /^Ana,/ })).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: /^Profissional 2,/ })).toBeInTheDocument();
   });
@@ -122,7 +112,6 @@ describe("MemberPicker", () => {
         { id: "m2", firstName: "Flávio", avatarUrl: null },
       ],
     });
-    await openList();
     expect(screen.getByRole("radio", { name: /^Profissional 1,/ })).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: /^Flávio,/ })).toBeInTheDocument();
   });
@@ -131,7 +120,6 @@ describe("MemberPicker", () => {
     // Three of the day's four starts carry `m1`, and the earliest of those is
     // 09:00 UTC — 11:00 in Maputo, which is the number that has to appear.
     renderPicker({ performers: [{ id: "m1", firstName: "Ana", avatarUrl: null }] });
-    await openList();
 
     expect(
       screen.getByRole("radio", { name: "Ana, 3 livres · a próxima às 11:00" }),
@@ -143,7 +131,6 @@ describe("MemberPicker", () => {
     // here would say three, and one that read the device's clock would say
     // 09:00.
     renderPicker();
-    await openList();
 
     expect(
       screen.getByRole("radio", {
@@ -160,7 +147,6 @@ describe("MemberPicker", () => {
       starts: [start(13, ["m1"]), start(7, ["m1"])],
       performers: [{ id: "m1", firstName: "Ana", avatarUrl: null }],
     });
-    await openList();
 
     expect(
       screen.getByRole("radio", { name: "Ana, 2 livres · a próxima às 09:00" }),
@@ -176,7 +162,6 @@ describe("MemberPicker", () => {
     const { onChange } = renderPicker({
       performers: [{ id: "m2", firstName: "Flávio", avatarUrl: null }],
     });
-    await openList();
 
     const row = screen.getByRole("radio", { name: "Flávio, sem horários" });
     expect(row).toBeEnabled();
@@ -187,7 +172,6 @@ describe("MemberPicker", () => {
 
   it("ticks the anyone row while nothing is chosen", async () => {
     renderPicker();
-    await openList();
     expect(screen.getByRole("radio", { checked: true })).toHaveAccessibleName(
       /^Qualquer pessoa disponível/,
     );
@@ -197,7 +181,6 @@ describe("MemberPicker", () => {
     // One `getByRole` rather than a pair of assertions: it fails if a second
     // row is ticked as well, which a per-row `toBeChecked` would not.
     renderPicker({ selectedMemberId: "m2" });
-    await openList();
     expect(screen.getByRole("radio", { checked: true })).toHaveAccessibleName(/^Profissional 2/);
   });
 
@@ -208,7 +191,6 @@ describe("MemberPicker", () => {
         { id: "m2", firstName: "Flávio", avatarUrl: null },
       ],
     });
-    await openList();
 
     // The photograph is decorative — the row's own label already names the
     // person — so it is found by its source rather than by an alt text it
@@ -224,79 +206,29 @@ describe("MemberPicker", () => {
     // `undefined` is what `availability.forService` itself reads as "anyone";
     // sending a sentinel string would be a member id the roster has not got.
     const { onChange } = renderPicker({ selectedMemberId: "m1" });
-    await openList();
 
     await userEvent.click(screen.getByRole("radio", { name: /^Qualquer pessoa disponível/ }));
     expect(onChange).toHaveBeenCalledWith(undefined);
   });
 
-  it("starts folded on the current choice, with no radios on screen", () => {
-    // The row that shows is the anyone row, worded exactly as its radio would
-    // be, and the heading's button says what opening the list is for.
-    renderPicker();
-
-    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("button", {
-        name: "Qualquer pessoa disponível, 4 livres · a próxima às 11:00",
-        expanded: false,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Escolher profissional", expanded: false }),
-    ).toBeInTheDocument();
-  });
-
-  it("names the chosen performer on the folded row, and offers to change rather than to choose", () => {
+  // Every choice is on screen from the start — no toggle to open, no list to
+  // fold (2026-10-07). See the component's doc comment.
+  it("shows every choice at once, with nothing to open first", () => {
     renderPicker({
-      selectedMemberId: "m2",
-      performers: [{ id: "m2", firstName: "Flávio", avatarUrl: null }],
+      performers: [
+        { id: "m1", firstName: "Ana", avatarUrl: null },
+        { id: "m2", firstName: "Flávio", avatarUrl: null },
+      ],
     });
-
-    expect(screen.getByRole("button", { name: "Flávio, sem horários" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Alterar" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Escolher profissional" })).not.toBeInTheDocument();
-  });
-
-  it("opens from the folded row as well as from the heading", async () => {
-    renderPicker();
-
-    await userEvent.click(screen.getByRole("button", { name: /^Qualquer pessoa disponível,/ }));
     expect(screen.getByRole("radiogroup", { name: "Com quem?" })).toBeInTheDocument();
     expect(screen.getAllByRole("radio")).toHaveLength(3);
-    // And the heading's button now closes instead of opening.
-    expect(screen.getByRole("button", { name: "Fechar", expanded: true })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /escolher profissional|alterar|fechar/i })).toBeNull();
   });
 
-  it("folds back the moment a choice is made", async () => {
+  it("keeps every card on screen after a choice", async () => {
     const { onChange } = renderPicker();
-    await openList();
-
     await userEvent.click(screen.getByRole("radio", { name: /^Profissional 1,/ }));
-
     expect(onChange).toHaveBeenCalledWith("m1");
-    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
-  });
-
-  it("closes without choosing when asked to", async () => {
-    const { onChange } = renderPicker();
-    await openList();
-
-    await userEvent.click(screen.getByRole("button", { name: "Fechar" }));
-
-    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
-    expect(onChange).not.toHaveBeenCalled();
-  });
-
-  it("puts focus on the ticked row when it opens, and back on the heading's button when it folds", async () => {
-    // A keyboard that opened the list would otherwise be left on nothing:
-    // the button it pressed is still there, but the rows it wants are below
-    // it, and after a choice the row it pressed has just unmounted.
-    renderPicker();
-    await openList();
-    expect(screen.getByRole("radio", { checked: true })).toHaveFocus();
-
-    await userEvent.click(screen.getByRole("radio", { name: /^Profissional 2,/ }));
-    expect(screen.getByRole("button", { name: "Escolher profissional" })).toHaveFocus();
+    expect(screen.getAllByRole("radio")).toHaveLength(3);
   });
 });
