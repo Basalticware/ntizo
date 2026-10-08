@@ -52,18 +52,6 @@ const KIND_TONE: Record<ServiceKind, "success" | "warning" | "violet" | "danger"
   archived: "danger",
 };
 
-/** The category chip's three grounds, picked by the category so one category always wears the same one. */
-const CHIP_TONES = [
-  "bg-[var(--color-blue-softer)] text-[var(--color-violet-fg)] dark:bg-[var(--color-violet-bg)]",
-  "bg-[var(--color-blue-soft)] text-[var(--color-blue-edge)] dark:bg-[var(--color-info-bg)]",
-  "bg-[var(--color-ok-bg)] text-[var(--color-ok-fg)] dark:bg-[var(--color-ok-bg)]",
-] as const;
-function chipTone(code: string): string {
-  let h = 0;
-  for (const ch of code) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return CHIP_TONES[h % CHIP_TONES.length]!;
-}
-
 /**
  * A provider's own catalogue: what they sell, at what price, when, and
  * whether customers can see it yet.
@@ -210,7 +198,6 @@ export function ServicesPage() {
             cells: {
               category: (
                 <CategoryChip
-                  code={service.categoryCode}
                   name={category?.name ?? service.categoryCode}
                   icon={category?.icon ?? null}
                 />
@@ -330,17 +317,20 @@ function ServiceCell({
 }
 
 /** The category, on its own tinted ground, with the icon the admin gave it. */
-function CategoryChip({ code, name, icon }: { code: string; name: string; icon: string | null }) {
+/**
+ * The category as a small pill, the size of the status badge beside it.
+ *
+ * It was a 50px-tall, 125px-wide tile in one of three colours hashed from
+ * the code, which read as a button and drew the eye before the service's own
+ * name did (the user, 2026-10-08). One soft blue for every category now: a
+ * category is a fact about the row, not a state to tell apart at a glance.
+ */
+function CategoryChip({ name, icon }: { name: string; icon: string | null }) {
   const Icon = (icon && icons[icon as keyof typeof icons]) || Sparkles;
   return (
-    <span
-      className={cn(
-        "ml-[3px] inline-flex min-h-[50px] w-[125px] items-center gap-3 rounded-[9px] py-1 pr-2 pl-2.5 text-[13px] leading-[19px] font-semibold",
-        chipTone(code),
-      )}
-    >
-      <Icon aria-hidden="true" className="h-[22px] w-[22px] shrink-0" strokeWidth={2.2} />
-      <span className="min-w-0">{name}</span>
+    <span className="inline-flex h-7 max-w-full items-center gap-1.5 rounded-full bg-[var(--color-blue-softer)] px-2.5 text-[12.5px] font-medium whitespace-nowrap text-[var(--color-primary)] dark:bg-[var(--color-info-bg)]">
+      <Icon aria-hidden="true" className="h-3.5 w-3.5 shrink-0" strokeWidth={2.2} />
+      <span className="min-w-0 truncate">{name}</span>
     </span>
   );
 }
