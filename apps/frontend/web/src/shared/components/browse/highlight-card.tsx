@@ -52,7 +52,10 @@ export function HighlightCard({
   return (
     <article
       aria-labelledby={labelledBy}
-      className="grid overflow-hidden rounded-[14px] border border-[var(--color-line-2)] bg-[var(--color-card)] p-2.5 shadow-[0_2px_10px_rgba(30,60,120,.05)] md:grid-cols-[minmax(240px,42%)_1fr]"
+      // `grid-cols-[minmax(0,1fr)]` on a phone, not the implicit `auto`
+      // track: an auto track sizes to the photograph's natural width, and
+      // the card ran past the right edge of the screen.
+      className="relative grid grid-cols-[minmax(0,1fr)] overflow-hidden rounded-[14px] border border-[var(--color-line-2)] bg-[var(--color-card)] p-2.5 shadow-[0_2px_10px_rgba(30,60,120,.05)] md:grid-cols-[minmax(240px,42%)_minmax(0,1fr)]"
     >
       <div className="relative aspect-[16/10] overflow-hidden rounded-[10px] bg-[var(--color-muted)] md:aspect-auto md:min-h-[250px]">
         <BrandImage src={photo} alt="" className="absolute inset-0 h-full w-full object-cover" />
@@ -62,27 +65,34 @@ export function HighlightCard({
         </span>
       </div>
 
-      <div className="relative flex min-w-0 flex-col px-3 pt-4 pb-2 md:px-6 md:pt-4">
-        {/* The heart's own positioning is `absolute top-2.5 right-2.5`. */}
-        {favourite}
-        <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 pr-10">
-          <div className="min-w-0">
-            {verified && <VerifiedPill floating={false} />}
-            <div className={verified ? "mt-2.5" : ""}>{title}</div>
-            <div className="mt-2 grid gap-1.5 text-[14.5px] text-[var(--color-muted-foreground)]">{lines}</div>
-            <div className="mt-2">{rating}</div>
-          </div>
-          <div className="ml-auto text-right">{price}</div>
+      {/* The heart sits on the card's corner: over the photograph on a
+          phone, where the photo is the top of the card, and at the top
+          right of the text from `md`. Its own class is `absolute top-2.5
+          right-2.5`, so this box only moves the corner it measures from. */}
+      {favourite && <div className="absolute top-3 right-3 md:top-0 md:right-0">{favourite}</div>}
+
+      {/* Phone: the facts, then the price and the button on one row at the
+          foot. From `md`: the price at the top right, beside the name, as
+          the mockup draws it. One element each, placed by grid areas. */}
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 px-2 pt-4 pb-1.5 [grid-template-areas:'head_head'_'desc_desc'_'facts_facts'_'price_action'] md:grid-rows-[auto_auto_1fr] md:items-start md:px-6 md:pt-4 md:pb-2 md:[grid-template-areas:'head_price'_'desc_desc'_'facts_action']">
+        <div className="min-w-0 [grid-area:head] md:pr-8">
+          {verified && <VerifiedPill floating={false} />}
+          <div className={verified ? "mt-2.5" : ""}>{title}</div>
+          <div className="mt-2 grid gap-1.5 text-[14.5px] text-[var(--color-muted-foreground)]">{lines}</div>
+          <div className="mt-2">{rating}</div>
         </div>
+        <div className="mt-4 [grid-area:price] md:mt-0 md:pr-10 md:text-right">{price}</div>
         {description && (
-          <p className="mt-3 line-clamp-2 text-[14.5px] leading-[1.5] text-[var(--color-ink-2)]">
+          <p className="mt-3 line-clamp-2 text-[14.5px] leading-[1.5] text-[var(--color-ink-2)] [grid-area:desc]">
             {description}
           </p>
         )}
-        <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-4">
-          <div className="grid gap-1.5 text-[13px] text-[var(--color-ink-2)]">{facts}</div>
-          {action}
-        </div>
+        {facts && (
+          <div className="mt-3 grid gap-1.5 self-end text-[13px] text-[var(--color-ink-2)] [grid-area:facts] md:mt-4">
+            {facts}
+          </div>
+        )}
+        <div className="mt-4 justify-self-end [grid-area:action] md:self-end">{action}</div>
       </div>
     </article>
   );
@@ -90,7 +100,7 @@ export function HighlightCard({
 
 /** The highlight card's call to action: the site's blue, an arrow after. */
 export const HIGHLIGHT_ACTION_CLASS =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-[12px] bg-[var(--color-blue-public)] px-6 text-[15px] font-semibold text-[var(--color-primary-foreground)] transition-opacity hover:opacity-90";
+  "inline-flex h-11 items-center justify-center gap-2 rounded-[12px] bg-[var(--color-blue-public)] px-5 text-[15px] font-semibold whitespace-nowrap md:h-12 md:px-6 text-[var(--color-primary-foreground)] transition-opacity hover:opacity-90";
 
 /** One fact at the card's foot: a glyph and a few words. */
 export function HighlightFact({ icon, children }: { icon: ReactNode; children: ReactNode }) {
