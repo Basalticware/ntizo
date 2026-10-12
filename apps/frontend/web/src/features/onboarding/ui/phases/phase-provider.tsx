@@ -3,10 +3,11 @@ import { Building2, User } from "lucide-react";
 import {
   Button,
   CitySelect,
-  CountrySelect,
   Input,
   cn,
+  countryName,
 } from "@ntizo/frontend-ui";
+import { LAUNCH_COUNTRY } from "@/features/onboarding/domain/draft";
 import type { ProviderType } from "@ntizo/shared";
 import { useCities } from "@/features/account/viewmodel/use-cities";
 import type { ProviderDraft } from "@/features/onboarding/domain/draft";
@@ -48,7 +49,6 @@ export function PhaseProvider({
   busy,
 }: PhaseProviderProps) {
   const { t, i18n } = useTranslation("onboarding");
-  const { t: tc } = useTranslation("auth");
   const { t: ta } = useTranslation("account");
   const err = (key: FieldKey) => (errors[key] ? t(errors[key]!) : undefined);
   const locale = i18n.resolvedLanguage ?? i18n.language;
@@ -195,7 +195,6 @@ export function PhaseProvider({
               // Only what the lookup actually returned. Writing `undefined`
               // over a field the provider typed by hand would punish them for
               // moving the pin.
-              ...(place.country ? { country: place.country } : {}),
               ...(place.city ? { city: place.city } : {}),
               ...(place.district ? { district: place.district } : {}),
               ...(place.street ? { street: place.street } : {}),
@@ -209,14 +208,15 @@ export function PhaseProvider({
           error={err("country")}
           htmlFor="country"
         >
-          <CountrySelect
+          {/* Shown, not chosen. Ntizo only operates in Mozambique for now,
+              and a list of 245 countries invited answers the platform cannot
+              serve — a tester asked why it was there at all. */}
+          <Input
             id="country"
-            value={draft.country}
-            onChange={(code) => onChange({ country: code, city: "" })}
-            locale={locale}
-            ariaLabel={ta("addrCountry")}
-            searchPlaceholder={tc("countrySearchPlaceholder")}
-            noResultsText={tc("countryNoResults")}
+            value={countryName(LAUNCH_COUNTRY, locale)}
+            readOnly
+            aria-readonly
+            className="bg-[var(--color-muted)] text-[var(--color-ink-2)]"
           />
         </Field>
 

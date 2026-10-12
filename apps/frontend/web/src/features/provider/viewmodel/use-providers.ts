@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { providerQueries } from "../data/provider.repository";
 import type { ProviderSummary } from "../domain/types";
+import { queryClient } from "@/lib/query-client";
 
 /**
  * `enabled` defaults to `true` — every existing caller wants this query to
@@ -57,10 +58,16 @@ export const ACTIVE_PROVIDER_KEY = "ntizo.activeProviderId";
  */
 export async function preferredProviderSlug(): Promise<string | null> {
   try {
-    const queryFn = providerQueries.mine().queryFn as () => Promise<
-      ProviderSummary[]
-    >;
-    const providers = await queryFn();
+    // Through the cache, not around it. This list is exactly what the console
+    // shell asks for a moment later; calling the bare queryFn threw the answer
+    // away and made the panel wait on the same request twice. `staleTime: 0`
+    // keeps the guard deciding on a fresh list, as it did before. Browser
+    // only: on the server the client is one module shared by every request,
+    // and one account's workspaces must never sit in it for the next.
+    const providers =
+      typeof window === "undefined"
+        ? await (providerQueries.mine().queryFn as () => Promise<ProviderSummary[]>)()
+        : await queryClient.fetchQuery({ ...providerQueries.mine(), staleTime: 0 });
     if (providers.length === 0) return null;
     const stored =
       typeof window === "undefined"

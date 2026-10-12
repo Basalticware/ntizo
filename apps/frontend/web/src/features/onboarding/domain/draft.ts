@@ -32,16 +32,30 @@ export interface ProviderDraft {
   /** What the provider will be paid through. Empty until phase 2. */
   payoutType: string;
   payoutIdentifier: string;
+  /**
+   * The workspace this draft already created, or empty before it has.
+   *
+   * In the draft rather than in component state because it has to survive what
+   * the draft survives: once creation has run, going back to fix the name and
+   * pressing Continue again — or reloading on Fotografias and doing the same —
+   * must save onto this workspace, not create a second one.
+   */
+  providerId: string;
 }
+
+/**
+ * The only country a workspace can be in for now.
+ *
+ * Fixed rather than asked: Ntizo operates in Mozambique alone, and the wizard
+ * stopped offering a list of every country once a tester asked why it did.
+ */
+export const LAUNCH_COUNTRY = "MZ";
 
 export const EMPTY_DRAFT: ProviderDraft = {
   type: "",
   name: "",
   description: "",
-  // Mozambique is the launch market, so it is the answer for almost everyone.
-  // Prefilled rather than left blank — a required field whose answer we can
-  // guess correctly is a field we should not be asking cold.
-  country: "MZ",
+  country: LAUNCH_COUNTRY,
   city: "",
   district: "",
   street: "",
@@ -51,6 +65,7 @@ export const EMPTY_DRAFT: ProviderDraft = {
   directions: "",
   payoutType: "",
   payoutIdentifier: "",
+  providerId: "",
 };
 
 const STORAGE_KEY = "ntizo.onboarding.draft";
@@ -75,6 +90,8 @@ export function coerceDraft(raw: unknown): ProviderDraft {
   // A type outside the two we know is not a type. Restoring one would put the
   // wizard on a branch that does not exist.
   if (out.type !== "individual" && out.type !== "organization") out.type = "";
+  // A draft saved while the picker still offered other countries.
+  out.country = LAUNCH_COUNTRY;
   return out;
 }
 
