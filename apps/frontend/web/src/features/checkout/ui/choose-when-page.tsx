@@ -834,7 +834,17 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
           <div className="mt-9">{body}</div>
         </div>
 
-        <aside className="lg:sticky lg:top-[84px] lg:self-start">
+        {/* Not sticky, and the button inside, under the rail. Sticky, the
+            rail slid down over Continuar on a laptop as the page scrolled
+            (2026-10-12): a sticky item travels the whole grid, not its own
+            cell, and the button was the next cell down. Moving the button in
+            alone was not enough either — rail plus button is taller than a
+            720px window, so pinned to the top the button could never be
+            scrolled into view. Here the calendar is as tall as the rail, so
+            pinning bought nothing. `row-span-2` keeps the right column to
+            the rail; `order` keeps the phone reading form, intro, then rail
+            and button. */}
+        <aside className="grid content-start gap-5 max-lg:order-2 lg:row-span-2">
           <CheckoutRail
             imageUrl={service.imageUrls[0] ?? null}
             serviceName={service.name}
@@ -854,47 +864,46 @@ function ChooseWhen({ service }: { service: ServiceDetailDTO }) {
             providerLogoUrl={service.providerLogoUrl}
             showTrust={false}
           />
+          <div className="grid content-start gap-3">
+            {failed && (
+              <p id="checkout-create-error" role="alert" className="text-sm text-[var(--color-destructive)]">
+                {errorCode
+                  ? t(`createError.${errorCode}`, { defaultValue: t("createErrorGeneric") })
+                  : t("createErrorGeneric")}
+              </p>
+            )}
+            {isHourly && (
+              <p id="checkout-hourly-notice" className="text-[13px] text-[var(--color-muted-foreground)]">
+                {t("hourlyNotBookable")}
+              </p>
+            )}
+            {/* Disabled until a real slot is chosen — and named by whichever
+                sentence says why when the refusal is permanent, so a keyboard
+                user who lands on a dead button is told the reason. */}
+            <Button
+              type="button"
+              className={CHECKOUT_BIG_BUTTON}
+              disabled={!canConfirm}
+              {...(isHourly
+                ? { "aria-describedby": "checkout-hourly-notice" }
+                : refusedPermanently
+                  ? { "aria-describedby": "checkout-create-error" }
+                  : {})}
+              onClick={confirm}
+            >
+              {t("continueAction")}
+              <ArrowRight className="h-8 w-8" strokeWidth={2.2} aria-hidden="true" />
+            </Button>
+          </div>
         </aside>
 
         {/* What pressing Continuar does, said before it is pressed: the time
             is held while the rest is filled in, and the provider confirms it
             after the request is sent. */}
-        <p className="flex items-center gap-3.5 rounded-xl bg-[var(--color-blue-soft)] px-5 py-3.5 text-[14.5px] leading-[1.45] text-[var(--color-muted-foreground)]">
+        <p className="flex items-center self-start max-lg:order-1 gap-3.5 rounded-xl bg-[var(--color-blue-soft)] px-5 py-3.5 text-[14.5px] leading-[1.45] text-[var(--color-muted-foreground)]">
           <Info className="h-[27px] w-[27px] shrink-0 text-[var(--color-primary)]" strokeWidth={1.8} aria-hidden="true" />
           {t("chooseWhenIntro")}
         </p>
-
-        <div className="grid content-start gap-3">
-          {failed && (
-            <p id="checkout-create-error" role="alert" className="text-sm text-[var(--color-destructive)]">
-              {errorCode
-                ? t(`createError.${errorCode}`, { defaultValue: t("createErrorGeneric") })
-                : t("createErrorGeneric")}
-            </p>
-          )}
-          {isHourly && (
-            <p id="checkout-hourly-notice" className="text-[13px] text-[var(--color-muted-foreground)]">
-              {t("hourlyNotBookable")}
-            </p>
-          )}
-          {/* Disabled until a real slot is chosen — and named by whichever
-              sentence says why when the refusal is permanent, so a keyboard
-              user who lands on a dead button is told the reason. */}
-          <Button
-            type="button"
-            className={CHECKOUT_BIG_BUTTON}
-            disabled={!canConfirm}
-            {...(isHourly
-              ? { "aria-describedby": "checkout-hourly-notice" }
-              : refusedPermanently
-                ? { "aria-describedby": "checkout-create-error" }
-                : {})}
-            onClick={confirm}
-          >
-            {t("continueAction")}
-            <ArrowRight className="h-8 w-8" strokeWidth={2.2} aria-hidden="true" />
-          </Button>
-        </div>
       </main>
     </div>
   );
