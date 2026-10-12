@@ -2,7 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { ArrowLeft, LogOut, User as UserIcon } from "lucide-react";
+import { House, LogOut, User as UserIcon } from "lucide-react";
 import { Button, Sheet, SheetContent, cn, useIsMobile } from "@ntizo/frontend-ui";
 import { useSignOut } from "@/features/user/viewmodel/use-sign-out";
 import { CONSOLE_BADGE } from "./console-badge";
@@ -123,7 +123,7 @@ export function ConsoleMenuSheet({
               {t("nav.myAccount")}
             </Button>
             <Button type="button" variant="outline" className="flex-1" onClick={() => navigate({ to: "/" })}>
-              <ArrowLeft className="h-4 w-4" />
+              <House className="h-4 w-4" />
               {t("backToApp")}
             </Button>
           </div>

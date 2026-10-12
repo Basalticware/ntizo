@@ -54,6 +54,7 @@ import {
   service,
   serviceMember,
   serviceOption,
+  serviceOptionTranslation,
   serviceTranslation,
 } from "../src/modules/ntizo/shared/infrastructure/database/catalog/schemas";
 import { memberAvailability } from "../src/modules/ntizo/shared/infrastructure/database/scheduling/schemas";
@@ -1018,7 +1019,7 @@ async function run(): Promise<void> {
       // A quote service has no options at all — nothing is priced until the
       // provider has seen the job.
       if (s.amountMinor !== null) {
-        await db.insert(serviceOption).values({
+        const [option] = await db.insert(serviceOption).values({
           serviceId,
           pricingMode: "fixed",
           amountMinor: s.amountMinor,
@@ -1027,6 +1028,13 @@ async function run(): Promise<void> {
           isDefault: true,
           isActive: true,
           sortOrder: 0,
+        }).returning({ id: serviceOption.id });
+        // Named after the service. An option without a name in the source
+        // locale cannot be booked — checkout refuses it with
+        // SERVICE_OPTION_UNNAMED — and every demo service on dev and QA was
+        // unbookable for exactly that until a tester hit it (2026-10-12).
+        await db.insert(serviceOptionTranslation).values({
+          optionId: option!.id, locale: "pt-MZ", name: s.name,
         });
       }
     }

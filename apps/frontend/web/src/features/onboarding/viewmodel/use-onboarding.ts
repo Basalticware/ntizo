@@ -45,6 +45,7 @@ export function useOnboarding() {
   const [step, setStep] = useState<WizardStep>(FIRST_STEP);
   const [uploads, setUploads] = useState<DocumentUpload[]>([]);
   const [draft, setDraft] = useState<ProviderDraft>(EMPTY_DRAFT);
+  const saveCreated = useUpdateProvider(draft.providerId);
   const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
@@ -104,22 +105,38 @@ export function useOnboarding() {
     }
 
     creating.current = true;
+    const address = {
+      country: draft.country,
+      city: draft.city.trim(),
+      ...(draft.district.trim() ? { district: draft.district.trim() } : {}),
+      ...(draft.street.trim() ? { street: draft.street.trim() } : {}),
+      ...(draft.postalCode.trim() ? { postalCode: draft.postalCode.trim() } : {}),
+    };
     try {
+      // Already created: the person came back to correct something. Creating
+      // again here is how a tester ended up with a second workspace and the
+      // first one still under the old name.
+      if (draft.providerId) {
+        await saveCreated.mutateAsync({
+          name: draft.name.trim(),
+          description: draft.description.trim(),
+          address,
+        });
+        setStep("media");
+        return;
+      }
       const { providerId } = await create.mutateAsync({
         type: (draft.type || ProviderType.Individual) as ProviderType,
         name: draft.name.trim(),
         slug: slugFrom(draft.name),
         ...(draft.description.trim() ? { description: draft.description.trim() } : {}),
-        address: {
-          country: draft.country,
-          city: draft.city.trim(),
-          ...(draft.district.trim() ? { district: draft.district.trim() } : {}),
-          ...(draft.street.trim() ? { street: draft.street.trim() } : {}),
-          ...(draft.postalCode.trim() ? { postalCode: draft.postalCode.trim() } : {}),
-        },
+        address,
       });
       await refresh();
-      if (providerId) setActive(providerId);
+      if (providerId) {
+        setActive(providerId);
+        setDraft((current) => ({ ...current, providerId }));
+      }
       setStep("media");
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "error.createFailed");
@@ -129,7 +146,7 @@ export function useOnboarding() {
       // wizard the person can never finish.
       creating.current = false;
     }
-  }, [draft, create, refresh, setActive]);
+  }, [draft, create, saveCreated, refresh, setActive]);
 
   const documentUpload = useDocumentUpload(activeProvider?.id);
   const updateProvider = useUpdateProvider(activeProvider?.id ?? "");

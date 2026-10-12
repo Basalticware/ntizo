@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { ArrowLeft, ChevronDown, LogOut, Monitor, Moon, Palette, Sun, User as UserIcon } from "lucide-react";
+import { House, ChevronDown, LogOut, Monitor, Moon, Palette, Sun, User as UserIcon } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
@@ -107,7 +107,7 @@ export function ConsoleUserMenu({
                 {t("nav.myAccount")}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => nav({ to: "/" })}>
-                <ArrowLeft className="h-4 w-4" />
+                <House className="h-4 w-4" />
                 {t("backToApp")}
               </DropdownMenuItem>
 

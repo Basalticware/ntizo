@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { applyThemePreference, readThemePreference } from "@/shared/lib/theme";
 import { MobileNav } from "@/shared/components/mobile-nav";
+import { NavigationProgress } from "@/shared/components/navigation-progress";
 import { HelpCenterProvider } from "@/features/help-center/viewmodel/use-help-center";
 import { HelpCenter } from "@/features/help-center/ui/help-center";
 import {
@@ -76,6 +77,7 @@ function RootComponent() {
               shells size themselves to the full viewport, and 56px of
               padding under that is what made the document taller than the
               screen. */}
+          <NavigationProgress />
           <div className={ownChrome ? undefined : "pb-14 md:pb-0"}>
             <Outlet />
           </div>
